@@ -1,0 +1,29 @@
+{
+    "name": "wcslight",
+    "sideEffects": false,
+    "version": "0.1.0",
+    "main": "index.js",
+    "private": true,
+    "scripts": {
+        "build": "webpack --config webpack.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fab77/wcslight"
+    },
+    "module": "src/wcslight.js",
+    "keywords": [],
+    "author": "Fabrizio Giordano (fab77)",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/fab77/wcslight/issues"
+    },
+    "homepage": "https://github.com/fab77/wcslight#readme",
+    "devDependencies": {
+        
+    },
+    "dependencies": {
+        
+    },
+    "description": "WCS library used in FITSOnTheWeb and FabViewer."
+}
