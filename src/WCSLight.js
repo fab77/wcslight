@@ -17,8 +17,8 @@ class WCSLight {
 
     _inprojection;
     _outprojection;
-    _pxmap;
-    _tilesMap; // used only when HEALPix is the input projection. Map of (RA, Dec, outp_i, outp_j) points organised per tile.
+    // used only when HEALPix is the input projection. Map of (RA, Dec, outp_i, outp_j) points organised per tile.
+    _tilesMap; 
 
     /**
      * 
@@ -46,8 +46,11 @@ class WCSLight {
 
     }
 
-    processData() {
+    processData(inData, tileno) {
 
+        // foreach ImageItem ii in this._tilesMap[tileno]:
+        //  - pxval = this._inprojection.world2pix(ii.ra, ii.dec)
+        //  - this._outprojection._pxmap[ii.i][ii.j] = pxval
     }
 
     /**
@@ -59,23 +62,6 @@ class WCSLight {
         }
         return this._tilesMap;
     }
-
-    /**
-     * @return an empty array representing the output image/FITS. 
-     * It will be filled with pixels values in another method.
-     */
-    getImageMap () {
-        //the projection must compute row=NAXIS1 and cols=NAXIS2 for the output empty image)
-        // Entries in map below contain {ra, dec, value(empty)} for each pixel
-        this._pxmap = this._projection.generatePxMatrix();
-    }
-
-    computeValues (inProjectionName, data) {
-        
-        // this._inprojection.
-    }
-
-    
 
 }
 

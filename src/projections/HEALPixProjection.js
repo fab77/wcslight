@@ -177,9 +177,9 @@ class HEALPixProjection extends AbstractProjection {
 	}
 
 	/**
-	 * Generates an array where the key is the HPX tile number and the value is an array of {ImageItem.js} with the addition of 
-	 * (i, j) pixel coordinates from the output projection matrix
+	 * Generates an array where the key is the HPX tile number and the value is an array of {ImageItem.js} from the output projected image
 	 * @param {Array[Array[ImageItem]]} raDecMap Map of RA Dec generated in the OUTPUT projection with generatePxMatrix()
+	 * @returns {} tilesMap
 	 */
 	generateTilesMap(raDecMap) {
 		let tilesMap = [];
@@ -188,8 +188,6 @@ class HEALPixProjection extends AbstractProjection {
 			// cols
 			for (let j = 0; j < raDecMap[i].length; j++) {
 				let item = raDecMap[i][j];
-				item.i = i;
-				item.j = j;
 				let phiTheta_rad = astroDegToSphericalRad(item.getRA(), item.getDec());
 				let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phiRad)
 				let tile = this._hp.ang2pix(ptg);

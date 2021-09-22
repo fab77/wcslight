@@ -76,17 +76,21 @@ class MercatorProjection extends AbstractProjection {
     world2pix (radeg, decdeg) {}
 
 
+    /**
+     * @return an empty array of (ImageItem.js} representing the output image/FITS. 
+     * It will be filled with pixels values in another method.
+     */
     generatePxMatrix () {
         this._pxmap = [];
-        for (let i =  0; i < this._naxis2; i++) { // cols
+        for (let i =  0; i < this._naxis1; i++) { // rows
 
-            let row = new Array(this._naxis1);
+            let row = new Array(this._naxis2);
             
-            for (let  j = 0; j < this._naxis1; j++) { // rows
+            for (let  j = 0; j < this._naxis2; j++) { // cols
                 if (this._minra > 360) {
                     this._minra -= 360;
                 }
-                let ii = new ImageItem (this._minra + this._pxsize * j, this._mindec + this._pxsize * i);
+                let ii = new ImageItem (this._minra + this._pxsize * j, this._mindec + this._pxsize * i, i, j);
                 row[j] = ii;
             }
 
