@@ -13,7 +13,11 @@ class ProjectionNotFound {
     _error;
 
     constructor(projection)  {
-        console.error("Projection " + projection + " not found");
+        this._error = "Projection " + projection + " not found";
+    }
+
+    getError() {
+        return this._error;
     }
 
 }

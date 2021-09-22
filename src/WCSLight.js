@@ -18,7 +18,7 @@ class WCSLight {
     _inprojection;
     _outprojection;
     _pxmap;
-    _tilesMap; // used only when HEALPix is the input projection
+    _tilesMap; // used only when HEALPix is the input projection. Map of (RA, Dec, outp_i, outp_j) points organised per tile.
 
     /**
      * 
@@ -46,10 +46,18 @@ class WCSLight {
 
     }
 
+    processData() {
+
+    }
+
+    /**
+     * It should be called only when HEALPix is used as input projection. 
+     */
     getHEALPixTilesMap () {
         if (this._tilesMap === undefined) {
             throw new HPXTilesMapNotDefined();
         }
+        return this._tilesMap;
     }
 
     /**
