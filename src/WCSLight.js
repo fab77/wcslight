@@ -1,5 +1,4 @@
 "use strict";
-import HEALPixProjection from "./projections/HEALPixProjection";
 /**
  * Summary. (bla bla bla)
  *
@@ -10,12 +9,16 @@ import HEALPixProjection from "./projections/HEALPixProjection";
  */
 
 import ProjFactory from "./projections/ProjFactory";
+import HEALPixProjection from "./projections/HEALPixProjection";
+
+import HPXTilesMapNotDefined from "./exceptions/HPXTilesMapNotDefined";
 
 class WCSLight {
 
     _inprojection;
     _outprojection;
     _pxmap;
+    _tilesMap; // used only when HEALPix is the input projection
 
     /**
      * 
@@ -25,12 +28,13 @@ class WCSLight {
      * @param {*} projection from constant?
      */
     constructor(center, radius, pxsize, outProjectionName, inProjectionName) {
+        this._tilesMap = undefined;
         try {
             this._outprojection = ProjFactory.get(center, radius, pxsize, outProjectionName);
             this._inprojection = ProjFactory.get(center, radius, pxsize, inProjectionName);
             this._outprojection.generatePxMatrix();
             if (this._inprojection instanceof HEALPixProjection) {
-                let tilesMap = this._inprojection.generateTilesMap(this._outprojection.getPxMap());
+                this._tilesMap = this._inprojection.generateTilesMap(this._outprojection.getPxMap());
                 // the program calling WCSLight must iterate over tilesMap and:
                 //  - retrieve the FITS file and extract the data (pixels values)
                 //  - call WCS process(data, tilesMap[n]) which fills the values in the output for the given input tile
@@ -40,6 +44,12 @@ class WCSLight {
             exit(-1);
         }
 
+    }
+
+    getHEALPixTilesMap () {
+        if (this._tilesMap === undefined) {
+            throw new HPXTilesMapNotDefined();
+        }
     }
 
     /**
