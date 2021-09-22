@@ -19,7 +19,15 @@ const DEG2RAD = Math.PI / 180;
 const H = 4;
 const K = 3;
 
+const healpixResMapK0 = [58.6, 0, 1];
+const pxXtile = 512;
+
+
 class HEALPixProjection extends AbstractProjection {
+
+
+
+	
 
     _deltara;//NOT USED
     _deltadec;//NOT USED
@@ -30,12 +38,18 @@ class HEALPixProjection extends AbstractProjection {
     _np1;//NOT USED
     _np2;//NOT USED
     _scale;//NOT USED
+
     _fotw;
     _naxis1;
     _naxis2;
     _pixno;
     THETAX;
-    
+	MAX_TILES = 20;
+	_HIPSResMapK0 = [58.6/pxXtile, 0, 1];
+	// _pxsize;
+	// _radius;
+	_tilesSet;
+	_hp;
     /** 
      * the conversion from RA, Deg to pixel (i, j) goes in this way:
      * convert (RA, Dec) to to intermediate coordinates (X, Y) World2Intermediate
@@ -43,10 +57,148 @@ class HEALPixProjection extends AbstractProjection {
      */ 
     _xyGridProj; // intermediate coordinates in the X, Y plane
 
-    constructor () {
-        super();
+	/**
+	 * 
+	 * @param {*} center {ra, dec} in decimal degrees
+	 * @param {*} radius decimal degrees
+	 * @param {*} pxsize decimal degrees
+	 */
+    constructor (center, radius, pxsize) {
+        
+		super();
         this.THETAX = Hploc.asin( (K - 1)/K );
+		let nside = this.computeNside(pxsize);
+		this._hp = new Healpix(nside);
+		let phiTheta_rad = this.convert2PhiTheta(center);
+		let bbox = this.computeBbox(phiTheta_rad, this.degToRad(radius));
+		this._tilesSet = hp.queryPolygonInclusive(bbox, 32);
+		
     }
+
+	/**
+	 * Table 1 - ref paper HEALPix — a Framework for High Resolution Discretization,
+	 * and Fast Analysis of Data Distributed on the Sphere
+	 * K. M. G´orski1,2, E. Hivon3,4, A. J. Banday5, B. D. Wandelt6,7, F. K. Hansen8, M.
+	 * Reinecke5, M. Bartelman9
+	 */
+	/**
+	 * 
+	 * @param {decimal degrees} pxsize 
+	 * @returns {int} nside
+	 */
+	computeNside(pxsize){
+		/**
+		 * with same order k (table 1), HIPS angular resolution is higher of order of 512 (2^9) pixels than 
+		 * the HEALPix. This is because each tile in a HiPS is represented by default by 512x512 pixels.\
+		 * Angular resolution of different HEALPix orders in respect to the order 0, can be calculated this
+		 * way:
+		 * 
+		 * 	L(k) = L(0) / 2^k = 58.6 / 2^k
+		 * 
+		 * Therefore, in the case of HiPS we need to take into account the extra resolution given by the 
+		 * 512x512 (2^9) tiles. In this case the above becomes:
+		 * 	
+		 * 	L(k) = L(0) / (2^k * 2^9) 
+		 * 
+		 * Though, in order to compute the required order starting from the pxsize desired (in input) we
+		 * need to perform these steps:
+		 * 
+		 * 	pxsize = L(k) = L(0) / (2^k * 2^9)
+		 * 	2^k = L(0) / (pxsize * 2^9)
+		 *  k * Log 2 = Log L(0) - Log (pxsize * 2^9)
+		 * 	k = Log (L(0)/2) - Log (pxsize * 2^8)
+		 * 
+		 */
+		let theta0px = this._HIPSResMapK0[0];
+		let k = Math.log(theta0px/2) - Math.log(pxsize * 2**8);
+		k = Match.round(k);
+		let nside = 2**k;
+		return nside;
+		
+	}
+
+	/**
+	 * 
+	 * @param {Object {ra, dec}} point  decimal degrees
+	 * @returns {Object {phi_rad, theta_rad}} in radians
+	 */
+	convert2PhiTheta (point) {
+		let phitheta_rad = {};
+		let phiTheta_deg = this.astroDegToSpherical(point.ra, point.dec);
+		phitheta_rad.phi_rad = this.degToRad(phiTheta_deg.phi);
+        phitheta_rad.theta_rad = this.degToRad(phiTheta_deg.theta);
+		return phitheta_rad;
+	}
+
+	astroDegToSphericalRad(raDeg, decDeg) {
+		let phiThetaDeg = this.astroDegToSpherical(raDeg, decDeg);
+		let phiThetaRad = {
+			phi_rad: degToRad(phiThetaDeg.phiDeg),
+			theta_rad: degToRad(phiThetaDeg.thetaDeg)
+		}
+		return phiThetaRad;
+	}
+
+	degToRad(degrees) {
+		return (degrees / 180 ) * Math.PI ;
+	}
+
+	astroDegToSpherical(raDeg, decDeg){
+	
+		let phiDeg, thetaDeg;
+		phiDeg = raDeg;
+		if (phiDeg < 0){
+			phiDeg += 360;
+		}
+		
+		thetaDeg = 90 - decDeg;
+		
+		return {
+			phi: phiDeg,
+			theta: thetaDeg
+		};
+	}
+
+	/**
+	 * 
+	 * @param {Object {phi_rad, theta_rad}} phiTheta_rad Center of the circle in radians
+	 * @param {decimal} radius_rad Radius of the circle in radians
+	 * @returns 
+	 */
+	computeBbox(phiTheta_rad, radius_rad) {
+
+		let bbox = [];
+		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad-r, phiTheta_rad.phi_rad-r));
+		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad-r, phiTheta_rad.phi_rad+r));
+		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad+r, phiTheta_rad.phi_rad+r));
+		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad-r, phiTheta_rad.phi_rad-r));
+
+        return bbox;
+	}
+
+	/**
+	 * 
+	 * @param {Array[Array[ImageItem]]} raDecMap Map of RA Dec generated in the OUTPUT projection with generatePxMatrix()
+	 */
+	generateTilesMap(raDecMap) {
+		let tilesMap = [];
+		// rows
+		for (let i = 0; i < raDecMap.length; i++) {
+			// cols
+			for (let j = 0; j < raDecMap[i].length; j++) {
+				let item = raDecMap[i][j];
+				let phiTheta_rad = astroDegToSphericalRad(item.getRA(), item.getDec());
+				let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phiRad)
+				let tile = this._hp.ang2pix(ptg);
+				if (tilesMap[tile].length == 0){
+					tilesMap[tile] = [];
+				}
+				tilesMap[tile].push(item);
+			}
+		}
+		return tilesMap;
+	}
+	
 
     init(nside, pixno, naxis1, naxis2) {
 

@@ -25,16 +25,35 @@ class MercatorProjection extends AbstractProjection {
 
     _pxmap;
 
+    _fitsheader;
+
+    /**
+     * 
+     * @param {*} center {ra, dec} in decimal degrees
+     * @param {*} radius decimal degrees
+     * @param {*} pxsize decimal degrees
+     */
     constructor (center, radius, pxsize) {
         super();
-        this.computeImageSize (2  * radius, pxsize);
+        this.computeSquare (2 * radius, pxsize);
         this._minra = center.raDeg - radius;
+        if (this._minra < 0) {
+            this._minra += 360;
+        }
         this._mindec = center.decDeg - radius;
         this._pxsize = pxsize;
+
+        this.prepareFITSHeader();
+        
     }
 
-    computeImageSize(d, ps) {
-        this._naxis1 =  2  * d / ps;
+    prepareFITSHeader () {
+        // TODO
+        this._fitsheader = "";
+    }
+
+    computeSquare (d, ps) {
+        this._naxis1 =  d / ps;
         this._naxis2 = this._naxis1;
     }
 
@@ -64,13 +83,20 @@ class MercatorProjection extends AbstractProjection {
             let row = new Array(this._naxis1);
             
             for (let  j = 0; j < this._naxis1; j++) { // rows
-                let ii = new ImageItem(this._minra + this._pxsize * j, this._mindec + this._pxsize * i);
+                if (this._minra > 360) {
+                    this._minra -= 360;
+                }
+                let ii = new ImageItem (this._minra + this._pxsize * j, this._mindec + this._pxsize * i);
                 row[j] = ii;
             }
 
             this._pxmap.push(row); // row based
 
         }
+    }
+
+    getPxMap() {
+        return this._pxmap;
     }
 }
 

@@ -1,4 +1,5 @@
 "use strict";
+import HEALPixProjection from "./projections/HEALPixProjection";
 /**
  * Summary. (bla bla bla)
  *
@@ -12,9 +13,9 @@ import ProjFactory from "./projections/ProjFactory";
 
 class WCSLight {
 
-    _projection;
-    _center;
-    _radius;
+    _inprojection;
+    _outprojection;
+    _pxmap;
 
     /**
      * 
@@ -23,11 +24,22 @@ class WCSLight {
      * @param {*} pxsize decimal deg
      * @param {*} projection from constant?
      */
-    constructor(center, radius, pxsize, projectionName) {
-        this._projection = ProjFactory.get(center, radius, pxsize, projectionName);
-        this._center = center;
-        this._radius = radius;
-        this._pxsize = pxsize;
+    constructor(center, radius, pxsize, outProjectionName, inProjectionName) {
+        try {
+            this._outprojection = ProjFactory.get(center, radius, pxsize, outProjectionName);
+            this._inprojection = ProjFactory.get(center, radius, pxsize, inProjectionName);
+            this._outprojection.generatePxMatrix();
+            if (this._inprojection instanceof HEALPixProjection) {
+                let tilesMap = this._inprojection.generateTilesMap(this._outprojection.getPxMap());
+                // the program calling WCSLight must iterate over tilesMap and:
+                //  - retrieve the FITS file and extract the data (pixels values)
+                //  - call WCS process(data, tilesMap[n]) which fills the values in the output for the given input tile
+            }
+        } catch (e) {
+            console.error(e.getError());
+            exit(-1);
+        }
+
     }
 
     /**
@@ -35,15 +47,17 @@ class WCSLight {
      * It will be filled with pixels values in another method.
      */
     getImageMap () {
-        //the projection must compute row=NAXIS1 and cols=NAXIS2 of the output empty image)
+        //the projection must compute row=NAXIS1 and cols=NAXIS2 for the output empty image)
         // Entries in map below contain {ra, dec, value(empty)} for each pixel
-        let map = this._projection.generatePxMatrix();
+        this._pxmap = this._projection.generatePxMatrix();
     }
 
+    computeValues (inProjectionName, data) {
+        
+        // this._inprojection.
+    }
 
-
-
-
+    
 
 }
 

@@ -24,5 +24,13 @@ class ImageItem {
     set value(val) {
         this._value = val;
     }
+
+    getRA() {
+        return this._ra;
+    }
+
+    getDec() {
+        return this._dec;
+    }
 }
 export default ImageItem;

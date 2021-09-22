@@ -16,6 +16,10 @@ class AbstractProjection {
             throw new TypeError("Abstract class cannot be instantiated.");
         }
 
+        if (this.prepareFITSHeader === undefined) {
+            throw new TypeError("Must override prepareFITSHeader()");
+        }
+
         if (this.generatePxMatrix === undefined) {
             throw new TypeError("Must override generateMatrix()");
         }
