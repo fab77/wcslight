@@ -8,7 +8,7 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-class ImageItem {
+class ImagePixel {
     _ra;    // decimal degrees
     _dec;   // decimal degrees
     _i;     // int
@@ -52,4 +52,4 @@ class ImageItem {
         return this._j;
     }
 }
-export default ImageItem;
+export default ImagePixel;

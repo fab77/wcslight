@@ -10,7 +10,6 @@
 
 
 import AbstractProjection from './AbstractProjection';
-import ParseUtils from '../ParseUtils';
 import {Hploc, Vec3, Pointing} from "healpixjs";
 import Healpix from "healpixjs";
 

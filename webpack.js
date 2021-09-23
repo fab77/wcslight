@@ -1,12 +1,7 @@
 var path = require('path');
 const { merge } = require('webpack-merge');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
-
-const CopyPlugin = require("copy-webpack-plugin");
 
 
 module.exports = {
@@ -19,7 +14,7 @@ module.exports = {
         app: './src/index.js',
 
     },
-    entry: './src/FITSOnTheWeb.js',
+    entry: './src/WCSLight.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
         library: 'wcslight',
@@ -29,29 +24,13 @@ module.exports = {
         usedExports: true
     },
     plugins: [
-        new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            title: 'wcslight',
-            template: 'src/index.html'
-        }),
-        new MiniCssExtractPlugin(),
+        new CleanWebpackPlugin()
     ],
     externals: {
         jquery: "jQuery"
     },
     module: {
         rules: [
-            {
-                test: /\.css$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    'css-loader',
-                ],
-            },
-            {
-                test: /\.(png|svg|jpg|jpeg|gif)$/i,
-                type: 'asset/resource',
-            },
             {
                 test: /\.m?js$/,
                 exclude: /(node_modules|bower_components)/,

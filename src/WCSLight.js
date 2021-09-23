@@ -48,9 +48,17 @@ class WCSLight {
 
     processData(inData, tileno) {
 
+        if (isNumber(tileno)){ // HEALPix in projection
         // foreach ImageItem ii in this._tilesMap[tileno]:
-        //  - pxval = this._inprojection.world2pix(ii.ra, ii.dec)
-        //  - this._outprojection._pxmap[ii.i][ii.j] = pxval
+            //  - pxval = this._inprojection.world2pix(ii.ra, ii.dec)
+            //  - this._outprojection._pxmap[ii.i][ii.j] = pxval
+            this._tilesMap[tileno].forEach(imgpx => {
+                let pxij = this._inprojection.world2pix(imgpx.ra, imgpx.dec);
+                let pxval = this._inprojection.getValue(pxij.i, pxij.j);    // <-- TODO to be implemented!!!
+                this._outprojection._pxmap[imgpx.i][imgpx.j] = pxval
+            });
+        }
+        
     }
 
     /**

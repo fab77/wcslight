@@ -11,7 +11,7 @@
 
 import AbstractProjection from './AbstractProjection';
 // import ParseUtils from '../ParseUtils';
-import ImageItem from '../model/ImageItem';
+import ImagePixel from '../model/ImagePixel';
 
 class MercatorProjection extends AbstractProjection {
 
@@ -77,7 +77,7 @@ class MercatorProjection extends AbstractProjection {
 
 
     /**
-     * @return an empty array of (ImageItem.js} representing the output image/FITS. 
+     * @return an empty array of (ImagePixel.js} representing the output image/FITS. 
      * It will be filled with pixels values in another method.
      */
     generatePxMatrix () {
@@ -90,7 +90,7 @@ class MercatorProjection extends AbstractProjection {
                 if (this._minra > 360) {
                     this._minra -= 360;
                 }
-                let ii = new ImageItem (this._minra + this._pxsize * j, this._mindec + this._pxsize * i, i, j);
+                let ii = new ImagePixel (this._minra + this._pxsize * j, this._mindec + this._pxsize * i, i, j);
                 row[j] = ii;
             }
 
