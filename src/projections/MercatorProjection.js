@@ -112,7 +112,7 @@ class MercatorProjection extends AbstractProjection {
         this._pxmatrix[imgpx.i][imgpx.j] = imgpx;
     }
 
-    getPxMatrix() {
+    getOutputImage() {
         return this._pxmatrix;
     }
 }

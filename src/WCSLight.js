@@ -35,7 +35,7 @@ class WCSLight {
 
             this._inprojection = ProjFactory.get(center, radius, pxsize, inProjectionName);
             if (this._inprojection instanceof HiPSProjection) {
-                this._tilesMap = this._inprojection.generateTilesMap(this._outprojection.getPxMatrix());
+                this._tilesMap = this._inprojection.generateTilesMap(this._outprojection.getOutputImage());
                 // the program calling WCSLight must iterate over tilesMap and:
                 //  - retrieve the FITS file and extract the data (pixels values)
                 //  - call WCS fillOutputImage(data, tilesMap[n]) which fills the values in the output for the given input tile
