@@ -23,7 +23,7 @@ class MercatorProjection extends AbstractProjection {
     
     _pxsize;
 
-    _pxmap;
+    _pxmatrix;
 
     _fitsheader;
 
@@ -35,7 +35,7 @@ class MercatorProjection extends AbstractProjection {
      */
     constructor (center, radius, pxsize) {
         super();
-        this.computeSquare (2 * radius, pxsize);
+        this.computeSquaredNaxes (2 * radius, pxsize);
         this._minra = center.raDeg - radius;
         if (this._minra < 0) {
             this._minra += 360;
@@ -52,8 +52,9 @@ class MercatorProjection extends AbstractProjection {
         this._fitsheader = "";
     }
 
-    computeSquare (d, ps) {
-        this._naxis1 =  d / ps;
+    computeSquaredNaxes (d, ps) {
+        // first aprroximation to be checked
+        this._naxis1 =  Math.ceil(d / ps);
         this._naxis2 = this._naxis1;
     }
 
@@ -81,26 +82,38 @@ class MercatorProjection extends AbstractProjection {
      * It will be filled with pixels values in another method.
      */
     generatePxMatrix () {
-        this._pxmap = [];
-        for (let i =  0; i < this._naxis1; i++) { // rows
+        this._pxmatrix = [];
 
-            let row = new Array(this._naxis2);
+        for (let j = 0; j < this._naxis2; j++) { // rows
+
+            let row = new Array(this._naxis1);
+
+            for (let i =  0; i < this._naxis1; i++) { // cols
             
-            for (let  j = 0; j < this._naxis2; j++) { // cols
-                if (this._minra > 360) {
+                if (this._minra + this._pxsize > 360) {
                     this._minra -= 360;
                 }
+                // TODO handle Dec > 90 (or <-90 probably not possible): skip that pixel?
+
                 let ii = new ImagePixel (this._minra + this._pxsize * j, this._mindec + this._pxsize * i, i, j);
                 row[j] = ii;
             }
 
-            this._pxmap.push(row); // row based
+            this._pxmatrix.push(row); // row based
 
         }
     }
 
-    getPxMap() {
-        return this._pxmap;
+    /**
+     * 
+     * @param {ImagePixel} imgpx 
+     */
+    setPxValue (imgpx) {
+        this._pxmatrix[imgpx.i][imgpx.j] = imgpx;
+    }
+
+    getPxMatrix() {
+        return this._pxmatrix;
     }
 }
 

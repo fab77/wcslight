@@ -2,23 +2,24 @@
     "name": "wcslight",
     "sideEffects": false,
     "version": "0.1.0",
-    "main": "index.js",
+    "main": "dist/WCSLight.js",
+    "module": "src/WCSLight.js",
+    "homepage": "https://github.com/fab77/wcslight#readme",
+    "description": "WCS library used in FITSOnTheWeb and FabViewer.",
     "private": true,
     "scripts": {
-        "build": "webpack --config webpack.js"
+        "build": "webpack"
     },
     "repository": {
         "type": "git",
         "url": "https://github.com/fab77/wcslight"
     },
-    "module": "src/wcslight.js",
     "keywords": [],
     "author": "Fabrizio Giordano (fab77)",
-    "license": "ISC",
+    "license": "GNU Affero General Public License v3.0",
     "bugs": {
         "url": "https://github.com/fab77/wcslight/issues"
     },
-    "homepage": "https://github.com/fab77/wcslight#readme",
     "devDependencies": {
         "@babel/core": "^7.11.4",
         "@babel/plugin-proposal-class-properties": "^7.10.4",
@@ -26,10 +27,14 @@
         "@babel/preset-env": "^7.11.0",
         "babel-loader": "^8.1.0",
         "clean-webpack-plugin": "^3.0.0",
-        "webpack-cli": "^4.8.0"
+        "webpack": "^4.39.2",
+        "webpack-cli": "^4.8.0",
+        "webpack-merge": "^5.1.4",
+        "terser-webpack-plugin": "^4.2.3",
+        "file-loader": "^6.1.0",
+        "copy-webpack-plugin": "^8.1.0"
     },
     "dependencies": {
         "healpixjs": "file:../healpixjs"
-    },
-    "description": "WCS library used in FITSOnTheWeb and FabViewer."
+    }
 }

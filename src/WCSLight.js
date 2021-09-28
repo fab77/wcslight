@@ -31,13 +31,14 @@ class WCSLight {
         this._tilesMap = undefined;
         try {
             this._outprojection = ProjFactory.get(center, radius, pxsize, outProjectionName);
-            this._inprojection = ProjFactory.get(center, radius, pxsize, inProjectionName);
             this._outprojection.generatePxMatrix();
-            if (this._inprojection instanceof HEALPixProjection) {
-                this._tilesMap = this._inprojection.generateTilesMap(this._outprojection.getPxMap());
+
+            this._inprojection = ProjFactory.get(center, radius, pxsize, inProjectionName);
+            if (this._inprojection instanceof HiPSProjection) {
+                this._tilesMap = this._inprojection.generateTilesMap(this._outprojection.getPxMatrix());
                 // the program calling WCSLight must iterate over tilesMap and:
                 //  - retrieve the FITS file and extract the data (pixels values)
-                //  - call WCS process(data, tilesMap[n]) which fills the values in the output for the given input tile
+                //  - call WCS fillOutputImage(data, tilesMap[n]) which fills the values in the output for the given input tile
             }
         } catch (e) {
             console.error(e.getError());
@@ -46,25 +47,34 @@ class WCSLight {
 
     }
 
-    processData(inData, tileno) {
+    /**
+     * 
+     * @param {matrix} inData Array of array Naxis1 x Naxis2 of data 
+     * @param {int} tileno in case of HiPS or HEALPix, tile number
+     */
+     fillOutputImage(inData, inHeader, tileno) {
 
-        if (isNumber(tileno)){ // HEALPix in projection
-        // foreach ImageItem ii in this._tilesMap[tileno]:
-            //  - pxval = this._inprojection.world2pix(ii.ra, ii.dec)
-            //  - this._outprojection._pxmap[ii.i][ii.j] = pxval
+        
+        if (this._inprojection instanceof HiPSProjection) {
+
+            // TODO inData[0].length, inData.length are not needed in this case
+            this._inprojection.init(nside, tileno, inHeader.naxis1, inHeader.naxis2);
             this._tilesMap[tileno].forEach(imgpx => {
                 let pxij = this._inprojection.world2pix(imgpx.ra, imgpx.dec);
-                let pxval = this._inprojection.getValue(pxij.i, pxij.j);    // <-- TODO to be implemented!!!
-                this._outprojection._pxmap[imgpx.i][imgpx.j] = pxval
+                let pxval = this._inprojection.getValue(pxij.i, pxij.j, inData);    // <-- TODO to be implemented!!! Take it from FITSOnTheWeb
+                imgpx.value = pxval;
+                this._outprojection.setPxValue(imgpx);
             });
+            
         }
         
     }
 
+  
     /**
      * It should be called only when HEALPix is used as input projection. 
      */
-    getHEALPixTilesMap () {
+    getHiPSTilesMap () {
         if (this._tilesMap === undefined) {
             throw new HPXTilesMapNotDefined();
         }

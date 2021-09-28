@@ -6,18 +6,14 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     mode: 'development',
-    devtool: 'inline-source-map',
-    devServer: {
-        contentBase: './dist',
-    },
-    entry: {
-        app: './src/index.js',
+    devtool: 'source-map',
 
-    },
     entry: './src/WCSLight.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
+        filename: 'WCSLight.js',
         library: 'wcslight',
+        libraryTarget: 'umd',
     },
     optimization: {
         runtimeChunk: true,
@@ -26,14 +22,11 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin()
     ],
-    externals: {
-        jquery: "jQuery"
-    },
     module: {
         rules: [
             {
                 test: /\.m?js$/,
-                exclude: /(node_modules|bower_components)/,
+                exclude: /(node_modules)/,
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -43,6 +36,10 @@ module.exports = {
                 }
             }
         ]
+    },
+    resolve: {
+        extensions: ['.js'],
+        modules: [path.resolve(__dirname, 'src')],
     },
 
 };

@@ -22,7 +22,7 @@ const healpixResMapK0 = [58.6, 0, 1];
 const pxXtile = 512;
 
 
-class HEALPixProjection extends AbstractProjection {
+class HiPSProjection extends AbstractProjection {
 
 
 
@@ -513,4 +513,4 @@ class HEALPixProjection extends AbstractProjection {
 	}
 }
 
-export default HEALPixProjection;
+export default HiPSProjection;

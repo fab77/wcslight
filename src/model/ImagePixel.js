@@ -13,6 +13,7 @@ class ImagePixel {
     _dec;   // decimal degrees
     _i;     // int
     _j;     // int
+    _tileno;// int
     _value;
 
     /**
@@ -22,11 +23,13 @@ class ImagePixel {
      * @param {*} i pixel coordinate in FITS
      * @param {*} j pixel coordinate in FITS
      */
-    constructor (ra, dec, i, j) {
+    constructor (ra, dec, i = null, j = null, tileno = null) {
         this._ra = ra;
         this._dec = dec;
         this._i = i;
         this._j = j;
+        this._tileno = tileno;
+
     }
 
     /**
@@ -50,6 +53,10 @@ class ImagePixel {
 
     getj() {
         return this._j;
+    }
+
+    getTileno() {
+        return this._tileno
     }
 }
 export default ImagePixel;
