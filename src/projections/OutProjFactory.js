@@ -13,7 +13,7 @@
 import MercatorProjection from "./MercatorProjection";
 import ProjectionNotFound from "../exceptions/ProjectionNotFound";
 
-class ProjFactory  {
+class OutProjFactory  {
 
     static getProjection(center, radius, pxsize, projectionName) {
         if (projectionName === "Mercator") {
@@ -28,4 +28,4 @@ class ProjFactory  {
     }
 }
 
-export default ProjFactory;
+export default OutProjFactory;

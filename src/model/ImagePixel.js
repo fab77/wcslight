@@ -39,6 +39,10 @@ class ImagePixel {
         this._value = val;
     }
 
+    getValue () {
+        return this._value;
+    }
+
     getRA() {
         return this._ra;
     }

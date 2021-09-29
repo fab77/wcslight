@@ -9,7 +9,7 @@
  */
 
 
-import AbstractProjection from './AbstractProjection';
+import AbstractInProjection from './AbstractInProjection';
 import {Hploc, Vec3, Pointing} from "healpixjs";
 import Healpix from "healpixjs";
 import TilesMap from '../model/TilesMap';
@@ -23,31 +23,11 @@ const healpixResMapK0 = [58.6, 0, 1];
 const pxXtile = 512;
 
 
-class HiPSProjection extends AbstractProjection {
+class InHiPSProjection extends AbstractInProjection {
 
-
-
-	
-
-    _deltara;//NOT USED
-    _deltadec;//NOT USED
-    _minra;//NOT USED
-    _mindec;//NOT USED
-    _stepra;//NOT USED
-    _stepdec;//NOT USED
-    _np1;//NOT USED
-    _np2;//NOT USED
-    _scale;//NOT USED
-
-    _fotw;
-    _naxis1;
-    _naxis2;
-    _pixno;
     THETAX;
 	MAX_TILES = 20;
 	_HIPSResMapK0 = [58.6/pxXtile, 0, 1];
-	// _pxsize;
-	// _radius;
 	_tilesSet;
 	_tilesMap;	// used when this projection is used as input projection
 	_hp;
@@ -59,20 +39,14 @@ class HiPSProjection extends AbstractProjection {
     _xyGridProj; // intermediate coordinates in the X, Y plane
 
 	/**
-	 * 
-	 * @param {*} center {ra, dec} in decimal degrees
-	 * @param {*} radius decimal degrees
 	 * @param {*} pxsize decimal degrees
 	 */
-    constructor (center, radius, pxsize) {
+    constructor (pxsize) {
         
 		super();
-        this.THETAX = Hploc.asin( (K - 1)/K );
-		this._nside = this.computeNside(pxsize);
+		this._nside = this.computeNside(pxsize)
 		this._hp = new Healpix(this._nside);
-		let phiTheta_rad = this.convert2PhiTheta(center);
-		let bbox = this.computeBbox(phiTheta_rad, this.degToRad(radius));
-		this._tilesSet = hp.queryPolygonInclusive(bbox, 32);
+		this.THETAX = Hploc.asin( (K - 1)/K );
 		
     }
 
@@ -118,64 +92,9 @@ class HiPSProjection extends AbstractProjection {
 		
 	}
 
-	/**
-	 * 
-	 * @param {Object {ra, dec}} point  decimal degrees
-	 * @returns {Object {phi_rad, theta_rad}} in radians
-	 */
-	convert2PhiTheta (point) {
-		let phitheta_rad = {};
-		let phiTheta_deg = this.astroDegToSpherical(point.ra, point.dec);
-		phitheta_rad.phi_rad = this.degToRad(phiTheta_deg.phi);
-        phitheta_rad.theta_rad = this.degToRad(phiTheta_deg.theta);
-		return phitheta_rad;
-	}
-
-	astroDegToSphericalRad(raDeg, decDeg) {
-		let phiThetaDeg = this.astroDegToSpherical(raDeg, decDeg);
-		let phiThetaRad = {
-			phi_rad: degToRad(phiThetaDeg.phiDeg),
-			theta_rad: degToRad(phiThetaDeg.thetaDeg)
-		}
-		return phiThetaRad;
-	}
-
-	degToRad(degrees) {
-		return (degrees / 180 ) * Math.PI ;
-	}
-
-	astroDegToSpherical(raDeg, decDeg){
 	
-		let phiDeg, thetaDeg;
-		phiDeg = raDeg;
-		if (phiDeg < 0){
-			phiDeg += 360;
-		}
-		
-		thetaDeg = 90 - decDeg;
-		
-		return {
-			phi: phiDeg,
-			theta: thetaDeg
-		};
-	}
 
-	/**
-	 * 
-	 * @param {Object {phi_rad, theta_rad}} phiTheta_rad Center of the circle in radians
-	 * @param {decimal} r Radius of the circle in radians
-	 * @returns 
-	 */
-	computeBbox(phiTheta_rad, r) {
 
-		let bbox = [];
-		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad-r, phiTheta_rad.phi_rad-r));
-		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad-r, phiTheta_rad.phi_rad+r));
-		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad+r, phiTheta_rad.phi_rad+r));
-		bbox.push(new Pointing(null, false, phiTheta_rad.theta_rad-r, phiTheta_rad.phi_rad-r));
-
-        return bbox;
-	}
 
 	/**
 	 * Generates an array where the key is the HPX tile number and the value is an array of {ImageItem.js} from the output projected image
@@ -207,11 +126,7 @@ class HiPSProjection extends AbstractProjection {
 	}
 	
 
-    init(nside, pixno, naxis1, naxis2) {
-
-        this._naxis1 = naxis1;
-        this._naxis2 = naxis2;
-        this._pixno = pixno;
+    init(pixno) {
 
         this._xyGridProj = {
 			"min_y": NaN,
@@ -224,8 +139,8 @@ class HiPSProjection extends AbstractProjection {
 			throw new EvalError("nside not set");
 		}
 
-		let healpix = new Healpix(nside);
-		let cornersVec3 = healpix.getBoundariesWithStep(this._pixno, 1);
+		// let healpix = new Healpix(this._nside);
+		let cornersVec3 = this._hp.getBoundariesWithStep(pixno, 1);
 		let pointings = [];
 		
 		for (let i = 0; i < cornersVec3.length; i++) {
@@ -272,88 +187,6 @@ class HiPSProjection extends AbstractProjection {
 
 		}
     }
-
-    pix2world (i, j) {
-        let result = {
-            "skyCoords": [],
-			"xyCoords": []
-        };
-
-        let xy = this.pix2intermediate(i, j);
-		let raDecDeg = this.intermediate2world(xy[0], xy[1]);
-
-		if (raDecDeg[0] > 360){
-			raDecDeg[0] -= 360;
-		}
-
-        result.xyCoords = xy;
-        result.skyCoords = raDecDeg;
-
-        return result;
-
-		// return {
-		// 	"skyCoords": [raDecDeg[0], raDecDeg[1]],
-		// 	"xyCoords": [x, y]
-		// };
-    }
-
-    pix2intermediate (i, j) {
-        /**
-	 	 * (i_norm,w_pixel) = (0,0) correspond to the lower-left corner of the facet in the image
-		 * (i_norm,w_pixel) = (1,1) is the upper right corner
-		 * dimamond in figure 1 from "Mapping on the HEalpix grid" paper
-		 * (0,0) leftmost corner
-		 * (1,0) upper corner
-		 * (0,1) lowest corner
-		 * (1,1) rightmost corner
-		 * Thanks YAGO! :p
-		 */
-        let i_norm = (i + 0.5) / this._naxis1;
-		let j_norm = (j + 0.5) / this._naxis2;
-
-        let xInterval = Math.abs(this._xyGridProj.max_x - this._xyGridProj.min_x) / 2.0;
-		let yInterval = Math.abs(this._xyGridProj.max_y - this._xyGridProj.min_y) / 2.0;
-		let yMean = (this._xyGridProj.max_y + this._xyGridProj.min_y) / 2.0;
-
-        // bi-linear interpolation
-		let x = this._xyGridProj.max_x - xInterval * (i_norm + j_norm);
-		let y = yMean - yInterval * (j_norm - i_norm);
-		
-        return [x, y];
-    }
-
-
-    intermediate2world(x, y) {
-
-        let phiDeg, thetaDeg;
-		let Yx = 90 * (K - 1) / H;
-
-		
-
-		if (Math.abs(y) <= Yx) { // equatorial belts
-
-			phiDeg = x;
-			thetaDeg = Math.asin( (y  * H) / (90 * K)) * RAD2DEG;
-
-		} else if (Math.abs(y) > Yx) { // polar regions
-
-			let sigma = (K + 1) / 2 - Math.abs(y * H) / 180;
-			let w = 0; // omega
-			if (K % 2 !== 0 || thetaRad > 0) { // K odd or thetax > 0
-				w = 1;
-			}
-			let x_c = -180 + ( 2 * Math.floor((x + 180) * H/360 + (1 - w) /2  ) + w) * (180 / H);
-			phiDeg = x_c + ( x - x_c) / sigma;
-			let thetaRad = Hploc.asin( 1 - (sigma * sigma) / K );
-			thetaDeg = thetaRad * RAD2DEG;
-			if (y <= 0){
-				thetaDeg *= -1;
-			}
-		}
-		return [phiDeg, thetaDeg];
-
-    }
-    
 
     /**
      * 
@@ -518,6 +351,52 @@ class HiPSProjection extends AbstractProjection {
 
 		return result;
 	}
+
+	/** ********* */
+	/** UTILITIES */
+	/** ********* */
+
+	/**
+	 * 
+	 * @param {Object {ra, dec}} point  decimal degrees
+	 * @returns {Object {phi_rad, theta_rad}} in radians
+	 */
+	 convert2PhiTheta (point) {
+		let phitheta_rad = {};
+		let phiTheta_deg = this.astroDegToSpherical(point.ra, point.dec);
+		phitheta_rad.phi_rad = this.degToRad(phiTheta_deg.phi);
+        phitheta_rad.theta_rad = this.degToRad(phiTheta_deg.theta);
+		return phitheta_rad;
+	}
+
+	astroDegToSphericalRad(raDeg, decDeg) {
+		let phiThetaDeg = this.astroDegToSpherical(raDeg, decDeg);
+		let phiThetaRad = {
+			phi_rad: degToRad(phiThetaDeg.phiDeg),
+			theta_rad: degToRad(phiThetaDeg.thetaDeg)
+		}
+		return phiThetaRad;
+	}
+
+	degToRad(degrees) {
+		return (degrees / 180 ) * Math.PI ;
+	}
+
+	astroDegToSpherical(raDeg, decDeg){
+	
+		let phiDeg, thetaDeg;
+		phiDeg = raDeg;
+		if (phiDeg < 0){
+			phiDeg += 360;
+		}
+		
+		thetaDeg = 90 - decDeg;
+		
+		return {
+			phi: phiDeg,
+			theta: thetaDeg
+		};
+	}
 }
 
-export default HiPSProjection;
+export default InHiPSProjection;

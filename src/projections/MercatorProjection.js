@@ -81,8 +81,8 @@ class MercatorProjection extends AbstractProjection {
      * @return an empty array of (ImagePixel.js} representing the output image/FITS. 
      * It will be filled with pixels values in another method.
      */
-    generatePxMatrix () {
-        this._pxmatrix = [];
+    generateOutputImage () {
+        let pxmatrix = [];
 
         for (let j = 0; j < this._naxis2; j++) { // rows
 
@@ -99,22 +99,25 @@ class MercatorProjection extends AbstractProjection {
                 row[j] = ii;
             }
 
-            this._pxmatrix.push(row); // row based
+            pxmatrix.push(row); // row based
 
         }
+
+        let emptyImage = new Image(pxmatrix);
+        return emptyImage;
     }
 
-    /**
-     * 
-     * @param {ImagePixel} imgpx 
-     */
-    setPxValue (imgpx) {
-        this._pxmatrix[imgpx.i][imgpx.j] = imgpx;
-    }
+    // /**
+    //  * 
+    //  * @param {ImagePixel} imgpx 
+    //  */
+    // setPxValue (imgpx) {
+    //     this._pxmatrix[imgpx.i][imgpx.j] = imgpx;
+    // }
 
-    getOutputImage() {
-        return this._pxmatrix;
-    }
+    // getOutputImage() {
+    //     return this._pxmatrix;
+    // }
 }
 
 export default MercatorProjection;
