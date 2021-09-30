@@ -33,10 +33,7 @@ class WCSLight {
 
             this._inprojection = InProjFactory.get(pxsize, inProjectionName);
             if (this._inprojection instanceof InHiPSProjection) {
-                this._tilesMap = this._inprojection.generateTilesMap(this._outprojection.getOutputImage());
-                // the program calling WCSLight must iterate over tilesMap and:
-                //  - retrieve the FITS file and extract the data (pixels values)
-                //  - call WCS fillOutputImage(data, tilesMap[n]) which fills the values in the output for the given input tile
+                this._inprojection.generateTilesMap(this._outprojection.getOutputImage());
             }
         } catch (e) {
             console.error(e.getError());
@@ -54,7 +51,7 @@ class WCSLight {
      */
      fillOutputImage(inData, pvmin, pvmax, tileno = null) {
 
-        this._outputImage.setMinMAx(pvmin, pvmax);
+        this._outputImage.setMinMax(pvmin, pvmax);
         
         
         if (this._inprojection instanceof InHiPSProjection) {
@@ -68,17 +65,13 @@ class WCSLight {
 
             tilesMap.get(tileno).forEach(imgpx => {
                 let pxij = this._inprojection.world2pix(imgpx.ra, imgpx.dec);
-                // let pxval = this._inprojection.getValue(pxij.i, pxij.j, inData);    // <-- TODO to be implemented!!! Take it from FITSOnTheWeb
-                // imgpx.value = pxval;
+                // imgpx contains i, j for the output projection, inData is organised with i, j from the input projection
                 imgpx.value = inData[pxij.i, pxij.j];
                 this._outputImage.setPxValue(imgpx);
             });
             
         }
     }
-
-    // TODO handle here colorMAp, transferFunction, inverse, min-max
-
   
     /**
      * It should be called only when HEALPix is used as input projection. 

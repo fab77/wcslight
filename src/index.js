@@ -11,13 +11,21 @@ hipsTilesMap.forEach(function(value, key) {
     let fitsParser = new FITSParser(baseUri+"/Dir***"+key+".fits");
     // let header = fitsParser.getFITSHeader();
     let imgData = fitsParser.getImageData();
-    wcsl.fillOutputImage(imgData, key);
+    let min = fitsParser.getMin();
+    let max = fitsParser.getMax();
+    wcsl.fillOutputImage(imgData.buffer, min, max, key);
 });
+
 let imageData = wcsl.getOutputImage ();
-imageData.setTransferFunction("blablabla");
-imageData.setColorMap("blablabla");
+imageData.setTransferFunction("log");
+imageData.setColorMap("planck");
 imageData.setInverse(true);
 imageData.setMinMax(minVal, maxVal);
+imageData.update();
+let pixelMatrix = imageData.getRawImage(); // to retrieve the pixels matrix
+let fitsTable = imageData.getImage(); // to retrieve the pixels value 
+let browse = imageData.getCanvas2DBrowse();
+
 let imageHeader = wcsl.getOutputProjection.getFITSHeader ();
 fitsParser.write(imageData, imageHeader);
 

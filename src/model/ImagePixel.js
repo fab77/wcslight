@@ -8,13 +8,17 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
+import RGBA from "./RGBA";
+
 class ImagePixel {
     _ra;    // decimal degrees
     _dec;   // decimal degrees
-    _i;     // int
-    _j;     // int
+    _i;     // int i of output projection
+    _j;     // int j of output projection
     _tileno;// int
+    // _originalValue;
     _value;
+    _rgba;
 
     /**
      * 
@@ -29,7 +33,12 @@ class ImagePixel {
         this._i = i;
         this._j = j;
         this._tileno = tileno;
+        // this._originalValue = unndefined;
+        this._rgba = new RGBA();
+    }
 
+    setRGBA(r, g, b, a) {
+        this._rgba.set(r, g, b, a);
     }
 
     /**
@@ -37,6 +46,9 @@ class ImagePixel {
      */
     set value(val) {
         this._value = val;
+        // if (this._originalValue === undefined) {
+        //     this._originalValue = val;
+        // }
     }
 
     getValue () {
