@@ -43,13 +43,35 @@ class MercatorProjection extends AbstractProjection {
         this._mindec = center.decDeg - radius;
         this._pxsize = pxsize;
 
-        this.prepareFITSHeader();
+        this.prepareFITSHeader(center.raDeg, center.decDeg, this._pxsize);
         
     }
 
-    prepareFITSHeader () {
+    prepareFITSHeader (refRA, refDec, pxsize) {
         // TODO
-        this._fitsheader = "";
+        let str = this.formatHeaderLine("SIMPLE", "T");
+        str += this.formatHeaderLine("BITPIX", headerDetails.bitpix); // to be taken from the input data
+        str += this.formatHeaderLine("NAXIS", 2);
+        str += this.formatHeaderLine("NAXIS1", this._naxis1);
+        str += this.formatHeaderLine("NAXIS2", this._naxis2);
+        str += this.formatHeaderLine("BLANK", headerDetails.blank); // to be taken from the input data and use it into Image in place of "NaN"
+        str += this.formatHeaderLine("BSCALE", headerDetails.bscale); // to be taken from the input data
+        str += this.formatHeaderLine("BZERO", headerDetails.bzero); // to be taken from the input data
+
+        str += this.formatHeaderLine("CTYPE1", headerDetails.ctype1); // to be taken from the input data
+        str += this.formatHeaderLine("CTYPE2", headerDetails.ctype2); // to be taken from the input data
+        str += this.formatHeaderLine("CDELT1", pxsize); // ??? Pixel spacing along axis 1 ???
+        str += this.formatHeaderLine("CDELT2", pxsize); // ??? Pixel spacing along axis 2 ???
+        str += this.formatHeaderLine("CRPIX1", this._naxis1/2); // central/reference pixel i along naxis1
+        str += this.formatHeaderLine("CRPIX2", this._naxis2/2); // central/reference pixel j along naxis2
+        str += this.formatHeaderLine("CRVAL1", refRA); // central/reference pixel RA
+        str += this.formatHeaderLine("CRVAL2", refDec); // central/reference pixel Dec
+        str += this.formatHeaderLine("WCSNAME", "Mercator");
+        str += this.formatHeaderLine("ORIGIN", "FITSOnTheWeb v.0.x");
+        str += this.formatHeaderLine("COMMENT", "FITSOnTheWebv0.x developed by F.Giordano and Y.Ascasibar");
+        str += this.formatHeaderLine("END", "");
+
+        this._fitsheader = str;
     }
 
     computeSquaredNaxes (d, ps) {
@@ -95,8 +117,8 @@ class MercatorProjection extends AbstractProjection {
                 }
                 // TODO handle Dec > 90 (or <-90 probably not possible): skip that pixel?
 
-                let ii = new ImagePixel (this._minra + this._pxsize * j, this._mindec + this._pxsize * i, i, j);
-                row[j] = ii;
+                let ii = new ImagePixel (this._minra + this._pxsize * i, this._mindec + this._pxsize * j, i, j);
+                row[i] = ii;
             }
 
             pxmatrix.push(row); // row based
@@ -105,6 +127,7 @@ class MercatorProjection extends AbstractProjection {
 
         let emptyImage = new Image(pxmatrix);
         return emptyImage;
+
     }
 
     // /**
