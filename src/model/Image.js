@@ -20,6 +20,7 @@ class Image {
     _inverse;   // invert color map
     _pvmin;     // minimum px value
     _pvmax;     // minimum px value
+    _pvMinMaxChanged;
     _currentpvmin; // min value used in _processedData
     _currentpvmax; // max value used in _processedData
     _naxis1;
@@ -42,6 +43,7 @@ class Image {
         this._tFunction = "linear";
         this._colorMap = "grayscale";
         this._inverse = false;
+        this._pvMinMaxChanged = false;
 
     }
 
@@ -127,7 +129,7 @@ class Image {
         if (this._pvmax === undefined) {
             this._pvmax = maxVal;
         }
-
+        
         this._currentpvmin = minVal;
         this._currentpvmax = maxVal;
             
@@ -146,6 +148,7 @@ class Image {
                 // apply tfunction if defined
                 val = applyTFunction(val);
                 if (val < this._currentpvmin || val > this._currentpvmax) {
+                    // TODO here I need to set BLANK 
                     this._processedData[i][j] = "NaN";
                 } else {
                     this._processedData[i][j] = this.appylyTransferFunction(val);
@@ -216,7 +219,7 @@ class Image {
     	let img = new Image();
         img.src = c.toDataURL();
         return img;
-        
+
     }
 
     colorPixel (v){
