@@ -9,17 +9,19 @@ let baseUri = "http://<base hips URL> or <base file system dir"+"/Norder"+norder
 
 hipsTilesMap.forEach(function(value, key) {
     let fitsParser = new FITSParser(baseUri+"/Dir***"+key+".fits");
-    // let header = fitsParser.getFITSHeader();
-    let imgData = fitsParser.getImageData();
-    let min = fitsParser.getMin();
-    let max = fitsParser.getMax();
+    
+    fits = new FITSParser(inFiles[i]);
+    fitsheader = fits.header;
+    fitsdata = fits.data;
+    min = fitsheader.getValue("DATAMIN");
+    max = fitsheader.getValue("DATAMAX");
     /*
     wcsl.prepareFitsHeader(fitsParser.getFITSHeader()) verrebbe chiamato n volte.
     In teoria blank, bscale, bzero, ctype# dovrebbero essere sempre gli stessi.
     Che fare se cosi non fosse?
     */
-    wcsl.prepareFitsHeader(fitsParser.getFITSHeader());
-    wcsl.fillOutputImage(imgData.buffer, min, max, key);
+    wcsl.prepareFitsHeader(fitsheader); // ???
+    wcsl.fillOutputImage(fitsdata, min, max, key); // BLANK here?
 });
 
 let imageData = wcsl.getOutputImage ();
@@ -48,15 +50,19 @@ let fits, imgData, min, max;
 for (let i = 0; i < inFiles.length; i++) {
 
     fits = new FITSParser(inFiles[i]);
-    imgData = fits.getImageData();
-    min = fits.getMin();
-    max = fits.getMax();
+    fitsheader = fits.header;
+    fitsdata = fits.data;
+
+    // imgData = fits.getImageData();
+    min = fitsheader.getValue("DATAMIN");
+    max = fitsheader.getValue("DATAMAX");
+    
 
     if (i == 0) {
-        wcsl.prepareFitsHeader(imgData.getFITSHeader());
+        wcsl.prepareFitsHeader(fitsheader);
     }
     
-    wcsl.fillOutputImage(imgData.buffer, min, max);
+    wcsl.fillOutputImage(fitsdata, min, max);
 
 }
     

@@ -16,7 +16,7 @@ import HPXTilesMapNotDefined from "./exceptions/HPXTilesMapNotDefined";
 class WCSLight {
 
     _inprojection;
-    _outprojection;
+    _outprojection; 
     _outputImage;
     /**
      * 
@@ -26,14 +26,15 @@ class WCSLight {
      * @param {*} projection from constant?
      */
     constructor(center, radius, pxsize, outProjectionName, inProjectionName) {
-    
+     
         try {
             this._outprojection = OutProjFactory.get(center, radius, pxsize, outProjectionName);
             this._outputImage = this._outprojection.generateOutputImage();
 
             this._inprojection = InProjFactory.get(pxsize, inProjectionName);
             if (this._inprojection instanceof InHiPSProjection) {
-                this._inprojection.generateTilesMap(this._outprojection.getOutputImage());
+                // this._inprojection.generateTilesMap(this._outprojection.getOutputImage());
+                this._inprojection.generateTilesMap(this._outputImage); // Image.js 
             }
         } catch (e) {
             console.error(e.getError());
@@ -69,7 +70,6 @@ class WCSLight {
                 imgpx.value = inData[pxij.i, pxij.j];
                 this._outputImage.setPxValue(imgpx);
             });
-            
         }
     }
   

@@ -82,6 +82,55 @@ class MercatorProjection extends AbstractProjection {
         this._fitsheader = str;
     }
 
+    formatHeaderLine (keyword, value) {
+        
+        // SIMPLE must be the first keyword in the primary HDU
+        // BITPIX must be the second keyword in the primary HDU
+        // all rows 80 ASCII chars of 1 byte
+        // bytes [0-8]   -> keyword
+        // bytes [9-10] -> '= '
+        // bytes [11-80] -> value:
+        //      in case of number -> right justified to the 30th??? digit/position
+        //      in case of string -> between '' and starting from byte 12
+        let klen = keyword.length;
+        let vlen;
+        // keyword
+        if (isNaN(value)){
+            if (keyword == 'SIMPLE')  {
+                value = value;
+            }else{
+                value = "'"+value+"'";
+            }
+            vlen = value.length;
+        }else{
+            vlen = value.toString().length;
+        }
+        
+        let str = keyword;
+        for (let i = 0; i < 8 - klen; i++) {
+            str += ' ';
+        }
+
+        if (keyword !== 'END')  {
+            // value
+            str += "= ";
+            str += value;
+            for (let j = 80; j > 10 + vlen; j--) {
+                str += ' ';
+            }
+        }
+        
+        return str;
+    }
+
+    setFITSHeaderMin (min) {
+        str += this.formatHeaderLine("DATAMIN", min);
+    }
+
+    setFITSHeaderMax (max) {
+        str += this.formatHeaderLine("DATAMAX", max);
+    }
+
     computeSquaredNaxes (d, ps) {
         // first aprroximation to be checked
         this._naxis1 =  Math.ceil(d / ps);
@@ -104,7 +153,12 @@ class MercatorProjection extends AbstractProjection {
      * @param {*} decdeg
      *  
      */
-    world2pix (radeg, decdeg) {}
+    world2pix (radeg, decdeg) {
+        // TODO Math.floor or Math.round?
+        let i = Math.floor((radeg - this._minra) / this._pxsize);
+        let j = Math.floor((decdeg - this._mindec) / this._pxsize);
+        return [i, j];
+    }
 
 
     /**
@@ -112,26 +166,36 @@ class MercatorProjection extends AbstractProjection {
      * It will be filled with pixels values in another method.
      */
     generateOutputImage () {
-        let pxmatrix = [];
-
-        for (let j = 0; j < this._naxis2; j++) { // rows
-
+        let pxmatrix = [[]]; // Array of array of ImagePixel
+        let i, j;
+        for (let cra = this._minra; cra < (this._pxsize * this._naxis1); cra += this._pxsize) {
             let row = new Array(this._naxis1);
-
-            for (let i =  0; i < this._naxis1; i++) { // cols
-            
-                if (this._minra + this._pxsize > 360) {
-                    this._minra -= 360;
-                }
-                // TODO handle Dec > 90 (or <-90 probably not possible): skip that pixel?
-
-                let ii = new ImagePixel (this._minra + this._pxsize * i, this._mindec + this._pxsize * j, i, j);
-                row[i] = ii;
+            for (let cdec = this._mindec; cdec < (this._pxsize * this._naxis2); cdec += this._pxsize) {
+                [i, j] = this.world2pix(cra, cdec);
+                let ip = new ImagePixel (cra, cdec, i, j);
+                row[i] = ip;
             }
-
             pxmatrix.push(row); // row based
-
         }
+
+
+        // for (let j = 0; j < this._naxis2; j++) { // rows
+
+        //     let row = new Array(this._naxis1);
+
+        //     for (let i =  0; i < this._naxis1; i++) { // cols
+            
+        //         if (this._minra + this._pxsize > 360) {
+        //             this._minra -= 360;
+        //         }
+
+        //         let ii = new ImagePixel (this._minra + this._pxsize * i, this._mindec + this._pxsize * j, i, j);
+        //         row[i] = ii;
+        //     }
+
+        //     pxmatrix.push(row); // row based
+
+        // }
 
         let emptyImage = new Image(pxmatrix);
         return emptyImage;

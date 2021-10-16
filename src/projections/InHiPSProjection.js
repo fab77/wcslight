@@ -13,6 +13,7 @@ import AbstractInProjection from './AbstractInProjection';
 import {Hploc, Vec3, Pointing} from "healpixjs";
 import Healpix from "healpixjs";
 import TilesMap from '../model/TilesMap';
+import Image from '../model/Image';
 
 const RAD2DEG = 180 / Math.PI;
 const DEG2RAD = Math.PI / 180;
@@ -44,7 +45,7 @@ class InHiPSProjection extends AbstractInProjection {
     constructor (pxsize) {
         
 		super();
-		this._nside = this.computeNside(pxsize)
+		this._nside = this.computeNside(pxsize);
 		this._hp = new Healpix(this._nside);
 		this.THETAX = Hploc.asin( (K - 1)/K );
 		
@@ -97,11 +98,11 @@ class InHiPSProjection extends AbstractInProjection {
 
 
 	/**
-	 * Generates an array where the key is the HPX tile number and the value is an array of {ImageItem.js} from the output projected image
+	 * Generates an array in which the key is the HPX tile number and the value is an array of {ImageItem.js} from the output projected image
 	 * @param {Array[Array[ImageItem]]} raDecMap Map of RA Dec generated in the OUTPUT projection with generatePxMatrix()
 	 * @returns {} tilesMap
 	 */
-	generateTilesMap(raDecMap) {
+	 generateTilesMap(raDecMap) {
 
 		this._tilesMap = new TilesMap(this._nside);
 		// rows
@@ -109,6 +110,28 @@ class InHiPSProjection extends AbstractInProjection {
 			// cols
 			for (let j = 0; j < raDecMap[i].length; j++) {
 				let imgpx = raDecMap[i][j];
+				let phiTheta_rad = astroDegToSphericalRad(imgpx.getRA(), imgpx.getDec());
+				let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phiRad);
+				let tileno = this._hp.ang2pix(ptg);
+				this._tilesMap.pushImgPx2Tile(tileno, imgpx);
+			}
+		}
+	}
+
+	/**
+	 * Generates an array in which the key is the HPX tile number and the value is an array of {ImageItem.js} from the output projected image
+	 * @param {Image} image generated in the OUTPUT projection with generatePxMatrix()
+	 * @returns {} tilesMap
+	 */
+	 generateTilesMap2(image) {
+		let outpxmatrix = image._pixelsMatrix;
+
+		this._tilesMap = new TilesMap(this._nside);
+		// rows
+		for (let i = 0; i < outpxmatrix[0].length; i++) {
+			// cols
+			for (let j = 0; j < outpxmatrix[i].length; j++) {
+				let imgpx = outpxmatrix[i][j];
 				let phiTheta_rad = astroDegToSphericalRad(imgpx.getRA(), imgpx.getDec());
 				let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phiRad);
 				let tileno = this._hp.ang2pix(ptg);
