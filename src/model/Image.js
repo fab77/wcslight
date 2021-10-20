@@ -13,93 +13,105 @@
 
 class Image {
 
-    _pixelsMatrix;   // original data in format of Array of Array of ImagePixel. Used to fill _processedData and to reset it to the original values
-    _processedData; // Array of Array of values in the same posistion of the _rawData
-    _tFunction; // transfer function applied on _processedData
-    _colorMap;  // color map applied on _processedData
-    _cMap;      // color map
-    _inverse;   // invert color map
-    _pvmin;     // minimum px value
-    _pvmax;     // minimum px value
-    _pvMinMaxChanged;
-    _currentpvmin; // min value used in _processedData
-    _currentpvmax; // max value used in _processedData
     _naxis1;
     _naxis2;
     _canvas2d;
     _projection;
+    _headerDetails;
     /**
      * 
      * @param { [[ImagePixel]] } pixelsMatrix
-     * by default:
-     * - transfer function _tFunction = "linear"
-     * - color map _colorMap = "grayscale"
      */
-    constructor(pixelsMatrix, projection) {
+    constructor(projection) {
 
-        this._pixelsMatrix = pixelsMatrix;
-        this._processedData = [];
         this._pvmin = undefined;
         this._pvmax = undefined;
-        this._naxis1 = this._pixelsMatrix[0].length;
-        this._naxis2 = this._pixelsMatrix.length;
-        this._tFunction = "linear";
-        this._colorMap = "grayscale";
-        this._inverse = false;
-        this._pvMinMaxChanged = false;
-        // to be passed to Canvas2d. used to compute ra, dec from canvas coordinates and vicecersa (world2pix, pix2world)
-        // used as well to get BLANK value
-        this._projection = projection; 
-        this._canvas2d = new Canvas2D(this._naxis1, this._naxis2, this._pixelsMatrix);
+        this._projection = projection;
+
+        
+
+        this._headerDetails = {
+            "pvmin" : undefined,
+            "pvmax" : undefined,
+            "blank" : undefined,
+            "bscale" : undefined,
+            "bzero" : undefined,
+            "bitpix" : undefined,
+            "naxis1" : this._projection.naxis1,
+            "naxis2" : this._projection.naxis2
+        };
+
+        this._pixelsValues = new Array(this._headerDetails.naxis2);
+       
+        // TODO really want to init Canvas here?
+        this._canvas2d = new Canvas2D(this._naxis1, this._naxis2, this._headerDetails.pvmin, this._headerDetails.pvmax);
 
     }
+
+    
 
     /**
      * 
      * @param {ImagePixel} imgpx 
      */
-     setPxValue (imgpx) {
+    setPxValue (imgpx) {
 
-
-        // TODO
-        // BLANK should be updated at every new iteration of file (in this._projection). the problem is what BLANK to put into the final fits!!!
-
-        // if imgpx.getValue() === BLANK: set the value to blank (taken from this._projection.header) and return 
-        // else set value to imgpx.getValue()
-        // if imgpx.getValue() < this._currentpvmin: this._currentpvmin = imgpx.getValue() and update FITS Header min (_projection.setFITSHeaderMin())
-        // else if imgpx.getValue() > this._currentpvmax: this._currentpvmax = imgpx.getValue() and update FITS Header max (_projection.setFITSHeaderMax())
-        // return 
-        if (this._pvmin === undefined || this._pvmax === undefined) {
-            throw new MixMaxNotDefined();
+        if (this._pixelsValues[imgpx.j] === undefined) {
+            this._pixelsValues[imgpx.j] = new Array(this._headerDetails.naxis1);
         }
 
-        if (imgpx.getValue() < this._pvmin || imgpx.getValue() > this._pvmax){
-            this._pixelsMatrix[imgpx.i][imgpx.j].value = "NaN"; // TODO it should be BLANK. take it from this._projection
-            this._processedData[imgpx.i][imgpx.j] = "NaN";      // TODO it should be BLANK
+        if (imgpx.getValue() === this._headerDetails.blank){ // do I really need that?
+            this._pixelsValues[imgpx.j][imgpx.i] = this._headerDetails.blank;
         } else {
-            this._pixelsMatrix[imgpx.i][imgpx.j] = imgpx;
-            this._processedData[imgpx.i][imgpx.j] = imgpx.getValue();
+            this._pixelsValues = imgpx.getValue();
         }
         
     }
 
-    getPxValue (i, j) {
-        return this._processedData[i][j];
-    }
+    updateFITSHeader(headerinfo) {
+        
+        
+        if (this._headerDetails.pvmin === undefined || this._headerDetails.pvmin > headerinfo.min) {
+            this._headerDetails.pvmin = headerinfo.min;
+        }
 
-    reset () {
+        if (this._headerDetails.pvmax === undefined || this._headerDetails.pvmax < headerinfo.max) {
+            this._headerDetails.pvmax = headerinfo.max;
+        }
 
-        for (let j = 0; j < this._naxis2; j++){
-            let row = this._pixelsMatrix[j];
-            for (let i = 0; i < this._naxis1; i++){
-                let imgpx = row[i];
-                this._processedData[j][i] = imgpx.getValue();
-            }
+        if (this._headerDetails.blank === undefined) {
+            this._headerDetails.blank = headerinfo.blank;
+        } else if (this._headerDetails.blank !== headerinfo.blank) {
+            throw new ErrorEvent("BLANK value changed!");
+        }
+
+        if (this._headerDetails.bscale === undefined) {
+            this._headerDetails.bscale = headerinfo.bscale;
+        } else if (this._headerDetails.bscale !== headerinfo.bscale) {
+            throw new ErrorEvent("BSCALE value changed!");
+        }
+
+        if (this._headerDetails.bzero === undefined) {
+            this._headerDetails.bzero = headerinfo.bzero;
+        } else if (this._headerDetails.bzero !== headerinfo.bzero) {
+            throw new ErrorEvent("BZERO value changed!");
+        }
+
+        if (this._headerDetails.bitpix === undefined) {
+            this._headerDetails.bitpix = headerinfo.bitpix;
+        } else if (this._headerDetails.bitpix !== headerinfo.bitpix) {
+            throw new ErrorEvent("BITPIX value changed!");
         }
 
     }
-    
 
+    finalizeFITSHeader () {
+        this._projection.finalizeFITSHeader(this._headerDetails);
+    }
+
+    getCanvas2d() {
+        this._canvas2d.addData()
+    }
     // setTransferFunction(tFunction) {
 
     //     if (this._tFunction == "linear"){
@@ -137,20 +149,7 @@ class Image {
     //     this._inverse = bool;
     // }
 
-    // setMinMax(minVal, maxVal) {
-
-    //     if (this._pvmin === undefined) {
-    //         this._pvmin = minVal;
-    //     }
-
-    //     if (this._pvmax === undefined) {
-    //         this._pvmax = maxVal;
-    //     }
-        
-    //     this._currentpvmin = minVal;
-    //     this._currentpvmax = maxVal;
-            
-    // }
+    
 
     // /**
     //  * function to be called after minmax or transfer function has changed to update the 

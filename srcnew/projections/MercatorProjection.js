@@ -35,16 +35,52 @@ class MercatorProjection extends AbstractProjection {
      */
     constructor (center, radius, pxsize) {
         super();
-        this.computeSquaredNaxes (2 * radius, pxsize);
-        this._minra = center.raDeg - radius;
-        if (this._minra < 0) {
-            this._minra += 360;
-        }
-        this._mindec = center.decDeg - radius;
-        this._pxsize = pxsize;
+        // moved to init
+        // this.computeSquaredNaxes (2 * radius, pxsize); // compute naxis[1, 2]
+        // this._minra = center.raDeg - radius;
+        // if (this._minra < 0) {
+        //     this._minra += 360;
+        // }
+        // this._mindec = center.decDeg - radius;
+        // this._pxsize = pxsize;
 
-        this.prepareFITSHeader(center.raDeg, center.decDeg, this._pxsize);
+        // this.prepareFITSHeader(center.raDeg, center.decDeg, this._pxsize);
         
+    }
+
+    /**
+	 * 
+	 * @param {*} initparam 
+	 */
+	init(initparam) {
+
+		if ( initparam.action === "canvas2d" || initparam.action === "transform_in" ) {
+			// initparam = {center {raDeg, decDeg}, naxis1, naxis2}
+			// TODO
+		} else if (initparam.action.includes("cutout") ) {
+			// initparam = { center {raDeg, decDeg}, radius, pxsize}
+			this.computeSquaredNaxes (2 * initparam.radius, initparam.pxsize); // compute naxis[1, 2]
+            this._minra = initparam.center.raDeg - initparam.radius;
+            if (this._minra < 0) {
+                this._minra += 360;
+            }
+            this._mindec = initparam.center.decDeg - initparam.radius;
+            this._pxsize = initparam.pxsize;
+            
+            if (initparam.action === "cutout_out" ) {
+                this.prepareFITSHeader(initparam.center.raDeg, initparam.center.decDeg, this._pxsize);
+                this._pxmatrix = this.generateOutputImageMap();
+            }
+
+		} else if (initparam.action === "transform_out" ) {
+			// initiparam = {bbox, naxis1, naxis2, pxsize}
+			// TODO
+		}
+
+	}
+
+    getOutputImageMap () {
+        return this._pxmatrix;
     }
 
     prepareFITSHeader (refRA, refDec, pxsize) {
@@ -128,13 +164,6 @@ class MercatorProjection extends AbstractProjection {
         return str;
     }
 
-    setFITSHeaderMin (min) {
-        str += this.formatHeaderLine("DATAMIN", min);
-    }
-
-    setFITSHeaderMax (max) {
-        str += this.formatHeaderLine("DATAMAX", max);
-    }
 
     computeSquaredNaxes (d, ps) {
         // first aprroximation to be checked
@@ -169,6 +198,8 @@ class MercatorProjection extends AbstractProjection {
     /**
      * @return an empty array of (ImagePixel.js} representing the output image/FITS. 
      * It will be filled with pixels values in another method.
+     * TODO this could be a simple list of ImagePixel, no matter how they are organized.
+     * This list will be used by the InputProjection to perform the world2pix
      */
      generateOutputImageMap () {
         let pxmatrix = [[]]; // Array of array of ImagePixel
