@@ -28,144 +28,57 @@ class WCSLight {
      * @param {string} outprojname 
      * @param {string[]} [filelist]
      * @param {string} [baseuri] e.g. "http://<base hips URL> or <base file system dir>";
-     * @returns {Object {"FITSHeader", "FITSData"}}
+     * @returns {Image}
      */
-    static cutout (center, radius, pxsize, inprojname, outprojname, filelist, baseuri) {
-        if (!filelist && !baseuri) {
-            throw new Error("Missing either filelist or baseuri. Check input param.");
-        }
+    static cutout (center, radius, pxsize, inproj, outproj) {
         
-        let initparam = {
-            "action": "cutout",
-            "center": center,
-            "pxsize": pxsize,
-            "radius": radius
-        }
+        let result = [];
+        // todo this should return a map. one key per output file ra, dec map
+        // in case of out mercator, the map will contains only 1 key
+        let outRADecMap = outproj.getImageRADecList(center, radius, pxsize);     
+        for (const [key, value] of outRADecMap) {
+            let outRADecList = value;
+            // start here a loop over outRADecList (which is a Map)
+            // outRADecMAP.foreach(outRADecList){
+            let inputPixelsList = inproj.world2pix(outRADecList);
 
-        // 0. INSTANZIATE IN PROJECTION BY PASSING center, radius and pxsize(e.g {"ra": 21, "dec": 19}, 0.001, 0.0005)
-        let inproj = WCSLight.getProjection(inprojname);
-        inproj.init(initparam);
-    
-        // 1. INSTANZIATE OUTPUT PROJECTION IN THE SAME WAY
-        let outproj = WCSLight.getProjection(outprojname);
-        outproj.init(initparam);
-        
-        // 2. (output preparation) GET FROM OUTPUT PROJECTION THE outputImageMap CONATINING THE OUTPUT PIXEL MATRIX [naxis1 x naxis2] ImagePx (ra, dec, i, j)
-        // <-- TODO change method name to getImagePixelList
-        let outputImageMap = outproj.getOutputImageMap(); 
-    
-        // 3. (input organization) USING THE outputImageMap ORGANIZE ImagePixels IN A map PER TILE NUMBER (ONLY FOR HiPS PROJECTION). 
-        // TODO <-- this is HiPS specific. change method name to something like optimizePixelsOrder
-        let tilesMap = inproj.generateTilesMap(outputImageMap); 
-    
-        // 4. GENERATE THE FINAL EMPTY Image PASSING THE outproj (AND CONSEQUENTLY naxis1, naxis2 DEFINED IN outproj)
-        let outimage = new Image(outproj);
+            let invalues = inproj.getPixValuesFromPxlist(inputPixelsList);
+            let fitsHeaderParams = inproj.getFITSHeader();
 
-        // 5. INSTANZIATE THE UTILITY cutout
-        let cutout = new Cutout(outimage, inproj);
-        
-        
-        if (!filelist) {
-            
-            if (typeof inproj === "HiPSProjection" && baseuri) {
-                baseuri = baseuri+"/"+inproj.getNorder(); // TODO getNorder
-            }    
-
-            // 6. ITERATE OVER TILE ON tileMap TO 
-            tilesMap.forEach(function(pixelsArray, tileno) {
-                //  6.1 CALL FITSParser TO LOAD AND PARSE THE CORRESPONDING FITS
-                let fits = new FITSParser(baseuri+"/Dir***"+key+".fits"); // TODO compute Dir***
-                fitsheader = fits.header;
-                fitsdata = fits.data;
-                // TODO? avoid passing "tileno" to wcsl.fillOutputImage, the FITS HEADER should contain Npix<X>
-                headerinfo = {
-                    "min" : fitsheader.getValue("DATAMIN"),
-                    "max" : fitsheader.getValue("DATAMAX"),
-                    "blank" : fitsheader.getValue("BLANK"),
-                    "bscale" : fitsheader.getValue("BSCALE"),
-                    "bzero" : fitsheader.getValue("BZERO"),
-                    "bitpix" : fitsheader.getValue("BITPIX")
-                }
-                //  6.2 PASS [fitsheader, fitsdata] TO THE UTILITY WCSLight.cutout TO FILL image created at point 5
-                cutout.fillOutputImage(fitsdata, headerinfo, tileno);
-            });
-
-        } else {
-            // 6. ITERATE OVER FILES
-            filelist.forEach(function(filepath) {
-                //  6.1 CALL FITSParser TO LOAD AND PARSE THE CORRESPONDING FITS
-                let fits = new FITSParser(filepath);
-                fitsheader = fits.header;
-                fitsdata = fits.data;
-                headerinfo = {
-                    "min" : fitsheader.getValue("DATAMIN"),
-                    "max" : fitsheader.getValue("DATAMAX"),
-                    "blank" : fitsheader.getValue("BLANK"),
-                    "bscale" : fitsheader.getValue("BSCALE"),
-                    "bzero" : fitsheader.getValue("BZERO"),
-                    "bitpix" : fitsheader.getValue("BITPIX")
-                }
-                //  6.2 PASS [fitsheader, fitsdata] TO THE UTILITY WCSLight.cutout TO FILL image created at point 5
-                cutout.fillOutputImage(fitsdata, headerinfo, tileno);
+            let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams, key);
+            let fitsheader = outproj.getFITSHeader();
+            let canvas2d = outproj.getCanvas2d();
+            result.push({
+                "fitsheader": fitsheader,
+                "fitsdata": fitsdata,
+                "canvas2d": canvas2d
             });
         }
-
-        // 7. GET THE PROCESSED IMAGE
-        outimage = cutout.getFinalImage();
-        return outimage;
+        
+        return result;
 
     }
 
+    /**
+     * 
+     * @param {*} fitsheader 
+     * @param {*} fitsdata 
+     * @returns {URL}
+     */
     static writeFITS(fitsheader, fitsdata) {
         let encodedData = FITSParser.writeFITS(fitsheader, fitsdata);
         return encodedData;
     }
 
-    /**
-     * 
-     * @param {string} filepath 
-     * @param {string} projname 
-     * @returns {Canvas2D}
-     */
-    static getCanvas2d(filepath, projname) {
+    
 
-        let fits = new FITSParser(filepath);
-        let fitsheader = fits.header;
-        let fitsdata = fits.data;
-        
-        let initparam = {
-            "action": "canvas2d",
-            "nside": fitsheader.nside,
-            "tileno": fitsheader.pixno,
-            "naxis1": fitsheader.naxis1,
-            "naxis2": fitsheader.naxis2
-        }
 
-        let proj = WCSLight.getProjection(projname);
-        proj.init(initparam);
-
-        let canvas = new Canvas2D(fitsheader.pvmin, fitsheader.pvmax, fitsdata);
-        return canvas;
-
+    static changeProjection (filepath, outprojname) {
+        // TODO
     }
 
 
-    // getInProjection () {
-    //     return this._inproj;
-    // }
-
-
-    // getOutProjection () {
-    //     return this._outproj;
-    // }
-
-    
-    
-    // getOutputImageMap() {
-    //     return this._outImageMap;
-    // }
-
-    static getProjection(projectionName) {
+    static getProjection(projectionName, filepathlist) {
         if (projectionName === "Mercator") {
             return new MercatorProjection();
         } else  if (projectionName === "HiPS") {
@@ -177,15 +90,7 @@ class WCSLight {
         }
     }
 
-    
-    static transformService (fitsheader, fitsdata, inproj, outproj) {
 
-    }
-
-    static cutoutService (outimage, inprojection) {
-
-        return new Cutout(outimage, inprojection);
-    }
 }
 
 export default WCSLight;

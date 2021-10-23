@@ -13,8 +13,8 @@ import RGBA from "./RGBA";
 class ImagePixel {
     _ra;    // decimal degrees
     _dec;   // decimal degrees
-    _i;     // int i of output projection
-    _j;     // int j of output projection
+    _i;     // int i of input projection
+    _j;     // int j of input projection
     _tileno;// int
     // _originalValue;
     _value;

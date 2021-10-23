@@ -32,6 +32,7 @@ class Cutout {
         
         if (this._projection instanceof HiPSProjection) {
             this._projection.world2pixByTile(this._image, tileno, inData);
+            world2pix
         }
     }
 

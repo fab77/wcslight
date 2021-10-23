@@ -21,6 +21,7 @@ class Canvas2D {
     _currmax;
     _colormap;
     _tfunction;
+    _projection;
 
     /**
      * 
@@ -28,34 +29,72 @@ class Canvas2D {
      * @param {*} pvmax maximum phisical value
      * @param {*} data [] of [] of decimal values
      */
-    constructor (pvmin, pvmax, data, tfunction = "linear", colormap = "grayscale", inverse = false) {
+    constructor (pixelvalues, projection, tfunction = "linear", colormap = "grayscale", inverse = false) {
         
-        this._min = pvmin;
-        this._max = pvmax;
-        this._currmin = this._min;
-        this._currmax = this._max;
+        // initial settings use to reset the image to its initial status
+        this._orig_tfunction = tfunction;
+        this._orig_colormap = colormap;
+        this._orig_inverse = inverse;
+        this._orig_min = projection.getFITSHeader()["DATAMIN"];
+        this._orig_max = projection.getFITSHeader()["DATAMAX"];
+
+        this._currmin = this._orig_min;
+        this._currmax = this._orig_max;
+
+        this._bzero = projection.getFITSHeader()["BZERO"];
+        this._bscale = projection.getFITSHeader()["BSCALE"];
+        this._blank = projection.getFITSHeader()["BLANK"];
 
         this._width = data[0].length;
         this._height = data.length;
         
-        this._values = data;
-        this._originalData = data;
+        this._physicalvalues = [];
+        this._pixelvalues = pixelvalues;
         
         this._inverse = inverse;
 
         this._tfunction == tfunction;
         this._colormap = colormap;
+
+        this._projection = projection;
         
+    }
+
+    /**
+     * function to be called after minmax or transfer function has changed to update the 
+     * this._processedData containing pixels values
+     */
+     process() {
+
+        for (let j = 0; j < this._height; j++) {
+            for (let i = 0; i < this._width; i++) {
+                let val = this.pixel2Physical(this._pixelvalues[j][i]);
+                if (val < this._currmin || val > this._currmax) {
+                    val = NaN;
+                } else {
+                    val = this.appylyTransferFunction(val);
+                    this._physicalvalues[j][i] = val;
+                }
+            }
+        }
+
+        return this._physicalvalues;
+
+    }
+
+    pixel2Physical(value){
+        let pval = this._bzero + this._bscale * value;
+        return pval;
     }
 
     reset () {
 
-        this._tfunction = "linear";
-        this._colormap = "grayscale"; 
-        this._inverse = false;
-        this._values = this._originalData;
-        this._currmin = this._min;
-        this._currmax = this._max;
+        this._tfunction = this._orig_tfunction;
+        this._colormap = this._orig_colormap; 
+        this._inverse = this._orig_inverse;
+        this._currmin = this._orig_min;
+        this._currmax = this._orig_max;
+        this.process();
 
     }
     
@@ -104,27 +143,7 @@ class Canvas2D {
             
     }
 
-    /**
-     * function to be called after minmax or transfer function has changed to update the 
-     * this._processedData containing pixels values
-     */
-    process() {
 
-        for (let j = 0; j < this._height; j++) {
-            for (let i = 0; i < this._width; i++) {
-                let val = this._originalData[j][i];
-                if (val < this._currmin || val > this._currmax) {
-                    val = NaN;
-                } else{
-                    val = this.appylyTransferFunction(val);
-                    this._values[j][i] = val;
-                }
-            }
-        }
-
-        return this.getCanvas2DBrowse();
-
-    }
 
     appylyTransferFunction(val) {
 
@@ -160,7 +179,7 @@ class Canvas2D {
 //    			pos = ( col * c.width + row ) * 4;
     			pos = ( (c.width - row) * c.width + col ) * 4;
 
-    			colors = this.colorPixel(this._values[row][col]);
+    			colors = this.colorPixel(this._physicalvalues[row][col]);
 
     			imgData.data[pos] = colors.r;
     			imgData.data[pos+1] = colors.g;
@@ -196,7 +215,7 @@ class Canvas2D {
         // // TODO Check that. Probably better to use normalized values on [0, 1]
         // // and this._currentpvmin and this._currentpvmax
 		// if ( v < 0 ) v = -v;
-		let colormap_idx = ( (v - this._min) / (this._max-this._min)) * 256;
+		let colormap_idx = ( (v - this._currmin) / (this._currmax-this._currmin)) * 256;
 		let idx = Math.round(colormap_idx);
 		let colorMap = ColorMaps[this._colorMap];
 		// if (idx<0){
@@ -234,6 +253,32 @@ class Canvas2D {
 		}
 
 	}
+
+    getValueByRaDec(ra, dec) {
+        let [i, j] = this._projection.world2pix(ra, dec);
+        return this.getValueByPixelCoords(i, j);
+    }
+
+    getValueByPixelCoords(i, j) {
+        let [cx, cy] = this.ij2canvasxy(i, j);
+        return this.getValueByCanvasCoords(cx, cy);
+    }
+
+    getValueByCanvasCoords(cx, cy) {
+        return this._physicalvalues[cy][cx];
+    }
+
+    getRaDecByCanvasCoords(cx, cy) {
+        let [i, j] = this.canvasxy2ij(cx, cy);
+        return this.getRaDecByPixelCoords(i, j);
+    }
+
+    getRaDecByPixelCoords(i, j){
+        let [ra, dec] = this._projection.pix2world(i, j);
+        return [ra, dec];
+    }
+
+
 
 }
 
