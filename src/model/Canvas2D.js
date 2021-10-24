@@ -17,47 +17,96 @@ class Canvas2D {
     _height;
     _min;
     _max;
+    _currmin;
+    _currmax;
     _colormap;
     _tfunction;
+    _projection;
 
-    constructor (width, height, pixelsMatrix) {
-        this._width = width;
-        this._height = height;
-        this._values = [[]];
-        init(pixelvalues);
+    /**
+     * 
+     * @param {*} pvmin minimum phisical value
+     * @param {*} pvmax maximum phisical value
+     * @param {*} data [] of [] of decimal values
+     */
+    constructor (pixelvalues, projection, tfunction = "linear", colormap = "grayscale", inverse = false) {
+        
+        // initial settings use to reset the image to its initial status
+        this._orig_tfunction = tfunction;
+        this._orig_colormap = colormap;
+        this._orig_inverse = inverse;
+        this._orig_min = projection.getFITSHeader()["DATAMIN"];
+        this._orig_max = projection.getFITSHeader()["DATAMAX"];
+
+        this._currmin = this._orig_min;
+        this._currmax = this._orig_max;
+
+        this._bzero = projection.getFITSHeader()["BZERO"];
+        this._bscale = projection.getFITSHeader()["BSCALE"];
+        this._blank = projection.getFITSHeader()["BLANK"];
+
+        this._width = data[0].length;
+        this._height = data.length;
+        
+        this._physicalvalues = [];
+        this._pixelvalues = pixelvalues;
+        
+        this._inverse = inverse;
+
+        this._tfunction == tfunction;
+        this._colormap = colormap;
+
+        this._projection = projection;
+        
     }
 
-    init(pixelsMatrix) {
-        for (let j = 0; j < this._height; j++){
-            let row = pixelsMatrix[j];
-            for (let i = 0; i < this._width; i++){
-                let imgpx = row[i];
-                this._value[j][i] = imgpx.getValue();
+    /**
+     * function to be called after minmax or transfer function has changed to update the 
+     * this._processedData containing pixels values
+     */
+     process() {
+
+        for (let j = 0; j < this._height; j++) {
+            for (let i = 0; i < this._width; i++) {
+                let val = this.pixel2Physical(this._pixelvalues[j][i]);
+                if (val < this._currmin || val > this._currmax) {
+                    val = NaN;
+                } else {
+                    val = this.appylyTransferFunction(val);
+                    this._physicalvalues[j][i] = val;
+                }
             }
         }
+
+        return this._physicalvalues;
+
     }
 
-    reset (pixelsMatrix) {
+    pixel2Physical(value){
+        let pval = this._bzero + this._bscale * value;
+        return pval;
+    }
 
-        for (let j = 0; j < this._naxis2; j++){
-            let row = pixelsMatrix[j];
-            for (let i = 0; i < this._naxis1; i++){
-                let imgpx = row[i];
-                this._values[j][i] = imgpx.getValue();
-            }
-        }
+    reset () {
+
+        this._tfunction = this._orig_tfunction;
+        this._colormap = this._orig_colormap; 
+        this._inverse = this._orig_inverse;
+        this._currmin = this._orig_min;
+        this._currmax = this._orig_max;
+        this.process();
 
     }
     
 
     setTransferFunction(tFunction) {
 
-        if (this._tFunction == "linear"){
-			this._tFunction = "linear";
-		} else if (this._tFunction == "log'"){
-			this._tFunction = "log";
-		} else if (this._tFunction == "sqrt"){
-			this._tFunction = "sqrt";
+        if (tFunction == "linear"){
+			this._tfunction = "linear";
+		} else if (tFunction == "log'"){
+			this._tfunction = "log";
+		} else if (tFunction == "sqrt"){
+			this._tfunction = "sqrt";
 		} else {
             throw new TransferFunctionNotDefined(tFunction);
         }
@@ -67,17 +116,17 @@ class Canvas2D {
     setColorMap(cmap) {
 
         if (cmap == "grayscale") {
-            this._colorMap = "grayscale";
+            this._colormap = "grayscale";
         } else if (cmap == "planck") {
-            this._colorMap = "planck";
+            this._colormap = "planck";
         } else if (cmap == "eosb") {
-            this._colorMap = "eosb";
+            this._colormap = "eosb";
         } else if (cmap == "rainbow") {
-            this._colorMap = "rainbow";
+            this._colormap = "rainbow";
         } else if (cmap == "cmb") {
-            this._colorMap = "cmb";
+            this._colormap = "cmb";
         } else if (cmap == "cubehelix") {
-            this._colorMap = "cubehelix";
+            this._colormap = "cubehelix";
         } else {
             throw new ColorMapNotDefined(cmap);
         }
@@ -89,32 +138,12 @@ class Canvas2D {
 
     setMinMax(minVal, maxVal) {
 
-        this._min = minVal;
-        this._max = maxVal;
+        this._currmin = minVal;
+        this._currmax = maxVal;
             
     }
 
-    /**
-     * function to be called after minmax or transfer function has changed to update the 
-     * this._processedData containing pixels values
-     */
-    update() {
-        this._pixelsMatrix.forEach(function (row, j) {
-            row.forEach(function (val, j) {
-                // reprocess this._pixelsMatrix and update this._processedData
-                let imgpx = this._pixelsMatrix[i][j];
-                let val = imgpx.value;
-                // apply tfunction if defined
-                val = applyTFunction(val);
-                if (val < this._currentpvmin || val > this._currentpvmax) {
-                    // TODO here I need to set BLANK 
-                    this._values[i][j] = NaN;
-                } else {
-                    this._values[i][j] = this.appylyTransferFunction(val);
-                }
-            });
-        });
-    }
+
 
     appylyTransferFunction(val) {
 
@@ -135,22 +164,22 @@ class Canvas2D {
      */
      getCanvas2DBrowse() {
         let c = document.createElement('canvas');
-    	c.width = this._naxis1;
-        c.height = this._naxis2;
+    	c.width = this._width;
+        c.height = this._height;
         let ctx = c.getContext("2d");
         let imgData = ctx.createImageData(c.width, c.height);
     	
         let pos;
         let colors;
-		for (let row=0; row < this._naxis2; row++){
-    		for (let col=0; col < this._naxis1; col++){
+		for (let row = 0; row < c.height; row++){
+    		for (let col = 0; col < c.width; col++){
 
     			/** to invert x and y replace the pos computation with the following */
     			/** pos = ((c.width - row) * (c.height) + col ) * 4; */
 //    			pos = ( col * c.width + row ) * 4;
-    			pos = ( (this._naxis1 - row) * c.width + col ) * 4;
+    			pos = ( (c.width - row) * c.width + col ) * 4;
 
-    			colors = this.colorPixel(this._values[row][col]);
+    			colors = this.colorPixel(this._physicalvalues[row][col]);
 
     			imgData.data[pos] = colors.r;
     			imgData.data[pos+1] = colors.g;
@@ -186,7 +215,7 @@ class Canvas2D {
         // // TODO Check that. Probably better to use normalized values on [0, 1]
         // // and this._currentpvmin and this._currentpvmax
 		// if ( v < 0 ) v = -v;
-		let colormap_idx = ( (v - this._min) / (this._max-this._min)) * 256;
+		let colormap_idx = ( (v - this._currmin) / (this._currmax-this._currmin)) * 256;
 		let idx = Math.round(colormap_idx);
 		let colorMap = ColorMaps[this._colorMap];
 		// if (idx<0){
@@ -224,6 +253,32 @@ class Canvas2D {
 		}
 
 	}
+
+    getValueByRaDec(ra, dec) {
+        let [i, j] = this._projection.world2pix(ra, dec);
+        return this.getValueByPixelCoords(i, j);
+    }
+
+    getValueByPixelCoords(i, j) {
+        let [cx, cy] = this.ij2canvasxy(i, j);
+        return this.getValueByCanvasCoords(cx, cy);
+    }
+
+    getValueByCanvasCoords(cx, cy) {
+        return this._physicalvalues[cy][cx];
+    }
+
+    getRaDecByCanvasCoords(cx, cy) {
+        let [i, j] = this.canvasxy2ij(cx, cy);
+        return this.getRaDecByPixelCoords(i, j);
+    }
+
+    getRaDecByPixelCoords(i, j){
+        let [ra, dec] = this._projection.pix2world(i, j);
+        return [ra, dec];
+    }
+
+
 
 }
 

@@ -128,5 +128,8 @@ let outproj = new HiPSProjection(null, hipsBaseUri, pxsize);
 let filelist = ["myfolder/file1.fits", "myfolder/file2.fits", "myfolder/file3.fits" ];
 // the following loop should fill at each iteration the putput matrix
 // foreach file in filelist
-    let inproj = new MercatorProjection(filelist);
+filelist.forEach((file) => function () {
+    let inproj = new MercatorProjection(file);
     let cutout = WCSLight.cutout(center, radius, pxsize, inproj, outproj);
+});
+    

@@ -10,8 +10,9 @@
 
 
 import AbstractProjection from './AbstractProjection';
-// import ParseUtils from '../ParseUtils';
 import ImagePixel from '../model/ImagePixel';
+import Canvas2D from '../model/Canvas2D';
+import FITSParser from "FITSParser";
 
 class MercatorProjection extends AbstractProjection {
 
@@ -33,109 +34,128 @@ class MercatorProjection extends AbstractProjection {
      * @param {*} radius decimal degrees
      * @param {*} pxsize decimal degrees
      */
-    constructor (center, radius, pxsize) {
+    constructor (fitsFilelist) {
         super();
-        this.computeSquaredNaxes (2 * radius, pxsize);
-        this._minra = center.raDeg - radius;
-        if (this._minra < 0) {
-            this._minra += 360;
+        super();
+		if (fitsFilelist) {
+			this._fitsFilelist = fitsFilelist;
+			if (this._fitsFilelist.length >= 1) {
+				this.initFromFile(0);
+			}
+		}
+		this._fitsheaderlist = [];
+    }
+
+    initFromFile (fitsIndex) {
+		let fitsURL = this._fitsFilelist[fitsIndex];
+		let fits = new FITSParser(fitsURL);
+		this._fitsdata = fits.data;
+		this._fitsheaderlist.push(fits.header);
+		this._naxis1 = fits.header.naxis1;
+		this._naxis2 = fits.header.naxis2;
+	}
+
+    computePixValues() {
+		let data = this._fitsdata;
+		let header = this._fitsheaderlist[0];
+		
+		this.setFITSHeaderEntry("SIMPLE", header.simple);
+		this.setFITSHeaderEntry("BLANK", header.blank);
+		this.setFITSHeaderEntry("BZERO", header.bzero);
+		this.setFITSHeaderEntry("BSCALE", header.bscale);
+		this.setFITSHeaderEntry("NAXIS1", header.naxis1);
+		this.setFITSHeaderEntry("NAXIS2", header.naxis2);
+		
+		let values = new Array(this._naxis2);
+		for (let j = 0; j < this._naxis2; j++ ){
+			if (!values[j]) {
+				values[j] = new Array(this._naxis1);
+			}
+			for (let i = 0; i < this._naxis1; i++ ){
+				values[j][i] = data[j][i];		
+			}
+		}
+		this._pxvalues = values;
+		return values;
+	}
+
+    prepareFITSHeader (fitsHeaderParams) {
+		// TODO
+		this._fitsheader = new FITSHeader();
+        
+        this._fitsheader.set("SIMPLE", fitsHeaderParams["SIMPLE"]);
+		this._fitsheader.set("NAXIS1", this._naxis1);
+		this._fitsheader.set("NAXIS2", this._naxis2);
+		this._fitsheader.set("ORDER", this._norder);
+		this._fitsheader.set("NPIX", this._pixno);
+		this._fitsheader.set("BLANK", fitsHeaderParams["BLANK"]);
+		this._fitsheader.set("BSCALE", fitsHeaderParams["BSCALE"]);
+		this._fitsheader.set("BZERO", fitsHeaderParams["BZERO"]);
+		this._fitsheader.set("CTYPE1", "RA---MER");
+		this._fitsheader.set("CTYPE2", "DEC--MER");
+		
+        this._fitsheader.set("CDELT1", this._pxsize); // ??? Pixel spacing along axis 1 ???
+        this._fitsheader.set("CDELT2", this._pxsize); // ??? Pixel spacing along axis 2 ???
+        this._fitsheader.set("CRPIX1", this._naxis1/2); // central/reference pixel i along naxis1
+        this._fitsheader.set("CRPIX2", this._naxis2/2); // central/reference pixel j along naxis2
+        this._fitsheader.set("CRVAL1", this._cra); // central/reference pixel RA
+        this._fitsheader.set("CRVAL2", this._cdec); // central/reference pixel Dec
+
+        let min = fitsHeaderParams["BZERO"] + fitsHeaderParams["BSCALE"] * this._minval;
+        let max = fitsHeaderParams["BZERO"] + fitsHeaderParams["BSCALE"] * this._maxval;
+        this._fitsheader.set("DATAMIN", min); // min data value
+        this._fitsheader.set("DATAMAX", max); // max data value
+
+        this._fitsheader.set("WCSNAME", "HiPS");
+        this._fitsheader.set("ORIGIN", "WCSLight v.0.x");
+        this._fitsheader.set("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar");
+
+		return this._fitsheader;
+		
+	}
+    getFITSHeader() {
+        return this._fitsheader;
+    }
+   
+    getPixValuesFromPxlist(inputPixelsList) {
+
+
+		// I need association ImgPixel -> file
+
+		let pixcount = inputPixelsList.length;
+		let values = new Array(pixcount);
+
+        this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
+        this.setFITSHeaderEntry("BLANK", fits.header.blank);
+        this.setFITSHeaderEntry("BZERO", fits.header.bzero);
+        this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
+
+        for (let j = 0; j < pixcount; j++ ){
+            let imgpx = inputPixelsList[j];
+            values[j] = fits.data[imgpx.j][imgpx.i];
         }
-        this._mindec = center.decDeg - radius;
-        this._pxsize = pxsize;
 
-        this.prepareFITSHeader(center.raDeg, center.decDeg, this._pxsize);
-        
-    }
+        // THE FOLLOWING IN CASE I WANT TO HANDLE MULTIPLE FILES HERE
+        // for (let f = 0; f < this._fitsFilelist.length; f++) {
+        //     let fits = new FITSParser(this._fitsFilelist[f]);
+        //     this._fitsheaderlist.push(fits.header);
+        //     // TODO group these functions in one method
+        //     this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
+        //     this.setFITSHeaderEntry("BLANK", fits.header.blank);
+        //     this.setFITSHeaderEntry("BZERO", fits.header.bzero);
+        //     this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
 
-    prepareFITSHeader (refRA, refDec, pxsize) {
-        
-        let str = this.formatHeaderLine("SIMPLE", "T");
-        str += this.formatHeaderLine("NAXIS", 2);
-        str += this.formatHeaderLine("NAXIS1", this._naxis1);
-        str += this.formatHeaderLine("NAXIS2", this._naxis2);
-        str += this.formatHeaderLine("CTYPE1", "RA---MER"); // TODO to be checked with the documentation
-        str += this.formatHeaderLine("CTYPE2", "DEC--MER"); // TODO to be checked with the documentation
-        str += this.formatHeaderLine("CDELT1", pxsize); // ??? Pixel spacing along axis 1 ???
-        str += this.formatHeaderLine("CDELT2", pxsize); // ??? Pixel spacing along axis 2 ???
-        str += this.formatHeaderLine("CRPIX1", this._naxis1/2); // central/reference pixel i along naxis1
-        str += this.formatHeaderLine("CRPIX2", this._naxis2/2); // central/reference pixel j along naxis2
-        str += this.formatHeaderLine("CRVAL1", refRA); // central/reference pixel RA
-        str += this.formatHeaderLine("CRVAL2", refDec); // central/reference pixel Dec
-        str += this.formatHeaderLine("WCSNAME", "Mercator");
-        str += this.formatHeaderLine("ORIGIN", "FITSOnTheWeb v.0.x");
-        str += this.formatHeaderLine("COMMENT", "FITSOnTheWebv0.x developed by F.Giordano and Y.Ascasibar");
-
-        // moved to finalizeFITSHeader
-        // str += this.formatHeaderLine("BLANK", headerDetails.blank); // to be taken from the input data and use it into Image in place of "NaN"
-        // str += this.formatHeaderLine("BSCALE", headerDetails.bscale); // to be taken from the input data
-        // str += this.formatHeaderLine("BZERO", headerDetails.bzero); // to be taken from the input data
-        // str += this.formatHeaderLine("BITPIX", headerDetails.bitpix); // to be taken from the input data
-        // str += this.formatHeaderLine("DATAMAX", null); // take it from computed image
-        // str += this.formatHeaderLine("DATAMIN", null); // take it from computed image
-        // str += this.formatHeaderLine("END", "");
-
-        this._fitsheader = str;
-    }
-
-    finalizeFITSHeader (headerDetails) {
-        this._fitsheader += this.formatHeaderLine("BLANK", headerDetails.blank); // to be taken from the input data and use it into Image in place of "NaN"
-        this._fitsheader += this.formatHeaderLine("BSCALE", headerDetails.bscale); // to be taken from the input data
-        this._fitsheader += this.formatHeaderLine("BZERO", headerDetails.bzero); // to be taken from the input data
-        this._fitsheader += this.formatHeaderLine("BITPIX", headerDetails.bitpix); // to be taken from the input data
-        this._fitsheader += this.formatHeaderLine("DATAMAX", headerDetails.pvmax); // take it from computed image
-        this._fitsheader += this.formatHeaderLine("DATAMIN", headerDetails.pvmin); // take it from computed image
-        this._fitsheader += this.formatHeaderLine("END", "");
-    }
-
-    formatHeaderLine (keyword, value) {
-        
-        // SIMPLE must be the first keyword in the primary HDU
-        // BITPIX must be the second keyword in the primary HDU
-        // all rows 80 ASCII chars of 1 byte
-        // bytes [0-8]   -> keyword
-        // bytes [9-10] -> '= '
-        // bytes [11-80] -> value:
-        //      in case of number -> right justified to the 30th??? digit/position
-        //      in case of string -> between '' and starting from byte 12
-        let klen = keyword.length;
-        let vlen;
-        // keyword
-        if (isNaN(value)){
-            if (keyword == 'SIMPLE')  {
-                value = value;
-            }else{
-                value = "'"+value+"'";
-            }
-            vlen = value.length;
-        }else{
-            vlen = value.toString().length;
-        }
-        
-        let str = keyword;
-        for (let i = 0; i < 8 - klen; i++) {
-            str += ' ';
-        }
-
-        if (keyword !== 'END')  {
-            // value
-            str += "= ";
-            str += value;
-            for (let j = 80; j > 10 + vlen; j--) {
-                str += ' ';
-            }
-        }
-        
-        return str;
-    }
-
-    setFITSHeaderMin (min) {
-        str += this.formatHeaderLine("DATAMIN", min);
-    }
-
-    setFITSHeaderMax (max) {
-        str += this.formatHeaderLine("DATAMAX", max);
-    }
-
+        //     for (let j = 0; j < pixcount; j++ ){
+        //         let imgpx = inputPixelsList[j];
+        //         if (imgpx.tileno === f) {
+        //             values[j] = fits.data[imgpx.j][imgpx.i];
+        //         }
+        //     }
+        // }
+		
+		return values;
+	}
+    
     computeSquaredNaxes (d, ps) {
         // first aprroximation to be checked
         this._naxis1 =  Math.ceil(d / ps);
@@ -152,79 +172,107 @@ class MercatorProjection extends AbstractProjection {
 
     }
 
-    /**
-     * 
-     * @param {*} radeg 
-     * @param {*} decdeg
-     *  
-     */
-    world2pix (radeg, decdeg) {
-        // TODO Math.floor or Math.round?
-        let i = Math.floor((radeg - this._minra) / this._pxsize);
-        let j = Math.floor((decdeg - this._mindec) / this._pxsize);
-        return [i, j];
+    setPxsValue(values, fitsHeaderParams) {
+        
+        this._minval = this._pxvalues[0];
+        this._maxval = this._pxvalues[0];
+        this._pxvalues = new Array(this._naxis2);
+        let vidx = 0;
+
+        for (let j = 0; j < this._naxis2; j++) {
+            this._pxvalues[j] = new Array(this._naxis1);
+            for (let i = 0; i < this._naxis1; i++) {
+                this._pxvalues[j][i] = values[vidx];
+                if (values[vidx] < this._minval) {
+                    this._minval = values[vidx];
+                } else if (values[vidx] < this._maxval) {
+                    this._maxval = values[vidx];
+                }
+                vidx += 1;
+            }
+        }
+        this.prepareFITSHeader(fitsHeaderParams);
+        return this._pxvalues;
+
     }
 
+    world2pix (radeclist) {
+        let imgpxlist = [];
 
-    /**
-     * @return an empty array of (ImagePixel.js} representing the output image/FITS. 
-     * It will be filled with pixels values in another method.
-     */
-     generateOutputImageMap () {
-        let pxmatrix = [[]]; // Array of array of ImagePixel
-        let i, j;
-        for (let cra = this._minra; cra < (this._pxsize * this._naxis1); cra += this._pxsize) {
-            // let row = new Array(this._naxis1);
-            for (let cdec = this._mindec; cdec < (this._pxsize * this._naxis2); cdec += this._pxsize) {
-                [i, j] = this.world2pix(cra, cdec);
-                // let ip = new ImagePixel (cra, cdec, i, j);
-                // row[i] = ip;
-                
-                if (pxmatrix[j] === undefined) {
-                    pxmatrix[j] = new Array (this._naxis1);
+        radeclist.forEach((ra, dec) => function() {
+            if (minra <= ra && ra <= maxra &&
+                mindec <= dec && dec <= maxdec) {
+                    let i = Math.floor((ra - minra) / this._pxsize);
+                    let j = Math.floor((dec - mindec) / this._pxsize);
+                    imgpxlist.push(new ImagePixel(i, j));
                 }
-                pxmatrix[j][i] = new ImagePixel (cra, cdec, i, j);
+        });
 
-            }
-            // pxmatrix.push(row); // row based
-        }
+        // THE FOLLOWING IN CASE I WANT TO HANDLE MULTIPLE FILE HERE
+        // for (let f = 0; f < this._fitsFilelist; f++) {
+        //     let fits = new FITSParser(this._fitsFilelist[i]);
+        //     let header = fits.header;
+        //     this._fitsheaderlist.push(header);
+        //     // with header naxis[1,2], cra, cdec, cdelt1, cdelt2 compute bbox
+        //     let cdelt1 = header.cdelt1; // ??? Pixel spacing along axis 1 ???
+        //     let cdelt2 = header.cdelt2; // ??? Pixel spacing along axis 2 ???
+        //     let ci = header.crpix1; // central/reference pixel i along naxis1
+        //     let cj = header.crpix2; // central/reference pixel j along naxis2
+        //     let crval1 = header.crval1; // central/reference pixel RA
+        //     let crval2 = header.crval2; // central/reference pixel Dec
+        //     let naxis1 = header.naxis1;
+        //     let naxis2 = header.naxis2;
 
-        // for (let j = 0; j < this._naxis2; j++) { // rows
+        //     // TODO if the projection is rotated, use CROTAn to rotate 
+        //     let maxra = crval1 + (naxis1 - ci) * cdelt1;
+        //     let maxdec = crval2 + (naxis2 - cj) * cdelt2;
+        //     let minra = crval1 - ci * cdelt1;
+        //     let mindec = crval2 - ci * cdelt2;
 
-        //     let row = new Array(this._naxis1);
-
-        //     for (let i =  0; i < this._naxis1; i++) { // cols
             
-        //         if (this._minra + this._pxsize > 360) {
-        //             this._minra -= 360;
-        //         }
 
-        //         let ii = new ImagePixel (this._minra + this._pxsize * i, this._mindec + this._pxsize * j, i, j);
-        //         row[i] = ii;
-        //     }
-
-        //     pxmatrix.push(row); // row based
-
+        //     radeclist.forEach((ra, dec) => function() {
+        //         if (minra <= ra && ra <= maxra &&
+        //             mindec <= dec && dec <= maxdec) {
+        //                 let i = Math.floor((ra - minra) / this._pxsize);
+        //                 let j = Math.floor((dec - mindec) / this._pxsize);
+        //                 imgpxlist.push(new ImagePixel(i, j, f));
+        //             }
+        //     });
         // }
 
-        // let imageMap = new Image(pxmatrix, this);
-        // return imageMap;
-
-        return pxmatrix;
-
+        return imgpxlist;
     }
 
-    // /**
-    //  * 
-    //  * @param {ImagePixel} imgpx 
-    //  */
-    // setPxValue (imgpx) {
-    //     this._pxmatrix[imgpx.i][imgpx.j] = imgpx;
-    // }
+    getImageRADecList(center, radius, pxsize) {
 
-    // getOutputImage() {
-    //     return this._pxmatrix;
-    // }
+        this.computeSquaredNaxes (2 * radius, pxsize); // compute naxis[1, 2]
+        this._cra = center.raDeg;
+        this._cdec = center.decDeg;
+        this._pxsize = pxsize;
+        this._minra = center.raDeg - radius;
+        if (this._minra < 0) {
+            this._minra += 360;
+        }
+        this._mindec = center.decDeg - radius;
+        
+        let radecmap = new Map();;
+        radeclist = [];
+        for (let cra = this._minra; cra < (this._pxsize * this._naxis1); cra += this._pxsize) {
+            for (let cdec = this._mindec; cdec < (this._pxsize * this._naxis2); cdec += this._pxsize) {
+                radeclist.push([cra, cdec]);
+            }
+        }
+        return radecmap.set(0, radeclist);
+    }
+
+    getCanvas2d(tfunction = "linear", colormap = "grayscale", inverse = false) {
+
+		let canvas2d =  new Canvas2D(this._pxvalues, this, tfunction, colormap, inverse);
+		return canvas2d;
+	}
+
+   
 }
 
 export default MercatorProjection;

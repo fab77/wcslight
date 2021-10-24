@@ -1,4 +1,8 @@
 "use strict";
+
+import HiPSProjection from "./projections/HiPSProjection";
+import MercatorProjection from "./projections/MercatorProjection";
+import FITSParser from "FITSParser";
 /**
  * Summary. (bla bla bla)
  *
@@ -8,100 +12,84 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-import InProjFactory from "./projections/InProjFactory";
-import OutProjFactory from "./projections/OutProjFactory";
-import InHiPSProjection from "./projections/InHiPSProjection";
-import HPXTilesMapNotDefined from "./exceptions/HPXTilesMapNotDefined";
-
 class WCSLight {
 
-    _inprojection;
-    _outprojection; 
-    _outputImageMap;
-    _image;
-    /**
-     * 
-     * @param {*} center {"ra":,"dec"} in degrees
-     * @param {*} radius decimal deg
-     * @param {*} pxsize decimal deg
-     * @param {*} projection from constant?
-     */
-    // TODO THIS IS A WCSLIGHT but I developed it as CUTOUT using WCS
-    constructor(center, radius, pxsize, outProjectionName, inProjectionName) {
-     
-        try {
-            this._outprojection = OutProjFactory.get(center, radius, pxsize, outProjectionName);
-            this._outputImageMap = this._outprojection.generateOutputImageMap();
-            
-            this._image = undefined;
-            
-            this._inprojection = InProjFactory.get(pxsize, inProjectionName);
-            if (this._inprojection instanceof InHiPSProjection) {
-                // this._inprojection.generateTilesMap(this._outprojection.getOutputImage());
-                this._inprojection.generateTilesMap(this._outputImageMap); // Image.js 
-            }
-        } catch (e) {
-            console.error(e.getError());
-            exit(-1);
-        }
-
-    }
+    /** @constructs WCSLight */
+    constructor () {}
 
     /**
-     * 
-     * @param {matrix} inData Array of array Naxis1 x Naxis2 of data 
-     * @param {pvmin} pvmin minimum px physical value
-     * @param {pvmax} pvmax maximum px physical value
-     * @param {int} tileno in case of HiPS or HEALPix, tile number, null otherwise
+     * cutout use case
+     * @example <caption> </caption>
+     * cutout({"raDeg" : 21, "decDeg" : 19}, 0.001, 0.0005, "HiPS", "Mercator");
+     * @param {Object} center e.g. {"raDeg" : 21, "decDeg" : 19}
+     * @param {number} radius radius in decimal degrees
+     * @param {number} pxsize pixel size in decimal degrees
+     * @param {string} inprojname 
+     * @param {string} outprojname 
+     * @param {string[]} [filelist]
+     * @param {string} [baseuri] e.g. "http://<base hips URL> or <base file system dir>";
+     * @returns {Image}
      */
-     fillOutputImage(inData, headerinfo, tileno = null) {
-
-        if (this._image === undefined) {
-            this._image = new Image(this._outprojection);
-        }
-        this._image.updateFITSHeader(headerinfo);
+    static cutout (center, radius, pxsize, inproj, outproj) {
         
+        let result = [];
+        // todo this should return a map. one key per output file ra, dec map
+        // in case of out mercator, the map will contains only 1 key
+        let outRADecMap = outproj.getImageRADecList(center, radius, pxsize);     
+        for (const [key, value] of outRADecMap) {
+            let outRADecList = value;
+            // start here a loop over outRADecList (which is a Map)
+            // outRADecMAP.foreach(outRADecList){
+            let inputPixelsList = inproj.world2pix(outRADecList);
 
+            let invalues = inproj.getPixValuesFromPxlist(inputPixelsList);
+            let fitsHeaderParams = inproj.getFITSHeader();
 
-        // TODO ALL THIS BELOW should go into the HiPSprojection.world2pix(tileno, ra, dec). 
-        // HiPSprojection should contains a list of HEALPixProjections, one per each 
-        // tile and delegate to each of them the world2pix
-        if (this._inprojection instanceof InHiPSProjection) {
-
-            if (tileno === null) {
-                throw new HPXTilesMapNotDefined();
-            }
-            
-            this._inprojection.init(tileno);
-            let tilesMap = this._inprojection.getTilesMap();
-
-            tilesMap.get(tileno).forEach(imgpx => {
-                let pxij = this._inprojection.world2pix(imgpx.ra, imgpx.dec);
-                // imgpx contains i, j for the output projection, inData is organised with i, j from the input projection
-                imgpx.value = inData[pxij.i, pxij.j];
-                this._image.setPxValue(imgpx);
+            let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams, key);
+            let fitsheader = outproj.getFITSHeader();
+            let canvas2d = outproj.getCanvas2d();
+            result.push({
+                "fitsheader": fitsheader,
+                "fitsdata": fitsdata,
+                "canvas2d": canvas2d
             });
         }
+        
+        return result;
+
     }
 
-
-  
     /**
-     * It should be called only when HEALPix is used as input projection. 
+     * 
+     * @param {*} fitsheader 
+     * @param {*} fitsdata 
+     * @returns {URL}
      */
-    getHiPSTilesMap () {
-        return this._inprojection.getTilesMap();
-        // if (this._tilesMap === undefined) {
-        //     throw new HPXTilesMapNotDefined();
-        // }
-        // return this._tilesMap;
+    static writeFITS(fitsheader, fitsdata) {
+        let encodedData = FITSParser.writeFITS(fitsheader, fitsdata);
+        return encodedData;
     }
 
-    getOutputImage() {
-        // TODO finalize FITS header by calling Image._projection.finalizeFITSHeader(min, max)
-        this._outputImageMap.finalizeFITSHeader();
-        return this._outputImageMap;
+    
+
+
+    static changeProjection (filepath, outprojname) {
+        // TODO
     }
+
+
+    static getProjection(projectionName, filepathlist) {
+        if (projectionName === "Mercator") {
+            return new MercatorProjection();
+        } else  if (projectionName === "HiPS") {
+            return new  HiPSProjection();
+        } else  if (projectionName === "HEALPix") {
+            return new  HEALPixProjection();
+        } else {
+            throw new ProjectionNotFound(projectionName);
+        }
+    }
+
 
 }
 
