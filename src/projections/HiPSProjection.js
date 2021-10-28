@@ -120,48 +120,6 @@ class HiPSProjection extends AbstractProjection {
 		return this._fitsheaderlist;
 	}
 
-	prepareFITSHeader () {
-		// TODO
-		// let fitsheader = new FITSHeader();
-		// fitsheader.set("NAXIS1", this._naxis1);
-		// fitsheader.set("NAXIS2", this._naxis2);
-		// fitsheader.set("ORDER", this._norder);
-		// fitsheader.set("NPIX", this._pixno);
-		// fitsheader.set("BLANK", this._fitsheaderlist[0].get("BLANK"));
-		// fitsheader.set("BSCALE", this._fitsheaderlist[0].get("BSCALE"));
-		// fitsheader.set("BZERO", this._fitsheaderlist[0].get("BZERO"));
-		// fitsheader.set("CTYPE1", "HiPS");
-		// fitsheader.set("CTYPE2", "HiPS");
-
-        // fitsheader.set("CDELT1", ); // ??? Pixel spacing along axis 1 ???
-        // fitsheader.set("CDELT2", ); // ??? Pixel spacing along axis 2 ???
-        // fitsheader.set("CRPIX1", this._naxis1/2); // central/reference pixel i along naxis1
-        // fitsheader.set("CRPIX2", this._naxis2/2); // central/reference pixel j along naxis2
-        // fitsheader.set("CRVAL1", ); // central/reference pixel RA
-        // fitsheader.set("CRVAL2", ); // central/reference pixel Dec
-        // fitsheader.set("WCSNAME", "HiPS");
-        // fitsheader.set("ORIGIN", "WCSLight v.0.x");
-        // fitsheader.set("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar");
-
-		// for (let hsidx = 1; hsidx < this._fitsheaderlist.length; hsidx++) {
-		// 	let cheader = this._fitsheaderlist[hsidx];
-		// 	if ( cheader.get("BSCALE") !== fitsheader.get("BSCALE")) {
-		// 		throw new ValidateError("BSCALE value has changed");
-		// 	}
-
-		// 	if ( cheader.get("BLANK") !== fitsheader.get("BLANK")) {
-		// 		throw new ValidateError("BLANK value has changed");
-		// 	}
-
-		// 	if ( cheader.get("BZERO") !== fitsheader.get("BZERO")) {
-		// 		throw new ValidateError("BZERO value has changed");
-		// 	}
-		// }
-
-		// return fitsheader;
-		
-	}
-
 	setFITSHeaderEntry(key, value) {
 		if (this._fh[key] === undefined) {
 			this._fh[key] = value;
