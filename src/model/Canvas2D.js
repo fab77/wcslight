@@ -8,7 +8,7 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
- import ColorMaps from './ColorMaps';
+ import ColorMaps from './ColorMaps.js';
 
 class Canvas2D {
 

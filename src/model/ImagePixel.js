@@ -8,11 +8,11 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-import RGBA from "./RGBA";
+// import RGBA from "./RGBA";
 
 class ImagePixel {
-    // _ra;    // decimal degrees
-    // _dec;   // decimal degrees
+    _ra;    // decimal degrees
+    _dec;   // decimal degrees
     _i;     // int i of input projection
     _j;     // int j of input projection
     _tileno;// int
@@ -27,15 +27,14 @@ class ImagePixel {
      * @param {*} i pixel coordinate in FITS
      * @param {*} j pixel coordinate in FITS
      */
-    //  constructor (ra, dec, i = null, j = null, tileno = null) {
-    constructor (i = null, j = null, tileno = null) {
+    constructor (ra, dec, i = null, j = null, tileno = null) {
         this._ra = ra;
         this._dec = dec;
         this._i = i;
         this._j = j;
         this._tileno = tileno;
         // this._originalValue = unndefined;
-        this._rgba = new RGBA();
+        // this._rgba = new RGBA();
     }
 
     // setRGBA(r, g, b, a) {
@@ -56,13 +55,13 @@ class ImagePixel {
     //     return this._value;
     // }
 
-    // getRA() {
-    //     return this._ra;
-    // }
+    getRA() {
+        return this._ra;
+    }
 
-    // getDec() {
-    //     return this._dec;
-    // }
+    getDec() {
+        return this._dec;
+    }
 
     geti() {
         return this._i;

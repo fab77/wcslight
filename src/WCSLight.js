@@ -1,8 +1,4 @@
 "use strict";
-
-import HiPSProjection from "./projections/HiPSProjection";
-import MercatorProjection from "./projections/MercatorProjection";
-import FITSParser from "FITSParser";
 /**
  * Summary. (bla bla bla)
  *

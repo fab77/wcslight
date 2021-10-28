@@ -1,10 +1,19 @@
-
+"use strict";
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ * 
+ * @link   github https://github.com/fab77/wcslight
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
 
 
 class HiPSHelper {
 
+	
 	static pxXtile = 512; // TODO in some cases it is different
-    static RES_ORDER_0 = 58.6/HIPSResMapK0.pxXtile; 
+    static RES_ORDER_0 = 58.6/HiPSHelper.pxXtile; 
     /**
 	 * Table 1 - ref paper HEALPix — a Framework for High Resolution Discretization,
 	 * and Fast Analysis of Data Distributed on the Sphere

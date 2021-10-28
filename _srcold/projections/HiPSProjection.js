@@ -10,13 +10,13 @@
 
 
 import AbstractProjection from './AbstractProjection';
-import {Hploc, Vec3, Pointing} from "healpixjs";
+import {Hploc, Pointing} from "healpixjs";
 import Healpix from "healpixjs";
-import TilesMap from '../model/TilesMap';
 import HiPSHelper from './HiPSHelper';
 import ImagePixel from '../model/ImagePixel';
 import Canvas2D from '../model/Canvas2D';
 import { ValidateError } from 'schema-utils';
+import FITSParser from "fitsparser";
 
 const RAD2DEG = 180 / Math.PI;
 const DEG2RAD = Math.PI / 180;

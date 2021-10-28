@@ -9,10 +9,9 @@
  */
 
 
-import AbstractProjection from './AbstractProjection';
-import ImagePixel from '../model/ImagePixel';
-import Canvas2D from '../model/Canvas2D';
-import FITSParser from "FITSParser";
+import AbstractProjection from './AbstractProjection.js';
+// import ParseUtils from '../ParseUtils';
+import ImagePixel from '../model/ImagePixel.js';
 
 class MercatorProjection extends AbstractProjection {
 

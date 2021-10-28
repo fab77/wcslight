@@ -10,8 +10,9 @@
 
 
 import AbstractProjection from './AbstractProjection';
-// import ParseUtils from '../ParseUtils';
 import ImagePixel from '../model/ImagePixel';
+import Canvas2D from '../model/Canvas2D';
+import FITSParser from "fitsparser";
 
 class MercatorProjection extends AbstractProjection {
 

@@ -9,20 +9,14 @@
  */
 
 
-import AbstractProjection from './AbstractProjection.js';
-// import FITSParser from 'fitsparser';
-import FITSParser from '../../../FITSParser/src/FITSParser.js';
-
-import Healpix from "../../../healpixjs/src/Healpix.js";
-import { Hploc, Pointing } from "../../../healpixjs/src/Healpix.js";
-
-
-// import Healpix from "healpixjs";
-// import { Hploc, Pointing } from "healpixjs";
-import HiPSHelper from './HiPSHelper.js';
-import ImagePixel from '../model/ImagePixel.js';
-import Canvas2D from '../model/Canvas2D.js';
-// import { ValidateError } from 'schema-utils';
+import AbstractProjection from './AbstractProjection';
+import {Hploc, Pointing} from "healpixjs";
+import Healpix from "healpixjs";
+import HiPSHelper from './HiPSHelper';
+import ImagePixel from '../model/ImagePixel';
+import Canvas2D from '../model/Canvas2D';
+import { ValidateError } from 'schema-utils';
+import FITSParser from "fitsparser";
 
 const RAD2DEG = 180 / Math.PI;
 const DEG2RAD = Math.PI / 180;
@@ -166,8 +160,7 @@ class HiPSProjection extends AbstractProjection {
 		if (this._fh[key] === undefined) {
 			this._fh[key] = value;
 		}else if (this._fh[key] !== value ) {
-			console.error(key+" value "+value+" differs from the original "+this._fh[key]+" pixno "+this._pixno);
-			// throw new ValidateError(key+" value "+value+" differs from the original "+this._fh[key]+" pixno "+this._pixno);
+			throw new ValidateError(key+" value "+value+" differs from the original "+this._fh[key]+" pixno "+this._pixno);
 		}
 	}
 

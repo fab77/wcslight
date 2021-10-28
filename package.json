@@ -1,41 +1,45 @@
 {
+    "type": "module",
     "name": "wcslight",
+    "description": "WCS Javascript library.",
     "sideEffects": false,
     "version": "0.1.0",
-    "main": "dist/WCSLight.js",
-    "module": "src/WCSLight.js",
-    "homepage": "https://github.com/fab77/wcslight#readme",
-    "description": "WCS library used in FITSOnTheWeb and FabViewer.",
+    "main": "dist/wcslight.js",
     "private": true,
-    "scripts": {
-        "build": "webpack"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/fab77/wcslight"
-    },
+    "module": "src/WCSLight.js",
     "keywords": [],
     "author": "Fabrizio Giordano (fab77)",
     "license": "GNU Affero General Public License v3.0",
+    "homepage": "https://github.com/fab77/wcslight#readme",
+    "scripts": {
+        "build": "webpack --config webpack.dev-testing.js",
+        "test": "mocha --require esm"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fab77/wcslight.git"
+    },
     "bugs": {
         "url": "https://github.com/fab77/wcslight/issues"
     },
     "devDependencies": {
-        "@babel/core": "^7.11.4",
-        "@babel/plugin-proposal-class-properties": "^7.10.4",
-        "@babel/plugin-proposal-private-methods": "^7.10.4",
-        "@babel/preset-env": "^7.11.0",
-        "babel-loader": "^8.1.0",
-        "clean-webpack-plugin": "^3.0.0",
-        "webpack": "^4.39.2",
-        "webpack-cli": "^4.8.0",
-        "webpack-merge": "^5.1.4",
-        "terser-webpack-plugin": "^4.2.3",
-        "file-loader": "^6.1.0",
-        "copy-webpack-plugin": "^8.1.0"
+        "@babel/core": "^7.15.8",
+        "@babel/plugin-proposal-class-properties": "^7.14.5",
+        "@babel/plugin-proposal-private-methods": "^7.14.5",
+        "@babel/preset-env": "^7.15.8",
+        "@babel/register": "^7.15.3",
+        "babel-loader": "^8.2.3",
+        "clean-webpack-plugin": "^4.0.0",
+        "copy-webpack-plugin": "^9.0.1",
+        "esm": "^3.2.25",
+        "file-loader": "^6.2.0",
+        "mocha": "^9.1.3",
+        "request": "^2.88.2",
+        "webpack": "^5.60.0",
+        "webpack-cli": "^4.9.1"
     },
     "dependencies": {
-        "healpixjs": "file:../healpixjs",
-        "FITSParser": "file:../FITSParser"
+        "fitsparser": "file:../FITSParser",
+        "healpixjs": "file:../healpixjs"
     }
 }

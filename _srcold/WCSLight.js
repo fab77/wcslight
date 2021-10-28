@@ -1,8 +1,8 @@
 "use strict";
 
-import Canvas2D from "./model/Canvas2D";
-import Cutout from "./services/Cutout";
-
+import HiPSProjection from "./projections/HiPSProjection";
+import MercatorProjection from "./projections/MercatorProjection";
+import FITSParser from "fitsparser";
 /**
  * Summary. (bla bla bla)
  *

@@ -1,27 +1,19 @@
 var path = require('path');
-const { merge } = require('webpack-merge');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const TerserJSPlugin = require('terser-webpack-plugin');
-
+const webpack = require('webpack'); //to access built-in plugins
 
 module.exports = {
     mode: 'development',
-    devtool: 'source-map',
-
-    entry: './src/WCSLight.js',
+    devtool: 'inline-source-map',
+    entry: {
+        wcslight: './src/WCSLight.js',
+    },
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'WCSLight.js',
-        library: 'wcslight',
-        libraryTarget: 'umd',
+        filename: '[name].js',
+        path: __dirname + '/dist',
+        // library: 'wcslight',
+        // libraryTarget: 'umd',
     },
-    optimization: {
-        runtimeChunk: true,
-        usedExports: true
-    },
-    plugins: [
-        new CleanWebpackPlugin()
-    ],
     module: {
         rules: [
             {
@@ -37,9 +29,17 @@ module.exports = {
             }
         ]
     },
-    resolve: {
-        extensions: ['.js'],
-        modules: [path.resolve(__dirname, 'src')],
+    optimization: {
+        runtimeChunk: true,
+        usedExports: true
     },
+    plugins: [
+        new webpack.ProgressPlugin(),
+        new CleanWebpackPlugin()
+    ],
+    // resolve: {
+    //     extensions: ['.js'],
+    //     modules: [path.resolve(__dirname, 'src')],
+    // },
 
 };
