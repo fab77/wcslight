@@ -1,1 +1,8 @@
 node_modules
+package.json.20211025
+_srcold/index.js
+_srcold/projections/HiPSHelper.js
+_srcold/projections/MercatorProjection.js
+_srcold/WCSLight.js
+test/input/Mercator.fits
+_srcold/index.js
