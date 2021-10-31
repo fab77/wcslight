@@ -22,6 +22,7 @@ import { Hploc, Pointing } from "../../../healpixjs/src/Healpix.js";
 import HiPSHelper from './HiPSHelper.js';
 import ImagePixel from '../model/ImagePixel.js';
 import Canvas2D from '../model/Canvas2D.js';
+import FITSHeader from '../../../FITSParser/src/FITSHeader.js';
 // import { ValidateError } from 'schema-utils';
 
 const RAD2DEG = 180 / Math.PI;
@@ -72,52 +73,70 @@ class HiPSProjection extends AbstractProjection {
 	 * 
 	 * @param {*} filelist array of fits URLs
 	 */
-	constructor (fitsFilelist, hipsURI = null, pxsize = null) {
+	constructor (fitsfilepath, hipsURI = null, pxsize = null, order = null) {
 
 		super();
+		this._wcsname = "HPX"; // TODO check WCS standard
+        this._ctype1 = "RA---HPX";
+        this._ctype2 = "DEC--HPX";
+
         this.THETAX = Hploc.asin( (K - 1)/K );
-		if (fitsFilelist) {
-			this._fitsFilelist = fitsFilelist;
-			if (this._fitsFilelist.length >= 1) {
-				this.initFromFile(0);
-			}
-		} else if (hipsURI && pxsize) {
-			this._hipsURI = hipsURI;
+
+		if (!fitsfilepath && !hipsURI) {
+			throw new Error("One among fitsfilepath and hipsURI must be provided.")
+		}
+		if (hipsURI && !pxsize && !order) {
+			throw new Error("One among pxsize and order must be provided.")
+		}
+
+		if (fitsfilepath) {
+			this.initFromFile(fitsfilepath);
+			
+		} else if (pxsize) {
 			this.initFromPxsize(pxsize);
+		} else {
+			this.initFromHiPSOrder(order);
 		}
 		this._fitsheaderlist = [];
 
     }
 
-	initFromFile (fitsIndex) {
-		let fitsURL = this._fitsFilelist[fitsIndex];
-		let fits = new FITSParser(fitsURL);
-		this._fitsdata = fits.data;
-		this._fitsheaderlist.push(fits.header);
+	initFromFile (fitsfilepath) {
+		var self = this;
+		
+		new FITSParser(fitsfilepath).then(fits => {
+			
+			
+	
+			this._pxvalues[0] = fits.data;
+			this._fitsheaderlist[0] = fits.header;
 
-		let order = fits.header.order;
-		this.initFromHiPSOrder(order);
+			let order = fits.header.get("ORDER");
+			self.initFromHiPSOrder(order);
+			
+			self._naxis1 = fits.header.get("NAXIS1");
+			self._naxis2 = fits.header.get("NAXIS2");
+			self._pixno = fits.header.get("NPIX");
+			
+			self.setupByTile(self._pixno);
+			return {
+				"fitsheader": fits.header,
+                "fitsdata": fits.data,
+                "canvas2d": this.getCanvas2d()
+			}
+		});
 		
-		this._naxis1 = fits.header.naxis1;
-		this._naxis2 = fits.header.naxis2;
-		this._pixno = fits.header.npix;
-		
-		this.setupByTile(this._pixno);
 	}
 
 	initFromPxsize (pxsize) {
-		let hipsorder = HiPSHelper.computeNside(pxsize);
+		let hipsorder = HiPSHelper.computeHiPSOrder(pxsize);
 		this.initFromHiPSOrder(hipsorder);
 	}
 
 	initFromHiPSOrder (hipsorder) {
 		this._norder = hipsorder;
 		this._nside = 2**hipsorder;
-		this._hp = new Healpix(nside);
-	}
-
-	getFITSHeaders () {
-		return this._fitsheaderlist;
+		this._hp = new Healpix(this._nside);
 	}
 
 	setFITSHeaderEntry(key, value) {
@@ -129,91 +148,154 @@ class HiPSProjection extends AbstractProjection {
 		}
 	}
 
-	getFITSHeaderEntry(key) {
-		if (this._fh[key] === undefined) {
-			throw new EvalError(key +" not present in FITS Header")
+
+	prepareFitsHeader (fitsHeaderParams) {
+		for (header of this._fitsheaderlist) {
+			this._fitsheader.set("SIMPLE", fitsHeaderParams.get("SIMPLE"));
+			this._fitsheader.set("BITPIX", fitsHeaderParams.get("BITPIX"));
+			this._fitsheader.set("BLANK", fitsHeaderParams.get("BLANK"));
+			this._fitsheader.set("BSCALE", fitsHeaderParams.get("BSCALE"));
+			this._fitsheader.set("BZERO", fitsHeaderParams.get("BZERO"));
+			this._fitsheader.set("NAXIS", 2);
+			this._fitsheader.set("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2);
+			this._fitsheader.set("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2);
+			
+			this._fitsheader.set("CTYPE1", this._ctype1);
+			this._fitsheader.set("CTYPE2", this._ctype2);
+			
+			this._fitsheader.set("CDELT1", this._pxsize); // ??? Pixel spacing along axis 1 ???
+			this._fitsheader.set("CDELT2", this._pxsize); // ??? Pixel spacing along axis 2 ???
+			this._fitsheader.set("CRPIX1", this._naxis1/2); // central/reference pixel i along naxis1
+			this._fitsheader.set("CRPIX2", this._naxis2/2); // central/reference pixel j along naxis2
+			
+			// this._fitsheader.set("CRVAL1", this._cra); // central/reference pixel RA
+        	// this._fitsheader.set("CRVAL2", this._cdec); // central/reference pixel Dec
+			
+			this._fitsheader.set("ORIGIN", "WCSLight v.0.x");
+			this._fitsheader.set("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar");
 		}
-		return this._fh[key];
+		return this._fitsheaderlist;
 	}
+
+	// getFITSHeaderEntry(key) {
+	// 	if (this._fh[key] === undefined) {
+	// 		throw new EvalError(key +" not present in FITS Header")
+	// 	}
+	// 	return this._fh[key];
+	// }
 
 	getFITSHeader() {
-		return this._fh;
+		return this._fitsheaderlist;
+		// return this._fh;
 	}
 
-	computePixValues() {
-		let data = this._fitsdata;
-		let header = this._fitsheaderlist[0];
+	loadFITS(fitsuri, observerlist) {
+		return new FITSParser(fitsuri).then((res) => {
+			let fitsdata = res.data;
+			let fitsheader = res.header;
 
-		this.setFITSHeaderEntry("SIMPLE", header.simple);
-		this.setFITSHeaderEntry("BLANK", header.blank);
-		this.setFITSHeaderEntry("BZERO", header.bzero);
-		this.setFITSHeaderEntry("BSCALE", header.bscale);
-		this.setFITSHeaderEntry("NAXIS1", header.naxis1);
-		this.setFITSHeaderEntry("NAXIS2", header.naxis2);
-		
-		this._pxvalues = new Map();
-		let values = new Array(this._naxis2);
-		for (let j = 0; j < this._naxis2; j++ ){
-			if (!values[j]) {
-				values[j] = new Array(this._naxis1);
+			// let fitstileno = fits.header.get("NPIX");
+			// this._fitsheaderlist.push(fits.header);
+			// TODO group these functions in one method
+			// this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
+			// this.setFITSHeaderEntry("BLANK", fits.header.blank);
+			// this.setFITSHeaderEntry("BZERO", fits.header.bzero);
+			// this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
+
+			if (observerlist) {
+				for (observer of observerlist) {
+					observer.notify(res);
+				}
 			}
-			for (let i = 0; i < this._naxis1; i++ ){
-				values[j][i] = data[j][i];		
-			}
-		}
-		this._pxvalues.set(this._pixno, values);
-		// this._pxvalues = values;
-		return values;
+			return res;
+		});
 	}
 
-	getPixValuesFromPxlist(inputPixelsList) {
+	async getPixValues(inputPixelsList) {
+	
+		// console.warn("Initiating here this._fitsheaderlist. Check if it's the right place!");
+		// this._fitsheaderlist = [];
 
 		let tilesset = new Set();
-		inputPixelsList.forEach ((imgpx) => function () {
+		inputPixelsList.forEach ((imgpx) =>  {
 				tilesset.add(imgpx.tileno);
 		});
 
 		let pixcount = inputPixelsList.length;
-		let values = new Array(pixcount);
+		var values = new Array(pixcount);
+		var fitsheaderlist = [];
+		var promises = [];
 
-		if (this._fitsFilelist.length >= 1) { // case when the input is a list of files
-			for (let i = 0; i < this._fitsFilelist.length; i++) {
-				let fits = new FITSParser(this._fitsFilelist[i]);
-				let fitstileno = fits.header.npix;
-				this._fitsheaderlist.push(fits.header);
-				// TODO group these functions in one method
-				this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
-				this.setFITSHeaderEntry("BLANK", fits.header.blank);
-				this.setFITSHeaderEntry("BZERO", fits.header.bzero);
-				this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
+		for (let hipstileno of tilesset) {
+			// TODO COMPUTE DirXXX
+			let dir = Math.floor(hipstileno/10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
+			let fitsurl = this._hipsURI+"/Norder"+this._norder+"/Dir"+dir+"/Npix"+hipstileno+".fits";
+			promises.push(new FITSParser(fitsurl).then( (fits) => {
 
-				for (let j = 0; j < pixcount; j++ ){
-					let imgpx = inputPixelsList[j];
-					if (imgpx.tileno === fitstileno) {
-						values[j] = fits.data[imgpx.j][imgpx.i];
-					}
-				}
-			}
-		} else { // case when the input is a base HiPS URI
-			for (let hipstileno of tilesset) {
-				// TODO COMPUTE DirXXX
-				console.warn("// TODO COMPUTE DirXXX");
-				let fits = new FITSParser(this._hipsURI+"/Norder"+this._norder+"/DirXXX/Npix"+tileno+".fits");
-				this._fitsheaderlist.push(fits.header);
-				this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
-				this.setFITSHeaderEntry("BLANK", fits.header.blank);
-				this.setFITSHeaderEntry("BZERO", fits.header.bzero);
-				this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
+				
+				fitsheaderlist.push(fits.header);
+				// this._fitsheaderlist.push(fits.header);
+				
+				// this.setFITSHeaderEntry("SIMPLE", fits.header.get("SIMPLE"));
+				// this.setFITSHeaderEntry("BLANK", fits.header.get("BLANK"));
+				// this.setFITSHeaderEntry("BZERO", fits.header.get("BZERO"));
+				// this.setFITSHeaderEntry("BSCALE", fits.header.get("BSCALE"));
+				
+				// let naxis1 = fits.header.get("NAXIS1");
+				// let naxis2 = fits.header.get("NAXIS2");
 
 				for (let j = 0; j < pixcount; j++ ){
 					let imgpx = inputPixelsList[j];
 					if (imgpx.tileno === hipstileno) {
-						values[j] = fits.data[imgpx.j][imgpx.i];
+						
+						values[j] = fits.data[imgpx._j][imgpx._i];
+						// let dataidx = (imgpx._j - 1) * naxis1 + imgpx._i;
+						// values[j] = fits.data[dataidx];
+
 					}
 				}
-			}
+
+			}));
+			// let fits = new FITSParser(this._hipsURI+"/Norder"+this._norder+"/"+dir+"/Npix"+tileno+".fits");
+			// this._fitsheaderlist.push(fits.header);
+			// this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
+			// this.setFITSHeaderEntry("BLANK", fits.header.blank);
+			// this.setFITSHeaderEntry("BZERO", fits.header.bzero);
+			// this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
+
+			// for (let j = 0; j < pixcount; j++ ){
+			// 	let imgpx = inputPixelsList[j];
+			// 	if (imgpx.tileno === hipstileno) {
+			// 		values[j] = fits.data[imgpx.j][imgpx.i];
+			// 	}
+			// }
 		}
+		// return Promise.all(promises).then( () => { return values});
+		await Promise.all(promises);
+		this.parseHeaders(fitsheaderlist);
 		return values;
+	}
+
+	parseHeaders(fitsheaderlist){
+		console.log(fitsheaderlist);
+		if (!this._fh) {
+			this._fh = new FITSHeader;
+		}
+
+		for (let i = 0; i< fitsheaderlist.length; i++) {
+			let header = fitsheaderlist[i];
+			for (const [key, value] of header) {
+				// I could add a list of used NPIXs to be included in the comment of the output FITS
+				if (["SIMPLE", "BSCALE", "BZERO", "BLANK", "BITPIX", "ORDER", "COMMENT", "CPYRIGH", "ORIGIN"].includes(key)) {
+					if (!this._fh.get(key)) {
+						this._fh.set(key, value);
+					} else if (this._fh.get(key) !== value) { // this should not happen 
+						throw new Error("Error parsing headers. "+key+" was "+this._fh.get(key)+" and now is "+value);
+					}
+				}
+			  }
+		}
+		
 	}
 
 
@@ -223,59 +305,86 @@ class HiPSProjection extends AbstractProjection {
         this._naxis2 = this._naxis1;
     }
 
-	setPxsValue(values, fitsHeaderParams, tileno) {
-        
-		this._pxvalues = new Map();
+
+	/**
+	 * TODO: THIS CAN BE DELETED IN FAVOUR OF setPxsValue
+	 * @returns 
+	 */
+	computePixValues() {
+		let data = this._fitsdata;
+		let header = this._fitsheaderlist[0];
+
+		this.setFITSHeaderEntry("SIMPLE", header.get("SIMPLE"));
+		this.setFITSHeaderEntry("BLANK", header.get("BLANK"));
+		this.setFITSHeaderEntry("BZERO", header.get("BZERO"));
+		this.setFITSHeaderEntry("BSCALE", header.get("BSCALE"));
+		this.setFITSHeaderEntry("NAXIS1", header.get("NAXIS1"));
+		this.setFITSHeaderEntry("NAXIS2", header.get("NAXIS2"));
 		
+		this._pxvalues = data;
+		return this._pxvalues;
+	}
 
-		// TODO
-        this._minval = values[0];
-        this._maxval = values[0];
-        let currvalues = new Array(this._naxis2);  
-        let vidx = 0;
+	setPxsValue(values, fitsHeaderParams) {
 
-        for (let j = 0; j < this._naxis2; j++) {
-            
-			currvalues[j] = new Array(this._naxis1);
-            
-			for (let i = 0; i < this._naxis1; i++) {
-            
-				currvalues[j][i] = values[vidx];
-            
-				if (values[vidx] < this._minval) {
-                    this._minval = values[vidx];
-                } else if (values[vidx] < this._maxval) {
-                    this._maxval = values[vidx];
-                }
-                vidx += 1;
-            }
-        }
-		this._pxvalues.set(tileno, currvalues);
-        this.prepareFITSHeader(fitsHeaderParams);
-        return this._pxvalues;
+		let vidx = 0;
+		this._pxvalues = new Array(this._tileslist.length);
+		let pxXTile = HiPSHelper.DEFAULT_Naxis1_2 * HiPSHelper.DEFAULT_Naxis1_2;
+		// this._pxvalues.concat(values.slice(vidx * pxXTile, (vidx + 1) * pxXTile ));
+
+		this._tileslist.foreach((tileno) => {
+
+			let tilevalues = values.slice(vidx * pxXTile, (vidx + 1) * pxXTile );
+			let minval = tilevalues[0];
+			let maxval = tilevalues[0];
+			let valuemap = new Array(HiPSHelper.DEFAULT_Naxis1_2);
+			for (let j = 0; j < HiPSHelper.DEFAULT_Naxis1_2; j++) {
+				valuemap[j] = new Array(HiPSHelper.DEFAULT_Naxis1_2);
+				for (let i = 0; i < HiPSHelper.DEFAULT_Naxis1_2; i++) {
+					valuemap[j][i] = tilevalues[vidx];
+
+					if (values[vidx] < minval) {
+						minval = values[vidx];
+					} else if (values[vidx] > maxval) {
+						maxval = values[vidx];
+					}
+
+				}
+			}
+			let header = new FITSHeader();
+			header.set("NPIX", tileno);
+			header.set("DATAMIN", minval);
+			header.set("DATAMAX", maxval);
+
+			this._fitsheaderlist.push(header);
+			this._pxvalues.push(valuemap);
+			vidx += 1;
+			// parse current header and add it to this._fhlist;
+		});
+
+		this.prepareFITSHeader(fitsHeaderParams);
+		
+		return this._pxvalues;
 
     }
-    /**
-     * 
-     * @param {*} radeg 
-     * @param {*} decdeg
-     *  
-     */
-	//  world2pix (radeg, decdeg, tileno) {
-	world2pix (radeclist) { // or list of [ra, dec]
+    
+	
+	world2pix (radeclist) { 
 
 		let imgpxlist = [];
+		let tileno;
 
-		// TODO this._hp is NOT set at this point!!! It must be!
-		radeclist.forEach((ra, dec) => function () {
+		radeclist.forEach(([ra, dec]) => {
 			let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(ra, dec);
 			let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phi_rad);
-			let tileno = this._hp.ang2pix(ptg);
+			tileno = this._hp.ang2pix(ptg);
 			this.setupByTile(tileno);
-			let phirad = radeg * DEG2RAD;
-			let thetarad = decdeg * DEG2RAD;
-			let xy = this.world2intermediate(phirad, thetarad);
+			
+			let rarad =  HiPSHelper.degToRad(ra);
+			let decrad = HiPSHelper.degToRad(dec);
+			let xy = this.world2intermediate(rarad, decrad);
 			let ij = this.intermediate2pix(xy[0], xy[1]);
+			// TODO don't add duplicates
 			imgpxlist.push(new ImagePixel(ij[0], ij[1], tileno));
 		
 		});
@@ -286,53 +395,38 @@ class HiPSProjection extends AbstractProjection {
 	
 
 	getImageRADecList(center, radius, pxsize) {
-		this.computeSquaredNaxes (2 * radius, pxsize); // compute naxis[1, 2]
-        this._cra = center.raDeg;
-        this._cdec = center.decDeg;
-        this._pxsize = pxsize;
-        this._minra = center.raDeg - radius;
-        if (this._minra < 0) {
-            this._minra += 360;
-        }
-        this._mindec = center.decDeg - radius;
-        
-		// let bbox = [[this._minra, this._mindec], 
-		// 			[this._minra, center.decDeg + radius], 
-		// 			[center.raDeg + radius, center.decDeg + radius], 
-		// 			[center.raDeg + radius, this._mindec]];
-
-		// let points = [];
-		// for (let i = 0; i < bbox.length; i++) {
-		// 	let phiTheta_rad =HiPSHelper.astroDegToSphericalRad(this._minra, this._mindec);	
-		// 	let pointing = new Pointing(null, false, phiTheta_rad.theta, phiTheta_rad.phi);
-		// 	points.push(pointing);
-		// }			
-		// let rangeset = this._hp.queryPolygonInclusive(points, 32); // returns int array
-		// let tilelist = rangeset.r;
-		// tilelist.foreach((tile) => function(){
-		// 	let cornersVec3 = this._hp.getBoundariesWithStep(this._pixno, 1);
-
-		// });
-
-
-        let radeclist = new Map();
-		for (let cra = this._minra; cra < (this._pxsize * this._naxis1); cra += this._pxsize) {
-            for (let cdec = this._mindec; cdec < (this._pxsize * this._naxis2); cdec += this._pxsize) {
-				
-				let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(cra, cdec);	
-				let ptg = new Pointing(null, false, phiTheta_rad.theta, phiTheta_rad.phi);
-				let tileno = this._hp.ang2pix(ptg);
-				if (!radeclist.has(tileno)) {
-					radeclist.set(tileno, []);
-				}
-				radeclist.get(tileno).push([cra, cdec]);
-                // radeclist.push([cra, cdec]);
-            }
-        }
-
+	    
+		let radeclist = [];
+		let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(center.raDeg, center.decDeg);
+		let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phi_rad);
+		let radius_rad = HiPSHelper.degToRad(radius);
+		let rangeset = this._hp.queryDiscInclusive (ptg, radius_rad, 4); // <= check it
+		this._tileslist = rangeset.r;
 		
-		return radeclist;
 
+		this._tileslist.foreach( (tileno) => {
+			this.setupByTile(tileno);
+			for (let i = 0; i < HiPSHelper.pxXtile; i++) {
+				for (let j = 0; j < HiPSHelper.pxXtile; j++) {
+					let [ra, dec] = this.pix2world(i, j);
+					radeclist.add(ra, dec);
+				}
+			}
+		});
+		return radeclist;
+		// TODO[Yago] DONE
+		/* 
+		let radeclist = [];
+		this._tileslist = hp.queryinclusive (center, radius);
+		this._tileslist.foreach(tileno => {
+			 this.setupByTileno(tileno)
+			 iterate over i,j 512x512 this._naxis[1-2]
+			 	[ra, dec] = pix2word(i, j);
+			 	radeclist.add(ra, dec)
+		})
+		*/
+		// TODO replace the below with the above
+    	
 
     }
 
@@ -450,18 +544,14 @@ class HiPSProjection extends AbstractProjection {
 		
 		let i = 0.5 - (i_norm - j_norm);
 		let j = (i_norm + j_norm) - 0.5;
-		i = Math.floor(i * 512);
-		j = Math.floor(j * 512) + 1;
+		i = Math.floor(i * HiPSHelper.pxXtile);
+		j = Math.floor(j * HiPSHelper.pxXtile) + 1;
 		return [i , j];
 
     }
 
 
 	pix2world (i, j) {
-        let result = {
-            "skyCoords": [],
-			"xyCoords": []
-        };
 
         let xy = this.pix2intermediate(i, j);
 		let raDecDeg = this.intermediate2world(xy[0], xy[1]);
@@ -470,11 +560,7 @@ class HiPSProjection extends AbstractProjection {
 			raDecDeg[0] -= 360;
 		}
 
-        result.xyCoords = xy;
-        result.skyCoords = raDecDeg;
-
-        return result;
-
+		return raDecDeg;
     }
 
     pix2intermediate (i, j) {
@@ -538,24 +624,15 @@ class HiPSProjection extends AbstractProjection {
 
 	getCanvas2d(tfunction = "linear", colormap = "grayscale", inverse = false) {
 
-		// let pxmatrix = new Array(this._naxis2);
-		// let k = 0;
-		// for (let j = 0; j < this._naxis2; j++) {
-		// 	if (!pxmatrix[j]) {
-		// 		pxmatrix[j] = new Array(this._naxis1);
-		// 	}
-		// 	for (let i = 0; i < this._naxis1; i++) {
-		// 		pxmatrix[j][i] = this._pxvalues[k];
-		// 		k+=1;
-		// 	}
-		// }
-        let canvaslist = [];
-		for (const [key, value] of this._pxvalues) {
-			let canvas2d =  new Canvas2D(value, this, tfunction, colormap, inverse);
+		let canvaslist = [];
+		
+		for (let i = 0; i < this._pxvalues.length; i++) {
+			let values = this._pxvalues[i];
+			let header = this._fitsheaderlist[i];
+			let canvas2d =  new Canvas2D(values, header, this, tfunction, colormap, inverse );
 			canvaslist.push(canvas2d);
 		}
 
-		
 		return canvaslist;
 	}
 }

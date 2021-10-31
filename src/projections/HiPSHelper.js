@@ -79,8 +79,8 @@ class HiPSHelper {
 	static astroDegToSphericalRad(raDeg, decDeg) {
 		let phiThetaDeg = HiPSHelper.astroDegToSpherical(raDeg, decDeg);
 		let phiThetaRad = {
-			phi_rad: degToRad(phiThetaDeg.phiDeg),
-			theta_rad: degToRad(phiThetaDeg.thetaDeg)
+			phi_rad: HiPSHelper.degToRad(phiThetaDeg.phi),
+			theta_rad: HiPSHelper.degToRad(phiThetaDeg.theta)
 		}
 		return phiThetaRad;
 	}

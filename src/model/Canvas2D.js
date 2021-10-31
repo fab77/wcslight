@@ -29,24 +29,24 @@ class Canvas2D {
      * @param {*} pvmax maximum phisical value
      * @param {*} data [] of [] of decimal values
      */
-    constructor (pixelvalues, projection, tfunction = "linear", colormap = "grayscale", inverse = false) {
+    constructor (pixelvalues, fitsheader, projection, tfunction = "linear", colormap = "grayscale", inverse = false) {
         
         // initial settings use to reset the image to its initial status
         this._orig_tfunction = tfunction;
         this._orig_colormap = colormap;
         this._orig_inverse = inverse;
-        this._orig_min = projection.getFITSHeader()["DATAMIN"];
-        this._orig_max = projection.getFITSHeader()["DATAMAX"];
+        this._orig_min = fitsheader.get("DATAMIN");
+        this._orig_max = fitsheader.get("DATAMAX");
 
         this._currmin = this._orig_min;
         this._currmax = this._orig_max;
 
-        this._bzero = projection.getFITSHeader()["BZERO"];
-        this._bscale = projection.getFITSHeader()["BSCALE"];
-        this._blank = projection.getFITSHeader()["BLANK"];
+        this._bzero = fitsheader.get("BZERO");
+        this._bscale = fitsheader.get("BSCALE");
+        this._blank = fitsheader.get("BLANK");
 
-        this._width = data[0].length;
-        this._height = data.length;
+        this._width = pixelvalues[0].length;
+        this._height = pixelvalues.length;
         
         this._physicalvalues = [];
         this._pixelvalues = pixelvalues;

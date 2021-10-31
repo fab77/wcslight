@@ -29,29 +29,42 @@ class WCSLight {
     static cutout (center, radius, pxsize, inproj, outproj) {
         
         let result = [];
-        // todo this should return a map. one key per output file ra, dec map
-        // in case of out mercator, the map will contains only 1 key
-        let outRADecMap = outproj.getImageRADecList(center, radius, pxsize);     
-        for (const [key, value] of outRADecMap) {
-            let outRADecList = value;
-            // start here a loop over outRADecList (which is a Map)
-            // outRADecMAP.foreach(outRADecList){
-            let inputPixelsList = inproj.world2pix(outRADecList);
-
-            let invalues = inproj.getPixValuesFromPxlist(inputPixelsList);
+        let outRADecList = outproj.getImageRADecList(center, radius, pxsize);     
+    
+        /** PROMISE PROTO */
+        // world2pix must load files
+        let inputPixelsList = inproj.world2pix(outRADecList);
+        return inproj.getPixValues(inputPixelsList).then((invalues) => {
             let fitsHeaderParams = inproj.getFITSHeader();
-
-            let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams, key);
+            // TODO separate fitsHeaderParams in a different method
+            // outproj.prepareFITSHEader(fitsHeaderParams)
+            let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
             let fitsheader = outproj.getFITSHeader();
             let canvas2d = outproj.getCanvas2d();
-            result.push({
+            return {
                 "fitsheader": fitsheader,
                 "fitsdata": fitsdata,
                 "canvas2d": canvas2d
-            });
-        }
+            };
+        });
+        /** END PROMISE PROTO*/
+        // let inputPixelsList = inproj.world2pix(outRADecList);
+
+        // let invalues = inproj.getPixValuesFromPxlist(inputPixelsList);
+        // let fitsHeaderParams = inproj.getFITSHeader();
+
+        // // TODO separate fitsHeaderParams in a different method
+        // // outproj.prepareFITSHEader(fitsHeaderParams)
+        // let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
         
-        return result;
+        // let fitsheader = outproj.getFITSHeader();
+        // let canvas2d = outproj.getCanvas2d();
+        
+        // return {
+        //     "fitsheader": fitsheader,
+        //     "fitsdata": fitsdata,
+        //     "canvas2d": canvas2d
+        // };
 
     }
 

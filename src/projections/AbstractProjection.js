@@ -16,10 +16,6 @@ class AbstractProjection {
             throw new TypeError("Abstract class cannot be instantiated.");
         }
 
-        if (this.getFITSHeaders === undefined) {
-            throw new TypeError("Must override getFITSHeaders()");
-        }
-
         if (this.getFITSHeader === undefined) {
             throw new TypeError("Must override getFITSHeader()");
         }
@@ -40,9 +36,9 @@ class AbstractProjection {
             throw new TypeError("Must override computePixValues()");
         }
 
-        if (this.getPixValuesFromPxlist === undefined) {
-            throw new TypeError("Must override getPixValuesFromPxlist()");
-        }
+        // if (this.getPixValuesFromPxlist === undefined) {
+        //     throw new TypeError("Must override getPixValuesFromPxlist()");
+        // }
 
         if (this.setPxsValue === undefined) {
             throw new TypeError("Must override setPxsValue()");

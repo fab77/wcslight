@@ -12,6 +12,8 @@
 import AbstractProjection from './AbstractProjection.js';
 // import ParseUtils from '../ParseUtils';
 import ImagePixel from '../model/ImagePixel.js';
+import FITSHeader from '../../../FITSParser/src/FITSHeader.js';
+import Canvas2D from '../model/Canvas2D.js';
 
 class MercatorProjection extends AbstractProjection {
 
@@ -35,7 +37,9 @@ class MercatorProjection extends AbstractProjection {
      */
     constructor (fitsFilelist) {
         super();
-        super();
+        this._wcsname = "MER"; // TODO check WCS standard
+        this._ctype1 = "RA---MER";
+        this._ctype2 = "DEC--MER";
 		if (fitsFilelist) {
 			this._fitsFilelist = fitsFilelist;
 			if (this._fitsFilelist.length >= 1) {
@@ -44,6 +48,7 @@ class MercatorProjection extends AbstractProjection {
 		}
 		this._fitsheaderlist = [];
     }
+
 
     initFromFile (fitsIndex) {
 		let fitsURL = this._fitsFilelist[fitsIndex];
@@ -82,16 +87,17 @@ class MercatorProjection extends AbstractProjection {
 		// TODO
 		this._fitsheader = new FITSHeader();
         
-        this._fitsheader.set("SIMPLE", fitsHeaderParams["SIMPLE"]);
-		this._fitsheader.set("NAXIS1", this._naxis1);
+        this._fitsheader.set("SIMPLE", fitsHeaderParams.get("SIMPLE"));
+        this._fitsheader.set("BITPIX", fitsHeaderParams.get("BITPIX"));
+        this._fitsheader.set("BLANK", fitsHeaderParams.get("BLANK"));
+		this._fitsheader.set("BSCALE", fitsHeaderParams.get("BSCALE"));
+		this._fitsheader.set("BZERO", fitsHeaderParams.get("BZERO"));
+		this._fitsheader.set("NAXIS", 2);
+        this._fitsheader.set("NAXIS1", this._naxis1);
 		this._fitsheader.set("NAXIS2", this._naxis2);
-		this._fitsheader.set("ORDER", this._norder);
-		this._fitsheader.set("NPIX", this._pixno);
-		this._fitsheader.set("BLANK", fitsHeaderParams["BLANK"]);
-		this._fitsheader.set("BSCALE", fitsHeaderParams["BSCALE"]);
-		this._fitsheader.set("BZERO", fitsHeaderParams["BZERO"]);
-		this._fitsheader.set("CTYPE1", "RA---MER");
-		this._fitsheader.set("CTYPE2", "DEC--MER");
+		
+		this._fitsheader.set("CTYPE1", this._ctype1);
+		this._fitsheader.set("CTYPE2", this._ctype2);
 		
         this._fitsheader.set("CDELT1", this._pxsize); // ??? Pixel spacing along axis 1 ???
         this._fitsheader.set("CDELT2", this._pxsize); // ??? Pixel spacing along axis 2 ???
@@ -100,12 +106,12 @@ class MercatorProjection extends AbstractProjection {
         this._fitsheader.set("CRVAL1", this._cra); // central/reference pixel RA
         this._fitsheader.set("CRVAL2", this._cdec); // central/reference pixel Dec
 
-        let min = fitsHeaderParams["BZERO"] + fitsHeaderParams["BSCALE"] * this._minval;
-        let max = fitsHeaderParams["BZERO"] + fitsHeaderParams["BSCALE"] * this._maxval;
+        let min = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._minval;
+        let max = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._maxval;
         this._fitsheader.set("DATAMIN", min); // min data value
         this._fitsheader.set("DATAMAX", max); // max data value
 
-        this._fitsheader.set("WCSNAME", "HiPS");
+        
         this._fitsheader.set("ORIGIN", "WCSLight v.0.x");
         this._fitsheader.set("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar");
 
@@ -113,52 +119,53 @@ class MercatorProjection extends AbstractProjection {
 		
 	}
     getFITSHeader() {
-        return this._fitsheader;
+        return this._fh;
     }
-   
-    getPixValuesFromPxlist(inputPixelsList) {
-
-
-		// I need association ImgPixel -> file
+    
+    getPixValues(inputPixelsList) {
 
 		let pixcount = inputPixelsList.length;
-		let values = new Array(pixcount);
-
-        this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
-        this.setFITSHeaderEntry("BLANK", fits.header.blank);
-        this.setFITSHeaderEntry("BZERO", fits.header.bzero);
-        this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
-
-        for (let j = 0; j < pixcount; j++ ){
-            let imgpx = inputPixelsList[j];
-            values[j] = fits.data[imgpx.j][imgpx.i];
-        }
-
-        // THE FOLLOWING IN CASE I WANT TO HANDLE MULTIPLE FILES HERE
-        // for (let f = 0; f < this._fitsFilelist.length; f++) {
-        //     let fits = new FITSParser(this._fitsFilelist[f]);
-        //     this._fitsheaderlist.push(fits.header);
-        //     // TODO group these functions in one method
-        //     this.setFITSHeaderEntry("SIMPLE", fits.header.simple);
-        //     this.setFITSHeaderEntry("BLANK", fits.header.blank);
-        //     this.setFITSHeaderEntry("BZERO", fits.header.bzero);
-        //     this.setFITSHeaderEntry("BSCALE", fits.header.bscale);
-
-        //     for (let j = 0; j < pixcount; j++ ){
-        //         let imgpx = inputPixelsList[j];
-        //         if (imgpx.tileno === f) {
-        //             values[j] = fits.data[imgpx.j][imgpx.i];
-        //         }
-        //     }
-        // }
+		var values = new Array(pixcount);
+        var fitsheader;
+        var promise = await new FITSParser(fitsurl).then( (fits) => {
 		
+            fitsheader = fits.header;
+            
+            for (let j = 0; j < pixcount; j++ ){
+                let imgpx = inputPixelsList[j];
+                values[j] = fits.data[imgpx.j][imgpx.i];
+            }
+
+        });
+
+		this.parseHeaders(fitsheader);
 		return values;
+	}
+
+    parseHeaders(header){
+		console.log(header);
+		if (!this._fh) {
+			this._fh = new FITSHeader;
+		}
+
+		
+        for (const [key, value] of header) {
+            // I could add a list of used NPIXs to be included in the comment of the output FITS
+            if (["SIMPLE", "BSCALE", "BZERO", "BLANK", "BITPIX", "ORDER", "COMMENT", "CPYRIGH", "ORIGIN"].includes(key)) {
+                if (!this._fh.get(key)) {
+                    this._fh.set(key, value);
+                } else if (this._fh.get(key) !== value) { // this should not happen 
+                    throw new Error("Error parsing headers. "+key+" was "+this._fh.get(key)+" and now is "+value);
+                }
+            }
+        }
 	}
     
     computeSquaredNaxes (d, ps) {
         // first aprroximation to be checked
         this._naxis1 =  Math.ceil(d / ps);
         this._naxis2 = this._naxis1;
+        this._pxsize = ps;
     }
 
     /** TODO !!! check and handle RA passing through 360-0 */
@@ -173,18 +180,27 @@ class MercatorProjection extends AbstractProjection {
 
     setPxsValue(values, fitsHeaderParams) {
         
-        this._minval = this._pxvalues[0];
-        this._maxval = this._pxvalues[0];
+        this._minval = values[0];
+        this._maxval = values[0];
         this._pxvalues = new Array(this._naxis2);
         let vidx = 0;
 
         for (let j = 0; j < this._naxis2; j++) {
             this._pxvalues[j] = new Array(this._naxis1);
             for (let i = 0; i < this._naxis1; i++) {
+                
+                // in case on unidimensional input array
+                // this._pxvalues[j][i] = values[j][i];
+                // if (values[j][i] < this._minval) {
+                //     this._minval = values[j][i];
+                // } else if (values[j][i] < this._maxval) {
+                //     this._maxval = values[j][i];
+                // }
+
                 this._pxvalues[j][i] = values[vidx];
                 if (values[vidx] < this._minval) {
                     this._minval = values[vidx];
-                } else if (values[vidx] < this._maxval) {
+                } else if (values[vidx] > this._maxval) {
                     this._maxval = values[vidx];
                 }
                 vidx += 1;
@@ -246,28 +262,29 @@ class MercatorProjection extends AbstractProjection {
     getImageRADecList(center, radius, pxsize) {
 
         this.computeSquaredNaxes (2 * radius, pxsize); // compute naxis[1, 2]
-        this._cra = center.raDeg;
-        this._cdec = center.decDeg;
+        this._cra = center.ra;
+        this._cdec = center.dec;
         this._pxsize = pxsize;
-        this._minra = center.raDeg - radius;
+        this._minra = center.ra - radius;
         if (this._minra < 0) {
             this._minra += 360;
         }
-        this._mindec = center.decDeg - radius;
+        this._mindec = center.dec - radius;
         
-        let radecmap = new Map();;
-        radeclist = [];
-        for (let cra = this._minra; cra < (this._pxsize * this._naxis1); cra += this._pxsize) {
-            for (let cdec = this._mindec; cdec < (this._pxsize * this._naxis2); cdec += this._pxsize) {
+        // let radecmap = new Map();;
+        let radeclist = [];
+        for (let cra = this._minra; cra < this._minra + this._pxsize * (this._naxis1); cra += this._pxsize) {
+            for (let cdec = this._mindec; cdec < this._mindec + this._pxsize * (this._naxis2); cdec += this._pxsize) {
                 radeclist.push([cra, cdec]);
             }
         }
-        return radecmap.set(0, radeclist);
+        // return radecmap.set(0, radeclist);
+        return radeclist;
     }
 
     getCanvas2d(tfunction = "linear", colormap = "grayscale", inverse = false) {
 
-		let canvas2d =  new Canvas2D(this._pxvalues, this, tfunction, colormap, inverse);
+		let canvas2d =  new Canvas2D(this._pxvalues, this._fh, tfunction, colormap, inverse);
 		return canvas2d;
 	}
 
