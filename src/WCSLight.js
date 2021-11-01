@@ -29,15 +29,18 @@ class WCSLight {
     static cutout (center, radius, pxsize, inproj, outproj) {
         
         let result = [];
-        let outRADecList = outproj.getImageRADecList(center, radius, pxsize);     
-    
-        /** PROMISE PROTO */
-        // world2pix must load files
-        let inputPixelsList = inproj.world2pix(outRADecList);
-        return inproj.getPixValues(inputPixelsList).then((invalues) => {
-            let fitsHeaderParams = inproj.getFITSHeader();
-            // TODO separate fitsHeaderParams in a different method
-            // outproj.prepareFITSHEader(fitsHeaderParams)
+    /**
+     * idea is
+     */
+    return outproj.getImageRADecList(center, radius, pxsize)
+        .then( (outRADecList) => {
+            let inputPixelsList = inproj.world2pix(outRADecList);
+            return inputPixelsList;
+        }).then( (inputPixelsList) => {
+            let invalues = inproj.getPixValues(inputPixelsList);
+            return invalues;
+        }).then( (invalues) => {
+            let fitsHeaderParams = inproj.getCommonFitsHeaderParams();
             let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
             let fitsheader = outproj.getFITSHeader();
             let canvas2d = outproj.getCanvas2d();
@@ -47,25 +50,27 @@ class WCSLight {
                 "canvas2d": canvas2d
             };
         });
-        /** END PROMISE PROTO*/
+    /** */
+    
+        // let outRADecList = outproj.getImageRADecList(center, radius, pxsize);     
+        // // world2pix must load files!!! Promisify world2pix! and append it to getPixValues
         // let inputPixelsList = inproj.world2pix(outRADecList);
 
-        // let invalues = inproj.getPixValuesFromPxlist(inputPixelsList);
-        // let fitsHeaderParams = inproj.getFITSHeader();
-
-        // // TODO separate fitsHeaderParams in a different method
-        // // outproj.prepareFITSHEader(fitsHeaderParams)
-        // let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
+        // return inproj.getPixValues(inputPixelsList).then((invalues) => {
+        //     let fitsHeaderParams = inproj.getCommonFitsHeaderParams();
+        //     // TODO separate fitsHeaderParams in a different method
+        //     // outproj.prepareFITSHEader(fitsHeaderParams)
+        //     let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
+        //     let fitsheader = outproj.getFITSHeader();
+        //     let canvas2d = outproj.getCanvas2d();
+        //     return {
+        //         "fitsheader": fitsheader,
+        //         "fitsdata": fitsdata,
+        //         "canvas2d": canvas2d
+        //     };
+        // });
+        // /** END PROMISE PROTO*/
         
-        // let fitsheader = outproj.getFITSHeader();
-        // let canvas2d = outproj.getCanvas2d();
-        
-        // return {
-        //     "fitsheader": fitsheader,
-        //     "fitsdata": fitsdata,
-        //     "canvas2d": canvas2d
-        // };
-
     }
 
     /**

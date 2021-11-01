@@ -20,21 +20,21 @@ class AbstractProjection {
             throw new TypeError("Must override getFITSHeader()");
         }
 
-        if (this.setFITSHeaderEntry === undefined) {
-            throw new TypeError("Must override setFITSHeaderEntry()");
-        }
+        // if (this.setFITSHeaderEntry === undefined) {
+        //     throw new TypeError("Must override setFITSHeaderEntry()");
+        // }
 
-        if (this.getFITSHeaderEntry === undefined) {
-            throw new TypeError("Must override getFITSHeaderEntry()");
-        }
-
-
+        // if (this.getFITSHeaderEntry === undefined) {
+        //     throw new TypeError("Must override getFITSHeaderEntry()");
+        // }
 
 
 
-        if (this.computePixValues === undefined) {
-            throw new TypeError("Must override computePixValues()");
-        }
+
+
+        // if (this.computePixValues === undefined) {
+        //     throw new TypeError("Must override computePixValues()");
+        // }
 
         // if (this.getPixValuesFromPxlist === undefined) {
         //     throw new TypeError("Must override getPixValuesFromPxlist()");
