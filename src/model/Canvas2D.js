@@ -9,6 +9,9 @@
  */
 
  import ColorMaps from './ColorMaps.js';
+ import pkg from 'canvas';
+const { createCanvas } = pkg;
+import fs from 'fs';
 
 class Canvas2D {
 
@@ -53,7 +56,7 @@ class Canvas2D {
         
         this._inverse = inverse;
 
-        this._tfunction == tfunction;
+        this._tfunction = tfunction;
         this._colormap = colormap;
 
         this._projection = projection;
@@ -66,20 +69,24 @@ class Canvas2D {
      */
      process() {
 
+        this._physicalvalues = new Array(this._height);
         for (let j = 0; j < this._height; j++) {
+            this._physicalvalues[j] = new Array(this._width);
             for (let i = 0; i < this._width; i++) {
-                let val = this.pixel2Physical(this._pixelvalues[j][i]);
-                if (val < this._currmin || val > this._currmax) {
-                    val = NaN;
-                } else {
-                    val = this.appylyTransferFunction(val);
-                    this._physicalvalues[j][i] = val;
+                if (isNaN(this._pixelvalues[j][i])){
+                    this._physicalvalues[j][i] = NaN;
+                }else{
+                    let val = this.pixel2Physical(this._pixelvalues[j][i]);
+                    if (val < this._currmin || val > this._currmax) {
+                        val = NaN;
+                    } else {
+                        val = this.appylyTransferFunction(val);
+                        this._physicalvalues[j][i] = val;
+                    }
                 }
             }
         }
-
         return this._physicalvalues;
-
     }
 
     pixel2Physical(value){
@@ -147,11 +154,11 @@ class Canvas2D {
 
     appylyTransferFunction(val) {
 
-        if (this._tFunction == 'linear'){
+        if (this._tfunction == 'linear'){
 			return val;
-		} else if (this._tFunction == 'log'){
+		} else if (this._tfunction == 'log'){
 			return Math.log(val);
-		} else if (this._tFunction == 'sqrt'){
+		} else if (this._tfunction == 'sqrt'){
 			return Math.sqrt(val);
 		}
         return val;
@@ -163,21 +170,32 @@ class Canvas2D {
      * @returns an Javascript Canvas 2d image
      */
      getCanvas2DBrowse() {
-        let c = document.createElement('canvas');
-    	c.width = this._width;
-        c.height = this._height;
-        let ctx = c.getContext("2d");
-        let imgData = ctx.createImageData(c.width, c.height);
+
+        if (this._physicalvalues.length == 0) {
+            throw new Error("Empty data. Did you run Canvas2D.process() first?")
+        }
+
+        /** https://flaviocopes.com/canvas-node-generate-image/ */
+        let width = this._width;
+        let height = this._height;
+        const canvas = createCanvas(width, height)
+        const ctx = canvas.getContext('2d')
+
+        // let c = document.createElement('canvas');
+    	// c.width = this._width;
+        // c.height = this._height;
+        // let ctx = c.getContext("2d");
+        let imgData = ctx.createImageData(canvas.width, canvas.height);
     	
         let pos;
         let colors;
-		for (let row = 0; row < c.height; row++){
-    		for (let col = 0; col < c.width; col++){
+		for (let row = 0; row < canvas.height; row++){
+    		for (let col = 0; col < canvas.width; col++){
 
     			/** to invert x and y replace the pos computation with the following */
     			/** pos = ((c.width - row) * (c.height) + col ) * 4; */
 //    			pos = ( col * c.width + row ) * 4;
-    			pos = ( (c.width - row) * c.width + col ) * 4;
+    			pos = ( (canvas.width - row) * canvas.width + col ) * 4;
 
     			colors = this.colorPixel(this._physicalvalues[row][col]);
 
@@ -189,15 +207,18 @@ class Canvas2D {
     		}
     	}
     	ctx.putImageData(imgData, 0, 0);
-    	let img = new Image();
-        img.src = c.toDataURL();
-        return img;
+        
+    	// let img = new Image();
+        // img.src = canvas.toDataURL();
+        const buffer = canvas.toBuffer('image/png');
+        fs.writeFileSync('./test-'+Date.now()+'.png', buffer);
+        return canvas.toDataURL();
 
     }
 
     colorPixel (v){
 		
-        if (v == "NaN" ){
+        if (isNaN(v) ){
             if (this._inverse){
                 return {
                     r:255,
@@ -217,12 +238,12 @@ class Canvas2D {
 		// if ( v < 0 ) v = -v;
 		let colormap_idx = ( (v - this._currmin) / (this._currmax-this._currmin)) * 256;
 		let idx = Math.round(colormap_idx);
-		let colorMap = ColorMaps[this._colorMap];
+		
 		// if (idx<0){
 		// 	idx = -idx;
 		// }
 		
-		if (this._colorMap == 'grayscale'){
+		if (this._colormap == 'grayscale'){
 			if (this._inverse){
 				return {
 					r: (255 - idx),
@@ -237,6 +258,7 @@ class Canvas2D {
 				b:idx
 			};
 		}else{
+            let colorMap = ColorMaps[this._colormap];
 			if (this._inverse){
 				return {
 					r: (255 - colorMap.r[idx]),

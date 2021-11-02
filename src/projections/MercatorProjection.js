@@ -101,8 +101,8 @@ class MercatorProjection extends AbstractProjection {
         this._fitsheader.set("CRVAL1", this._cra); // central/reference pixel RA
         this._fitsheader.set("CRVAL2", this._cdec); // central/reference pixel Dec
 
-        let min = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._minval;
-        let max = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._maxval;
+        let min = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._minphysicalval;
+        let max = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._maxphysicalval;
         this._fitsheader.set("DATAMIN", min); // min data value
         this._fitsheader.set("DATAMAX", max); // max data value
 
@@ -164,17 +164,17 @@ class MercatorProjection extends AbstractProjection {
         
                 for (let j = 0; j < pixcount; j++ ){
                     let imgpx = inputPixelsList[j];
-                    if (imgpx._j < 0 || imgpx._j > this._naxis2 ||
-                        imgpx._i < 0 || imgpx._i > this._naxis1) {
+                    if ( (imgpx._j-1) < 0 || (imgpx._j-1) > this._naxis2 ||
+                        (imgpx._i-1) < 0 || (imgpx._i-1) > this._naxis1) {
                             values[j] = NaN;
                         }else {
-                            values[j] = this._pxvalues[imgpx._j][imgpx._i];
+                            values[j] = this._pxvalues[imgpx._j - 1][imgpx._i - 1];
                         }
                 }
                 // self.prepareCommonHeader();
                 resolve(values);
             } catch(err) {
-                reject("ERROR!!!"+err);
+                reject("[MercatorProjection] ERROR: "+err);
             }
             
         });
@@ -208,8 +208,8 @@ class MercatorProjection extends AbstractProjection {
 
     setPxsValue(values, fitsHeaderParams) {
         
-        this._minval = values[0];
-        this._maxval = values[0];
+        this._minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * values[0];
+        this._maxphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * values[0];
         this._pxvalues = new Array(this._naxis2);
         let vidx = 0;
 
@@ -226,11 +226,12 @@ class MercatorProjection extends AbstractProjection {
                 // }
 
                 this._pxvalues[j][i] = values[vidx];
+                let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._pxvalues[j][i];
 
-                if (values[vidx] < this._minval) {
-                    this._minval = values[vidx];
-                } else if (values[vidx] > this._maxval) {
-                    this._maxval = values[vidx];
+                if (valphysical < this._minphysicalval || isNaN(minphysicalval)) {
+                    this._minphysicalval = valphysical;
+                } else if (valphysical > this._maxphysicalval || isNaN(maxphysicalval)) {
+                    this._maxphysicalval = valphysical;
                 }
                 vidx += 1;
             }

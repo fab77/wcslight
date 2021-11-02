@@ -7,6 +7,7 @@
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
+ import FITSParser from '../../FITSParser/src/FITSParser.js';
 
 class WCSLight {
 
@@ -29,9 +30,7 @@ class WCSLight {
     static cutout (center, radius, pxsize, inproj, outproj) {
         
         let result = [];
-    /**
-     * idea is
-     */
+    
     return outproj.getImageRADecList(center, radius, pxsize)
         .then( (outRADecList) => {
             let inputPixelsList = inproj.world2pix(outRADecList);
@@ -49,8 +48,9 @@ class WCSLight {
                 "fitsdata": fitsdata,
                 "canvas2d": canvas2d
             };
+        }).catch(function(err) {
+            console.error("[WCSLight] ERROR: "+err);
         });
-    /** */
     
         // let outRADecList = outproj.getImageRADecList(center, radius, pxsize);     
         // // world2pix must load files!!! Promisify world2pix! and append it to getPixValues

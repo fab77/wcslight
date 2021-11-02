@@ -6,3 +6,4 @@ _srcold/projections/MercatorProjection.js
 _srcold/WCSLight.js
 test/input/Mercator.fits
 _srcold/index.js
+test/.DS_Store

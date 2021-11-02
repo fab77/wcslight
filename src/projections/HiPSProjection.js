@@ -150,24 +150,44 @@ class HiPSProjection extends AbstractProjection {
 		var promises = [];
 
 		for (let hipstileno of tilesset) {
-
+			
 			let dir = Math.floor(hipstileno/10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
 			let fitsurl = this._hipsURI+"/Norder"+this._norder+"/Dir"+dir+"/Npix"+hipstileno+".fits";
+			console.log("Loading "+fitsurl);
 			promises.push(new FITSParser(fitsurl).then( (fits) => {
 	
-				fitsheaderlist.push(fits.header);
+				
+				if (fits.data.length === 0) {	// file not found
+					console.log(fitsurl+" not found");
+					fitsheaderlist.push(undefined);
+					for (let j = 0; j < pixcount; j++ ){
+						let imgpx = inputPixelsList[j];
+						if (imgpx.tileno === hipstileno) {
+							
+							values[j] = NaN;
+	
+						}
+					}	
+				} else {
+					console.log(fitsurl+" loaded");
+					fitsheaderlist.push(fits.header);
 			
-				for (let j = 0; j < pixcount; j++ ){
-					let imgpx = inputPixelsList[j];
-					if (imgpx.tileno === hipstileno) {
-						
-						values[j] = fits.data[imgpx._j][imgpx._i];
+					for (let j = 0; j < pixcount; j++ ){
+						let imgpx = inputPixelsList[j];
 
+						if (imgpx.tileno === hipstileno) {
+							
+							// I need to subtract 1 from both imgpx._j and imgpx._i since fits.data indexes start from 0
+							let val = fits.data[imgpx._j-1][imgpx._i-1];
+							if (val === undefined) {
+								values[j] = NaN;
+							} else {	
+								values[j] = val;
+							}
+						}
 					}
 				}
-
 			}));
-
 		}
 		await Promise.all(promises);
 		this.prepareCommonHeader(fitsheaderlist);
@@ -186,16 +206,19 @@ class HiPSProjection extends AbstractProjection {
 
 		for (let i = 0; i< fitsheaderlist.length; i++) {
 			let header = fitsheaderlist[i];
-			for (const [key, value] of header) {
-				// I could add a list of used NPIXs to be included in the comment of the output FITS
-				if (["SIMPLE", "BSCALE", "BZERO", "BLANK", "BITPIX", "ORDER", "COMMENT", "CPYRIGH", "ORIGIN"].includes(key)) {
-					if (!this._fh_common.get(key)) {
-						this._fh_common.set(key, value);
-					} else if (this._fh_common.get(key) !== value) { // this should not happen 
-						throw new Error("Error parsing headers. "+key+" was "+this._fh_common.get(key)+" and now is "+value);
+			if (header !== undefined){
+				for (const [key, value] of header) {
+					// I could add a list of used NPIXs to be included in the comment of the output FITS
+					if (["SIMPLE", "BSCALE", "BZERO", "BLANK", "BITPIX", "ORDER", "COMMENT", "CPYRIGH", "ORIGIN"].includes(key)) {
+						if (!this._fh_common.get(key)) {
+							this._fh_common.set(key, value);
+						} else if (this._fh_common.get(key) !== value) { // this should not happen 
+							throw new Error("Error parsing headers. "+key+" was "+this._fh_common.get(key)+" and now is "+value);
+						}
 					}
 				}
-			  }
+			}
+			
 		}
 		
 	}
@@ -208,6 +231,12 @@ class HiPSProjection extends AbstractProjection {
 		this._pxsize = ps;
     }
 
+	// TODO MOVE THIS IN AN UTILITY FILE
+	pixel2Physical(value, bzero, bscale){
+        let pval = bzero + bscale * value;
+        return pval;
+    }
+
 	setPxsValue(values, fitsHeaderParams) {
 
 		let vidx = 0;
@@ -218,20 +247,20 @@ class HiPSProjection extends AbstractProjection {
 		this._tileslist.forEach((tileno) => {
 
 			let tilevalues = values.slice(vidx * pxXTile, (vidx + 1) * pxXTile );
-			let minval = tilevalues[0];
-			let maxval = tilevalues[0];
+			let minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * tilevalues[0];
+			let maxphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * tilevalues[0];
 			let valuemap = new Array(HiPSHelper.DEFAULT_Naxis1_2);
 			for (let j = 0; j < HiPSHelper.DEFAULT_Naxis1_2; j++) {
 				valuemap[j] = new Array(HiPSHelper.DEFAULT_Naxis1_2);
 				for (let i = 0; i < HiPSHelper.DEFAULT_Naxis1_2; i++) {
 					
 					valuemap[j][i] = tilevalues[(j * HiPSHelper.DEFAULT_Naxis1_2) + i];
-
+					let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * valuemap[j][i];
 					
-					if (valuemap[j][i] < minval || isNaN(minval)) {
-						minval = valuemap[j][i];
-					} else if (valuemap[j][i] > maxval || isNaN(maxval)) {
-						maxval = valuemap[j][i];
+					if (valphysical < minphysicalval || isNaN(minphysicalval)) {
+						minphysicalval = valphysical;
+					} else if (valphysical > maxphysicalval || isNaN(maxphysicalval)) {
+						maxphysicalval = valphysical;
 					}
 
 				}
@@ -239,8 +268,8 @@ class HiPSProjection extends AbstractProjection {
 			let header = new FITSHeader();
 			header.set("NPIX", tileno);
 			// TODO CONVERT minval and maxval to physical values!
-			header.set("DATAMIN", minval);
-			header.set("DATAMAX", maxval);
+			header.set("DATAMIN", minphysicalval);
+			header.set("DATAMAX", maxphysicalval);
 
 			this._fitsheaderlist.push(header);
 			
@@ -302,12 +331,16 @@ class HiPSProjection extends AbstractProjection {
 		let promise = new Promise ( (resolve, reject) => {
 			let imgpxlist = [];
 			let tileno;
-	
+			let prevTileno = undefined;
 			radeclist.forEach(([ra, dec]) => {
 				let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(ra, dec);
 				let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phi_rad);
+				
 				tileno = this._hp.ang2pix(ptg);
-				this._xyGridProj = HiPSHelper.setupByTile(tileno, this._hp);
+				if (prevTileno !== tileno || prevTileno === undefined){
+					this._xyGridProj = HiPSHelper.setupByTile(tileno, this._hp);
+					prevTileno = tileno;
+				}
 				
 				let rarad =  HiPSHelper.degToRad(ra);
 				let decrad = HiPSHelper.degToRad(dec);
