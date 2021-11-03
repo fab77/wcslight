@@ -150,8 +150,8 @@ class HiPSProjection extends AbstractProjection {
 		});
 
 		let pixcount = inputPixelsList.length;
-		var values = new Array(pixcount);
-		// var values = new Uint8Array(pixcount);
+		// var values = new Array(pixcount);
+		var values = undefined;
 		var fitsheaderlist = [];
 		var promises = [];
 
@@ -162,6 +162,12 @@ class HiPSProjection extends AbstractProjection {
 			console.log("Loading "+fitsurl);
 			promises.push(new FITSParser(fitsurl).then( (fits) => {
 	
+				let bytesXelem = Math.abs(fits.header.get("BITPIX") / 8);
+				let blankBytes = ParseUtils.convertBlankToBytes(fits.header.get("BLANK"), bytesXelem);
+				if (values === undefined) {
+					values = new Uint8Array(pixcount * bytesXelem);
+				}
+		
 				
 				if (fits.data.length === 0) {	// file not found
 					console.log(fitsurl+" not found");
@@ -170,10 +176,14 @@ class HiPSProjection extends AbstractProjection {
 						let imgpx = inputPixelsList[j];
 						if (imgpx.tileno === hipstileno) {
 							
-							values[j] = NaN;
+							// TODO HANDLE the case when BLANK is not set as per standard
+							for (let i = 0; i < bytesXelem; i++) {
+                                values[j * bytesXelem + i] = blankBytes[i];
+                            }
+							// values[j] = NaN;
 	
 						}
-					}	
+					}
 				} else {
 					console.log(fitsurl+" loaded");
 					fitsheaderlist.push(fits.header);
@@ -183,13 +193,16 @@ class HiPSProjection extends AbstractProjection {
 
 						if (imgpx.tileno === hipstileno) {
 							
+							for (let i = 0; i < bytesXelem; i++) {
+                                values[j * bytesXelem + i] = fits.data[imgpx._j - 1][(imgpx._i - 1) * bytesXelem  + i];
+                            }
 							// I need to subtract 1 from both imgpx._j and imgpx._i since fits.data indexes start from 0
-							let val = fits.data[imgpx._j-1][imgpx._i-1];
-							if (val === undefined) {
-								values[j] = NaN;
-							} else {	
-								values[j] = val;
-							}
+							// let val = fits.data[imgpx._j-1][imgpx._i-1];
+							// if (val === undefined) {
+							// 	values[j] = NaN;
+							// } else {	
+							// 	values[j] = val;
+							// }
 						}
 					}
 				}

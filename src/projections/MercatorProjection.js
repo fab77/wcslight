@@ -168,9 +168,7 @@ class MercatorProjection extends AbstractProjection {
                 var values = new Uint8Array(pixcount * bytesXelem);
                 
                 for (let j = 0; j < pixcount; j++ ){
-                    if (j == 23 ){
-                        console.log(j);
-                    }
+
                     let imgpx = inputPixelsList[j];
                     // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
                     if ( (imgpx._j-1) < 0 || (imgpx._j-1) > this._naxis2 ||
@@ -224,34 +222,42 @@ class MercatorProjection extends AbstractProjection {
 
     setPxsValue(values, fitsHeaderParams) {
         
-        this._minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * values[0];
-        this._maxphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * values[0];
+        let bytesXelem = Math.abs(fitsHeaderParams.get("BITPIX") / 8);
+        let minpixb = ParseUtils.extractPixelValue(0, values.slice(0, bytesXelem), fitsHeaderParams.get("BITPIX"));
+        let maxpixb = minpixb;
+        this._minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * minpixb;
+        this._maxphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * maxpixb;
         this._pxvalues = new Array(this._naxis2);
         // this._pxvalues = new Uint8Array(this._naxis2);
-        let vidx = 0;
+        // let vidx = 0;
 
         for (let j = 0; j < this._naxis2; j++) {
-            this._pxvalues[j] = new Array(this._naxis1);
-            // this._pxvalues[j] = new Uint8Array(this._naxis1);
+            // this._pxvalues[j] = new Array(this._naxis1);
+            this._pxvalues[j] = new Uint8Array(this._naxis1 * bytesXelem);
             for (let i = 0; i < this._naxis1; i++) {
+
+                for (let k = 0; k < bytesXelem; k++) {
+                    this._pxvalues[j][i * bytesXelem + k] = values[(j * this._naxis1  + i) * bytesXelem + k];
+                }
+                let valpixb = ParseUtils.extractPixelValue(0, values.slice(i, i + bytesXelem), fitsHeaderParams.get("BITPIX"));
+                let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * valpixb;
                 
-                // in case on unidimensional input array
-                // this._pxvalues[j][i] = values[j][i];
-                // if (values[j][i] < this._minval) {
-                //     this._minval = values[j][i];
-                // } else if (values[j][i] < this._maxval) {
-                //     this._maxval = values[j][i];
-                // }
-
-                this._pxvalues[j][i] = values[vidx];
-                let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._pxvalues[j][i];
-
-                if (valphysical < this._minphysicalval || isNaN(minphysicalval)) {
+                if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
                     this._minphysicalval = valphysical;
-                } else if (valphysical > this._maxphysicalval || isNaN(maxphysicalval)) {
+                } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
                     this._maxphysicalval = valphysical;
                 }
-                vidx += 1;
+
+
+                // this._pxvalues[j][i] = values[vidx];
+                // let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * this._pxvalues[j][i];
+
+                // if (valphysical < this._minphysicalval || isNaN(minphysicalval)) {
+                //     this._minphysicalval = valphysical;
+                // } else if (valphysical > this._maxphysicalval || isNaN(maxphysicalval)) {
+                //     this._maxphysicalval = valphysical;
+                // }
+                // vidx += 1;
             }
         }
         this.prepareFITSHeader(fitsHeaderParams);
