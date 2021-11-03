@@ -79,7 +79,7 @@ class Canvas2D {
             this._physicalvalues[j] = new Array(this._width);
             for (let i = 0; i < this._width; i++) {
 
-                let pixval = ParseUtils.extractPixelValue(0, this._pixelvalues[j].slice(i, i + bytesXelem), this._bitpix);
+                let pixval = ParseUtils.extractPixelValue(0, this._pixelvalues[j].slice(i * bytesXelem, (i + 1) * bytesXelem), this._bitpix);
                 // if (isNaN(pixval)){
                 //     this._physicalvalues[j][i] = NaN;
                 // }else{

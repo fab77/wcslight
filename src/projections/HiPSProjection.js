@@ -48,8 +48,10 @@ class HiPSProjection extends AbstractProjection {
 			throw new Error("One among pxsize and order must be provided.")
 		}
 
+		this._fitsheaderlist = [];
+
 		if (fitsfilepath) {
-			this.initFromFile(fitsfilepath);
+			return this.initFromFile(fitsfilepath);
 		} else if (pxsize !== null && pxsize !== undefined) {
 			this._hipsURI = hipsURI;
 			this.initFromPxsize(pxsize);
@@ -58,7 +60,7 @@ class HiPSProjection extends AbstractProjection {
 			this._pxsize = HiPSHelper.computePxSize(order);
 			this.initFromHiPSOrder(order);
 		}
-		this._fitsheaderlist = [];
+		
 
     }
 
@@ -68,7 +70,7 @@ class HiPSProjection extends AbstractProjection {
 		let promise = new FITSParser(fitsfilepath).then(fits => {
 			
 			
-	
+			this._pxvalues = [];
 			self._pxvalues[0] = fits.data;
 			self._fitsheaderlist[0] = fits.header;
 
@@ -83,11 +85,11 @@ class HiPSProjection extends AbstractProjection {
 			return {
 				"fitsheader": fits.header,
                 "fitsdata": fits.data,
-                "canvas2d": self.getCanvas2d()
+                "canvas2d": self.getCanvas2d()[0]
 			}
 		});
 		await promise;
-		
+		return promise;
 	}
 
 	initFromPxsize (pxsize) {
