@@ -51,25 +51,6 @@ class WCSLight {
         }).catch(function(err) {
             console.error("[WCSLight] ERROR: "+err);
         });
-    
-        // let outRADecList = outproj.getImageRADecList(center, radius, pxsize);     
-        // // world2pix must load files!!! Promisify world2pix! and append it to getPixValues
-        // let inputPixelsList = inproj.world2pix(outRADecList);
-
-        // return inproj.getPixValues(inputPixelsList).then((invalues) => {
-        //     let fitsHeaderParams = inproj.getCommonFitsHeaderParams();
-        //     // TODO separate fitsHeaderParams in a different method
-        //     // outproj.prepareFITSHEader(fitsHeaderParams)
-        //     let fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
-        //     let fitsheader = outproj.getFITSHeader();
-        //     let canvas2d = outproj.getCanvas2d();
-        //     return {
-        //         "fitsheader": fitsheader,
-        //         "fitsdata": fitsdata,
-        //         "canvas2d": canvas2d
-        //     };
-        // });
-        // /** END PROMISE PROTO*/
         
     }
 

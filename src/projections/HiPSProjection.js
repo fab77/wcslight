@@ -20,6 +20,7 @@ import HiPSHelper from './HiPSHelper.js';
 import ImagePixel from '../model/ImagePixel.js';
 import Canvas2D from '../model/Canvas2D.js';
 import FITSHeader from '../../../FITSParser/src/FITSHeader.js';
+import ParseUtils from '../../../FITSParser/src/ParseUtils.js';
 
 
 
@@ -49,11 +50,12 @@ class HiPSProjection extends AbstractProjection {
 
 		if (fitsfilepath) {
 			this.initFromFile(fitsfilepath);
-		} else if (pxsize) {
+		} else if (pxsize !== null && pxsize !== undefined) {
 			this._hipsURI = hipsURI;
 			this.initFromPxsize(pxsize);
 		} else {
 			this._hipsURI = hipsURI;
+			this._pxsize = HiPSHelper.computePxSize(order);
 			this.initFromHiPSOrder(order);
 		}
 		this._fitsheaderlist = [];
@@ -89,6 +91,7 @@ class HiPSProjection extends AbstractProjection {
 	}
 
 	initFromPxsize (pxsize) {
+		this._pxsize = pxsize;
 		let hipsorder = HiPSHelper.computeHiPSOrder(pxsize);
 		this.initFromHiPSOrder(hipsorder);
 	}
@@ -109,14 +112,16 @@ class HiPSProjection extends AbstractProjection {
 			header.set("NAXIS", 2);
 			header.set("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2);
 			header.set("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2);
+
+			header.set("ORDER", this._norder);
 			
 			header.set("CTYPE1", this._ctype1);
 			header.set("CTYPE2", this._ctype2);
 			
 			header.set("CDELT1", this._pxsize); // ??? Pixel spacing along axis 1 ???
 			header.set("CDELT2", this._pxsize); // ??? Pixel spacing along axis 2 ???
-			header.set("CRPIX1", this._naxis1/2); // central/reference pixel i along naxis1
-			header.set("CRPIX2", this._naxis2/2); // central/reference pixel j along naxis2
+			header.set("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2 - 1); // central/reference pixel i along naxis1
+			header.set("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2 - 1); // central/reference pixel j along naxis2
 			
 			// this._fitsheader.set("CRVAL1", this._cra); // central/reference pixel RA
         	// this._fitsheader.set("CRVAL2", this._cdec); // central/reference pixel Dec
@@ -146,6 +151,7 @@ class HiPSProjection extends AbstractProjection {
 
 		let pixcount = inputPixelsList.length;
 		var values = new Array(pixcount);
+		// var values = new Uint8Array(pixcount);
 		var fitsheaderlist = [];
 		var promises = [];
 
@@ -242,20 +248,34 @@ class HiPSProjection extends AbstractProjection {
 		let vidx = 0;
 		this._pxvalues = [];
 		let pxXTile = HiPSHelper.DEFAULT_Naxis1_2 * HiPSHelper.DEFAULT_Naxis1_2;
-		// this._pxvalues.concat(values.slice(vidx * pxXTile, (vidx + 1) * pxXTile ));
-
+		
 		this._tileslist.forEach((tileno) => {
 
-			let tilevalues = values.slice(vidx * pxXTile, (vidx + 1) * pxXTile );
-			let minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * tilevalues[0];
-			let maxphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * tilevalues[0];
+			let bytesXelem = Math.abs(fitsHeaderParams.get("BITPIX") / 8);
+			// let tilevalues = values.slice(vidx * pxXTile , (vidx + 1) * pxXTile );
+			let tilevalues = values.slice(vidx * pxXTile * bytesXelem, (vidx + 1) * pxXTile * bytesXelem);
+			// let minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * tilevalues[0];
+			// let maxphysicalval = minphysicalval;
+			let minpixb = ParseUtils.extractPixelValue(0, tilevalues.slice(0, bytesXelem), fitsHeaderParams.get("BITPIX"));
+			let maxpixb = minpixb;
+			let minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * minpixb;
+			let maxphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * maxpixb;
+			// TODO!!!!!! check if the minimum or maximum are BLANK. in case check new one
+
 			let valuemap = new Array(HiPSHelper.DEFAULT_Naxis1_2);
 			for (let j = 0; j < HiPSHelper.DEFAULT_Naxis1_2; j++) {
-				valuemap[j] = new Array(HiPSHelper.DEFAULT_Naxis1_2);
+				// valuemap[j] = new Array(HiPSHelper.DEFAULT_Naxis1_2);
+				valuemap[j] = new Uint8Array(HiPSHelper.DEFAULT_Naxis1_2 * bytesXelem);
 				for (let i = 0; i < HiPSHelper.DEFAULT_Naxis1_2; i++) {
 					
-					valuemap[j][i] = tilevalues[(j * HiPSHelper.DEFAULT_Naxis1_2) + i];
-					let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * valuemap[j][i];
+					// valuemap[j][i] = tilevalues[(j * HiPSHelper.DEFAULT_Naxis1_2) + i];
+					// let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * valuemap[j][i];
+					for (let k = 0; k < bytesXelem; k++) {
+						// valuemap[j][i * bytesXelem + k] = tilevalues[(j * HiPSHelper.DEFAULT_Naxis1_2) + (i * bytesXelem) + k];
+						valuemap[j][i * bytesXelem + k] = tilevalues[(j * HiPSHelper.DEFAULT_Naxis1_2  + i) * bytesXelem + k];
+					}
+					let valpixb = ParseUtils.extractPixelValue(0, valuemap[j].slice(i, i + bytesXelem), fitsHeaderParams.get("BITPIX"));
+					let valphysical = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * valpixb;
 					
 					if (valphysical < minphysicalval || isNaN(minphysicalval)) {
 						minphysicalval = valphysical;
@@ -270,10 +290,19 @@ class HiPSProjection extends AbstractProjection {
 			// TODO CONVERT minval and maxval to physical values!
 			header.set("DATAMIN", minphysicalval);
 			header.set("DATAMAX", maxphysicalval);
+			header.set("NPIX", tileno);
+			let vec3 = this._hp.pix2vec(tileno);
+			let ptg = new Pointing(vec3);
+			let crval1 = HiPSHelper.radToDeg(ptg.phi);
+			let crval2 = 90 - HiPSHelper.radToDeg(ptg.theta);
+			header.set("CRVAL1", crval1);
+			header.set("CRVAL2", crval2);
+
+
 
 			this._fitsheaderlist.push(header);
 			
-			this._pxvalues.push(valuemap);
+			this._pxvalues[vidx] = valuemap;
 			vidx += 1;
 		});
 

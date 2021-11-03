@@ -53,6 +53,7 @@ class HiPSHelper {
 		 * 
 		 */
 
+
 		let k = Math.log2(HiPSHelper.RES_ORDER_0/pxsize);
 		k = Math.round(k);
 		// let theta0px = HiPSHelper.RES_ORDER_0;
@@ -65,6 +66,15 @@ class HiPSHelper {
         // };
 		return k;
 		
+	}
+
+	/**
+	 * Reference: HiPS – Hierarchical Progressive Survey page 11
+	 * pxsize =~ sqrt[4 * PI / (12 * (512 * 2^order)^2)]
+	 * @param {*} order 
+	 */
+	static computePxSize(order) {
+		let pxsize = 2/(512 * 2**order) * Math.sqrt(Math.PI/12);
 	}
 
 	/**

@@ -15,6 +15,7 @@ import ImagePixel from '../model/ImagePixel.js';
 import FITSHeader from '../../../FITSParser/src/FITSHeader.js';
 import Canvas2D from '../model/Canvas2D.js';
 import FITSParser from '../../../FITSParser/src/FITSParser.js';
+import ParseUtils from '../../../FITSParser/src/ParseUtils.js';
 
 class MercatorProjection extends AbstractProjection {
 
@@ -159,16 +160,31 @@ class MercatorProjection extends AbstractProjection {
         var self = this;
         let promise = new Promise ( (resolve, reject) => {
             try {
+                let bytesXelem = Math.abs(this._fitsheader.get("BITPIX") / 8);
+                let blankBytes = ParseUtils.convertBlankToBytes(this._fitsheader.get("BLANK"), bytesXelem);
                 let pixcount = inputPixelsList.length;
-                var values = new Array(pixcount);
-        
+                // var values = new Array(pixcount);
+                
+                var values = new Uint8Array(pixcount * bytesXelem);
+                
                 for (let j = 0; j < pixcount; j++ ){
+                    if (j == 23 ){
+                        console.log(j);
+                    }
                     let imgpx = inputPixelsList[j];
+                    // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
                     if ( (imgpx._j-1) < 0 || (imgpx._j-1) > this._naxis2 ||
                         (imgpx._i-1) < 0 || (imgpx._i-1) > this._naxis1) {
-                            values[j] = NaN;
+                            // values[j] = this._fitsheader.get("BLANK");
+                            for (let i = 0; i < bytesXelem; i++) {
+                                values[j * bytesXelem + i] = blankBytes[i];
+                            }
                         }else {
-                            values[j] = this._pxvalues[imgpx._j - 1][imgpx._i - 1];
+                            // values[j] = this._pxvalues[imgpx._j - 1][imgpx._i - 1];
+                            for (let i = 0; i < bytesXelem; i++) {
+                                values[j * bytesXelem + i] = this._pxvalues[imgpx._j - 1][(imgpx._i - 1) * bytesXelem  + i];
+                            }
+                            
                         }
                 }
                 // self.prepareCommonHeader();
@@ -211,10 +227,12 @@ class MercatorProjection extends AbstractProjection {
         this._minphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * values[0];
         this._maxphysicalval = fitsHeaderParams.get("BZERO") + fitsHeaderParams.get("BSCALE") * values[0];
         this._pxvalues = new Array(this._naxis2);
+        // this._pxvalues = new Uint8Array(this._naxis2);
         let vidx = 0;
 
         for (let j = 0; j < this._naxis2; j++) {
             this._pxvalues[j] = new Array(this._naxis1);
+            // this._pxvalues[j] = new Uint8Array(this._naxis1);
             for (let i = 0; i < this._naxis1; i++) {
                 
                 // in case on unidimensional input array

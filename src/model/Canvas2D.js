@@ -12,6 +12,7 @@
  import pkg from 'canvas';
 const { createCanvas } = pkg;
 import fs from 'fs';
+import ParseUtils from '../../../FITSParser/src/ParseUtils.js';
 
 class Canvas2D {
 
@@ -47,8 +48,10 @@ class Canvas2D {
         this._bzero = fitsheader.get("BZERO");
         this._bscale = fitsheader.get("BSCALE");
         this._blank = fitsheader.get("BLANK");
+        this._bitpix = fitsheader.get("BITPIX");
 
-        this._width = pixelvalues[0].length;
+        let bytesXelem = Math.abs(this._bitpix / 8);
+        this._width = pixelvalues[0].length / bytesXelem;
         this._height = pixelvalues.length;
         
         this._physicalvalues = [];
@@ -70,20 +73,36 @@ class Canvas2D {
      process() {
 
         this._physicalvalues = new Array(this._height);
+        let bytesXelem = Math.abs(this._bitpix / 8);
+
         for (let j = 0; j < this._height; j++) {
             this._physicalvalues[j] = new Array(this._width);
             for (let i = 0; i < this._width; i++) {
-                if (isNaN(this._pixelvalues[j][i])){
-                    this._physicalvalues[j][i] = NaN;
-                }else{
-                    let val = this.pixel2Physical(this._pixelvalues[j][i]);
+
+                let pixval = ParseUtils.extractPixelValue(0, this._pixelvalues[j].slice(i, i + bytesXelem), this._bitpix);
+                // if (isNaN(pixval)){
+                //     this._physicalvalues[j][i] = NaN;
+                // }else{
+                    let val = this.pixel2Physical(pixval);
                     if (val < this._currmin || val > this._currmax) {
                         val = NaN;
                     } else {
                         val = this.appylyTransferFunction(val);
                         this._physicalvalues[j][i] = val;
                     }
-                }
+                // }
+
+                // if (isNaN(this._pixelvalues[j][i])){
+                //     this._physicalvalues[j][i] = NaN;
+                // }else{
+                //     let val = this.pixel2Physical(this._pixelvalues[j][i]);
+                //     if (val < this._currmin || val > this._currmax) {
+                //         val = NaN;
+                //     } else {
+                //         val = this.appylyTransferFunction(val);
+                //         this._physicalvalues[j][i] = val;
+                //     }
+                // }
             }
         }
         return this._physicalvalues;

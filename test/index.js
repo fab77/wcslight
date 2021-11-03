@@ -5,7 +5,9 @@ import WCSLight from '../src/WCSLight.js';
 
 
 /** MER to HPX */
-let center = {"ra": 356.05, "dec": 0.62};
+    
+// let center = {"ra": 356.05, "dec": 0.62};
+let center = {"ra": 356.0, "dec": 0.5177778};
 let radius = 0.001;
 let pxsize = 0.0005;
 
@@ -24,7 +26,11 @@ WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
         canvas.process();
         let img = canvas.getCanvas2DBrowse();
     }
-    let encodedData = WCSLight.writeFITS(fitsheader, fitsdata);
+    for (let i = 0; i < fitsheader.length; i++) {
+        let encodedData = WCSLight.writeFITS(fitsheader[i], fitsdata[i]);
+    }
+    
+    
 });
 
 
