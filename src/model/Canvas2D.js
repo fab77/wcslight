@@ -78,31 +78,22 @@ class Canvas2D {
         for (let j = 0; j < this._height; j++) {
             this._physicalvalues[j] = new Array(this._width);
             for (let i = 0; i < this._width; i++) {
-
+                let val;
                 let pixval = ParseUtils.extractPixelValue(0, this._pixelvalues[j].slice(i * bytesXelem, (i + 1) * bytesXelem), this._bitpix);
-                // if (isNaN(pixval)){
-                //     this._physicalvalues[j][i] = NaN;
-                // }else{
-                    let val = this.pixel2Physical(pixval);
+                if (this._blank !== undefined && pixval === this._blank){
+                    val = NaN;
+                }else{
+                    val = this.pixel2Physical(pixval);
                     if (val < this._currmin || val > this._currmax) {
                         val = NaN;
                     } else {
                         val = this.appylyTransferFunction(val);
-                        this._physicalvalues[j][i] = val;
                     }
-                // }
-
-                // if (isNaN(this._pixelvalues[j][i])){
-                //     this._physicalvalues[j][i] = NaN;
-                // }else{
-                //     let val = this.pixel2Physical(this._pixelvalues[j][i]);
-                //     if (val < this._currmin || val > this._currmax) {
-                //         val = NaN;
-                //     } else {
-                //         val = this.appylyTransferFunction(val);
-                //         this._physicalvalues[j][i] = val;
-                //     }
-                // }
+                }
+                this._physicalvalues[j][i] = val;
+                
+                
+            
             }
         }
         return this._physicalvalues;
