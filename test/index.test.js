@@ -62,12 +62,19 @@ import Canvas2D from '../src/model/Canvas2D.js'
 //     it("HPX - Promise", (done) => {
         
 //         let infile = "https://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix43348.fits";
-//         let proj = new HiPSProjection(infile).then(res => {
+//         let proj = new HiPSProjection(infile).then( (res) => {
 //             console.log(res.fitsheader);
-//             console.log(res.fitsdata.lenght);
-//             let canvas = res.canvas2d;
+//             console.log(res.fitsdata.length);
+//             let canvas2d = res.canvas2d;
+//             canvas2d.process();
+//             let img = canvas2d.getCanvas2DBrowse();
+//             canvas2d.setTransferFunction("sqrt");
+//             canvas2d.process();
+//             img = canvas2d.getCanvas2DBrowse();
 //             done();
+//         }).catch(function(err){
+//             console.log("[index.js] "+err);
 //         });
         
 //     });
-// });
+});

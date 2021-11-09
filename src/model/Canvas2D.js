@@ -91,9 +91,7 @@ class Canvas2D {
                     }
                 }
                 this._physicalvalues[j][i] = val;
-                
-                
-            
+
             }
         }
         return this._physicalvalues;

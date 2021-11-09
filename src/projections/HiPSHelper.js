@@ -74,7 +74,9 @@ class HiPSHelper {
 	 * @param {*} order 
 	 */
 	static computePxSize(order) {
-		let pxsize = 2/(512 * 2**order) * Math.sqrt(Math.PI/12);
+		// TODO CHECK IT
+		let pxsize = 1/(512 * 2**order) * Math.sqrt(Math.PI/3);
+		return pxsize; 
 	}
 
 	/**
@@ -254,8 +256,8 @@ class HiPSHelper {
 		let i = 0.5 - (i_norm - j_norm);
 		let j = (i_norm + j_norm) - 0.5;
 		// TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
-		i = Math.floor(i * HiPSHelper.pxXtile) + 1;
-		j = Math.floor(j * HiPSHelper.pxXtile) + 1;
+		i = Math.floor(i * HiPSHelper.pxXtile);
+		j = Math.floor(j * HiPSHelper.pxXtile);
 		return [i , j];
 
     }
