@@ -63,11 +63,11 @@ class MercatorProjection extends AbstractProjection {
             
             // self._pxsize1 = self._fitsheader.get("CDELT1");
             // self._pxsize2 = self._fitsheader.get("CDELT2");
-            self._cra = fits.header.getItemListOf("CRVAL1")[0];
-            self._cdec = fits.header.getItemListOf("CRVAL2")[0];
+            self._cra = fits.header.getItemListOf("CRVAL1")[0].value;
+            self._cdec = fits.header.getItemListOf("CRVAL2")[0].value;
             
-            self._pxsize1 = self._fitsheader.getItemListOf("CDELT1")[0];
-            self._pxsize2 = self._fitsheader.getItemListOf("CDELT2")[0];
+            self._pxsize1 = self._fitsheader.getItemListOf("CDELT1")[0].value;
+            self._pxsize2 = self._fitsheader.getItemListOf("CDELT2")[0].value;
 
             self._minra = self._cra - self._pxsize1 * self._naxis1/2;
             if (self._minra < 0) {
@@ -172,16 +172,17 @@ class MercatorProjection extends AbstractProjection {
                 
                 for (let p = 0; p < pixcount; p++ ){
 
-                    let imgpx = inputPixelsList[j];
+                    let imgpx = inputPixelsList[p];
                     // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
-                    if ( (imgpx._j-1) < 0 || (imgpx._j-1) > this._naxis2 ||
-                        (imgpx._i-1) < 0 || (imgpx._i-1) > this._naxis1) {
-                            for (let i = 0; i < bytesXelem; i++) {
-                                values[p * bytesXelem + i] = blankBytes[i];
+                    // TODO why I am getting negative i and j? check world2pix!!!
+                    if ( (imgpx._j) < 0 || (imgpx._j) >= this._naxis2 ||
+                        (imgpx._i) < 0 || (imgpx._i) >= this._naxis1) {
+                            for (let b = 0; b < bytesXelem; b++) {
+                                values[p * bytesXelem + b] = blankBytes[b];
                             }
                         }else {
-                            for (let i = 0; i < bytesXelem; i++) {
-                                values[p * bytesXelem + i] = this._pxvalues[imgpx._j - 1][(imgpx._i - 1) * bytesXelem  + i];
+                            for (let b = 0; b < bytesXelem; b++) {
+                                values[p * bytesXelem + b] = this._pxvalues[imgpx._j][(imgpx._i) * bytesXelem  + b];
                             }
                             
                         }
@@ -291,8 +292,11 @@ class MercatorProjection extends AbstractProjection {
                     radeclist.push([pra, pdec]);
                 }
             }
-            this._cra = pra - radius;
-            this._cdec = pdec - radius;
+            // let cra = pra - radius;
+            // let cdec = pdec - radius;
+            let cidx = (this._naxis2/2 - 1) * this._naxis1 +  this._naxis1/2;
+            this._cra = radeclist[ cidx ][0];
+            this._cdec = radeclist[ cidx ][1];
             
             resolve(radeclist);
         });
@@ -323,7 +327,13 @@ class MercatorProjection extends AbstractProjection {
                     //     mindec <= dec && dec <= maxdec) {
                     let i = Math.floor((ra - this._minra) / this._pxsize1);
                     let j = Math.floor((dec - this._mindec) / this._pxsize2);
-                    imgpxlist.push(new ImagePixel(i, j));
+                    // if (i < 0 || i >= this._naxis1 || j < 0 || j >= this._naxis2 ){
+                    //     imgpxlist.push(null);
+                    // } else {
+                        // console.log("STOP!");
+                        imgpxlist.push(new ImagePixel(i, j));
+                    // }
+                    
                         // }
                 });
                 resolve(imgpxlist);

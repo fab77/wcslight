@@ -253,12 +253,15 @@ class HiPSHelper {
 		}
 		j_norm = (y - xyGridProj.min_y) / yInterval;
 		
+		
 		let i = 0.5 - (i_norm - j_norm);
 		let j = (i_norm + j_norm) - 0.5;
+
 		// TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
 		i = Math.floor(i * HiPSHelper.pxXtile);
 		j = Math.floor(j * HiPSHelper.pxXtile);
-		return [i , j];
+		// return [i , j];
+		return [i , HiPSHelper.DEFAULT_Naxis1_2 - j -1];
 
     }
 
