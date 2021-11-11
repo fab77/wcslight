@@ -18,7 +18,7 @@ import Canvas2D from '../model/Canvas2D.js';
 import FITSParser from '../../../FITSParser/src/FITSParser.js';
 import ParseUtils from '../../../FITSParser/src/ParseUtils.js';
 
-class MercatorProjection extends AbstractProjection {
+class GnomonicProjection extends AbstractProjection {
 
     _minra;
     _mindec;
@@ -28,60 +28,50 @@ class MercatorProjection extends AbstractProjection {
     _pxmatrix;
     _fitsheader;
 
-    /**
-     * 
-     * @param {*} center {ra, dec} in decimal degrees
-     * @param {*} radius decimal degrees
-     * @param {*} pxsize decimal degrees
-     */
+    
     constructor (infile) {
         super();
-        this._ctype1 = "RA---MER";
-        this._ctype2 = "DEC--MER";
+        this._ctype1 = "RA---TAN";
+        this._ctype2 = "DEC--TAN";
         
 		if (infile) {
-		// 	this.initFromFile(infile);
             this._inflie = infile;
-            // return this.initFromFile(this._inflie);
 		}
-        // return this;
     }
 
-
     async initFromFile (infile) {
-		var self = this;
-		let promise = new FITSParser(infile).then(fits => {
+
+        let promise = new FITSParser(infile).then(fits => {
 
             console.log(fits.header);
-            self._pxvalues = fits.data;
-            self._fitsheader = fits.header;
-            self._naxis1 = fits.header.get("NAXIS1");
-            self._naxis2 = fits.header.get("NAXIS2");
+            this._pxvalues = fits.data;
+            this._fitsheader = fits.header;
+            this._naxis1 = fits.header.get("NAXIS1");
+            this._naxis2 = fits.header.get("NAXIS2");
             
-            // self._cra = fits.header.get("CRVAL1");
-            // self._cdec = fits.header.get("CRVAL2");
-            
-            // self._pxsize1 = self._fitsheader.get("CDELT1");
-            // self._pxsize2 = self._fitsheader.get("CDELT2");
-            self._cra = fits.header.getItemListOf("CRVAL1")[0].value;
-            self._cdec = fits.header.getItemListOf("CRVAL2")[0].value;
+            this._cra = fits.header.getItemListOf("CRVAL1")[0].value;
+            this._cdec = fits.header.getItemListOf("CRVAL2")[0].value;
             
             // TODO CDELT could not be present. In this is the case, 
             // there should be CDi_ja, but I am not handling them atm
             // [Ref. Representation of celestial coordinates in FITS - equation (1)]
-            self._pxsize1 = self._fitsheader.getItemListOf("CDELT1")[0].value;
-            self._pxsize2 = self._fitsheader.getItemListOf("CDELT2")[0].value;
-
-            self._minra = self._cra - self._pxsize1 * self._naxis1/2;
-            if (self._minra < 0) {
-                self._minra += 360;
+            if (this._fitsheader.getItemListOf("CDELT1").length > 0) {
+                this._pxsize1 = this._fitsheader.getItemListOf("CDELT1")[0].value;
+                this._pxsize2 = this._fitsheader.getItemListOf("CDELT2")[0].value;
             }
-            self._mindec = self._cdec - self._pxsize2 * self._naxis2/2;
+            
+
+
+            this._minra = this._cra - this._pxsize1 * this._naxis1/2;
+            if (this._minra < 0) {
+                this._minra += 360;
+            }
+            this._mindec = this._cdec - this._pxsize2 * this._naxis2/2;
 
             return {
                 "fitsheader": fits.header,
                 "fitsdata": fits.data,
-                "canvas2d": self.getCanvas2d()
+                "canvas2d": this.getCanvas2d()
             }
 
         });
@@ -141,13 +131,10 @@ class MercatorProjection extends AbstractProjection {
 		return this._fitsheader;
 		
 	}
+
     getFITSHeader() {
         return this._fitsheader;
     }
-
-    loadFITS(fitsuri, observerlist) {
-		return this.initFromFile(fitsuri, observerlist);
-	}
 
     getCommonFitsHeaderParams() {
 		let header = new FITSHeader();
@@ -167,51 +154,25 @@ class MercatorProjection extends AbstractProjection {
 
         let promise = new Promise ( (resolve, reject) => {
             try {
-                let bytesXelem = Math.abs(this._fitsheader.get("BITPIX") / 8);
-                let blankBytes = ParseUtils.convertBlankToBytes(this._fitsheader.get("BLANK"), bytesXelem);
-                let pixcount = inputPixelsList.length;
-                
-                var values = new Uint8Array(pixcount * bytesXelem);
-                
-                for (let p = 0; p < pixcount; p++ ){
-
-                    let imgpx = inputPixelsList[p];
-                    // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
-                    // TODO why I am getting negative i and j? check world2pix!!!
-                    if ( (imgpx._j) < 0 || (imgpx._j) >= this._naxis2 ||
-                        (imgpx._i) < 0 || (imgpx._i) >= this._naxis1) {
-                            for (let b = 0; b < bytesXelem; b++) {
-                                values[p * bytesXelem + b] = blankBytes[b];
-                            }
-                        }else {
-                            for (let b = 0; b < bytesXelem; b++) {
-                                values[p * bytesXelem + b] = this._pxvalues[imgpx._j][(imgpx._i) * bytesXelem  + b];
-                            }
-                            
-                        }
-                }
+                // TODO ...
                 resolve(values);
             } catch(err) {
-                reject("[MercatorProjection] ERROR: "+err);
+                reject("[GnomonicProjection] ERROR: "+err);
             }
             
         });
         return promise;
 
-	}
+	}    
 
-    
     computeSquaredNaxes (d, ps) {
-        // first aprroximation to be checked
+        // ??? APPLICABLE WITH THIS PROJECTION ???
         this._naxis1 =  Math.ceil(d / ps);
         this._naxis2 = this._naxis1;
         this._pxsize = ps;
     }
 
-    
-
     setPxsValue(values, fitsHeaderParams) {
-        
         let bytesXelem = Math.abs(fitsHeaderParams.get("BITPIX") / 8);
         let minpixb = ParseUtils.extractPixelValue(0, values.slice(0, bytesXelem), fitsHeaderParams.get("BITPIX"));
         let maxpixb = minpixb;
@@ -226,38 +187,14 @@ class MercatorProjection extends AbstractProjection {
             this._pxvalues[r] = new Uint8Array(this._naxis1 * bytesXelem);
         }
 
-        for (let p = 0; p < (values.length / bytesXelem); p++) {
-            let r = Math.floor(p / this._naxis1);
-            let c = (p - r * this._naxis1) * bytesXelem;
-
-            for (let b = 0; b < bytesXelem; b++) {
-                this._pxvalues[r][c + b] = values[p * bytesXelem + b];
-            }
-
-            let valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), fitsHeaderParams.get("BITPIX"));
-            let valphysical = bzero + bscale * valpixb;
-            
-            if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
-                this._minphysicalval = valphysical;
-            } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
-                this._maxphysicalval = valphysical;
-            }
-
-        }
-        
-        this.prepareFITSHeader(fitsHeaderParams);
-        return this._pxvalues;
-
+        // TODO ...
     }
-
-    
 
     getImageRADecList(center, radius, pxsize) {
 
         let promise = new Promise ( (resolve, reject) => {
             this.computeSquaredNaxes (2 * radius, pxsize); // compute naxis[1, 2]
-            // this._cra = center.ra;
-            // this._cdec = center.dec;
+
             this._pxsize = pxsize;
             this._minra = center.ra - radius;
             if (this._minra < 0) {
@@ -268,13 +205,8 @@ class MercatorProjection extends AbstractProjection {
             let radeclist = [];
             let pra, pdec;
 
-            for (pdec = this._mindec; pdec < this._mindec + this._pxsize * this._naxis2; pdec += this._pxsize) {
-                for (pra = this._minra; pra < this._minra + this._pxsize * this._naxis1; pra += this._pxsize) {
-                    radeclist.push([pra, pdec]);
-                }
-            }
-            // let cra = pra - radius;
-            // let cdec = pdec - radius;
+            // TODO ...
+            
             let cidx = (this._naxis2/2 - 1) * this._naxis1 +  this._naxis1/2;
             this._cra = radeclist[ cidx ][0];
             this._cdec = radeclist[ cidx ][1];
@@ -285,40 +217,100 @@ class MercatorProjection extends AbstractProjection {
         
     }
 
-    /** TODO !!! check and handle RA passing through 360-0 */
     pix2world (i, j) {
 
+        // TODO ...
+        let x, y;
+        let CDELT1 = this._fitsheader.getItemListOf("CDELT1")[0];
+        let CDELT2 = this._fitsheader.getItemListOf("CDELT2")[0];
+        let PC1_1 = this._fitsheader.getItemListOf("PC1_1")[0];
+        let PC1_2 = this._fitsheader.getItemListOf("PC1_2")[0];
+        let PC2_1 = this._fitsheader.getItemListOf("PC2_1")[0];
+        let PC2_2 = this._fitsheader.getItemListOf("PC2_2")[0];
+
+        let CD1_1 = this._fitsheader.getItemListOf("CD1_1")[0];
+        let CD1_2 = this._fitsheader.getItemListOf("CD1_2")[0];
+        let CD2_1 = this._fitsheader.getItemListOf("CD2_1")[0];
+        let CD2_2 = this._fitsheader.getItemListOf("CD2_2")[0];
+
+        let CRPIX1 = this._fitsheader.getItemListOf("CRPIX1")[0];
+        let CRPIX2 = this._fitsheader.getItemListOf("CRPIX2")[0];
+
+    
+        if ( CDELT1 !== undefined && CDELT2 !== undefined && 
+                PC1_1 !== undefined && PC1_2 !== undefined &&
+                PC2_1 !== undefined && PC2_2 !== undefined
+        ) { // if CDELTia and PCi_ja notation
+            x = CDELT1 * (PC1_1*(i - CRPIX1) + PC1_2*(j-CRPIX2));
+            y = CDELT2 * (PC2_1*(i - CRPIX1) + PC2_2*(j-CRPIX2));
+        } else { // else CDi_ja notation
+            x = CD1_1*(i - CRPIX1) + CD1_2*(j-CRPIX2);
+            y = CD2_1*(i - CRPIX1) + CD2_2*(j-CRPIX2);
+        }
+        
+            
+        
+            
+        let phi = Math.arg(-y/x);
+        let R_theta = Math.sqrt(x*x + y*y);
+        let theta = Math.atan2( 180 / (Math.PI * R_theta));
+
         let ra, dec;
-        ra = i * this._stepra + this._minra;
-        dec = j * this._stepdec + this._mindec;
+        ra = phi;
+        dec = theta;
+        // TODO check if phi, theta match with ra, dec or they need to be (linearly) converted 
+
         return [ra, dec];
 
     }
 
     world2pix (radeclist) {
 
+        
         let promise = new Promise ( (resolve, reject) => {
             
             this.initFromFile(this._inflie).then( (data) => {
                 let imgpxlist = [];
     
-                // HERE I NEED this._minra, this._mindec and this._pxsize!!!
+                let CDELT1 = (this._fitsheader.getItemListOf("CDELT1").length > 0) ? this._fitsheader.getItemListOf("CDELT1")[0] : undefined;
+                let CDELT2 = (this._fitsheader.getItemListOf("CDELT2").length > 0) ? this._fitsheader.getItemListOf("CDELT2")[0] : undefined;
+                let PC1_1 = (this._fitsheader.getItemListOf("PC1_1").length > 0) ? this._fitsheader.getItemListOf("PC1_1")[0] : undefined;
+                let PC1_2 = (this._fitsheader.getItemListOf("PC1_2").length > 0) ? this._fitsheader.getItemListOf("PC1_2")[0] : undefined;
+                let PC2_1 = (this._fitsheader.getItemListOf("PC2_1").length > 0) ? this._fitsheader.getItemListOf("PC2_1")[0] : undefined;
+                let PC2_2 = (this._fitsheader.getItemListOf("PC2_2").length > 0) ? this._fitsheader.getItemListOf("PC2_2")[0] : undefined;
+
+                let CD1_1 = (this._fitsheader.getItemListOf("CD1_1").length > 0) ? this._fitsheader.getItemListOf("CD1_1")[0] : undefined;
+                let CD1_2 = (this._fitsheader.getItemListOf("CD1_2").length > 0) ? this._fitsheader.getItemListOf("CD1_2")[0] : undefined;
+                let CD2_1 = (this._fitsheader.getItemListOf("CD2_1").length > 0) ? this._fitsheader.getItemListOf("CD2_1")[0] : undefined;
+                let CD2_2 = (this._fitsheader.getItemListOf("CD2_2").length > 0) ? this._fitsheader.getItemListOf("CD2_2")[0] : undefined;
+
+                let CRPIX1 = (this._fitsheader.getItemListOf("CRPIX1").length > 0) ? this._fitsheader.getItemListOf("CRPIX1")[0] : undefined;
+                let CRPIX2 = (this._fitsheader.getItemListOf("CRPIX2").length > 0) ? this._fitsheader.getItemListOf("CRPIX2")[0] : undefined;
+
                 radeclist.forEach(([ra, dec]) => {
-                    // if (minra <= ra && ra <= maxra &&
-                    //     mindec <= dec && dec <= maxdec) {
-                    let i = Math.floor((ra - this._minra) / this._pxsize1);
-                    let j = Math.floor((dec - this._mindec) / this._pxsize2);
-                    // if (i < 0 || i >= this._naxis1 || j < 0 || j >= this._naxis2 ){
-                    //     imgpxlist.push(null);
-                    // } else {
-                        // console.log("STOP!");
-                        imgpxlist.push(new ImagePixel(i, j));
-                    // }
-                    
-                        // }
+
+                    // TODO ...
+                    let i, j;
+                    // (linearly) convert ra, dec into phi, theta
+                    let theta = dec;
+                    let phi = ra;
+                    let R_theta = (180/Math.PI) * Math.cot(theta);
+                    let x = R_theta * Math.sin(phi);
+                    let y = - R_theta * Math.cos(phi);
+                    if ( CDELT1 !== undefined && CDELT2 !== undefined && 
+                                PC1_1 !== undefined && PC1_2 !== undefined &&
+                                PC2_1 !== undefined && PC2_2 !== undefined
+                        ) { // if CDELTia and PCi_ja notation
+                        j = y*CDELT1*PC1_1 / (CDELT1*CDELT2*(PC1_1*PC2_2 - PC2_1*PC1_2)) + PC1_1*CRPIX2*(PC2_2 - PC2_1)/(PC1_1*PC2_2 - PC2_1*PC1_2);
+                        i = x/(CDELT1*PC1_1) + CRPIX1 - j * PC1_2/PC1_1 + CRPIX2*PC1_2/PC1_1;
+                    } else { // else CDi_ja notation
+                        j = y*CD1_1/(CD1_1*CD2_2 - CD1_2*CD2_1) + CRPIX2*CD1_1* (CD2_2 - CD2_1) / (CD1_1*CD2_2 - CD1_2*CD2_1);
+                        i = (x + CD1_1*CRPIX1 - CD1_2 * j + CD1_2 * CRPIX2) / CD1_1;
+                    }
+                    imgpxlist.push(new ImagePixel(i, j));
+
                 });
                 resolve(imgpxlist);
-                // return imgpxlist;
             });
             
         });
@@ -331,8 +323,6 @@ class MercatorProjection extends AbstractProjection {
 		let canvas2d =  new Canvas2D(this._pxvalues, this._fitsheader, this, tfunction, colormap, inverse);
 		return canvas2d;
 	}
-
-   
 }
 
-export default MercatorProjection;
+export default GnomonicProjection;
