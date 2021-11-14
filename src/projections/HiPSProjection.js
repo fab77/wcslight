@@ -117,28 +117,27 @@ class HiPSProjection extends AbstractProjection {
 			let bscale = 1.0;
 			if (fitsHeaderParams.get("BSCALE") !== undefined) {
 				bscale = fitsHeaderParams.get("BSCALE");
+				header.addItem(new FITSHeaderItem("BSCALE", bscale));
 			} 
-			header.addItem(new FITSHeaderItem("BSCALE", bscale));
+			
 
 			let bzero = 0.0;
 			if (fitsHeaderParams.get("BZERO") !== undefined) {
 				bzero = fitsHeaderParams.get("BZERO");
+				header.addItem(new FITSHeaderItem("BZERO", bzero));
 			} 
-			header.addItem(new FITSHeaderItem("BZERO", bzero));
+			
 			header.addItem(new FITSHeaderItem("NAXIS", 2));
 			header.addItem(new FITSHeaderItem("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2));
 			header.addItem(new FITSHeaderItem("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2));
 
 			header.addItem(new FITSHeaderItem("ORDER", this._norder));
 			
-			// header.addItem(new FITSHeaderItem("CTYPE1", this._ctype1));
-			// header.addItem(new FITSHeaderItem("CTYPE2", this._ctype2));
-			// 0.000447222222222
-			let pxsize = HiPSHelper.computePxSize(this._norder);
-			header.addItem(new FITSHeaderItem("CDELT1", pxsize)); // ??? Pixel spacing along axis 1
-			header.addItem(new FITSHeaderItem("CDELT2", pxsize)); // ??? Pixel spacing along axis 2 
-			header.addItem(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
-			header.addItem(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
+			header.addItem(new FITSHeaderItem("CTYPE1", this._ctype1));
+			header.addItem(new FITSHeaderItem("CTYPE2", this._ctype2));
+			
+			// header.addItem(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
+			// header.addItem(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
 			
 			header.addItem(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
 			header.addItem(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
@@ -272,6 +271,8 @@ class HiPSProjection extends AbstractProjection {
 		let minmaxmap =  {};
 		// this._pxvalues = new Array(this._tileslist.length);
 		this._pxvalues = {};
+		let nodata = new Map();
+
 		this._tileslist.forEach((tileno) => {
 			// this._pxvalues[""+tileno+""] = new Uint8Array(pxXtile * bytesXelem);	// unidimensional
 			this._pxvalues[""+tileno+""] = new Array(HiPSHelper.DEFAULT_Naxis1_2);  // <- bidimensional
@@ -282,10 +283,13 @@ class HiPSProjection extends AbstractProjection {
 			// 	this._pxvalues[""+tileno+""][row] = new Uint8Array(HiPSHelper.DEFAULT_Naxis1_2 * bytesXelem);
 			// });
 			minmaxmap[""+tileno+""] = new Array(2);
+			nodata.set(""+tileno+"", true);
 		});
 		let ra, dec;
 		let col, row;
 		// let imgpxlist, imgpx;
+		
+
 		for (let rdidx = 0; rdidx < this._radeclist.length; rdidx++) {
 			[ra, dec] = this._radeclist[rdidx];
 			let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(ra, dec);
@@ -309,7 +313,14 @@ class HiPSProjection extends AbstractProjection {
 					console.log("STOP!");
 				}
 				this._pxvalues[""+pixtileno+""][row][col * bytesXelem + b] = byte	// <- bidimensional
+				if (nodata.get(""+pixtileno+"")) {
+					if (byte !== 0) {
+						nodata.set(""+pixtileno+"", false);
+					}
+				}
+				
 			}
+
 			let min = minmaxmap[""+pixtileno+""][0];
 			let max = minmaxmap[""+pixtileno+""][1];
 
@@ -327,23 +338,29 @@ class HiPSProjection extends AbstractProjection {
 
 
 		Object.keys(this._pxvalues).forEach((tileno) => {
-			tileno = parseInt(tileno);
-			let header = new FITSHeader();
-			header.set("NPIX", tileno);
-			// TODO CONVERT minval and maxval to physical values!
-			header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap[""+tileno+""][0]));
-			header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap[""+tileno+""][1]));
-			header.addItem(new FITSHeaderItem("NPIX", tileno));
+			if ( !nodata.get(tileno)){ // there are data
+				tileno = parseInt(tileno);
+				let header = new FITSHeader();
+				header.set("NPIX", tileno);
+				// TODO CONVERT minval and maxval to physical values!
+				header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap[""+tileno+""][0]));
+				header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap[""+tileno+""][1]));
+				header.addItem(new FITSHeaderItem("NPIX", tileno));
+				
+				let vec3 = this._hp.pix2vec(tileno);
+				let ptg = new Pointing(vec3);
+				let crval1 = HiPSHelper.radToDeg(ptg.phi);
+				let crval2 = 90 - HiPSHelper.radToDeg(ptg.theta);
+				
+				header.addItem(new FITSHeaderItem("CRVAL1", crval1));
+				header.addItem(new FITSHeaderItem("CRVAL2", crval2));
+		
+				this._fitsheaderlist.push(header);
+			} else { // no data
+				delete this._pxvalues[""+tileno+""];
+				// this._pxvalues[""+tileno+""] == [];
+			}
 			
-			let vec3 = this._hp.pix2vec(tileno);
-			let ptg = new Pointing(vec3);
-			let crval1 = HiPSHelper.radToDeg(ptg.phi);
-			let crval2 = 90 - HiPSHelper.radToDeg(ptg.theta);
-			
-			header.addItem(new FITSHeaderItem("CRVAL1", crval1));
-			header.addItem(new FITSHeaderItem("CRVAL2", crval2));
-	
-			this._fitsheaderlist.push(header);
 		});
 		
 

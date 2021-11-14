@@ -3,7 +3,7 @@
     "name": "wcslight",
     "description": "WCS Javascript library.",
     "sideEffects": false,
-    "version": "1.0.0-alpha",
+    "version": "1.0.0",
     "main": "dist/wcslight.js",
     "private": true,
     "module": "src/WCSLight.js",

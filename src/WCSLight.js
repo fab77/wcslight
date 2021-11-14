@@ -60,8 +60,8 @@ class WCSLight {
      * @param {*} fitsdata 
      * @returns {URL}
      */
-    static writeFITS(fitsheader, fitsdata) {
-        let encodedData = FITSParser.writeFITS(fitsheader, fitsdata);
+    static writeFITS(fitsheader, fitsdata, fileuri) {
+        let encodedData = FITSParser.writeFITS(fitsheader, fitsdata, fileuri);
         return encodedData;
     }
 
