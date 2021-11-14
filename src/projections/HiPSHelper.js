@@ -258,8 +258,8 @@ class HiPSHelper {
 		let j = (i_norm + j_norm) - 0.5;
 
 		// TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
-		i = Math.floor(i * HiPSHelper.pxXtile);
-		j = Math.floor(j * HiPSHelper.pxXtile);
+		i = Math.floor(i * HiPSHelper.DEFAULT_Naxis1_2);
+		j = Math.floor(j * HiPSHelper.DEFAULT_Naxis1_2);
 		// return [i , j];
 		return [i , HiPSHelper.DEFAULT_Naxis1_2 - j -1];
 

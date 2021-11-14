@@ -300,6 +300,9 @@ class HiPSProjection extends AbstractProjection {
 			let rarad =  HiPSHelper.degToRad(ra);
 			let decrad = HiPSHelper.degToRad(dec);
 			let xy = HiPSHelper.world2intermediate(rarad, decrad);
+			// if (rarad == 0.2147635613602316 && decrad == 0.8848146063737065){
+			// 	console.log("STOP");
+			// }
 			let ij = HiPSHelper.intermediate2pix(xy[0], xy[1], xyGridProj);
 			col = ij[0];
 			row = ij[1];
@@ -307,11 +310,11 @@ class HiPSProjection extends AbstractProjection {
 			for (let b = 0; b < bytesXelem; b++){
 				let byte = values[rdidx * bytesXelem + b];
 				// this._pxvalues[""+tileno+""][row * bytesXelem + col + b] = byte;	// unidimensional
-				if (this._pxvalues[""+pixtileno+""] === undefined || 
-				this._pxvalues[""+pixtileno+""][row] === undefined ||
-				this._pxvalues[""+pixtileno+""][row][col * bytesXelem + b] === undefined) {
-					console.log("STOP!");
-				}
+				// if (this._pxvalues[""+pixtileno+""] === undefined || 
+				// this._pxvalues[""+pixtileno+""][row] === undefined ||
+				// this._pxvalues[""+pixtileno+""][row][col * bytesXelem + b] === undefined) {
+				// 	console.log("STOP!");
+				// }
 				this._pxvalues[""+pixtileno+""][row][col * bytesXelem + b] = byte	// <- bidimensional
 				if (nodata.get(""+pixtileno+"")) {
 					if (byte !== 0) {
@@ -324,13 +327,23 @@ class HiPSProjection extends AbstractProjection {
 			let min = minmaxmap[""+pixtileno+""][0];
 			let max = minmaxmap[""+pixtileno+""][1];
 
-			let valpixb = ParseUtils.extractPixelValue(0, this._pxvalues[""+pixtileno+""][row].slice(col, col + bytesXelem), fitsHeaderParams.get("BITPIX"));
+			let valpixb = ParseUtils.extractPixelValue(0, this._pxvalues[""+pixtileno+""][row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), fitsHeaderParams.get("BITPIX"));
 			let valphysical = bzero + bscale * valpixb;
 			if (valphysical < min || isNaN(min)) {
 				// min = valphysical;
+				// if (valphysical == -1.290597061434996e+308) {
+				// 	console.log("STOP!"+pixtileno+" col "+col+ " row "+row);
+				// 	console.log(this._pxvalues[""+pixtileno+""][row].slice(col, col + bytesXelem));
+				// 	console.log(ParseUtils.extractPixelValue(0, this._pxvalues[""+pixtileno+""][row].slice(col, col + bytesXelem), fitsHeaderParams.get("BITPIX")));
+				// }
 				minmaxmap[""+pixtileno+""][0] = valphysical;
 			} else if (valphysical > max || isNaN(max)) {
 				// max = valphysical;
+				// if (valphysical == 4.332253623043316e+307) {
+				// 	console.log("STOP!"+pixtileno+" col "+col+ " row "+row);
+				// 	console.log(this._pxvalues[""+pixtileno+""][row].slice(col, col + bytesXelem));
+				// 	console.log(ParseUtils.extractPixelValue(0, this._pxvalues[""+pixtileno+""][row].slice(col, col + bytesXelem), fitsHeaderParams.get("BITPIX")));
+				// }
 				minmaxmap[""+pixtileno+""][1] = valphysical;
 			}
 
@@ -420,25 +433,7 @@ class HiPSProjection extends AbstractProjection {
 			resolve(this._radeclist);
 		});
 		return promise;
-		// let radeclist = [];
-		// let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(center.ra, center.dec);
-		// let ptg = new Pointing(null, false, phiTheta_rad.theta_rad, phiTheta_rad.phi_rad);
-		// let radius_rad = HiPSHelper.degToRad(radius);
-		// let rangeset = this._hp.queryDiscInclusive (ptg, radius_rad, 4); // <= check it
-		// this._tileslist = rangeset.r;
 		
-
-		// this._tileslist.forEach( (tileno) => {
-		// 	this._xyGridProj = HiPSHelper.setupByTile(tileno, this._hp);
-		// 	for (let i = 0; i < HiPSHelper.pxXtile; i++) {
-		// 		for (let j = 0; j < HiPSHelper.pxXtile; j++) {
-		// 			let [ra, dec] = this.pix2world(i, j);
-		// 			radeclist.push([ra, dec]);
-		// 		}
-		// 	}
-		// });
-		// return radeclist;
-
     }
 	
 	world2pix (radeclist) { 
@@ -457,9 +452,9 @@ class HiPSProjection extends AbstractProjection {
 					this._xyGridProj = HiPSHelper.setupByTile(tileno, this._hp);
 					prevTileno = tileno;
 				}
-				if (p == 79800) {
-					console.log("STOP!");
-				}
+				// if (p == 79800) {
+				// 	console.log("STOP!");
+				// }
 				let rarad =  HiPSHelper.degToRad(ra);
 				let decrad = HiPSHelper.degToRad(dec);
 				let xy = HiPSHelper.world2intermediate(rarad, decrad);
@@ -491,14 +486,18 @@ class HiPSProjection extends AbstractProjection {
 	getCanvas2d(tfunction = "linear", colormap = "grayscale", inverse = false) {
 
 		let canvaslist = [];
-		
-		for (let i = 0; i < this._pxvalues.length; i++) {
-			let values = this._pxvalues[i];
+		let i = 0;
+		Object.keys(this._pxvalues).forEach((tileno) => {
+			let values = this._pxvalues[""+tileno+""];
+				
+			// TODO change this._fitsheaderlist as per this._pxvalues in order to access to the header by "tileno"
 			let header = this._fitsheaderlist[i];
+			
 			let canvas2d =  new Canvas2D(values, header, this, tfunction, colormap, inverse );
 			canvaslist.push(canvas2d);
-		}
-
+			i++;
+		});
+		
 		return canvaslist;
 	}
 }
