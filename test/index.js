@@ -1,5 +1,6 @@
 import HiPSProjection from '../src/projections/HiPSProjection.js';
 import MercatorProjection from '../src/projections/MercatorProjection.js';
+import GnomonicProjection from '../src/projections/GnomonicProjection.js';
 import WCSLight from '../src/WCSLight.js';
 
 
@@ -91,44 +92,67 @@ import WCSLight from '../src/WCSLight.js';
 // });
 
 
+/** TAN to MER */
+// let center = {"ra": 12.3503889, "dec": 50.7453515};
+// let radius = 0.1;
+// let pxsize = 0.0005;
+
+// let infile = "./input/x0c70103t_c1f.fits";
+
+// let inproj = new GnomonicProjection(infile);
+// let outproj = new MercatorProjection();
+
+// WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
+//     let fitsheader = result.fitsheader;
+//     console.log(fitsheader);    
+//     let fitsdata = result.fitsdata;
+//     let canvas2d = result.canvas2d;
+//     // canvas2d.process();
+//     // let img = canvas2d.getCanvas2DBrowse();
+//     let encodedData = WCSLight.writeFITS(fitsheader, fitsdata);
+
+// }).catch(function(err){
+//     console.log("[index.js] "+err);
+// });
+
 
 
 /** MER to HPX */
-let center = {"ra": 12.3503889, "dec": 50.7453515};
-let radius = 0.1;
-let pxsize = 0.0005;
+// let center = {"ra": 12.3503889, "dec": 50.7453515};
+// let radius = 0.1;
+// let pxsize = 0.0005;
 
-let infile = "./input/Mercator3.fits";
+// // let infile = "./input/Mercator3.fits";
+// let infile = "./test-1636718771291.fits";
 
-let inproj = new MercatorProjection(infile);
-let outHiPSDir = "./output/"
-let outproj = new HiPSProjection(null, outHiPSDir, pxsize);
+// let inproj = new MercatorProjection(infile);
+// let outHiPSDir = "./output/"
+// let outproj = new HiPSProjection(null, outHiPSDir, pxsize);
 
-WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
-    let fitsheader = result.fitsheader;
-    console.log(fitsheader);
-    let fitsdata = result.fitsdata;
-    let canvaslist = result.canvas2d;
-    for (let canvas of canvaslist) {
-        canvas.process();
-        let img = canvas.getCanvas2DBrowse();
-    }
-    let i = 0;
-    for (const [key, value] of Object.entries(fitsdata)) {
-        let tileno = key;
-        let data = value;
-        let header = fitsheader[i];
-        i++;
-        let encodedData = WCSLight.writeFITS(header, data);
-    }
-    // for (let i = 0; i < fitsheader.length; i++) {
-    //     let encodedData = WCSLight.writeFITS(fitsheader[i], fitsdata[i]);
-    // }
-    
-    
-});
+// WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
+//     let fitsheader = result.fitsheader;
+//     console.log(fitsheader);
+//     let fitsdata = result.fitsdata;
+//     let canvaslist = result.canvas2d;
+//     for (let canvas of canvaslist) {
+//         canvas.process();
+//         let img = canvas.getCanvas2DBrowse();
+//     }
+//     let i = 0;
+//     for (const [key, value] of Object.entries(fitsdata)) {
+//         let tileno = key;
+//         let data = value;
+//         let header = fitsheader[i];
+//         i++;
+//         let encodedData = WCSLight.writeFITS(header, data);
+//     }
+// });
 
 
+
+
+
+/** CANVAS from HiPS */
 // let infile = "https://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix43348.fits";
 // let proj = new HiPSProjection(infile).then( (res) => {
 //     console.log(res.fitsheader);
@@ -143,6 +167,7 @@ WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
 //         console.log("[index.js] "+err);
 //     });
 
+/** CANVAS from HiPS */
 // let infile = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder3/Dir0/Npix42.fits";
 // let proj = new HiPSProjection(infile).then( (res) => {
 //     console.log(res.fitsheader);

@@ -3,6 +3,7 @@ import HiPSProjection from '../src/projections/HiPSProjection.js';
 import MercatorProjection from '../src/projections/MercatorProjection.js';
 import WCSLight from '../src/WCSLight.js';
 import Canvas2D from '../src/model/Canvas2D.js'
+import fs from 'fs';
 
 
 describe("CUTOUT Use Case 1", function() {
@@ -38,36 +39,17 @@ describe("CUTOUT Use Case 1", function() {
                 let fileuri = "./test/output/hips/Norder"+order+"/Dir"+dir+"/Npix"+hipstileno+".fits";
                 let encodedData = WCSLight.writeFITS(header, data, fileuri);
                 // assert
+                let fileExists = fs.existsSync(fileuri);
+                console.log(fileuri + " ---->  " + fileExists);
+                assert.equal(true, fs.existsSync(fileuri));
+                
             }
-                done();
+            done();
         }).catch(done);
     });
 });
 
 
-
-// describe("CUTOUT Use Case 2", function() {
-//     it("MER to HPX - Promise", (done) => {
-//         let center = {"ra": 356.05, "dec": 0.62};
-//         let radius = 0.001;
-//         let pxsize = 0.0005;
-
-//         let infile = "./input/Mercator.fits";
-//         let inproj = new MercatorProjection(infile);
-        
-//         let outHiPSDir = "./output/";
-//         let outproj = new HiPSProjection(null, outHiPSDir, pxsize);
-
-//         WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
-//             let fitsheader = result.fitsheader;
-//             console.log(fitsheader);
-//             let fitsdata = result.fitsdata;
-//             let canvas2d = result.canvas2d;
-//             let encodedData = WCSLight.writeFITS(fitsheader, fitsdata);
-//             done();   
-//         }).catch(done);
-//     });
-// });
 
 
 

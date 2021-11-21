@@ -26,6 +26,7 @@ class Canvas2D {
     _colormap;
     _tfunction;
     _projection;
+    _canvas;
 
     /**
      * 
@@ -186,24 +187,24 @@ class Canvas2D {
         /** https://flaviocopes.com/canvas-node-generate-image/ */
         let width = this._width;
         let height = this._height;
-        const canvas = createCanvas(width, height)
-        const ctx = canvas.getContext('2d')
+        this._canvas = createCanvas(width, height)
+        const ctx = this._canvas.getContext('2d')
 
         // let c = document.createElement('canvas');
     	// c.width = this._width;
         // c.height = this._height;
         // let ctx = c.getContext("2d");
-        let imgData = ctx.createImageData(canvas.width, canvas.height);
+        let imgData = ctx.createImageData(this._canvas.width, this._canvas.height);
     	
         let pos;
         let colors;
-		for (let row = 0; row < canvas.height; row++){
-    		for (let col = 0; col < canvas.width; col++){
+		for (let row = 0; row < this._canvas.height; row++){
+    		for (let col = 0; col < this._canvas.width; col++){
 
     			/** to invert x and y replace the pos computation with the following */
     			/** pos = ((c.width - row) * (c.height) + col ) * 4; */
 //    			pos = ( col * c.width + row ) * 4;
-    			pos = ( (canvas.width - row) * canvas.width + col ) * 4;
+    			pos = ( (this._canvas.width - row) * this._canvas.width + col ) * 4;
 
     			colors = this.colorPixel(this._physicalvalues[row][col]);
 
@@ -218,10 +219,15 @@ class Canvas2D {
         
     	// let img = new Image();
         // img.src = canvas.toDataURL();
-        const buffer = canvas.toBuffer('image/png');
-        fs.writeFileSync('./test-'+Date.now()+'.png', buffer);
-        return canvas.toDataURL();
+        // const buffer = this._canvas.toBuffer('image/png');
+        // fs.writeFileSync('./test-'+Date.now()+'.png', buffer);
+        return this._canvas.toDataURL();
 
+    }
+
+    writeToFile (path, filename) {
+        const buffer = this._canvas.toBuffer('image/png');
+        fs.writeFileSync(path+'/'+filename+'.png', buffer);
     }
 
     colorPixel (v){
