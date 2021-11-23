@@ -65,10 +65,10 @@ class HiPSProjection extends AbstractProjection {
 
     }
 
-	async initFromFile (fitsfilepath) {
+	initFromFile (fitsfilepath) {
 		var self = this;
 		
-		let promise = new FITSParser(fitsfilepath).then(fits => {
+		return new FITSParser(fitsfilepath).then(fits => {
 			
 			
 			this._pxvalues = [];
@@ -88,10 +88,40 @@ class HiPSProjection extends AbstractProjection {
                 "fitsdata": fits.data,
                 "canvas2d": self.getCanvas2d()[0]
 			}
+		}).catch(function(err) {
+			console.log("[HiPSProjection] "+err);
 		});
-		await promise;
-		return promise;
+
 	}
+
+
+	// async initFromFile (fitsfilepath) {
+	// 	var self = this;
+		
+	// 	let promise = new FITSParser(fitsfilepath).then(fits => {
+			
+			
+	// 		this._pxvalues = [];
+	// 		self._pxvalues[0] = fits.data;
+	// 		self._fitsheaderlist[0] = fits.header;
+
+	// 		let order = fits.header.get("ORDER");
+	// 		self.initFromHiPSOrder(order);
+			
+	// 		self._naxis1 = fits.header.get("NAXIS1");
+	// 		self._naxis2 = fits.header.get("NAXIS2");
+	// 		self._pixno = fits.header.get("NPIX");
+			
+	// 		this._xyGridProj = HiPSHelper.setupByTile(self._pixno, self._hp);
+	// 		return {
+	// 			"fitsheader": fits.header,
+    //             "fitsdata": fits.data,
+    //             "canvas2d": self.getCanvas2d()[0]
+	// 		}
+	// 	});
+	// 	await promise;
+	// 	return promise;
+	// }
 
 	initFromPxsize (pxsize) {
 		this._pxsize = pxsize;
