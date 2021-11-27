@@ -46,8 +46,8 @@ class Canvas2D {
         this._currmin = this._orig_min;
         this._currmax = this._orig_max;
 
-        this._bzero = fitsheader.get("BZERO");
-        this._bscale = fitsheader.get("BSCALE");
+        this._bzero = fitsheader.get("BZERO") || 0.0;
+        this._bscale = fitsheader.get("BSCALE") || 1.0;
         this._blank = fitsheader.get("BLANK");
         this._bitpix = fitsheader.get("BITPIX");
 
