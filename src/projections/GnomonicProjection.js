@@ -17,6 +17,8 @@ import FITSHeaderItem from '../../../FITSParser/src/FITSHeaderItem.js';
 import Canvas2D from '../model/Canvas2D.js';
 import FITSParser from '../../../FITSParser/src/FITSParser.js';
 import ParseUtils from '../../../FITSParser/src/ParseUtils.js';
+import { cot, arg } from 'mathjs'
+
 
 class GnomonicProjection extends AbstractProjection {
 
@@ -166,6 +168,7 @@ class GnomonicProjection extends AbstractProjection {
 	}    
 
     computeSquaredNaxes (d, ps) {
+
         // ??? APPLICABLE WITH THIS PROJECTION ???
         this._naxis1 =  Math.ceil(d / ps);
         this._naxis2 = this._naxis1;
@@ -206,6 +209,34 @@ class GnomonicProjection extends AbstractProjection {
             let pra, pdec;
 
             // TODO ...
+            /*
+            basing on naxis1 and naxis2 call pix2world!!!
+            */
+
+
+
+            /*
+            
+
+            mindec = center.dec - radius;
+            maxdec = center.dec + radius;
+            below pixel size should  depend on the distance from the center
+            let l =  0;
+            let factor = 1;
+            
+            for (let d = mindec; d < maxdec; d+=pxsize) { <--ERROR the external loop must be over RA
+                factor = 1 + 2**l;
+                rapxsize = pxsize/factor;
+                for (let r = 0; r < 360; r+=rapxsize) {
+                    radeclist.push(r, d); 
+                }
+                l++;
+            }
+            */ 
+
+
+
+
             
             let cidx = (this._naxis2/2 - 1) * this._naxis1 +  this._naxis1/2;
             this._cra = radeclist[ cidx ][0];
@@ -251,7 +282,7 @@ class GnomonicProjection extends AbstractProjection {
             
         
             
-        let phi = Math.arg(-y/x);
+        let phi = math.arg(-y/x);
         let R_theta = Math.sqrt(x*x + y*y);
         let theta = Math.atan2( 180 / (Math.PI * R_theta));
 
@@ -294,7 +325,7 @@ class GnomonicProjection extends AbstractProjection {
                     // (linearly) convert ra, dec into phi, theta
                     let theta = dec;
                     let phi = ra;
-                    let R_theta = (180/Math.PI) * Math.cot(theta);
+                    let R_theta = (180/Math.PI) * math.cot(theta);
                     let x = R_theta * Math.sin(phi);
                     let y = - R_theta * Math.cos(phi);
                     if ( CDELT1 !== undefined && CDELT2 !== undefined && 

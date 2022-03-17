@@ -8,6 +8,8 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
  import FITSParser from '../../FITSParser/src/FITSParser.js';
+ import MercatorProjection from './projections/MercatorProjection.js';
+ import HiPSProjection from './projections/HiPSProjection.js';
 
 class WCSLight {
 
@@ -81,10 +83,14 @@ class WCSLight {
         } else  if (projectionName === "HEALPix") {
             return new  HEALPixProjection();
         } else {
-            throw new ProjectionNotFound(projectionName);
+            return null;
+            // throw new ProjectionNotFound(projectionName);
         }
     }
 
+    static getAvaillableProjections() {
+        return ["Mercator", "HiPS", "HEALPix"];
+    }
 
 }
 
