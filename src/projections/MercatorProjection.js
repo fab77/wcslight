@@ -226,22 +226,34 @@ class MercatorProjection extends AbstractProjection {
             this._pxvalues[r] = new Uint8Array(this._naxis1 * bytesXelem);
         }
 
-        for (let p = 0; p < (values.length / bytesXelem); p++) {
-            let r = Math.floor(p / this._naxis1);
-            let c = (p - r * this._naxis1) * bytesXelem;
+        let r, c, b;
+        for (let p = 0; (p*bytesXelem) < values.length; p++) {
+            // console.log("processing "+p + " of "+ (values.length / bytesXelem));
 
-            for (let b = 0; b < bytesXelem; b++) {
-                this._pxvalues[r][c + b] = values[p * bytesXelem + b];
-            }
-
-            let valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), fitsHeaderParams.get("BITPIX"));
-            let valphysical = bzero + bscale * valpixb;
-            
-            if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
-                this._minphysicalval = valphysical;
-            } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
-                this._maxphysicalval = valphysical;
-            }
+                try {
+                    r = Math.floor( p / this._naxis1);
+                    c = (p - r * this._naxis1) * bytesXelem;
+                    
+                    for (b = 0; b < bytesXelem; b++) {
+                        this._pxvalues[r][c + b] = values[p * bytesXelem + b];
+                    }
+                
+    
+                    let valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), fitsHeaderParams.get("BITPIX"));
+                    let valphysical = bzero + bscale * valpixb;
+                    
+                    if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
+                        this._minphysicalval = valphysical;
+                    } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
+                        this._maxphysicalval = valphysical;
+                    }
+                }catch (err) {
+                    console.log(err)
+                    console.log("p "+p)
+                    console.log("r %, c %, b %"+r,c,b)
+                    console.log("this._pxvalues[r][c + b] "+this._pxvalues[r][c + b])
+                    console.log("values[p * bytesXelem + b] "+values[p * bytesXelem + b])
+                }
 
         }
         
@@ -268,13 +280,25 @@ class MercatorProjection extends AbstractProjection {
             let radeclist = [];
             let pra, pdec;
 
-            for (pdec = this._mindec; pdec < this._mindec + this._pxsize * this._naxis2; pdec += this._pxsize) {
-                for (pra = this._minra; pra < this._minra + this._pxsize * this._naxis1; pra += this._pxsize) {
-                    radeclist.push([pra, pdec]);
-                }
+            // for (pdec = this._mindec; pdec < this._mindec + this._pxsize * this._naxis2; pdec += this._pxsize) {
+            //     for (pra = this._minra; pra < this._minra + this._pxsize * this._naxis1; pra += this._pxsize) {
+            //         radeclist.push([pra, pdec]);
+            //     }
+            // }
+
+            
+            for (let d = 0; d < this._naxis2; d++) {
+                for (let r = 0; r < this._naxis1; r++) {
+                    radeclist.push([ this._minra + (r * this._pxsize), this._mindec + (d * this._pxsize)]);
+                }    
             }
-            // let cra = pra - radius;
-            // let cdec = pdec - radius;
+
+            // for (pdec = this._mindec; pdec < this._mindec + this._pxsize * this._naxis2; pdec += this._pxsize) {
+            //     for (pra = this._minra; pra < this._minra + this._pxsize * this._naxis1; pra += this._pxsize) {
+            //         radeclist.push([pra, pdec]);
+            //     }
+            // }
+
             let cidx = (this._naxis2/2 - 1) * this._naxis1 +  this._naxis1/2;
             this._cra = radeclist[ cidx ][0];
             this._cdec = radeclist[ cidx ][1];
