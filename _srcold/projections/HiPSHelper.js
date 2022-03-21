@@ -3,7 +3,7 @@
 
 class HiPSHelper {
 
-	static pxXtile = 512; // TODO in some cases it is different
+	static DEFAULT_Naxis1_2 = 512; // suggested in HiPS recomendation https://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf (page 10)
     static RES_ORDER_0 = 58.6/HIPSResMapK0.pxXtile; 
     /**
 	 * Table 1 - ref paper HEALPix — a Framework for High Resolution Discretization,
@@ -40,8 +40,21 @@ class HiPSHelper {
 		 * 
 		 */
 
-		let k = Math.log2(HiPSHelper.RES_ORDER_0/pxsize);
-		k = Math.round(k);
+		/**
+		 * from HiPS recomendation https://www.ivoa.net/documents/HiPS/20170519/REC-HIPS-1.0-20170519.pdf
+		 * page 11
+		 * (Tile pixel angular size) ps =~ sqrt(4*PI / ( 12 * (tileWidth * 2^order)^2))
+		 * =>
+		 * order =~ log2 ( 2/(tileWidth + ps) * sqrt(PI / 12)  )
+		 */ 
+		let k = Math.log2 ( (2 / (HiPSHelper.DEFAULT_Naxis1_2 + pxsize)) * Math.sqrt(Math.PI / 12) );
+		k = Math.floor(k);
+
+		// to be checked
+		// let k = Math.log2(HiPSHelper.RES_ORDER_0/pxsize);
+		// k = Math.round(k);
+
+		// to be checked
 		// let theta0px = HiPSHelper.RES_ORDER_0;
 		// let k = Math.log2(theta0px) - Math.log2(pxsize * 2**9);
 		// k = Match.round(k);

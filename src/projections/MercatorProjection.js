@@ -278,14 +278,6 @@ class MercatorProjection extends AbstractProjection {
             this._mindec = center.dec - radius;
             
             let radeclist = [];
-            let pra, pdec;
-
-            // for (pdec = this._mindec; pdec < this._mindec + this._pxsize * this._naxis2; pdec += this._pxsize) {
-            //     for (pra = this._minra; pra < this._minra + this._pxsize * this._naxis1; pra += this._pxsize) {
-            //         radeclist.push([pra, pdec]);
-            //     }
-            // }
-
             
             for (let d = 0; d < this._naxis2; d++) {
                 for (let r = 0; r < this._naxis1; r++) {

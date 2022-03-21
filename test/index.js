@@ -43,28 +43,33 @@ import WCSLight from '../src/WCSLight.js';
 
 
 
-
+// TODO check window object which is different from Node and browser
 /** HiPS to MER */
 // let center = {"ra": 12.3503889, "dec": 50.7453515};
 // let radius = 0.1;
 // let pxsize = 0.0005;
-// let hipsBaseUri = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160/";
-// let inproj = new HiPSProjection(null, hipsBaseUri, null, 8);
 
-// let outproj = new MercatorProjection();
+let center = {"ra": 306.40, "dec": 40};
+let radius = 0.01;
+let pxsize = 0.0005;
 
-// WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
-//     let fitsheader = result.fitsheader;
-//     console.log(fitsheader);    
-//     let fitsdata = result.fitsdata;
-//     let canvas2d = result.canvas2d;
-//     // canvas2d.process();
-//     // let img = canvas2d.getCanvas2DBrowse();
-//     let encodedData = WCSLight.writeFITS(fitsheader, fitsdata);
+let hipsBaseUri = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160/";
+let inproj = new HiPSProjection(null, hipsBaseUri, null, 8);
 
-// }).catch(function(err){
-//     console.log("[index.js] "+err);
-// });
+let outproj = new MercatorProjection();
+
+WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
+    let fitsheader = result.fitsheader;
+    console.log(fitsheader);    
+    let fitsdata = result.fitsdata;
+    let canvas2d = result.canvas2d;
+    // canvas2d.process();
+    // let img = canvas2d.getCanvas2DBrowse();
+    let encodedData = WCSLight.writeFITS(fitsheader, fitsdata);
+
+}).catch(function(err){
+    console.log("[index.js] "+err);
+});
 
 
 

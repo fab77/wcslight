@@ -48,7 +48,9 @@ class WCSLight {
             return {
                 "fitsheader": fitsheader,
                 "fitsdata": fitsdata,
-                "canvas2d": canvas2d
+                "canvas2d": canvas2d,
+                "inproj": inproj,
+                "outproj": outproj
             };
         }).catch(function(err) {
             console.error("[WCSLight] ERROR: "+err);
