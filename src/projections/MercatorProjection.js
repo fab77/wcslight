@@ -305,8 +305,12 @@ class MercatorProjection extends AbstractProjection {
     pix2world (i, j) {
 
         let ra, dec;
-        ra = i * this._stepra + this._minra;
-        dec = j * this._stepdec + this._mindec;
+        // ra = i * this._stepra + this._minra;
+        // dec = j * this._stepdec + this._mindec;
+        ra = i * this._pxsize + this._minra;
+        dec = j * this._pxsize + this._mindec;
+
+        
         return [ra, dec];
 
     }
