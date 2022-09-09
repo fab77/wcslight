@@ -1,0 +1,5 @@
+# wcslight
+WCS light library used in FITSOnTheWeb and FabViewer projects.
+
+# To run a single test case file:
+$ ./node_modules/jest/bin/jest.js test/USE_CASE_6.integration.spec.ts --runInBand
