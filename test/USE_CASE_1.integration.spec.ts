@@ -1,6 +1,5 @@
-// import { FITSParsed } from "fitsparser/model/FITSParsed";
-import { FITSParsed } from "../../FITSParser-test-20220905/src/model/FITSParsed";
-import { FITSParser } from "../../FITSParser-test-20220905/src/FITSParser-node";
+import { FITSParsed } from "../../FITSParser/src/model/FITSParsed";
+import { FITSParser } from "../../FITSParser/src/FITSParser-node";
 import { HiPSProjection } from "../src/projections/HiPSProjection";
 import { MercatorProjection } from "../src/projections/MercatorProjection";
 
@@ -15,7 +14,7 @@ describe("USE CASE 1: Single File Processing:", function () {
         let hp = new HiPSProjection();
         // let myfits: FITSParsed;
         let physicalValues: number[][];
-        let t = await hp.initFromFile("http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits")
+        let t = await hp.initFromFile("http://skies.esac.esa.int/Herschel/normalized/PACS_hips160/Norder8/Dir40000/Npix47180.fits")
             .then((fits) => {
                 // myfits = fits;
                 physicalValues = hp.extractPhysicalValues(fits);

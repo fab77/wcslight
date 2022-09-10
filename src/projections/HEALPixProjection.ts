@@ -1,6 +1,6 @@
 
-import { FITSHeader } from '../../../FITSParser-test-20220905/src/model/FITSHeader';
-import { FITSParsed } from '../../../FITSParser-test-20220905/src/model/FITSParsed';
+import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
+import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
 import { ImagePixel } from "../model/ImagePixel";
 import {Point} from "../model/Point";
 import {AbstractProjection} from "./AbstractProjection";
@@ -31,7 +31,7 @@ export class HEALPixProjection extends AbstractProjection {
     public setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Uint8Array[]> {
         throw new Error('Method not implemented.');
     }
-    public getImageRADecList(center: Point, radius: number, pxsize: number): number[][] {
+    public getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]> {
         throw new Error('Method not implemented.');
     }
     public pix2world(i: number, j: number): Point {

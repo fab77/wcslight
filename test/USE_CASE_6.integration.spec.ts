@@ -1,5 +1,5 @@
-import { FITSParsed } from "../../FITSParser-test-20220905/src/model/FITSParsed";
-import { FITSParser } from "../../FITSParser-test-20220905/src/FITSParser-node";
+import { FITSParsed } from "../../FITSParser/src/model/FITSParsed";
+import { FITSParser } from "../../FITSParser/src/FITSParser-node";
 import { CoordsType } from "../src/model/CoordsType";
 import { CutoutResult } from "../src/model/CutoutResult";
 import { NumberType } from "../src/model/NumberType";
@@ -24,7 +24,7 @@ describe("USE CASE 6: CutOut MER to MER:", function () {
             const out_pxsize = 0.001;
             const cuoutResult: CutoutResult = await WCSLight.cutout(centre, radius, out_pxsize, in_mp, out_mp);
             let data = cuoutResult.fitsdata.get(0);
-            FITSParser.writeFITS(cuoutResult.fitsheader[0], data as Uint8Array[], "./test/output/UC6_0_Mercator.fits");
+            FITSParser.writeFITS(cuoutResult.fitsheader[0], data as Uint8Array[], "./test/output/UC6/UC6_0_Mercator.fits");
             return cuoutResult;
         }
     });

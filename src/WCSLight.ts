@@ -14,7 +14,7 @@ import {Point} from './model/Point';
 import {AbstractProjection} from './projections/AbstractProjection';
 import { CutoutResult } from './model/CutoutResult';
 
-import { FITSParser } from '../../FITSParser-test-20220905/src/FITSParser-node';
+import { FITSParser } from '../../FITSParser/src/FITSParser-node';
 
 import { HEALPixProjection } from './projections/HEALPixProjection';
 import {GnomonicProjection} from './projections/GnomonicProjection';
@@ -28,6 +28,15 @@ export class WCSLight {
         pxsize: number, inproj: AbstractProjection, outproj: AbstractProjection): Promise<CutoutResult> {
         
         const outRADecList:Array<Array<number>> = outproj.getImageRADecList(center, radius, pxsize);
+        if (outRADecList.length == 0) {
+            const res: CutoutResult = {
+                fitsheader: null,
+                fitsdata: null,
+                inproj: inproj,
+                outproj: outproj
+            };
+            return res;
+        }
         const inputPixelsList = inproj.world2pix(outRADecList);
         try {
             

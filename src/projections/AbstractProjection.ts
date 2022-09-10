@@ -1,5 +1,5 @@
-import { FITSHeader } from '../../../FITSParser-test-20220905/src/model/FITSHeader';
-import { FITSParsed } from '../../../FITSParser-test-20220905/src/model/FITSParsed';
+import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
+import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
 // import { AstroCoords } from "src/model/AstroCoords";
 import { ImagePixel } from "../model/ImagePixel";
 import {Point} from "../model/Point";

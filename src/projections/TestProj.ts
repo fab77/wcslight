@@ -7,10 +7,10 @@
 // import { FITSParsed } from 'fitsparser/model/FITSParsed';
 
 
-import { FITSParser } from '../../../FITSParser-test-20220905/src/FITSParser-node';
-import { FITSHeader } from '../../../FITSParser-test-20220905/src/model/FITSHeader';
-import { FITSHeaderItem } from '../../../FITSParser-test-20220905/src/model/FITSHeaderItem';
-import { FITSParsed } from '../../../FITSParser-test-20220905/src/model/FITSParsed';
+import { FITSParser } from '../../../FITSParser/src/FITSParser-node';
+import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
+import { FITSHeaderItem } from '../../../FITSParser/src/model/FITSHeaderItem';
+import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
 
 import { ImagePixel } from 'src/model/ImagePixel';
 import { AbstractProjection } from './AbstractProjection';

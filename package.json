@@ -55,7 +55,7 @@
         "wepack-cli": "^0.0.1-security"
     },
     "dependencies": {
-        "fitsparser": "file:../FITSParser-test-20220905/src",
-        "healpixjs": "file:../healpixjs-test-20220908/src"
+        "fitsparser": "file:../FITSParser/src",
+        "healpixjs": "file:../healpixjs/src"
     }
 }

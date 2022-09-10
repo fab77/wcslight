@@ -9,11 +9,11 @@
  */
 
 
- import { FITSParser } from '../../../FITSParser-test-20220905/src/FITSParser-node';
- import { FITSHeader } from '../../../FITSParser-test-20220905/src/model/FITSHeader';
- import { FITSHeaderItem } from '../../../FITSParser-test-20220905/src/model/FITSHeaderItem';
- import { FITSParsed } from '../../../FITSParser-test-20220905/src/model/FITSParsed';
- import { ParseUtils } from '../../../FITSParser-test-20220905/src/ParseUtils';
+ import { FITSParser } from '../../../FITSParser/src/FITSParser-node';
+ import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
+ import { FITSHeaderItem } from '../../../FITSParser/src/model/FITSHeaderItem';
+ import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
+ import { ParseUtils } from '../../../FITSParser/src/ParseUtils';
 
 
 // import { FITSParser } from 'fitsparser/FITSParser-node';
@@ -22,8 +22,8 @@
 // import { ParseUtils } from 'fitsparser/ParseUtils';
 // import { FITSParsed } from 'fitsparser/model/FITSParsed';
 
-import {Healpix} from "../../../healpixjs-test-20220908/src/Healpix";
-import { Pointing } from "../../../healpixjs-test-20220908/src/Pointing";
+import {Healpix} from "../../../healpixjs/src/Healpix";
+import { Pointing } from "../../../healpixjs/src/Pointing";
 
 import { AbstractProjection } from './AbstractProjection.js';
 import { HEALPixXYSpace } from '../model/HEALPixXYSpace';
@@ -310,13 +310,13 @@ export class HiPSProjection implements AbstractProjection {
 
 			let dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
 			let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
-			console.log("Loading " + fitsurl);
+			// console.log("Loading " + fitsurl);
 			let fp = new FITSParser(fitsurl);
 			promises.push(fp.loadFITS().then((fits) => {
 
-				if (fits === undefined) {
-					console.error("tileno " + hipstileno + " data not loaded");
-					console.log(fitsurl + " not found");
+				if (fits === null) {
+					// console.error("tileno " + hipstileno + " data not loaded");
+					// console.log(fitsurl + " not found");
 					fitsheaderlist.push(undefined);
 				} else {
 
@@ -327,7 +327,7 @@ export class HiPSProjection implements AbstractProjection {
 						values = new Uint8Array(pixcount * bytesXelem);
 					}
 
-					console.log(fitsurl + " loaded");
+					// console.log(fitsurl + " loaded");
 					fitsheaderlist.push(fits.header);
 
 					for (let p = 0; p < pixcount; p++) {
@@ -442,7 +442,7 @@ export class HiPSProjection implements AbstractProjection {
 				let byte = values[rdidx * bytesXelem + b];
 				this._pxvalues.get(pixtileno)[row][col * bytesXelem + b] = byte	// <- bidimensional
 				if (nodata.get("" + pixtileno + "")) {
-					if (byte !== 0) {
+					if (byte != 0) {
 						nodata.set("" + pixtileno + "", false);
 					}
 				}
@@ -463,8 +463,11 @@ export class HiPSProjection implements AbstractProjection {
 		}
 
 
-		Object.keys(this._pxvalues.keys).forEach((tileno) => {
-			if (!nodata.get(tileno)) { // there are data
+		// Object.keys(this._pxvalues.keys()).forEach((tileno) => {
+		const fhKeys = Array.from(this._pxvalues.keys());
+		
+		fhKeys.forEach((tileno) => {
+			if (nodata.get(""+tileno+"") == false) { // there are data
 				// tileno = parseInt(tileno);
 				let header = new FITSHeader();
 				header.set("NPIX", tileno);
@@ -483,7 +486,8 @@ export class HiPSProjection implements AbstractProjection {
 
 				this._fitsheaderlist.push(header);
 			} else { // no data
-				this._pxvalues.delete(parseInt(tileno));
+				// this._pxvalues.delete(parseInt(tileno));
+				this._pxvalues.delete(tileno);
 				// delete this._pxvalues["" + tileno + ""];
 			}
 

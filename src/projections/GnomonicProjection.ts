@@ -11,11 +11,11 @@
 
 import { AbstractProjection } from './AbstractProjection';
 import { ImagePixel } from '../model/ImagePixel';
-import { FITSParser } from '../../../FITSParser-test-20220905/src/FITSParser-node';
-import { FITSHeader } from '../../../FITSParser-test-20220905/src/model/FITSHeader';
-import { FITSHeaderItem } from '../../../FITSParser-test-20220905/src/model/FITSHeaderItem';
-import { FITSParsed } from '../../../FITSParser-test-20220905/src/model/FITSParsed';
-import { ParseUtils } from '../../../FITSParser-test-20220905/src/ParseUtils';
+import { FITSParser } from '../../../FITSParser/src/FITSParser-node';
+import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
+import { FITSHeaderItem } from '../../../FITSParser/src/model/FITSHeaderItem';
+import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
+import { ParseUtils } from '../../../FITSParser/src/ParseUtils';
 import {Point} from '../model/Point';
 
 
@@ -242,7 +242,7 @@ export class GnomonicProjection extends AbstractProjection {
         return null;
     }
 
-    getImageRADecList(center: Point, radius: number, pxsize: number): Array<Array<number>> {
+    getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]>{
 
         // let promise = new Promise((resolve, reject) => {
         //     this.computeSquaredNaxes(2 * radius, pxsize); // compute naxis[1, 2]

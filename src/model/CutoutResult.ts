@@ -1,4 +1,4 @@
-import { FITSHeader } from "../../../FITSParser-test-20220905/src/model/FITSHeader";
+import { FITSHeader } from "../../../FITSParser/src/model/FITSHeader";
 import {AbstractProjection} from "src/projections/AbstractProjection";
 
 export interface CutoutResult{

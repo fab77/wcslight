@@ -9,9 +9,9 @@
  */
 
 
-import {Healpix} from "../../../healpixjs-test-20220908/src/Healpix";
-import {Pointing } from "../../../healpixjs-test-20220908/src/Pointing";
-import {Hploc } from "../../../healpixjs-test-20220908/src/Hploc";
+import {Healpix} from "../../../healpixjs/src/Healpix";
+import {Pointing } from "../../../healpixjs/src/Pointing";
+import {Hploc } from "../../../healpixjs/src/Hploc";
 
 import {radToDeg} from '../model/Utils'; // TODO change package
 import { CoordsType } from "../model/CoordsType";
