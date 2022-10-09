@@ -7,7 +7,7 @@ import fs from 'fs';
 
 
 describe("CUTOUT Use Case 1", function() {
-    it("MER to HPX", (done) => {
+    it("MER to HiPS", (done) => {
         let center = {"ra": 12.3503889, "dec": 50.7453515};
         let radius = 0.1;
         let pxsize = 0.0005;
@@ -37,7 +37,7 @@ describe("CUTOUT Use Case 1", function() {
                 let order = header.getItemListOf("ORDER")[0].value;
                 let dir = Math.floor(hipstileno/10000) * 10000;
                 let fileuri = "./test/output/hips/Norder"+order+"/Dir"+dir+"/Npix"+hipstileno+".fits";
-                let encodedData = WCSLight.writeFITS(header, data, fileuri);
+                WCSLight.writeFITS(header, data, fileuri);
                 // assert
                 let fileExists = fs.existsSync(fileuri);
                 console.log(fileuri + " ---->  " + fileExists);

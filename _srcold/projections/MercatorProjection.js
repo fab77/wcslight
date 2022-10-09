@@ -36,7 +36,10 @@ class MercatorProjection extends AbstractProjection {
      */
     constructor (fitsFilelist) {
         super();
-        super();
+        this._wcsname = "MER"; // TODO check WCS standard
+        this._ctype1 = "RA---MER";
+        this._ctype2 = "DEC--MER";
+
 		if (fitsFilelist) {
 			this._fitsFilelist = fitsFilelist;
 			if (this._fitsFilelist.length >= 1) {
@@ -55,29 +58,7 @@ class MercatorProjection extends AbstractProjection {
 		this._naxis2 = fits.header.naxis2;
 	}
 
-    computePixValues() {
-		let data = this._fitsdata;
-		let header = this._fitsheaderlist[0];
-		
-		this.setFITSHeaderEntry("SIMPLE", header.simple);
-		this.setFITSHeaderEntry("BLANK", header.blank);
-		this.setFITSHeaderEntry("BZERO", header.bzero);
-		this.setFITSHeaderEntry("BSCALE", header.bscale);
-		this.setFITSHeaderEntry("NAXIS1", header.naxis1);
-		this.setFITSHeaderEntry("NAXIS2", header.naxis2);
-		
-		let values = new Array(this._naxis2);
-		for (let j = 0; j < this._naxis2; j++ ){
-			if (!values[j]) {
-				values[j] = new Array(this._naxis1);
-			}
-			for (let i = 0; i < this._naxis1; i++ ){
-				values[j][i] = data[j][i];		
-			}
-		}
-		this._pxvalues = values;
-		return values;
-	}
+    
 
     prepareFITSHeader (fitsHeaderParams) {
 		// TODO
@@ -91,8 +72,8 @@ class MercatorProjection extends AbstractProjection {
 		this._fitsheader.set("BLANK", fitsHeaderParams["BLANK"]);
 		this._fitsheader.set("BSCALE", fitsHeaderParams["BSCALE"]);
 		this._fitsheader.set("BZERO", fitsHeaderParams["BZERO"]);
-		this._fitsheader.set("CTYPE1", "RA---MER");
-		this._fitsheader.set("CTYPE2", "DEC--MER");
+		this._fitsheader.set("CTYPE1", this._ctype1);
+		this._fitsheader.set("CTYPE2", this._ctype2);
 		
         this._fitsheader.set("CDELT1", this._pxsize); // ??? Pixel spacing along axis 1 ???
         this._fitsheader.set("CDELT2", this._pxsize); // ??? Pixel spacing along axis 2 ???
@@ -103,10 +84,10 @@ class MercatorProjection extends AbstractProjection {
 
         let min = fitsHeaderParams["BZERO"] + fitsHeaderParams["BSCALE"] * this._minval;
         let max = fitsHeaderParams["BZERO"] + fitsHeaderParams["BSCALE"] * this._maxval;
+
         this._fitsheader.set("DATAMIN", min); // min data value
         this._fitsheader.set("DATAMAX", max); // max data value
 
-        this._fitsheader.set("WCSNAME", "HiPS");
         this._fitsheader.set("ORIGIN", "WCSLight v.0.x");
         this._fitsheader.set("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar");
 
@@ -116,8 +97,9 @@ class MercatorProjection extends AbstractProjection {
     getFITSHeader() {
         return this._fitsheader;
     }
+    
    
-    getPixValuesFromPxlist(inputPixelsList) {
+    getPixValues(inputPixelsList) {
 
 
 		// I need association ImgPixel -> file
@@ -171,26 +153,58 @@ class MercatorProjection extends AbstractProjection {
         return [ra, dec];
 
     }
-
+    
+    computePixValues() {
+		let data = this._fitsdata;
+		let header = this._fitsheaderlist[0];
+		
+		this.setFITSHeaderEntry("SIMPLE", header.simple);
+		this.setFITSHeaderEntry("BLANK", header.blank);
+		this.setFITSHeaderEntry("BZERO", header.bzero);
+		this.setFITSHeaderEntry("BSCALE", header.bscale);
+		this.setFITSHeaderEntry("NAXIS1", header.naxis1);
+		this.setFITSHeaderEntry("NAXIS2", header.naxis2);
+		
+		let values = new Array(this._naxis2);
+		for (let j = 0; j < this._naxis2; j++ ){
+			if (!values[j]) {
+				values[j] = new Array(this._naxis1);
+			}
+			for (let i = 0; i < this._naxis1; i++ ){
+				values[j][i] = data[j][i];		
+			}
+		}
+		this._pxvalues = values;
+		return values;
+	}
+    /**
+     * 
+     * @param {*} values ordered values (same order as per getImageRADecList)
+     * @param {*} fitsHeaderParams 
+     * @returns 
+     */
     setPxsValue(values, fitsHeaderParams) {
         
-        this._minval = this._pxvalues[0];
-        this._maxval = this._pxvalues[0];
-        this._pxvalues = new Array(this._naxis2);
-        let vidx = 0;
+        this._pxvalues = values;
+        // this._minval = this._pxvalues[0];
+        // this._maxval = this._pxvalues[0];
+        // this._pxvalues = new Array(this._naxis2);
+        // let vidx = 0;
 
-        for (let j = 0; j < this._naxis2; j++) {
-            this._pxvalues[j] = new Array(this._naxis1);
-            for (let i = 0; i < this._naxis1; i++) {
-                this._pxvalues[j][i] = values[vidx];
-                if (values[vidx] < this._minval) {
-                    this._minval = values[vidx];
-                } else if (values[vidx] < this._maxval) {
-                    this._maxval = values[vidx];
-                }
-                vidx += 1;
-            }
-        }
+        // for (let j = 0; j < this._naxis2; j++) {
+            
+        //     this._pxvalues[j] = new Array(this._naxis1);
+
+        //     for (let i = 0; i < this._naxis1; i++) {
+        //         this._pxvalues[j][i] = values[vidx];
+        //         if (values[vidx] < this._minval) {
+        //             this._minval = values[vidx];
+        //         } else if (values[vidx] < this._maxval) {
+        //             this._maxval = values[vidx];
+        //         }
+        //         vidx += 1;
+        //     }
+        // }
         this.prepareFITSHeader(fitsHeaderParams);
         return this._pxvalues;
 
@@ -208,38 +222,7 @@ class MercatorProjection extends AbstractProjection {
                 }
         });
 
-        // THE FOLLOWING IN CASE I WANT TO HANDLE MULTIPLE FILE HERE
-        // for (let f = 0; f < this._fitsFilelist; f++) {
-        //     let fits = new FITSParser(this._fitsFilelist[i]);
-        //     let header = fits.header;
-        //     this._fitsheaderlist.push(header);
-        //     // with header naxis[1,2], cra, cdec, cdelt1, cdelt2 compute bbox
-        //     let cdelt1 = header.cdelt1; // ??? Pixel spacing along axis 1 ???
-        //     let cdelt2 = header.cdelt2; // ??? Pixel spacing along axis 2 ???
-        //     let ci = header.crpix1; // central/reference pixel i along naxis1
-        //     let cj = header.crpix2; // central/reference pixel j along naxis2
-        //     let crval1 = header.crval1; // central/reference pixel RA
-        //     let crval2 = header.crval2; // central/reference pixel Dec
-        //     let naxis1 = header.naxis1;
-        //     let naxis2 = header.naxis2;
-
-        //     // TODO if the projection is rotated, use CROTAn to rotate 
-        //     let maxra = crval1 + (naxis1 - ci) * cdelt1;
-        //     let maxdec = crval2 + (naxis2 - cj) * cdelt2;
-        //     let minra = crval1 - ci * cdelt1;
-        //     let mindec = crval2 - ci * cdelt2;
-
-            
-
-        //     radeclist.forEach((ra, dec) => function() {
-        //         if (minra <= ra && ra <= maxra &&
-        //             mindec <= dec && dec <= maxdec) {
-        //                 let i = Math.floor((ra - minra) / this._pxsize);
-        //                 let j = Math.floor((dec - mindec) / this._pxsize);
-        //                 imgpxlist.push(new ImagePixel(i, j, f));
-        //             }
-        //     });
-        // }
+        
 
         return imgpxlist;
     }
