@@ -1,9 +1,9 @@
 
-import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
-import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
-import { ImagePixel } from "../model/ImagePixel";
-import {Point} from "../model/Point";
-import {AbstractProjection} from "./AbstractProjection";
+import { FITSHeader } from 'jsfitsio';
+import { FITSParsed } from 'jsfitsio';
+import { ImagePixel } from "../model/ImagePixel.js";
+import {Point} from "../model/Point.js";
+import {AbstractProjection} from "./AbstractProjection.js";
 
 
 export class HEALPixProjection extends AbstractProjection {

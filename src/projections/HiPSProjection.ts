@@ -9,11 +9,11 @@
  */
 
 
- import { FITSParser } from '../../../FITSParser/src/FITSParser-node';
- import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
- import { FITSHeaderItem } from '../../../FITSParser/src/model/FITSHeaderItem';
- import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
- import { ParseUtils } from '../../../FITSParser/src/ParseUtils';
+ import { FITSParser } from 'jsfitsio';
+ import { FITSHeader } from 'jsfitsio';
+ import { FITSHeaderItem } from 'jsfitsio';
+ import { FITSParsed } from 'jsfitsio';
+ import { ParseUtils } from 'jsfitsio';
 
 
 // import { FITSParser } from 'fitsparser/FITSParser-node';
@@ -22,44 +22,44 @@
 // import { ParseUtils } from 'fitsparser/ParseUtils';
 // import { FITSParsed } from 'fitsparser/model/FITSParsed';
 
-import {Healpix} from "../../../healpixjs/src/Healpix";
-import { Pointing } from "../../../healpixjs/src/Pointing";
+import {Healpix} from "healpixjs";
+import { Pointing } from "healpixjs";
 
 import { AbstractProjection } from './AbstractProjection.js';
-import { HEALPixXYSpace } from '../model/HEALPixXYSpace';
+import { HEALPixXYSpace } from '../model/HEALPixXYSpace.js';
 
-import { HiPSHelper } from './HiPSHelper';
+import { HiPSHelper } from './HiPSHelper.js';
 
 // TODO 
 // import Canvas2D from '../model/Canvas2D.js';
 
-import { ImagePixel } from '../model/ImagePixel';
-import { astroToSpherical, degToRad, fillAstro, radToDeg } from '../model/Utils';
-import { Point } from '../model/Point';
-import { CoordsType } from '../model/CoordsType';
-import { NumberType } from '../model/NumberType';
+import { ImagePixel } from '../model/ImagePixel.js';
+import { astroToSpherical, degToRad, fillAstro, radToDeg } from '../model/Utils.js';
+import { Point } from '../model/Point.js';
+import { CoordsType } from '../model/CoordsType.js';
+import { NumberType } from '../model/NumberType.js';
 
 
 
 export class HiPSProjection implements AbstractProjection {
 	// export class HiPSProjection {
 
-	_naxis1: number;
-	_naxis2: number;
-	_pixno: number;
-	_tileslist;
-	_hp;
-	_fh_common: FITSHeader;
+	_naxis1!: number;
+	_naxis2!: number;
+	_pixno!: number;
+	_tileslist!: number[] ;
+	_hp!: Healpix;
+	_fh_common!: FITSHeader;
 	_ctype1: string; // TODO should be RA ENUM
 	_ctype2: string; // TODO should be Dec ENUM
 	_wcsname: string;
-	_hipsBaseURI: string;
-	_pxsize: number;
+	_hipsBaseURI!: string;
+	_pxsize!: number;
 	_fitsheaderlist: FITSHeader[];
 	_pxvalues: Map<number, Array<Uint8Array>>;
-	_xyGridProj: HEALPixXYSpace;
-	_norder: number;
-	_nside: number;
+	_xyGridProj!: HEALPixXYSpace;
+	_norder!: number;
+	_nside!: number;
 	_radeclist: Array<[number, number]>;
 
 	/**
@@ -137,7 +137,7 @@ export class HiPSProjection implements AbstractProjection {
 
 	// }
 
-	async initFromFile(fitsfilepath: string): Promise<FITSParsed> {
+	async initFromFile(fitsfilepath: string): Promise<FITSParsed | undefined> {
 		let fp = new FITSParser(fitsfilepath);
 		try {
 			const fits = await fp.loadFITS();
@@ -270,8 +270,9 @@ export class HiPSProjection implements AbstractProjection {
 
 	}
 
-	async getFITSFiles(inputPixelsList: ImagePixel[], destPath: string) {
+	async getFITSFiles(inputPixelsList: ImagePixel[], destPath: string): Promise<Map<string, FITSParsed>> {
 
+		const fitsFilesGenerated = new Map<string, FITSParsed>();
 		let promises = [];
 		let tilesset = new Set<number>();
 		inputPixelsList.forEach((imgpx) => {
@@ -283,17 +284,21 @@ export class HiPSProjection implements AbstractProjection {
 			let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + tileno + ".fits";
 			let fp = new FITSParser(fitsurl);
 
+			
 			promises.push(fp.loadFITS().then((fits) => {
 				if (fits !== null) {
 					let pixno = fits.header.get("NPIX");
-					FITSParser.writeFITS(fits.header, fits.data, destPath+"/Npix"+pixno+".fits");
+					// FITSParser.writeFITS(fits.header, fits.data, destPath+"/Npix"+pixno+".fits");
+					// fitsFilesGenerated.set(destPath+"/Npix"+pixno+".fits",FITSParser.generateFITS(fits.header, fits.data) );
+					fitsFilesGenerated.set(destPath+"/Npix"+pixno+".fits", fits );
 				}
 			}));
 		}
 		await Promise.all(promises);
+		return fitsFilesGenerated;
 	}
 
-	async getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array> {
+	async getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined> {
 
 		let tilesset = new Set<number>();
 		inputPixelsList.forEach((imgpx) => {
@@ -302,9 +307,9 @@ export class HiPSProjection implements AbstractProjection {
 
 		let pixcount = inputPixelsList.length;
 		// var values = new Array(pixcount);
-		var values = undefined;
-		var fitsheaderlist = [];
-		var promises = [];
+		let values: Uint8Array | undefined = undefined;
+		let fitsheaderlist: (FITSHeader | undefined)[] = [];
+		let promises = [];
 
 		for (let hipstileno of tilesset) {
 
@@ -350,7 +355,10 @@ export class HiPSProjection implements AbstractProjection {
 			}));
 		}
 		await Promise.all(promises);
-		this.prepareCommonHeader(fitsheaderlist);
+		if (fitsheaderlist !== undefined) {
+			this.prepareCommonHeader(fitsheaderlist);
+		}
+		
 		return values;
 	}
 
@@ -361,8 +369,10 @@ export class HiPSProjection implements AbstractProjection {
 		this._pxsize = ps;
 	}
 
-	prepareCommonHeader(fitsheaderlist: FITSHeader[]): void {
-		// console.log(fitsheaderlist);
+	prepareCommonHeader(fitsheaderlist: (FITSHeader | undefined)[]): void {
+		if (fitsheaderlist === undefined) {
+			return;
+		}
 		if (!this._fh_common) {
 			this._fh_common = new FITSHeader();
 		}
@@ -374,7 +384,7 @@ export class HiPSProjection implements AbstractProjection {
 				for (let item of header.getItemList()) {
 					if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(item.key)) {
 						if (!this._fh_common.getItemListOf(item.key)[0]) {
-							this._fh_common.addItem(new FITSHeaderItem(item.key, item.value, null));
+							this._fh_common.addItem(new FITSHeaderItem(item.key, item.value));
 						} else if (this._fh_common.getItemListOf(item.key)[0].value !== item.value) { // this should not happen 
 							throw new Error("Error parsing headers. " + item.key + " was " + this._fh_common.getItemListOf(item.key)[0] + " and now is " + item.value);
 						}
@@ -405,16 +415,29 @@ export class HiPSProjection implements AbstractProjection {
 		let bscale = (fitsHeaderParams.get("BSCALE") !== undefined) ? fitsHeaderParams.get("BSCALE") : 1.0;
 		let bzero = (fitsHeaderParams.get("BZERO") !== undefined) ? fitsHeaderParams.get("BZERO") : 0.0;
 
-		let minmaxmap = {};
+		if (bytesXelem === undefined || bscale === undefined || bzero === undefined) {
+			throw new Error("BITPIX, BSCALE or BZERO are undefined");
+		}
+
+
+		// let minmaxmap = new Array();
+		let minmaxmap = new Map();
 		let nodata = new Map();
 
-		// this._pxvalues = [];
+		
+
 		this._tileslist.forEach((tileno: number) => {
 			this._pxvalues.set(tileno, new Array(HiPSHelper.DEFAULT_Naxis1_2));  // <- bidimensional
 			for (let row = 0; row < HiPSHelper.DEFAULT_Naxis1_2; row++) {
-				this._pxvalues.get(tileno)[row] = new Uint8Array(HiPSHelper.DEFAULT_Naxis1_2 * bytesXelem);
+				if (this._pxvalues.has(tileno)){
+					let p = this._pxvalues.get(tileno);
+					if (p !== undefined) {
+						p[row] = new Uint8Array(HiPSHelper.DEFAULT_Naxis1_2 * bytesXelem);
+					}
+				}
 			}
-			minmaxmap["" + tileno + ""] = new Array(2);
+			
+			minmaxmap.set("" + tileno + "", new Array(2));
 			nodata.set("" + tileno + "", true);
 		});
 		let ra: number;
@@ -427,7 +450,7 @@ export class HiPSProjection implements AbstractProjection {
 			let ac = fillAstro(ra, dec, NumberType.DEGREES);
 			let sc = astroToSpherical(ac);
 			let ptg = new Pointing(null, false, sc.thetaRad, sc.phiRad);
-			let pixtileno = this._hp.ang2pix(ptg);
+			let pixtileno:number = this._hp.ang2pix(ptg);
 
 			let xyGridProj = HiPSHelper.setupByTile(pixtileno, this._hp);
 			// let rarad = degToRad(ra);
@@ -440,7 +463,13 @@ export class HiPSProjection implements AbstractProjection {
 
 			for (let b = 0; b < bytesXelem; b++) {
 				let byte = values[rdidx * bytesXelem + b];
-				this._pxvalues.get(pixtileno)[row][col * bytesXelem + b] = byte	// <- bidimensional
+				// this._pxvalues.get(pixtileno)[row][col * bytesXelem + b] = byte	// <- bidimensional
+				if (this._pxvalues.has(pixtileno)){
+					let p = this._pxvalues.get(pixtileno);
+					if (p !== undefined) {
+						p[row][col * bytesXelem + b] = byte	// <- bidimensional
+					}
+				}
 				if (nodata.get("" + pixtileno + "")) {
 					if (byte != 0) {
 						nodata.set("" + pixtileno + "", false);
@@ -449,16 +478,34 @@ export class HiPSProjection implements AbstractProjection {
 
 			}
 
-			let min = minmaxmap["" + pixtileno + ""][0];
-			let max = minmaxmap["" + pixtileno + ""][1];
+			let min = minmaxmap.get("" + pixtileno + "")[0];
+			let max = minmaxmap.get("" + pixtileno + "")[1];
 
-			let valpixb = ParseUtils.extractPixelValue(0, this._pxvalues.get(pixtileno)[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), fitsHeaderParams.get("BITPIX"));
-			let valphysical = bzero + bscale * valpixb;
-			if (valphysical < min || isNaN(min)) {
-				minmaxmap["" + pixtileno + ""][0] = valphysical;
-			} else if (valphysical > max || isNaN(max)) {
-				minmaxmap["" + pixtileno + ""][1] = valphysical;
+			if (this._pxvalues.has(pixtileno)){
+				let p = this._pxvalues.get(pixtileno);
+				if (p !== undefined) {
+					let valpixb = ParseUtils.extractPixelValue(0, p[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), fitsHeaderParams.get("BITPIX"));
+					let valphysical = bzero + bscale * valpixb;
+					if (valphysical < min || isNaN(min)) {
+						minmaxmap.get("" + pixtileno + "")[0] = valphysical;
+						// minmaxmap["" + pixtileno + ""][0] = valphysical;
+					} else if (valphysical > max || isNaN(max)) {
+						minmaxmap.get("" + pixtileno + "")[1] = valphysical;
+						// minmaxmap["" + pixtileno + ""][1] = valphysical;
+					}
+				}
 			}
+
+
+			// let valpixb = ParseUtils.extractPixelValue(0, this._pxvalues.get(pixtileno)[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), fitsHeaderParams.get("BITPIX"));
+			// let valphysical = bzero + bscale * valpixb;
+			// if (valphysical < min || isNaN(min)) {
+			// 	minmaxmap.get("" + pixtileno + "")[0] = valphysical;
+			// 	// minmaxmap["" + pixtileno + ""][0] = valphysical;
+			// } else if (valphysical > max || isNaN(max)) {
+			// 	minmaxmap.get("" + pixtileno + "")[1] = valphysical;
+			// 	// minmaxmap["" + pixtileno + ""][1] = valphysical;
+			// }
 
 		}
 
@@ -472,8 +519,10 @@ export class HiPSProjection implements AbstractProjection {
 				let header = new FITSHeader();
 				header.set("NPIX", tileno);
 				// TODO CONVERT minval and maxval to physical values!
-				header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap["" + tileno + ""][0]));
-				header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap["" + tileno + ""][1]));
+				// header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap["" + tileno + ""][0]));
+				// header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap["" + tileno + ""][1]));
+				header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap.get("" + tileno + "")[0]));
+				header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap.get("" + tileno + "")[1]));
 				header.addItem(new FITSHeaderItem("NPIX", tileno));
 
 				let vec3 = this._hp.pix2vec(tileno);
@@ -653,7 +702,7 @@ export class HiPSProjection implements AbstractProjection {
 		// let imgpxlist = new ImagePixel[radeclist.length];
 		let imgpxlist: ImagePixel[] = [];
 		let tileno: number;
-		let prevTileno = undefined;
+		let prevTileno: number | undefined = undefined;
 		// let k = 0;
 		radeclist.forEach(([ra, dec]) => {
 

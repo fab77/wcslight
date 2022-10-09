@@ -1,4 +1,4 @@
-import { AstroCoords } from "./AstroCoords";
+import { AstroCoords } from "./AstroCoords.js";
 
 export interface GalacticCoords extends AstroCoords{
     raDeg: number;

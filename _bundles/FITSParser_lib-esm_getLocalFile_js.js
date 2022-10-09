@@ -1,0 +1,51 @@
+(self["webpackChunkwcslight"] = self["webpackChunkwcslight"] || []).push([["FITSParser_lib-esm_getLocalFile_js"],{
+
+/***/ "../FITSParser/lib-esm/getLocalFile.js":
+/*!*********************************************!*\
+  !*** ../FITSParser/lib-esm/getLocalFile.js ***!
+  \*********************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "getLocalFile": () => (/* binding */ getLocalFile)
+/* harmony export */ });
+/* harmony import */ var node_fs_promises__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node:fs/promises */ "node:fs/promises");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+// import path from 'path';
+// import {fileURLToPath} from 'url';
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+function getLocalFile(path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let buffer;
+        buffer = yield (0,node_fs_promises__WEBPACK_IMPORTED_MODULE_0__.readFile)(path);
+        return buffer;
+    });
+}
+//# sourceMappingURL=getLocalFile.js.map
+
+/***/ }),
+
+/***/ "node:fs/promises":
+/*!************************!*\
+  !*** node:fs/promises ***!
+  \************************/
+/***/ (() => {
+
+throw new Error("Module build failed: UnhandledSchemeError: Reading from \"node:fs/promises\" is not handled by plugins (Unhandled scheme).\nWebpack supports \"data:\" and \"file:\" URIs by default.\nYou may need an additional plugin to handle \"node:\" URIs.\n    at /Users/fgiordano/Desktop/dottorato/wcslight/node_modules/webpack/lib/NormalModule.js:832:25\n    at Hook.eval [as callAsync] (eval at create (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:6:1)\n    at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/tapable/lib/Hook.js:18:14)\n    at Object.processResource (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/webpack/lib/NormalModule.js:829:8)\n    at processResource (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/loader-runner/lib/LoaderRunner.js:220:11)\n    at iteratePitchingLoaders (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/loader-runner/lib/LoaderRunner.js:171:10)\n    at runLoaders (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/loader-runner/lib/LoaderRunner.js:398:2)\n    at NormalModule._doBuild (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/webpack/lib/NormalModule.js:819:3)\n    at NormalModule.build (/Users/fgiordano/Desktop/dottorato/wcslight/node_modules/webpack/lib/NormalModule.js:963:15)\n    at /Users/fgiordano/Desktop/dottorato/wcslight/node_modules/webpack/lib/Compilation.js:1371:12");
+
+/***/ })
+
+}]);
+//# sourceMappingURL=FITSParser_lib-esm_getLocalFile_js.js.map

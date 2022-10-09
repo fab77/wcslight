@@ -1,4 +1,4 @@
-import { ICoordsFormat } from "./ICoordsFormat";
+import { ICoordsFormat } from "./ICoordsFormat.js";
 
 export interface AstroCoords extends ICoordsFormat{
     raDeg: number;

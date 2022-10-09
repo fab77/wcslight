@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Summary. (bla bla bla)
  *
@@ -7,27 +6,26 @@
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
- 
- import {MercatorProjection} from './projections/MercatorProjection';
- import {HiPSProjection} from './projections/HiPSProjection';
-import {Point} from './model/Point';
-import {AbstractProjection} from './projections/AbstractProjection';
-import { CutoutResult } from './model/CutoutResult';
 
-import { FITSParser } from '../../FITSParser/src/FITSParser-node';
+import { FITSParser } from 'jsfitsio';
+import { MercatorProjection } from './projections/MercatorProjection.js';
+import { HiPSProjection } from './projections/HiPSProjection.js';
+import { Point } from './model/Point.js';
+import { AbstractProjection } from './projections/AbstractProjection.js';
+import { CutoutResult } from './model/CutoutResult.js';
 
-import { HEALPixProjection } from './projections/HEALPixProjection';
-import {GnomonicProjection} from './projections/GnomonicProjection';
+import { HEALPixProjection } from './projections/HEALPixProjection.js';
+import { GnomonicProjection } from './projections/GnomonicProjection.js';
 
 export class WCSLight {
 
     /** @constructs WCSLight */
-    constructor () {}
+    constructor() { }
 
-    static async cutout (center: Point, radius: number, 
+    static async cutout(center: Point, radius: number,
         pxsize: number, inproj: AbstractProjection, outproj: AbstractProjection): Promise<CutoutResult> {
-        
-        const outRADecList:Array<Array<number>> = outproj.getImageRADecList(center, radius, pxsize);
+
+        const outRADecList: Array<Array<number>> = outproj.getImageRADecList(center, radius, pxsize);
         if (outRADecList.length == 0) {
             const res: CutoutResult = {
                 fitsheader: null,
@@ -39,23 +37,34 @@ export class WCSLight {
         }
         const inputPixelsList = inproj.world2pix(outRADecList);
         try {
-            
+
             const invalues = await inproj.getPixValues(inputPixelsList);
             const fitsHeaderParams = inproj.getCommonFitsHeaderParams();
-            const fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
-            const fitsheader = outproj.getFITSHeader();
-            // let canvas2d = outproj.getCanvas2d();
-            const res: CutoutResult = {
-                fitsheader: fitsheader,
-                fitsdata: fitsdata,
-                inproj: inproj,
-                outproj: outproj
-            };
-            return res;
+            if (invalues !== undefined) {
+                const fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
+                const fitsheader = outproj.getFITSHeader();
+                // let canvas2d = outproj.getCanvas2d();
+                const res: CutoutResult = {
+                    fitsheader: fitsheader,
+                    fitsdata: fitsdata,
+                    inproj: inproj,
+                    outproj: outproj
+                };
+                return res;
+            } else {
+                const res: CutoutResult = {
+                    fitsheader: null,
+                    fitsdata: null,
+                    inproj: inproj,
+                    outproj: outproj
+                };
+                return res;
+            }
+
         } catch (err) {
             console.error("[WCSLight] ERROR: " + err);
         }
-        
+
     }
 
     /**
@@ -64,16 +73,15 @@ export class WCSLight {
      * @param {*} fitsdata 
      * @returns {URL}
      */
-    static writeFITS(fitsheader: any, fitsdata: any, fileuri): void {
-        FITSParser.writeFITS(fitsheader, fitsdata, fileuri);
-        // let encodedData = FITSParser.writeFITS(fitsheader, fitsdata, fileuri);
-        // return encodedData;
+    static generateFITS(fitsheader: any, fitsdata: any): string {
+        const blobUrl = FITSParser.generateFITS(fitsheader, fitsdata);
+        return blobUrl;
     }
 
-    
 
 
-    static changeProjection (filepath, outprojname) {
+
+    static changeProjection(filepath, outprojname) {
         // TODO
     }
 
@@ -81,12 +89,12 @@ export class WCSLight {
     static getProjection(projectionName: string) {
         if (projectionName === "Mercator") {
             return new MercatorProjection();
-        } else  if (projectionName === "HiPS") {
-            return new  HiPSProjection();
-        } else  if (projectionName === "HEALPix") {
-            return new  HEALPixProjection();
-        } else  if (projectionName === "Gnomonic") {
-            return new  GnomonicProjection();
+        } else if (projectionName === "HiPS") {
+            return new HiPSProjection();
+        } else if (projectionName === "HEALPix") {
+            return new HEALPixProjection();
+        } else if (projectionName === "Gnomonic") {
+            return new GnomonicProjection();
         } else {
             return null;
             // throw new ProjectionNotFound(projectionName);
@@ -99,4 +107,3 @@ export class WCSLight {
 
 }
 
-export default WCSLight;

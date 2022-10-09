@@ -1,30 +1,15 @@
 {
     "name": "wcslight",
     "description": "WCS Javascript library.",
-    "sideEffects": false,
     "version": "1.0.0",
-    "private": true,
     "keywords": [
-        "WCS"
+        "WCS",
+        "WCS light",
+        "lightweight WCS for browser"
     ],
     "author": "Fabrizio Giordano (fab77)",
-    "license": "GNU Affero General Public License v3.0",
+    "license": "MIT",
     "homepage": "https://github.com/fab77/wcslight#readme",
-    "scripts": {
-        "expose": "node unwrap.js",
-        "expose:cmd": "mv -v dist/* ./",
-        "start:dev": "webpack --mode=development --watch --progress",
-        "build:prod": "webpack --mode=production",
-        "prepublishOnly": "webpack --mode=production && npm run expose:cmd",
-        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-        "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-        "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-        "test": "jest --runInBand",
-        "test:unit": "jest .*/.*.unit.spec.ts --runInBand",
-        "test:integration": "jest .*/.*.integration.spec.ts --runInBand",
-        "test:watch": "jest --watch",
-        "test:cov": "jest --coverage"
-    },
     "repository": {
         "type": "git",
         "url": "https://github.com/fab77/wcslight.git"
@@ -33,29 +18,37 @@
         "url": "https://github.com/fab77/wcslight/issues",
         "email": "fabriziogiordano77@gmail.com"
     },
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./lib-esm/index.d.ts",
+            "import": "./lib-esm/index.js",
+            "require": "./_bundles/wcslight.js"
+        }
+    },
+    "scripts": {
+        "clean": "shx rm -rf _bundles lib-esm",
+        "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
+        "build:prod": "npm run clean && tsc && webpack --mode=production",
+        "webtest": "cp _bundles/* webtest/; node server.cjs",
+        "test:esm": "tsc -m es6 test.ts; node test.js"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
     "devDependencies": {
-        "@types/jest": "^29.0.0",
-        "@types/webpack": "^5.28.0",
-        "@typescript-eslint/eslint-plugin": "^5.36.1",
-        "@typescript-eslint/parser": "^5.36.1",
-        "clean-webpack-plugin": "^4.0.0",
-        "eslint": "^8.23.0",
-        "eslint-config-prettier": "^8.5.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "fs": "^0.0.1-security",
-        "jest": "^28.1.3",
-        "path": "^0.12.7",
-        "prettier": "^2.7.1",
-        "ts-jest": "^28.0.8",
-        "ts-loader": "^9.3.1",
-        "typescript": "^4.8.2",
+        "@tsconfig/node16": "^1.0.3",
+        "@types/node": "^18.7.23",
+        "node-static": "^0.7.11",
+        "shx": "^0.3.4",
+        "ts-loader": "^9.4.0",
+        "typescript": "^4.8.3",
         "webpack": "^5.74.0",
-        "webpack-cli": "^4.10.0",
-        "webpack-node-externals": "^3.0.0",
-        "wepack-cli": "^0.0.1-security"
+        "webpack-cli": "^4.10.0"
     },
     "dependencies": {
-        "fitsparser": "file:../FITSParser/src",
-        "healpixjs": "file:../healpixjs/src"
+        "fs": "^0.0.1-security",
+        "healpixjs": "^1.0.0",
+        "jsfitsio": "file:../FITSParser"
     }
 }

@@ -1,4 +1,3 @@
-import { ICoordsFormat } from "./ICoordsFormat";
 
 export interface HEALPixXYSpace{
     "min_y": number,

@@ -3,12 +3,12 @@
  */
 // import vec3 from 'gl-matrix';
 
-import { AstroCoords } from "./AstroCoords";
-import { CartesianCoords } from "./CartesianCoords";
-import { HMSCoords } from "./HMSCoords";
-import { NumberType } from "./NumberType";
-import { SexagesimalCoords } from "./SexagesimalCoords";
-import { SphericalCoords } from "./SphericalCoords";
+import { AstroCoords } from "./AstroCoords.js";
+import { CartesianCoords } from "./CartesianCoords.js";
+import { HMSCoords } from "./HMSCoords.js";
+import { NumberType } from "./NumberType.js";
+import { SexagesimalCoords } from "./SexagesimalCoords.js";
+import { SphericalCoords } from "./SphericalCoords.js";
 
 function Utils(){
 	

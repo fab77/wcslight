@@ -7,14 +7,14 @@
 // import { FITSParsed } from 'fitsparser/model/FITSParsed';
 
 
-import { FITSParser } from '../../../FITSParser/src/FITSParser-node';
-import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
-import { FITSHeaderItem } from '../../../FITSParser/src/model/FITSHeaderItem';
-import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
+import { FITSParser } from 'jsfitsio';
+import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderItem } from 'jsfitsio';
+import { FITSParsed } from 'jsfitsio';
 
-import { ImagePixel } from 'src/model/ImagePixel';
-import { AbstractProjection } from './AbstractProjection';
-import {Point} from 'src/model/Point';
+import { ImagePixel } from '../model/ImagePixel.js';
+import { AbstractProjection } from './AbstractProjection.js';
+import {Point} from '../model/Point.js';
 
 export class TestProj implements AbstractProjection{
     
@@ -71,7 +71,7 @@ export class TestProj implements AbstractProjection{
     public setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Uint8Array[]> {
         throw new Error('Method not implemented.');
     }
-    public getImageRADecList(center: Point, radius: number, pxsize: number): number[][] {
+    public getImageRADecList(center: Point, radius: number, pxsize: number):  Array<[number, number]> {
         throw new Error('Method not implemented.');
     }
     public pix2world(i: number, j: number): Point {

@@ -1,5 +1,5 @@
-import { FITSHeader } from "../../../FITSParser/src/model/FITSHeader";
-import {AbstractProjection} from "src/projections/AbstractProjection";
+import { FITSHeader } from "jsfitsio";
+import {AbstractProjection} from "../projections/AbstractProjection.js";
 
 export interface CutoutResult{
     

@@ -2,14 +2,14 @@
  * @author Fabrizio Giordano (Fab77)
  */
 
-import {sphericalToCartesian, cartesianToSpherical, sphericalToAstro, astroToSpherical, fillSpherical, fillAstro} from './Utils';
-import { CartesianCoords } from './CartesianCoords';
-import { AstroCoords} from './AstroCoords';
-import { CoordsType } from './CoordsType';
+import {sphericalToCartesian, cartesianToSpherical, sphericalToAstro, astroToSpherical, fillSpherical, fillAstro} from './Utils.js';
+import { CartesianCoords } from './CartesianCoords.js';
+import { AstroCoords} from './AstroCoords.js';
+import { CoordsType } from './CoordsType.js';
 import { SphericalCoords } from './SphericalCoords.js';
-import { NumberType } from './NumberType';
-import { EquatorialCoords } from './EquatorialCoords';
-import { GalacticCoords } from './GalacticCoords';
+import { NumberType } from './NumberType.js';
+import { EquatorialCoords } from './EquatorialCoords.js';
+import { GalacticCoords } from './GalacticCoords.js';
 
 export class Point{
 

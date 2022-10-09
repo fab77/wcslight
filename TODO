@@ -1,0 +1,2 @@
+# 1. Handle Galactic HiPS format in case of HiPS. If Galactic defiend in properties => use Galactic coords as input for healpixjs (see USE CASE 2_1 where as input I use an AKARI HiPS in Galactic)
+# 2. HiPSHelper assume that tiles are 512x512 but this is not always true. E.g. AKARI N60 HiPS tiles are 32x32 => make HiPSHelper.pxXtile parametric

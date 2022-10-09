@@ -9,18 +9,18 @@
  */
 
 
-import {Healpix} from "../../../healpixjs/src/Healpix";
-import {Pointing } from "../../../healpixjs/src/Pointing";
-import {Hploc } from "../../../healpixjs/src/Hploc";
+import {Healpix} from 'healpixjs';
+import {Pointing } from "healpixjs";
+import { Hploc } from "healpixjs";
 
-import {radToDeg} from '../model/Utils'; // TODO change package
-import { CoordsType } from "../model/CoordsType";
-import { HEALPixXYSpace } from "../model/HEALPixXYSpace";
-import {Point} from "../model/Point";
-import { SphericalCoords } from "../model/SphericalCoords";
-import { NumberType } from '../model/NumberType';
-import { AstroCoords } from "src/model/AstroCoords";
-import { EquatorialCoords } from "src/model/EquatorialCoords";
+import {radToDeg} from '../model/Utils.js'; // TODO change package
+import { CoordsType } from "../model/CoordsType.js";
+import { HEALPixXYSpace } from "../model/HEALPixXYSpace.js";
+import {Point} from "../model/Point.js";
+import { SphericalCoords } from "../model/SphericalCoords.js";
+import { NumberType } from '../model/NumberType.js';
+import { AstroCoords } from "../model/AstroCoords.js";
+import { EquatorialCoords } from "../model/EquatorialCoords.js";
 
 export class HiPSHelper {
 

@@ -9,14 +9,14 @@
  */
 
 
-import { AbstractProjection } from './AbstractProjection';
-import { ImagePixel } from '../model/ImagePixel';
-import { FITSParser } from '../../../FITSParser/src/FITSParser-node';
-import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
-import { FITSHeaderItem } from '../../../FITSParser/src/model/FITSHeaderItem';
-import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
-import { ParseUtils } from '../../../FITSParser/src/ParseUtils';
-import {Point} from '../model/Point';
+import { AbstractProjection } from './AbstractProjection.js';
+import { ImagePixel } from '../model/ImagePixel.js';
+import { FITSParser } from 'jsfitsio';
+import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderItem } from 'jsfitsio';
+import { FITSParsed } from 'jsfitsio';
+import { ParseUtils } from 'jsfitsio';
+import {Point} from '../model/Point.js';
 
 
 export class GnomonicProjection extends AbstractProjection {

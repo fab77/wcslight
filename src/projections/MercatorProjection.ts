@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Summary. (bla bla bla)
  *
@@ -8,45 +7,40 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-import { FITSParser } from '../../../FITSParser/src/FITSParser-node';
-import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
-import { FITSHeaderItem } from '../../../FITSParser/src/model/FITSHeaderItem';
-import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
-import { ParseUtils } from '../../../FITSParser/src/ParseUtils';
+ 
+
+import { FITSParser } from 'jsfitsio';
+import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderItem } from 'jsfitsio';
+import { FITSParsed } from 'jsfitsio';
+import { ParseUtils } from 'jsfitsio';
 
 
-// import { FITSParsed } from 'fitsparser/model/FITSParsed';
-// import { FITSHeader } from 'fitsparser/model/FITSHeader';
-// import { FITSHeaderItem } from 'fitsparser/model/FITSHeaderItem';
-// import { FITSParser } from 'fitsparser/FITSParser-node';
-// import { ParseUtils } from 'fitsparser/ParseUtils';
-
-
-import { AbstractProjection } from './AbstractProjection';
-import { ImagePixel } from '../model/ImagePixel';
-import { Point } from '../model/Point';
-import { CoordsType } from '../model/CoordsType';
-import { NumberType } from '../model/NumberType';
+import { AbstractProjection } from './AbstractProjection.js';
+import { ImagePixel } from '../model/ImagePixel.js';
+import { Point } from '../model/Point.js';
+import { CoordsType } from '../model/CoordsType.js';
+import { NumberType } from '../model/NumberType.js';
 
 
 export class MercatorProjection implements AbstractProjection {
 
-    _minra: number;
-    _mindec: number;
-    _naxis1: number;
-    _naxis2: number;
-    _pxsize: number;
+    _minra!: number;
+    _mindec!: number;
+    _naxis1!: number;
+    _naxis2!: number;
+    _pxsize!: number;
     _fitsheader: FITSHeader[];
-    _infile: string;
+    _infile!: string;
     _ctype1: string; // TODO should be RA ENUM
     _ctype2: string; // TODO should be Dec ENUM
-    _craDeg: number;
-    _cdecDeg: number;
-    _pxsize1: number;
-    _pxsize2: number;
+    _craDeg!: number;
+    _cdecDeg!: number;
+    _pxsize1!: number;
+    _pxsize2!: number;
     _pxvalues: Map<number, Array<Uint8Array>>;
-    _minphysicalval: number;
-    _maxphysicalval: number;
+    _minphysicalval!: number;
+    _maxphysicalval!: number;
     _wcsname: string;
     constructor() {
 
@@ -69,14 +63,14 @@ export class MercatorProjection implements AbstractProjection {
             this._fitsheader[0] = fits.header;
             this._naxis1 = fits.header.get("NAXIS1");
             this._naxis2 = fits.header.get("NAXIS2");
-            this._craDeg = fits.header.getItemListOf("CRVAL1")[0].value;
-            this._cdecDeg = fits.header.getItemListOf("CRVAL2")[0].value;
+            this._craDeg = fits.header.getItemListOf("CRVAL1")[0].value as number;
+            this._cdecDeg = fits.header.getItemListOf("CRVAL2")[0].value as number;
 
             // TODO CDELT could not be present. In this is the case, 
             // there should be CDi_ja, but I am not handling them atm
             // [Ref. Representation of celestial coordinates in FITS - equation (1)]
-            this._pxsize1 = this._fitsheader[0].getItemListOf("CDELT1")[0].value;
-            this._pxsize2 = this._fitsheader[0].getItemListOf("CDELT2")[0].value;
+            this._pxsize1 = this._fitsheader[0].getItemListOf("CDELT1")[0].value as number;
+            this._pxsize2 = this._fitsheader[0].getItemListOf("CDELT2")[0].value as number;
 
             this._minra = this._craDeg - this._pxsize1 * this._naxis1 / 2;
             if (this._minra < 0) {
@@ -207,8 +201,13 @@ export class MercatorProjection implements AbstractProjection {
                             values[p * bytesXelem + b] = blankBytes[b];
                         }
                     } else {
-                        for (let b = 0; b < bytesXelem; b++) {
-                            values[p * bytesXelem + b] = (this._pxvalues.get(0))[imgpx._j][(imgpx._i) * bytesXelem + b];
+                        let pv = this._pxvalues.get(0);
+                        if (pv !== undefined) {
+
+                            for (let b = 0; b < bytesXelem; b++) {
+
+                                values[p * bytesXelem + b] = pv[imgpx._j][(imgpx._i) * bytesXelem + b];
+                            }
                         }
 
                     }
@@ -250,43 +249,46 @@ export class MercatorProjection implements AbstractProjection {
         //     this._pxvalues[r] = new Uint8Array(this._naxis1 * bytesXelem);
         // }
         // this._pxvalues.set(0, new Uint8Array[this._naxis2][this._naxis1 * bytesXelem]);
-        
+
         this._pxvalues.set(0, new Array<Uint8Array>(this._naxis2));
-        for (let r = 0; r < this._naxis2; r++) {
-            this._pxvalues.get(0)[r] = new Uint8Array(this._naxis1 * bytesXelem);
-        }
-        
-        let r: number;
-        let c: number;
-        let b: number;
-        for (let p = 0; (p * bytesXelem) < values.length; p++) {
-            // console.log("processing "+p + " of "+ (values.length / bytesXelem));
-
-            try {
-                r = Math.floor(p / this._naxis1);
-                c = (p - r * this._naxis1) * bytesXelem;
-
-                for (b = 0; b < bytesXelem; b++) {
-                    this._pxvalues.get(0)[r][c + b] = values[p * bytesXelem + b];
-                }
-
-
-                let valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), fitsHeaderParams.get("BITPIX"));
-                let valphysical = bzero + bscale * valpixb;
-
-                if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
-                    this._minphysicalval = valphysical;
-                } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
-                    this._maxphysicalval = valphysical;
-                }
-            } catch (err) {
-                console.log(err)
-                console.log("p " + p)
-                console.log("r %, c %, b %" + r, c, b)
-                console.log("this._pxvalues[r][c + b] " + this._pxvalues.get(0)[r][c + b])
-                console.log("values[p * bytesXelem + b] " + values[p * bytesXelem + b])
+        let pv = this._pxvalues.get(0);
+        if (pv !== undefined) {
+            for (let r = 0; r < this._naxis2; r++) {
+                pv[r] = new Uint8Array(this._naxis1 * bytesXelem);
             }
 
+            let r!: number;
+            let c!: number;
+            let b!: number;
+            for (let p = 0; (p * bytesXelem) < values.length; p++) {
+                // console.log("processing "+p + " of "+ (values.length / bytesXelem));
+
+                try {
+                    r = Math.floor(p / this._naxis1);
+                    c = (p - r * this._naxis1) * bytesXelem;
+
+                    for (b = 0; b < bytesXelem; b++) {
+                        pv[r][c + b] = values[p * bytesXelem + b];
+                    }
+
+
+                    let valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), fitsHeaderParams.get("BITPIX"));
+                    let valphysical = bzero + bscale * valpixb;
+
+                    if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
+                        this._minphysicalval = valphysical;
+                    } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
+                        this._maxphysicalval = valphysical;
+                    }
+                } catch (err) {
+                    console.log(err)
+                    console.log("p " + p)
+                    console.log("r %, c %, b %" + r, c, b)
+                    console.log("this._pxvalues[r][c + b] " + pv[r][c + b])
+                    console.log("values[p * bytesXelem + b] " + values[p * bytesXelem + b])
+                }
+
+            }
         }
 
         this.prepareFITSHeader(fitsHeaderParams);

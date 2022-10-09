@@ -1,8 +1,8 @@
-import { FITSHeader } from '../../../FITSParser/src/model/FITSHeader';
-import { FITSParsed } from '../../../FITSParser/src/model/FITSParsed';
+import { FITSHeader } from 'jsfitsio';
+import { FITSParsed } from 'jsfitsio';
 // import { AstroCoords } from "src/model/AstroCoords";
-import { ImagePixel } from "../model/ImagePixel";
-import {Point} from "../model/Point";
+import { ImagePixel } from "../model/ImagePixel.js";
+import {Point} from "../model/Point.js";
 
 /**
  * Summary. (bla bla bla)
@@ -17,7 +17,7 @@ export abstract class AbstractProjection {
 
     // constructor() { }
 
-    public abstract initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed>;
+    public abstract initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed | undefined>;
 
     public abstract prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
 
@@ -27,7 +27,7 @@ export abstract class AbstractProjection {
 
     public abstract extractPhysicalValues(fits: FITSParsed): number[][];
 
-    public abstract getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array>;
+    public abstract getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined>;
 
     public abstract computeSquaredNaxes(d: number, ps: number): void;
 

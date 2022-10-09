@@ -43,7 +43,7 @@ import WCSLight from '../src/WCSLight.js';
 
 
 
-// TODO check window object which is different from Node and browser
+
 /** HiPS to MER */
 // let center = {"ra": 12.3503889, "dec": 50.7453515};
 // let radius = 0.1;
@@ -65,7 +65,7 @@ WCSLight.cutout(center, radius, pxsize, inproj, outproj).then( (result) => {
     let canvas2d = result.canvas2d;
     // canvas2d.process();
     // let img = canvas2d.getCanvas2DBrowse();
-    let encodedData = WCSLight.writeFITS(fitsheader, fitsdata);
+    let encodedData = WCSLight.writeFITS(fitsheader, fitsdata, './output/test.fits');
 
 }).catch(function(err){
     console.log("[index.js] "+err);
