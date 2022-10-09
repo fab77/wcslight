@@ -23,6 +23,7 @@ export declare class HiPSProjection implements AbstractProjection {
     _norder: number;
     _nside: number;
     _radeclist: Array<[number, number]>;
+    _HIPS_TILE_WIDTH: number;
     /**
      *
      * * ex with single local file:
@@ -43,7 +44,8 @@ export declare class HiPSProjection implements AbstractProjection {
      *
      */
     constructor();
-    initFromFile(fitsfilepath: string): Promise<FITSParsed | undefined>;
+    parsePropertiesFile(baseUrl: string): Promise<any>;
+    initFromFile(fitsfilepath: string): Promise<FITSParsed>;
     initFromHiPSLocationAndPxSize(baseUrl: string, pxsize: number): void;
     initFromHiPSLocationAndOrder(baseUrl: string, order: number): void;
     init(order: number): void;

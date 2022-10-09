@@ -16,13 +16,13 @@ export declare class MercatorProjection implements AbstractProjection {
     _mindec: number;
     _naxis1: number;
     _naxis2: number;
-    _pxsize: number;
     _fitsheader: FITSHeader[];
     _infile: string;
     _ctype1: string;
     _ctype2: string;
     _craDeg: number;
     _cdecDeg: number;
+    _pxsize: number;
     _pxsize1: number;
     _pxsize2: number;
     _pxvalues: Map<number, Array<Uint8Array>>;

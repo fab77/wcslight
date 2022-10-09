@@ -26,6 +26,12 @@
             "require": "./_bundles/wcslight.js"
         }
     },
+    "main": "./lib-esm/index.js",
+    "types": "./lib-esm/index.d.ts",
+    "files": [
+        "lib-esm/",
+        "_bundles"
+    ],
     "scripts": {
         "clean": "shx rm -rf _bundles lib-esm",
         "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
@@ -48,7 +54,14 @@
     },
     "dependencies": {
         "fs": "^0.0.1-security",
-        "healpixjs": "^1.0.0",
-        "jsfitsio": "file:../FITSParser"
+        "healpixjs": "^1.0.1",
+        "jsfitsio": "^1.1.6"
+    },
+    "browser": {
+        "fs": false,
+        "node:fs/promises": false,
+        "node:fs": false,
+        "fs/promises": false,
+        "process": false
     }
 }

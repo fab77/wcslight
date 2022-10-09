@@ -23,6 +23,7 @@ import { ImagePixel } from '../model/ImagePixel.js';
 import { Point } from '../model/Point.js';
 import { CoordsType } from '../model/CoordsType.js';
 import { NumberType } from '../model/NumberType.js';
+import { exit } from 'process';
 export class MercatorProjection {
     constructor() {
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
@@ -46,13 +47,22 @@ export class MercatorProjection {
                 // TODO CDELT could not be present. In this is the case, 
                 // there should be CDi_ja, but I am not handling them atm
                 // [Ref. Representation of celestial coordinates in FITS - equation (1)]
-                this._pxsize1 = this._fitsheader[0].getItemListOf("CDELT1")[0].value;
-                this._pxsize2 = this._fitsheader[0].getItemListOf("CDELT2")[0].value;
-                this._minra = this._craDeg - this._pxsize1 * this._naxis1 / 2;
+                // this._pxsize1 = this._fitsheader[0].getItemListOf("CDELT1")[0].value as number;
+                // this._pxsize2 = this._fitsheader[0].getItemListOf("CDELT2")[0].value as number;
+                const pxsize1 = this._fitsheader[0].getItemListOf("CDELT1")[0].value;
+                const pxsize2 = this._fitsheader[0].getItemListOf("CDELT2")[0].value;
+                if (pxsize1 !== pxsize2 || pxsize1 === undefined || pxsize2 === undefined) {
+                    throw new Error("pxsize1 is not equal to pxsize2");
+                    exit;
+                }
+                this._pxsize = pxsize1;
+                // this._minra = this._craDeg - this._pxsize1 * this._naxis1 / 2;
+                this._minra = this._craDeg - this._pxsize * this._naxis1 / 2;
                 if (this._minra < 0) {
                     this._minra += 360;
                 }
-                this._mindec = this._cdecDeg - this._pxsize2 * this._naxis2 / 2;
+                // this._mindec = this._cdecDeg - this._pxsize2 * this._naxis2 / 2;
+                this._mindec = this._cdecDeg - this._pxsize * this._naxis2 / 2;
                 return fits;
             });
             yield promise;
@@ -296,8 +306,10 @@ export class MercatorProjection {
         for (let radecItem of radeclist) {
             let ra = radecItem[0];
             let dec = radecItem[1];
-            let i = Math.floor((ra - this._minra) / this._pxsize1);
-            let j = Math.floor((dec - this._mindec) / this._pxsize2);
+            // let i = Math.floor((ra - this._minra) / this._pxsize1);
+            // let j = Math.floor((dec - this._mindec) / this._pxsize2);
+            let i = Math.floor((ra - this._minra) / this._pxsize);
+            let j = Math.floor((dec - this._mindec) / this._pxsize);
             imgpxlist.push(new ImagePixel(i, j));
         }
         return imgpxlist;

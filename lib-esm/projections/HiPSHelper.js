@@ -24,7 +24,7 @@ export class HiPSHelper {
      * @param {decimal degrees} pxsize
      * @returns {int} nside
      */
-    static computeHiPSOrder(pxsize) {
+    static computeHiPSOrder(pxsize, pxXtile) {
         /**
          * with same order k (table 1), HIPS angular resolution is higher of order of 512 (2^9) pixels than
          * the HEALPix. This is because each tile in a HiPS is represented by default by 512x512 pixels.\
@@ -47,7 +47,7 @@ export class HiPSHelper {
          * 	k = Log2 L(0) - Log2 (pxsize * 2^9)
          *
          */
-        let k = Math.log2(HiPSHelper.RES_ORDER_0 / pxsize);
+        let k = Math.log2((HiPSHelper.RES_ORDER_0 / pxXtile) / pxsize);
         k = Math.round(k);
         // let theta0px = HiPSHelper.RES_ORDER_0;
         // let k = Math.log2(theta0px) - Math.log2(pxsize * 2**9);
@@ -64,9 +64,10 @@ export class HiPSHelper {
      * pxsize =~ sqrt[4 * PI / (12 * (512 * 2^order)^2)]
      * @param {*} order
      */
-    static computePxSize(order) {
+    static computePxSize(order, pxXtile) {
         // TODO CHECK IT
-        let pxsize = 1 / (512 * Math.pow(2, order)) * Math.sqrt(Math.PI / 3);
+        // let pxsize = 1 / (512 * 2 ** order) * Math.sqrt(Math.PI / 3);
+        let pxsize = 1 / (pxXtile * Math.pow(2, order)) * Math.sqrt(Math.PI / 3);
         return pxsize;
     }
     // /**
@@ -219,7 +220,7 @@ export class HiPSHelper {
     // 	}
     // 	return [x_grid, y_grid];
     // }
-    static intermediate2pix(x, y, xyGridProj) {
+    static intermediate2pix(x, y, xyGridProj, pxXtile) {
         let xInterval = Math.abs(xyGridProj.max_x - xyGridProj.min_x);
         let yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y);
         let i_norm;
@@ -234,14 +235,17 @@ export class HiPSHelper {
         let i = 0.5 - (i_norm - j_norm);
         let j = (i_norm + j_norm) - 0.5;
         // TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
-        i = Math.floor(i * HiPSHelper.DEFAULT_Naxis1_2);
-        j = Math.floor(j * HiPSHelper.DEFAULT_Naxis1_2);
-        // return [i , j];
-        return [i, HiPSHelper.DEFAULT_Naxis1_2 - j - 1];
+        pxXtile;
+        // i = Math.floor(i * HiPSHelper.DEFAULT_Naxis1_2);
+        // j = Math.floor(j * HiPSHelper.DEFAULT_Naxis1_2);
+        // return [i, HiPSHelper.DEFAULT_Naxis1_2 - j - 1];
+        i = Math.floor(i * pxXtile);
+        j = Math.floor(j * pxXtile);
+        return [i, pxXtile - j - 1];
     }
     static pix2intermediate(i, j, xyGridProj, naxis1, naxis2) {
         /**
-         * (i_norm,w_pixel) = (0,0) correspond to the lower-left corner of the facet in the image
+           * (i_norm,w_pixel) = (0,0) correspond to the lower-left corner of the facet in the image
          * (i_norm,w_pixel) = (1,1) is the upper right corner
          * dimamond in figure 1 from "Mapping on the HEalpix grid" paper
          * (0,0) leftmost corner
@@ -250,8 +254,10 @@ export class HiPSHelper {
          * (1,1) rightmost corner
          * Thanks YAGO! :p
          */
-        let cnaxis1 = HiPSHelper.pxXtile;
-        let cnaxis2 = HiPSHelper.pxXtile;
+        // let cnaxis1 = HiPSHelper.pxXtile;
+        // let cnaxis2 = HiPSHelper.pxXtile;
+        let cnaxis1 = naxis1;
+        let cnaxis2 = naxis2;
         if (naxis1) {
             cnaxis1 = naxis1;
         }
@@ -297,9 +303,10 @@ export class HiPSHelper {
         return p;
     }
 }
-HiPSHelper.pxXtile = 512; // TODO in some cases it is different
+// static pxXtile: number = 512; // TODO in some cases it is different
 HiPSHelper.DEFAULT_Naxis1_2 = 512;
-HiPSHelper.RES_ORDER_0 = 58.6 / HiPSHelper.pxXtile;
+// static RES_ORDER_0: number = 58.6 / HiPSHelper.pxXtile;
+HiPSHelper.RES_ORDER_0 = 58.6;
 HiPSHelper.H = 4;
 HiPSHelper.K = 3;
 HiPSHelper.THETAX = Hploc.asin((HiPSHelper.K - 1) / HiPSHelper.K);

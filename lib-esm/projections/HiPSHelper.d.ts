@@ -11,7 +11,6 @@ import { HEALPixXYSpace } from "../model/HEALPixXYSpace.js";
 import { Point } from "../model/Point.js";
 import { AstroCoords } from "../model/AstroCoords.js";
 export declare class HiPSHelper {
-    static pxXtile: number;
     static DEFAULT_Naxis1_2: number;
     static RES_ORDER_0: number;
     static H: number;
@@ -28,13 +27,13 @@ export declare class HiPSHelper {
      * @param {decimal degrees} pxsize
      * @returns {int} nside
      */
-    static computeHiPSOrder(pxsize: number): number;
+    static computeHiPSOrder(pxsize: number, pxXtile: number): number;
     /**
      * Reference: HiPS – Hierarchical Progressive Survey page 11
      * pxsize =~ sqrt[4 * PI / (12 * (512 * 2^order)^2)]
      * @param {*} order
      */
-    static computePxSize(order: number): number;
+    static computePxSize(order: number, pxXtile: number): number;
     /**
      *
      * @param {Object {phi_rad, theta_rad}} phiTheta_rad Center of the circle in radians
@@ -44,7 +43,7 @@ export declare class HiPSHelper {
     static computeBbox(point: Point, r: number): number[];
     static setupByTile(tileno: number, hp: Healpix): HEALPixXYSpace;
     static world2intermediate(ac: AstroCoords): [number, number];
-    static intermediate2pix(x: number, y: number, xyGridProj: HEALPixXYSpace): [number, number];
+    static intermediate2pix(x: number, y: number, xyGridProj: HEALPixXYSpace, pxXtile: number): [number, number];
     static pix2intermediate(i: number, j: number, xyGridProj: HEALPixXYSpace, naxis1: number, naxis2: number): [number, number];
     static intermediate2world(x: number, y: number): Point;
 }
