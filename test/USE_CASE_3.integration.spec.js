@@ -148,24 +148,24 @@ function test04() {
 }
 
 
-// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-// console.log("Running test 1/4 of USE CASE 2")
-// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-// test01();
-// console.log("@")
-// console.log("@")
-// console.log("@")
-// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-// console.log("Running test 2/4 of USE CASE 2")
-// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-// test02();
-// console.log("@")
-// console.log("@")
-// console.log("@")
-// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-// console.log("Running test 3/4 of USE CASE 2")
-// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-// test03();
+console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+console.log("Running test 1/4 of USE CASE 2")
+console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+test01();
+console.log("@")
+console.log("@")
+console.log("@")
+console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+console.log("Running test 2/4 of USE CASE 2")
+console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+test02();
+console.log("@")
+console.log("@")
+console.log("@")
+console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+console.log("Running test 3/4 of USE CASE 2")
+console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+test03();
 console.log("@")
 console.log("@")
 console.log("@")

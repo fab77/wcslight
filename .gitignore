@@ -1,8 +1,7 @@
 node_modules
 package.json.20211025
-test/.DS_Store
 .DS_Store
 test/input/*
 test/output/*
 .history/*
-_srcold/*
+
