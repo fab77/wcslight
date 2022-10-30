@@ -145,20 +145,20 @@ export class HiPSProjection implements AbstractProjection {
 
 
 
-	initFromHiPSLocationAndPxSize(baseUrl: string, pxsize: number) {
+	async initFromHiPSLocationAndPxSize(baseUrl: string, pxsize: number) {
 		this._hipsBaseURI = baseUrl;
 		this._pxsize = pxsize;
 		if (this._HIPS_TILE_WIDTH === undefined) {
-			this.parsePropertiesFile(baseUrl);
+			await this.parsePropertiesFile(baseUrl);
 		}
 		let order = HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
 		this.init(order);
 	}
 
-	initFromHiPSLocationAndOrder(baseUrl: string, order: number) {
+	async initFromHiPSLocationAndOrder(baseUrl: string, order: number) {
 		this._hipsBaseURI = baseUrl;
 		if (this._HIPS_TILE_WIDTH === undefined) {
-			this.parsePropertiesFile(baseUrl);
+			await this.parsePropertiesFile(baseUrl);
 		}
 		this._pxsize = HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
 		this.init(order);

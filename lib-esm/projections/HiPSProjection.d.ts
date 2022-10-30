@@ -46,8 +46,8 @@ export declare class HiPSProjection implements AbstractProjection {
     constructor();
     parsePropertiesFile(baseUrl: string): Promise<any>;
     initFromFile(fitsfilepath: string): Promise<FITSParsed>;
-    initFromHiPSLocationAndPxSize(baseUrl: string, pxsize: number): void;
-    initFromHiPSLocationAndOrder(baseUrl: string, order: number): void;
+    initFromHiPSLocationAndPxSize(baseUrl: string, pxsize: number): Promise<void>;
+    initFromHiPSLocationAndOrder(baseUrl: string, order: number): Promise<void>;
     init(order: number): void;
     prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
     getFITSHeader(): FITSHeader[];

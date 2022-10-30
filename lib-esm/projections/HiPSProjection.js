@@ -107,21 +107,25 @@ export class HiPSProjection {
         });
     }
     initFromHiPSLocationAndPxSize(baseUrl, pxsize) {
-        this._hipsBaseURI = baseUrl;
-        this._pxsize = pxsize;
-        if (this._HIPS_TILE_WIDTH === undefined) {
-            this.parsePropertiesFile(baseUrl);
-        }
-        let order = HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
-        this.init(order);
+        return __awaiter(this, void 0, void 0, function* () {
+            this._hipsBaseURI = baseUrl;
+            this._pxsize = pxsize;
+            if (this._HIPS_TILE_WIDTH === undefined) {
+                yield this.parsePropertiesFile(baseUrl);
+            }
+            let order = HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
+            this.init(order);
+        });
     }
     initFromHiPSLocationAndOrder(baseUrl, order) {
-        this._hipsBaseURI = baseUrl;
-        if (this._HIPS_TILE_WIDTH === undefined) {
-            this.parsePropertiesFile(baseUrl);
-        }
-        this._pxsize = HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
-        this.init(order);
+        return __awaiter(this, void 0, void 0, function* () {
+            this._hipsBaseURI = baseUrl;
+            if (this._HIPS_TILE_WIDTH === undefined) {
+                yield this.parsePropertiesFile(baseUrl);
+            }
+            this._pxsize = HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
+            this.init(order);
+        });
     }
     init(order) {
         this._norder = order;

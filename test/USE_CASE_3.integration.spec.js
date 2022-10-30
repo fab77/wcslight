@@ -25,7 +25,7 @@ function test01() {
     let in_hp = new HiPSProjection();
     let in_pxsize = 0.001;
     let hipsBaseUrl = 'http://skies.esac.esa.int/Herschel/normalized/PACS_hips160/';
-    in_hp.parsePropertiesFile(hipsBaseUrl).then(propFile => {
+    in_hp.parsePropertiesFile(hipsBaseUrl).then(async propFile => {
         in_hp.initFromHiPSLocationAndPxSize(hipsBaseUrl, in_pxsize)
         let out_mp = new MercatorProjection();
         let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 248.3529, -36.6464);
@@ -59,7 +59,7 @@ function test02() {
     let in_hp = new HiPSProjection();
     let in_pxsize = 0.1;
     let inputHiPSDir = '/Users/fgiordano/Desktop/dottorato/hips/skies.esac.esa.int/AKARI/N60';
-    in_hp.parsePropertiesFile(inputHiPSDir).then(propFile => {
+    in_hp.parsePropertiesFile(inputHiPSDir).then(async propFile => {
         in_hp.initFromHiPSLocationAndPxSize(inputHiPSDir, in_pxsize)
         let out_mp = new MercatorProjection();
         let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 28.8999684, 3.5179829); // galactic 
@@ -91,7 +91,7 @@ function test03() {
     let in_hp = new HiPSProjection();
     let order = 6;
     let hipsBaseUrl = 'http://skies.esac.esa.int/Herschel/normalized/PACS_hips160/';
-    in_hp.parsePropertiesFile(hipsBaseUrl).then(propFile => {
+    in_hp.parsePropertiesFile(hipsBaseUrl).then(async propFile => {
         in_hp.initFromHiPSLocationAndOrder(hipsBaseUrl, order)
         let out_mp = new MercatorProjection();
         let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 248.3529, -36.6464);
@@ -122,7 +122,7 @@ function test04() {
     console.log("USE CASE 3.3: cutout with local HiPS from HiPS order")
     let in_hp = new HiPSProjection();
     let inputHiPSDir = '/Users/fgiordano/Desktop/dottorato/hips/skies.esac.esa.int/AKARI/N60';
-    in_hp.parsePropertiesFile(inputHiPSDir).then(propFile => {
+    in_hp.parsePropertiesFile(inputHiPSDir).then(async propFile => {
         console.log(propFile.toString('utf8'));
         let order = 7;
         in_hp.initFromHiPSLocationAndOrder(inputHiPSDir, order)
