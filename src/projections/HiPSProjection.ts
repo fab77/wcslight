@@ -111,6 +111,8 @@ export class HiPSProjection implements AbstractProjection {
 					this._naxis2 = this._HIPS_TILE_WIDTH;
 					console.log(`val is ${val}`)
 					break;
+				} else {
+					this._HIPS_TILE_WIDTH = 512;
 				}
 			}
 			return propFile;

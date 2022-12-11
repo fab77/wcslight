@@ -80,6 +80,9 @@ export class HiPSProjection {
                         console.log(`val is ${val}`);
                         break;
                     }
+                    else {
+                        this._HIPS_TILE_WIDTH = 512;
+                    }
                 }
                 return propFile;
             });

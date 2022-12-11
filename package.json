@@ -55,7 +55,7 @@
     "dependencies": {
         "fs": "^0.0.1-security",
         "healpixjs": "^1.0.1",
-        "jsfitsio": "^1.1.6"
+        "jsfitsio": "^1.1.8"
     },
     "browser": {
         "fs": false,

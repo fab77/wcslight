@@ -63,6 +63,7 @@ export class WCSLight {
             }
             catch (err) {
                 console.error("[WCSLight] ERROR: " + err);
+                return null;
             }
         });
     }
