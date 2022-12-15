@@ -7,5 +7,6 @@ export interface CutoutResult{
     fitsdata: Map<number, Uint8Array[]>; 
     inproj: AbstractProjection; 
     outproj: AbstractProjection;
+    fitsused: String[];
     
 }

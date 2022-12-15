@@ -36,6 +36,7 @@ export class MercatorProjection {
         return __awaiter(this, void 0, void 0, function* () {
             let fp = new FITSParser(infile);
             this._infile = infile;
+            this._fitsUsed.push(infile);
             let promise = fp.loadFITS().then(fits => {
                 // console.log(fits.header);
                 this._pxvalues.set(0, fits.data);
@@ -138,6 +139,9 @@ export class MercatorProjection {
             }
         }
         return header;
+    }
+    get fitsUsed() {
+        return this._fitsUsed;
     }
     getPixValues(inputPixelsList) {
         return __awaiter(this, void 0, void 0, function* () {

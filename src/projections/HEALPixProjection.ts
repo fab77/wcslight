@@ -7,6 +7,9 @@ import {AbstractProjection} from "./AbstractProjection.js";
 
 
 export class HEALPixProjection extends AbstractProjection {
+    public get fitsUsed(): String[] {
+        throw new Error('Method not implemented.');
+    }
     public initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed> {
         throw new Error('Method not implemented.');
     }

@@ -30,6 +30,9 @@ export class GnomonicProjection extends AbstractProjection {
             this._inflie = infile;
         }
     }
+    get fitsUsed() {
+        throw new Error('Method not implemented.');
+    }
     initFromFile(infile) {
         return __awaiter(this, void 0, void 0, function* () {
             let fp = new FITSParser(infile);

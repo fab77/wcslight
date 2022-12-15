@@ -53,6 +53,7 @@ export class HiPSProjection implements AbstractProjection {
 	_nside!: number;
 	_radeclist: Array<[number, number]>;
 	_HIPS_TILE_WIDTH: number;
+	_fitsUsed: String[] = [];
 
 	/**
 	 * 
@@ -274,6 +275,11 @@ export class HiPSProjection implements AbstractProjection {
 		return fitsFilesGenerated;
 	}
 
+
+	get fitsUsed(): String[]{
+		return this._fitsUsed;
+	}
+
 	async getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined> {
 
 		let tilesset = new Set<number>();
@@ -286,6 +292,7 @@ export class HiPSProjection implements AbstractProjection {
 		let fitsheaderlist: (FITSHeader | undefined)[] = [];
 		let promises = [];
 
+		let self = this;
 		for (let hipstileno of tilesset) {
 
 			let dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
@@ -297,7 +304,7 @@ export class HiPSProjection implements AbstractProjection {
 				if (fits === null) {
 					fitsheaderlist.push(undefined);
 				} else {
-
+					self._fitsUsed.push(fitsurl);
 
 					let bytesXelem = Math.abs(fits.header.get("BITPIX") / 8);
 					let blankBytes = ParseUtils.convertBlankToBytes(fits.header.get("BLANK"), bytesXelem); // => ???????

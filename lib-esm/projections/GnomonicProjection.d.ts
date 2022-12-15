@@ -12,6 +12,7 @@ import { FITSHeader } from 'jsfitsio';
 import { FITSParsed } from 'jsfitsio';
 import { Point } from '../model/Point.js';
 export declare class GnomonicProjection extends AbstractProjection {
+    get fitsUsed(): String[];
     _minra: number;
     _mindec: number;
     _naxis1: number;

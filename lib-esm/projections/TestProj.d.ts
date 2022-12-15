@@ -22,6 +22,7 @@ export declare class TestProj implements AbstractProjection {
     _maxphysicalval: number;
     _wcsname: string;
     constructor();
+    get fitsUsed(): String[];
     initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed>;
     prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
     getFITSHeader(): FITSHeader[];

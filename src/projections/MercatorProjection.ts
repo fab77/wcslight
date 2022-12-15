@@ -46,6 +46,7 @@ export class MercatorProjection implements AbstractProjection {
     _minphysicalval!: number;
     _maxphysicalval!: number;
     _wcsname: string;
+    _fitsUsed: String[];
     constructor() {
 
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
@@ -57,11 +58,13 @@ export class MercatorProjection implements AbstractProjection {
 
 
     async initFromFile(infile: string): Promise<FITSParsed> {
+        
         let fp = new FITSParser(infile);
         this._infile = infile;
+        this._fitsUsed.push(infile)
 
         let promise = fp.loadFITS().then(fits => {
-
+            
             // console.log(fits.header);
             this._pxvalues.set(0, fits.data);
             this._fitsheader[0] = fits.header;
@@ -192,7 +195,9 @@ export class MercatorProjection implements AbstractProjection {
         return header;
     }
 
-
+    get fitsUsed(): String[]{
+		return this._fitsUsed;
+	}
 
     async getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array> {
 

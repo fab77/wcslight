@@ -39,6 +39,8 @@ export abstract class AbstractProjection {
 
     public abstract pix2world(i: number, j: number): Point;
 
+    public abstract get fitsUsed(): String[];
+    
     // public abstract world2pix(radeclist: number[][]): Promise<ImagePixel[]>
     public abstract world2pix(radeclist: number[][]): ImagePixel[]
 

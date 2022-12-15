@@ -15,6 +15,9 @@ export class TestProj {
         const fp = new FITSParser("./notexistent/");
         const fhi = new FITSHeaderItem("mykey", "myvalue", "mycomment");
     }
+    get fitsUsed() {
+        throw new Error('Method not implemented.');
+    }
     initFromFile(fitsfilepath, hipsURI, pxsize, order) {
         throw new Error('Method not implemented.');
     }

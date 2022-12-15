@@ -50,6 +50,7 @@ export class HiPSProjection {
      */
     //  constructor(fitsfilepath?: string, hipsBaseURI?: string, pxsize?: number, order?: number) {
     constructor() {
+        this._fitsUsed = [];
         this._wcsname = "HPX"; // TODO check WCS standard
         this._ctype1 = "RA---HPX";
         this._ctype2 = "DEC--HPX";
@@ -217,6 +218,9 @@ export class HiPSProjection {
             return fitsFilesGenerated;
         });
     }
+    get fitsUsed() {
+        return this._fitsUsed;
+    }
     getPixValues(inputPixelsList) {
         return __awaiter(this, void 0, void 0, function* () {
             let tilesset = new Set();
@@ -227,6 +231,7 @@ export class HiPSProjection {
             let values = undefined;
             let fitsheaderlist = [];
             let promises = [];
+            let self = this;
             for (let hipstileno of tilesset) {
                 let dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
                 let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
@@ -237,6 +242,7 @@ export class HiPSProjection {
                         fitsheaderlist.push(undefined);
                     }
                     else {
+                        self._fitsUsed.push(fitsurl);
                         let bytesXelem = Math.abs(fits.header.get("BITPIX") / 8);
                         let blankBytes = ParseUtils.convertBlankToBytes(fits.header.get("BLANK"), bytesXelem); // => ???????
                         if (values === undefined) {

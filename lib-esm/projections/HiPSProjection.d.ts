@@ -24,6 +24,7 @@ export declare class HiPSProjection implements AbstractProjection {
     _nside: number;
     _radeclist: Array<[number, number]>;
     _HIPS_TILE_WIDTH: number;
+    _fitsUsed: String[];
     /**
      *
      * * ex with single local file:
@@ -54,6 +55,7 @@ export declare class HiPSProjection implements AbstractProjection {
     getCommonFitsHeaderParams(): FITSHeader;
     extractPhysicalValues(fits: FITSParsed): number[][];
     getFITSFiles(inputPixelsList: ImagePixel[], destPath: string): Promise<Map<string, FITSParsed>>;
+    get fitsUsed(): String[];
     getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined>;
     computeSquaredNaxes(d: number, ps: number): void;
     prepareCommonHeader(fitsheaderlist: (FITSHeader | undefined)[]): void;

@@ -31,7 +31,8 @@ export class WCSLight {
                     fitsheader: null,
                     fitsdata: null,
                     inproj: inproj,
-                    outproj: outproj
+                    outproj: outproj,
+                    fitsused: inproj.fitsUsed
                 };
                 return res;
             }
@@ -47,7 +48,8 @@ export class WCSLight {
                         fitsheader: fitsheader,
                         fitsdata: fitsdata,
                         inproj: inproj,
-                        outproj: outproj
+                        outproj: outproj,
+                        fitsused: inproj.fitsUsed
                     };
                     return res;
                 }
@@ -56,7 +58,8 @@ export class WCSLight {
                         fitsheader: null,
                         fitsdata: null,
                         inproj: inproj,
-                        outproj: outproj
+                        outproj: outproj,
+                        fitsused: inproj.fitsUsed
                     };
                     return res;
                 }

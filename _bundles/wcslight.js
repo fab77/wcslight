@@ -773,7 +773,8 @@ class WCSLight {
                     fitsheader: null,
                     fitsdata: null,
                     inproj: inproj,
-                    outproj: outproj
+                    outproj: outproj,
+                    fitsused: inproj.fitsUsed
                 };
                 return res;
             }
@@ -789,7 +790,8 @@ class WCSLight {
                         fitsheader: fitsheader,
                         fitsdata: fitsdata,
                         inproj: inproj,
-                        outproj: outproj
+                        outproj: outproj,
+                        fitsused: inproj.fitsUsed
                     };
                     return res;
                 }
@@ -798,7 +800,8 @@ class WCSLight {
                         fitsheader: null,
                         fitsdata: null,
                         inproj: inproj,
-                        outproj: outproj
+                        outproj: outproj,
+                        fitsused: inproj.fitsUsed
                     };
                     return res;
                 }
@@ -1319,6 +1322,9 @@ class GnomonicProjection extends _AbstractProjection_js__WEBPACK_IMPORTED_MODULE
             this._inflie = infile;
         }
     }
+    get fitsUsed() {
+        throw new Error('Method not implemented.');
+    }
     initFromFile(infile) {
         return __awaiter(this, void 0, void 0, function* () {
             let fp = new jsfitsio__WEBPACK_IMPORTED_MODULE_1__.FITSParser(infile);
@@ -1603,6 +1609,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AbstractProjection_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AbstractProjection.js */ "./src/projections/AbstractProjection.ts");
 
 class HEALPixProjection extends _AbstractProjection_js__WEBPACK_IMPORTED_MODULE_0__.AbstractProjection {
+    get fitsUsed() {
+        throw new Error('Method not implemented.');
+    }
     initFromFile(fitsfilepath, hipsURI, pxsize, order) {
         throw new Error('Method not implemented.');
     }
@@ -2044,6 +2053,7 @@ class HiPSProjection {
      */
     //  constructor(fitsfilepath?: string, hipsBaseURI?: string, pxsize?: number, order?: number) {
     constructor() {
+        this._fitsUsed = [];
         this._wcsname = "HPX"; // TODO check WCS standard
         this._ctype1 = "RA---HPX";
         this._ctype2 = "DEC--HPX";
@@ -2211,6 +2221,9 @@ class HiPSProjection {
             return fitsFilesGenerated;
         });
     }
+    get fitsUsed() {
+        return this._fitsUsed;
+    }
     getPixValues(inputPixelsList) {
         return __awaiter(this, void 0, void 0, function* () {
             let tilesset = new Set();
@@ -2221,6 +2234,7 @@ class HiPSProjection {
             let values = undefined;
             let fitsheaderlist = [];
             let promises = [];
+            let self = this;
             for (let hipstileno of tilesset) {
                 let dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
                 let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
@@ -2231,6 +2245,7 @@ class HiPSProjection {
                         fitsheaderlist.push(undefined);
                     }
                     else {
+                        self._fitsUsed.push(fitsurl);
                         let bytesXelem = Math.abs(fits.header.get("BITPIX") / 8);
                         let blankBytes = jsfitsio__WEBPACK_IMPORTED_MODULE_0__.ParseUtils.convertBlankToBytes(fits.header.get("BLANK"), bytesXelem); // => ???????
                         if (values === undefined) {
@@ -2542,6 +2557,7 @@ class MercatorProjection {
         return __awaiter(this, void 0, void 0, function* () {
             let fp = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser(infile);
             this._infile = infile;
+            this._fitsUsed.push(infile);
             let promise = fp.loadFITS().then(fits => {
                 // console.log(fits.header);
                 this._pxvalues.set(0, fits.data);
@@ -2644,6 +2660,9 @@ class MercatorProjection {
             }
         }
         return header;
+    }
+    get fitsUsed() {
+        return this._fitsUsed;
     }
     getPixValues(inputPixelsList) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -2853,6 +2872,9 @@ class TestProj {
         const fh = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeader();
         const fp = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser("./notexistent/");
         const fhi = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("mykey", "myvalue", "mycomment");
+    }
+    get fitsUsed() {
+        throw new Error('Method not implemented.');
     }
     initFromFile(fitsfilepath, hipsURI, pxsize, order) {
         throw new Error('Method not implemented.');

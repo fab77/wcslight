@@ -29,12 +29,14 @@ export declare class MercatorProjection implements AbstractProjection {
     _minphysicalval: number;
     _maxphysicalval: number;
     _wcsname: string;
+    _fitsUsed: String[];
     constructor();
     initFromFile(infile: string): Promise<FITSParsed>;
     extractPhysicalValues(fits: FITSParsed): number[][];
     prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
     getFITSHeader(): FITSHeader[];
     getCommonFitsHeaderParams(): FITSHeader;
+    get fitsUsed(): String[];
     getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array>;
     computeSquaredNaxes(d: number, ps: number): void;
     setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>>;

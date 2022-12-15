@@ -21,6 +21,7 @@ export declare abstract class AbstractProjection {
     abstract setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>>;
     abstract getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]>;
     abstract pix2world(i: number, j: number): Point;
+    abstract get fitsUsed(): String[];
     abstract world2pix(radeclist: number[][]): ImagePixel[];
 }
 //# sourceMappingURL=AbstractProjection.d.ts.map

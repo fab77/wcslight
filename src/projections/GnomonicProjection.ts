@@ -20,6 +20,9 @@ import {Point} from '../model/Point.js';
 
 
 export class GnomonicProjection extends AbstractProjection {
+    public get fitsUsed(): String[] {
+        throw new Error('Method not implemented.');
+    }
 
     _minra: number;
     _mindec: number;

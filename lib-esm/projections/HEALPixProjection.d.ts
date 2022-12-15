@@ -4,6 +4,7 @@ import { ImagePixel } from "../model/ImagePixel.js";
 import { Point } from "../model/Point.js";
 import { AbstractProjection } from "./AbstractProjection.js";
 export declare class HEALPixProjection extends AbstractProjection {
+    get fitsUsed(): String[];
     initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed>;
     prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
     getFITSHeader(): FITSHeader[];
