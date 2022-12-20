@@ -11,10 +11,10 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "../FITSParser/node_modules/blob-polyfill/Blob.js":
-/*!********************************************************!*\
-  !*** ../FITSParser/node_modules/blob-polyfill/Blob.js ***!
-  \********************************************************/
+/***/ "./node_modules/blob-polyfill/Blob.js":
+/*!********************************************!*\
+  !*** ./node_modules/blob-polyfill/Blob.js ***!
+  \********************************************/
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* Blob.js
@@ -735,7 +735,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "WCSLight": () => (/* binding */ WCSLight)
 /* harmony export */ });
-/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "./node_modules/jsfitsio/lib-esm/index.js");
 /* harmony import */ var _projections_MercatorProjection_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./projections/MercatorProjection.js */ "./src/projections/MercatorProjection.ts");
 /* harmony import */ var _projections_HiPSProjection_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./projections/HiPSProjection.js */ "./src/projections/HiPSProjection.ts");
 /* harmony import */ var _projections_HEALPixProjection_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./projections/HEALPixProjection.js */ "./src/projections/HEALPixProjection.ts");
@@ -1289,7 +1289,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "GnomonicProjection": () => (/* binding */ GnomonicProjection)
 /* harmony export */ });
 /* harmony import */ var _AbstractProjection_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AbstractProjection.js */ "./src/projections/AbstractProjection.ts");
-/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! jsfitsio */ "./node_modules/jsfitsio/lib-esm/index.js");
 
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1993,7 +1993,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "HiPSProjection": () => (/* binding */ HiPSProjection)
 /* harmony export */ });
-/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "./node_modules/jsfitsio/lib-esm/index.js");
 /* harmony import */ var healpixjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! healpixjs */ "./node_modules/healpixjs/lib-esm/index.js");
 /* harmony import */ var _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./HiPSHelper.js */ "./src/projections/HiPSHelper.ts");
 /* harmony import */ var _model_ImagePixel_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../model/ImagePixel.js */ "./src/model/ImagePixel.ts");
@@ -2073,19 +2073,34 @@ class HiPSProjection {
                 else {
                     prop = propFile.toString('utf8');
                 }
+                /**
+                    HiPS – Hierarchical Progressive Survey
+                    Version 1.0
+                    IVOA Proposed Recommendation
+                    3rd April 2017
+                    https://www.ivoa.net/documents/HiPS/20170403/PR-HIPS-1.0-20170403.pdf
+                 */
                 const txtArr = prop.split('\n');
+                this._HIPS_TILE_WIDTH = 512;
                 for (let line of txtArr) {
-                    if (line.includes("hips_tile_width")) {
-                        console.log(line);
-                        let val = line.split("=")[1].trim();
+                    if (!line.includes("=")) {
+                        continue;
+                    }
+                    const tokens = line.split("=");
+                    if (tokens[1] === undefined) {
+                        continue;
+                    }
+                    const key = tokens[0].trim();
+                    const val = tokens[1].trim();
+                    if (key == "hips_order") {
+                        this._HIPS_MAX_ORDER = parseInt(val);
+                        console.log("hips_order " + this._HIPS_MAX_ORDER);
+                    }
+                    else if (key == "hips_tile_width") {
                         this._HIPS_TILE_WIDTH = parseInt(val);
                         this._naxis1 = this._HIPS_TILE_WIDTH;
                         this._naxis2 = this._HIPS_TILE_WIDTH;
-                        console.log(`val is ${val}`);
-                        break;
-                    }
-                    else {
-                        this._HIPS_TILE_WIDTH = 512;
+                        console.log("hips_tile_width " + this._HIPS_TILE_WIDTH);
                     }
                 }
                 return propFile;
@@ -2121,6 +2136,9 @@ class HiPSProjection {
                 yield this.parsePropertiesFile(baseUrl);
             }
             let order = _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_2__.HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
+            if (order > this._HIPS_MAX_ORDER) {
+                order = this._HIPS_MAX_ORDER;
+            }
             this.init(order);
         });
     }
@@ -2129,6 +2147,9 @@ class HiPSProjection {
             this._hipsBaseURI = baseUrl;
             if (this._HIPS_TILE_WIDTH === undefined) {
                 yield this.parsePropertiesFile(baseUrl);
+            }
+            if (order > this._HIPS_MAX_ORDER) {
+                order = this._HIPS_MAX_ORDER;
             }
             this._pxsize = _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_2__.HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
             this.init(order);
@@ -2512,7 +2533,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "MercatorProjection": () => (/* binding */ MercatorProjection)
 /* harmony export */ });
-/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "./node_modules/jsfitsio/lib-esm/index.js");
 /* harmony import */ var _model_ImagePixel_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../model/ImagePixel.js */ "./src/model/ImagePixel.ts");
 /* harmony import */ var _model_Point_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../model/Point.js */ "./src/model/Point.ts");
 /* harmony import */ var _model_CoordsType_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../model/CoordsType.js */ "./src/model/CoordsType.ts");
@@ -2855,7 +2876,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "TestProj": () => (/* binding */ TestProj)
 /* harmony export */ });
-/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "./node_modules/jsfitsio/lib-esm/index.js");
 // import { FITSParser } from 'fitsparser/FITSParser-node';
 // import { FITSHeader } from 'fitsparser/model/FITSHeader';
 // import { FITSHeaderItem } from 'fitsparser/model/FITSHeaderItem';
@@ -2921,985 +2942,6 @@ class TestProj {
 /***/ (() => {
 
 /* (ignored) */
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/FITSParser.js":
-/*!*******************************************!*\
-  !*** ../FITSParser/lib-esm/FITSParser.js ***!
-  \*******************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "FITSParser": () => (/* binding */ FITSParser)
-/* harmony export */ });
-/* harmony import */ var _FITSWriter_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./FITSWriter.js */ "../FITSParser/lib-esm/FITSWriter.js");
-/* harmony import */ var _ParsePayload_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ParsePayload.js */ "../FITSParser/lib-esm/ParsePayload.js");
-/* harmony import */ var _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ParseHeader.js */ "../FITSParser/lib-esm/ParseHeader.js");
-/**
-
- * @link   github https://github.com/fab77/FITSParser
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- */
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-// import fetch from 'cross-fetch';
-// import { readFile } from "node:fs/promises";
-class FITSParser {
-    constructor(url) {
-        this._url = url;
-    }
-    loadFITS() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.getFile(this._url)
-                .then((rawdata) => {
-                if (rawdata !== null && rawdata.byteLength > 0) {
-                    const uint8 = new Uint8Array(rawdata);
-                    const fits = this.processFits(uint8);
-                    return fits;
-                }
-                return null;
-            })
-                .catch((error) => {
-                var _a, _b;
-                if ((_b = (_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.message) {
-                    throw new Error("[FITSParser->loadFITS] " + error.response.data.message);
-                }
-                throw error;
-            });
-        });
-    }
-    processFits(rawdata) {
-        const header = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.parse(rawdata);
-        const payloadParser = new _ParsePayload_js__WEBPACK_IMPORTED_MODULE_1__.ParsePayload(header, rawdata);
-        const pixelvalues = payloadParser.parse();
-        // if (rawdata.length > (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length))) {
-        // let leftover = rawdata.length - (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length));
-        // 	throw new Error("[FITSParser->processFits] It seems that there's at least one more HDU since there are " + leftover + " bytes not processed.");
-        // 	console.warn("It seems that there's at least one more HDU since there are " + leftover + " bytes not processed.")
-        // }
-        return {
-            header: header,
-            data: pixelvalues,
-        };
-    }
-    static generateFITS(header, rawdata) {
-        const writer = new _FITSWriter_js__WEBPACK_IMPORTED_MODULE_0__.FITSWriter();
-        writer.run(header, rawdata);
-        return writer.typedArrayToURL();
-    }
-    getFile(uri) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let data;
-            if (!uri.substring(0, 5).toLowerCase().includes("http")) {
-                let p = yield __webpack_require__.e(/*! import() */ "FITSParser_lib-esm_getLocalFile_js").then(__webpack_require__.bind(__webpack_require__, /*! ./getLocalFile.js */ "../FITSParser/lib-esm/getLocalFile.js"));
-                // data = await p.getLocalFile(uri);
-                return yield p.getLocalFile(uri);
-            }
-            else {
-                let p = yield Promise.all(/*! import() */[__webpack_require__.e("vendors-FITSParser_node_modules_cross-fetch_dist_browser-ponyfill_js"), __webpack_require__.e("FITSParser_lib-esm_getFile_js")]).then(__webpack_require__.bind(__webpack_require__, /*! ./getFile.js */ "../FITSParser/lib-esm/getFile.js"));
-                return p.getFile(uri).then((data) => {
-                    return data;
-                }).catch((err) => {
-                    console.error(err);
-                    return null;
-                });
-                // data = await p.getFile(uri);
-                // return await p.getFile(uri).catch((err) => {
-                //   console.error(err);
-                // });
-            }
-            // return data;
-        });
-    }
-}
-//# sourceMappingURL=FITSParser.js.map
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/FITSWriter.js":
-/*!*******************************************!*\
-  !*** ../FITSParser/lib-esm/FITSWriter.js ***!
-  \*******************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "FITSWriter": () => (/* binding */ FITSWriter)
-/* harmony export */ });
-/* harmony import */ var blob_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! blob-polyfill */ "../FITSParser/node_modules/blob-polyfill/Blob.js");
-/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
-/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ParseUtils.js */ "../FITSParser/lib-esm/ParseUtils.js");
-/**
- * Summary. (bla bla bla)
- *
- * Description. (bla bla bla)
- *
- * @link   github https://github.com/fab77/fitsontheweb
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- * import GnomonicProjection from './GnomonicProjection';
- * BITPIX definition from https://archive.stsci.edu/fits/fits_standard/node39.html
- * and "Definition of the Flexible Image Transport System (FITS)" standard document
- * defined by FITS Working Group from the International Astronomical Union
- * http://fits.gsfc.nasa.gov/iaufwg/
- * 8	8-bit Character or unsigned binary integer
- * 16	16-bit twos-complement binary integer
- * 32	32-bit twos-complement binary integer
- * -32	32-bit IEEE single precision floating point
- * -64	64-bit IEEE double precision floating point
- *
- */
-
-
-
-// import fs from 'node:fs/promises';
-class FITSWriter {
-    constructor() {
-        this._headerArray = new Uint8Array();
-        this._payloadArray = new Array();
-        this._fitsData = new Uint8Array();
-    }
-    run(header, rawdata) {
-        this.prepareHeader(header);
-        this._payloadArray = rawdata;
-        this.prepareFITS();
-    }
-    prepareHeader(headerDetails) {
-        const item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem("END");
-        headerDetails.addItem(item);
-        let str = "";
-        for (let i = 0; i < headerDetails.getItemList().length; i++) {
-            const item = headerDetails.getItemList()[i];
-            let s = this.formatHeaderLine(item);
-            if (s !== undefined) {
-                str += s;
-            }
-        }
-        const strBytelen = new TextEncoder().encode(str).length;
-        const nhdu = Math.ceil(strBytelen / 2880);
-        const offset = nhdu * 2880;
-        for (let j = 0; j < offset - strBytelen; j++) {
-            str += " ";
-        }
-        const ab = new ArrayBuffer(str.length);
-        // Javascript character occupies 2 16-bit -> reducing it to 1 byte
-        this._headerArray = new Uint8Array(ab);
-        for (let i = 0; i < str.length; i++) {
-            this._headerArray[i] = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_2__.ParseUtils.getByteAt(str, i);
-        }
-    }
-    // formatHeaderLine(item: string | undefined, value: string | number, comment: string) {
-    formatHeaderLine(item) {
-        let str;
-        let keyword = item.key;
-        let value = item.value;
-        let comment = item.comment;
-        if (keyword !== null && keyword !== undefined) {
-            str = keyword;
-            if (keyword == "END") {
-                for (let j = 80; j > keyword.length; j--) {
-                    str += " ";
-                }
-                return str;
-            }
-            if (keyword == "COMMENT" || keyword == "HISTORY") {
-                for (let i = 0; i < 10 - keyword.length; i++) {
-                    str += " ";
-                }
-                str += value;
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-                return str;
-            }
-            for (let i = 0; i < 8 - keyword.length; i++) {
-                str += " ";
-            }
-            str += "= ";
-            if (value !== null && value !== undefined) {
-                // value
-                str += value;
-                if (comment !== null && comment !== undefined) {
-                    str += comment;
-                }
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-            }
-            else {
-                if (comment !== null && comment !== undefined) {
-                    str += comment;
-                }
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-            }
-        }
-        else {
-            // keyword null
-            str = "";
-            for (let j = 0; j < 18; j++) {
-                str += " ";
-            }
-            if (comment !== null && comment !== undefined) {
-                str += comment;
-                const len = str.length;
-                for (let j = 80; j > len; j--) {
-                    str += " ";
-                }
-            }
-            else {
-                str = "";
-                for (let j = 80; j > 0; j--) {
-                    str += " ";
-                }
-            }
-        }
-        return str;
-    }
-    prepareFITS() {
-        const bytes = new Uint8Array(this._headerArray.length +
-            this._payloadArray[0].length * this._payloadArray.length);
-        bytes.set(this._headerArray, 0);
-        for (let i = 0; i < this._payloadArray.length; i++) {
-            const uint8 = this._payloadArray[i];
-            bytes.set(uint8, this._headerArray.length + i * uint8.length);
-        }
-        this._fitsData = bytes;
-    }
-    // writeFITS(fileuri: string) {
-    //   // const dirname = path.dirname(fileuri);
-    //   // fs.mkdir(dirname, { recursive: true });
-    //   fs.writeFile(fileuri, this._fitsData);
-    //   // if (fs.existsSync(dirname)) {
-    //   //   fs.writeFileSync(fileuri, this._fitsData);
-    //   // } else {
-    //   //   console.error(dirname + " doesn't exist");
-    //   // }
-    // }
-    typedArrayToURL() {
-        const b = new blob_polyfill__WEBPACK_IMPORTED_MODULE_0__.Blob([this._fitsData], { type: "application/fits" });
-        // console.log(`<html><body><img src='${URL.createObjectURL(b)}'</body></html>`);
-        return URL.createObjectURL(b);
-    }
-}
-//# sourceMappingURL=FITSWriter.js.map
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/ParseHeader.js":
-/*!********************************************!*\
-  !*** ../FITSParser/lib-esm/ParseHeader.js ***!
-  \********************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ParseHeader": () => (/* binding */ ParseHeader)
-/* harmony export */ });
-/* harmony import */ var _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeader.js */ "../FITSParser/lib-esm/model/FITSHeader.js");
-/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
-
-
-/**
- * Summary. (bla bla bla)
- *
- * Description. (bla bla bla)
- *
- * @link   github https://github.com/fab77/FITSParser
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- */
-class ParseHeader {
-    static parse(rawdata) {
-        // only one header block (2880) allowed atm.
-        // TODO handle multiple header blocks
-        // let headerByteData = new Uint8Array(rawdata, 0, 2880);
-        const textDecoder = new TextDecoder("iso-8859-1");
-        const header = new _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeader();
-        let nline = 0;
-        let key = "";
-        let val;
-        let u8line;
-        let u8key;
-        let u8val;
-        let u8ind;
-        // let ind: string;
-        let item;
-        let fitsLine;
-        item = null;
-        while (key !== "END" && rawdata.length > 0) {
-            // line 80 characters
-            u8line = new Uint8Array(rawdata.slice(nline * 80, nline * 80 + 80));
-            nline++;
-            // key
-            u8key = new Uint8Array(u8line.slice(0, 8));
-            key = textDecoder.decode(u8key).trim();
-            // value indicator
-            u8ind = new Uint8Array(u8line.slice(8, 10));
-            // ind = textDecoder.decode(u8ind);
-            // reading value
-            u8val = new Uint8Array(u8line.slice(10, 80));
-            val = textDecoder.decode(u8val).trim();
-            if (u8ind[0] == 61 && u8ind[1] == 32) {
-                let firstchar = 32;
-                for (let i = 0; i < u8val.length; i++) {
-                    if (u8val[i] != 32) {
-                        firstchar = u8val[i];
-                        break;
-                    }
-                }
-                if (firstchar == 39 || !Number(val)) {
-                    // value starts with '
-                    // [ival, icomment]
-                    fitsLine = ParseHeader.parseStringValue(u8val);
-                }
-                else {
-                    if (firstchar == 84 || firstchar == 70) {
-                        // T or F
-                        fitsLine = ParseHeader.parseLogicalValue(u8val);
-                    }
-                    else {
-                        val = textDecoder.decode(u8val).trim();
-                        if (val.includes(".")) {
-                            fitsLine = ParseHeader.parseFloatValue(u8val);
-                        }
-                        else {
-                            fitsLine = ParseHeader.parseIntValue(u8val);
-                        }
-                    }
-                }
-                item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(key, fitsLine.val, fitsLine.comment);
-            }
-            else {
-                if (key == "COMMENT" || key == "HISTORY") {
-                    item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(key, undefined, val);
-                }
-                else {
-                    let firstchar = 32;
-                    for (let i = 0; i < u8val.length; i++) {
-                        if (u8val[i] != 32) {
-                            firstchar = u8val[i];
-                            break;
-                        }
-                    }
-                    if (firstchar == 47) {
-                        // single / this is the case when no key nor value indicator is defined
-                        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(undefined, undefined, val);
-                    }
-                    else if (firstchar == 32) {
-                        // case when there's a line with only spaces
-                        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(undefined, undefined, undefined);
-                    }
-                }
-            }
-            if (item != null) {
-                header.addItem(item);
-            }
-        }
-        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem("COMMENT", "FITS generated with FITSParser on ", undefined);
-        header.addItem(item);
-        const now = new Date();
-        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem("COMMENT", now.toString());
-        header.addItem(item);
-        const nblock = Math.ceil(nline / 36);
-        const offset = nblock * 2880;
-        header.offset = offset;
-        return header;
-    }
-    static parseStringValue(u8buffer) {
-        const textDecoder = new TextDecoder("iso-8859-1");
-        const decoded = textDecoder.decode(u8buffer).trim();
-        const idx = decoded.lastIndexOf("/");
-        const val = decoded.substring(0, idx);
-        let comment = decoded.substring(idx);
-        // if (comment === undefined) {
-        //   comment = null;
-        // }
-        return {
-            val: val,
-            comment: comment,
-        };
-    }
-    static parseLogicalValue(u8buffer) {
-        const textDecoder = new TextDecoder("iso-8859-1");
-        const val = textDecoder.decode(u8buffer).trim();
-        const tokens = val.split("/");
-        if (tokens[1] === undefined) {
-            return {
-                val: tokens[0].trim(),
-                comment: undefined,
-            };
-        }
-        return {
-            val: tokens[0].trim(),
-            comment: " /" + tokens[1],
-        };
-    }
-    static parseIntValue(u8buffer) {
-        const textDecoder = new TextDecoder("iso-8859-1");
-        const val = textDecoder.decode(u8buffer).trim();
-        const tokens = val.split("/");
-        if (tokens[1] === undefined) {
-            return {
-                val: parseInt(tokens[0].trim()),
-                comment: undefined,
-            };
-        }
-        return {
-            val: parseInt(tokens[0].trim()),
-            comment: " /" + tokens[1],
-        };
-    }
-    static parseFloatValue(u8buffer) {
-        const textDecoder = new TextDecoder("iso-8859-1");
-        const val = textDecoder.decode(u8buffer).trim();
-        const tokens = val.split("/");
-        if (tokens[1] === undefined) {
-            return {
-                val: parseFloat(tokens[0].trim()),
-                comment: undefined,
-            };
-        }
-        return {
-            val: parseFloat(tokens[0].trim()),
-            comment: " /" + tokens[1],
-        };
-    }
-}
-//# sourceMappingURL=ParseHeader.js.map
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/ParsePayload.js":
-/*!*********************************************!*\
-  !*** ../FITSParser/lib-esm/ParsePayload.js ***!
-  \*********************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ParsePayload": () => (/* binding */ ParsePayload)
-/* harmony export */ });
-/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
-/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ParseUtils.js */ "../FITSParser/lib-esm/ParseUtils.js");
-// "use strict";
-
-
-// let colorsMap = new Map();
-// colorsMap.set("grayscale","grayscale");
-// colorsMap.set("planck","planck");
-// colorsMap.set("eosb","eosb");
-// colorsMap.set("rainbow","rainbow");
-// colorsMap.set("cmb","cmb");
-// colorsMap.set("cubehelix","cubehelix");
-class ParsePayload {
-    constructor(fitsheader, rawdata) {
-        this._u8data = new Uint8Array();
-        this._BZERO = undefined;
-        this._BSCALE = undefined;
-        this._BLANK = undefined;
-        this._BITPIX = undefined;
-        this._NAXIS1 = undefined;
-        this._NAXIS2 = undefined;
-        this._DATAMIN = undefined;
-        this._DATAMAX = undefined;
-        this._physicalblank = undefined;
-        const buffer = rawdata.slice(fitsheader.offset);
-        this._u8data = new Uint8Array(buffer);
-        this.init(fitsheader);
-    }
-    init(fitsheader) {
-        this._BZERO = fitsheader.get("BZERO");
-        if (this._BZERO === undefined) {
-            this._BZERO = 0;
-        }
-        this._BSCALE = fitsheader.get("BSCALE");
-        if (this._BSCALE === undefined) {
-            this._BSCALE = 1;
-        }
-        this._BLANK = fitsheader.get("BLANK"); // undefined in case it's not present in the header
-        // this._BLANK_pv = this._BZERO + this._BSCALE * this._BLANK || undefined;
-        this._BITPIX = fitsheader.get("BITPIX");
-        this._NAXIS1 = fitsheader.get("NAXIS1");
-        this._NAXIS2 = fitsheader.get("NAXIS2");
-        this._DATAMIN = fitsheader.get("DATAMIN");
-        this._DATAMAX = fitsheader.get("DATAMAX");
-        this._physicalblank = undefined;
-        if (this._DATAMAX === undefined || this._DATAMIN === undefined) {
-            const [min, max] = this.computePhysicalMinAndMax();
-            this._DATAMAX = max;
-            this._DATAMIN = min;
-            const maxitem = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMAX", max, " / computed with FITSParser");
-            const minitem = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMIN", min, " / computed with FITSParser");
-            fitsheader.addItem(maxitem);
-            fitsheader.addItem(minitem);
-            // fitsheader.set("DATAMAX", max);
-            // fitsheader.set("DATAMIN", min);
-        }
-        // let item = new FITSHeaderItem("END", null, null);
-        // fitsheader.addItem(item);
-    }
-    computePhysicalMinAndMax() {
-        let i = 0;
-        if (this._BITPIX === undefined) {
-            throw new Error("BITPIX is not defined");
-        }
-        const bytesXelem = Math.abs(this._BITPIX / 8);
-        const pxLength = this._u8data.byteLength / bytesXelem;
-        let px_val, ph_val;
-        let min = undefined;
-        let max = undefined;
-        if (this._BLANK !== undefined) {
-            this._physicalblank = this.pixel2physicalValue(this._BLANK);
-        }
-        while (i < pxLength) {
-            // px_val = this.extractPixelValue(bytesXelem*i);
-            px_val = this.extractPixelValue(bytesXelem * i);
-            if (px_val === undefined) {
-                i++;
-                continue;
-            }
-            ph_val = this.pixel2physicalValue(px_val);
-            if (min === undefined) {
-                min = ph_val;
-            }
-            if (max === undefined) {
-                max = ph_val;
-            }
-            //TODO check below if
-            if (this._physicalblank === undefined || this._physicalblank !== ph_val) {
-                if (ph_val !== undefined && (ph_val < min || min === undefined)) {
-                    min = ph_val;
-                }
-                if (ph_val !== undefined && (ph_val > max || max === undefined)) {
-                    max = ph_val;
-                }
-            }
-            i++;
-        }
-        return [min, max];
-    }
-    parse() {
-        // let px_val; // pixel array value
-        // let ph_val = undefined; // pixel physical value
-        if (this._BITPIX === undefined) {
-            throw new Error("BITPIX is undefined");
-        }
-        if (this._NAXIS1 === undefined) {
-            throw new Error("NAXIS1 is undefined");
-        }
-        if (this._NAXIS2 === undefined) {
-            throw new Error("NAXIS2 is undefined");
-        }
-        const bytesXelem = Math.abs(this._BITPIX / 8);
-        let pxLength = this._u8data.byteLength / bytesXelem;
-        pxLength = this._NAXIS1 * this._NAXIS2;
-        let k = 0;
-        let c, r;
-        const pixelvalues = [];
-        //  let pixv, pv;
-        while (k < pxLength) {
-            r = Math.floor(k / this._NAXIS1); // row
-            c = (k - r * this._NAXIS1) * bytesXelem; // col
-            if (c === 0) {
-                pixelvalues[r] = new Uint8Array(this._NAXIS1 * bytesXelem);
-            }
-            // px_val = this.extractPixelValue(bytesXelem * k);
-            // ph_val = this.pixel2physicalValue(px_val);
-            // TODO check if ph_val == blank
-            // if not then use ph_val to compute datamin and datamax
-            for (let i = 0; i < bytesXelem; i++) {
-                pixelvalues[r][c + i] = this._u8data[k * bytesXelem + i];
-            }
-            // if (k == 232) {
-            // 	pixv = this.extractPixelValue(k * bytesXelem);
-            // 	pv = this._BZERO + this._BSCALE * pixv;
-            // }
-            k++;
-        }
-        return pixelvalues;
-    }
-    /** this can be deleted */
-    extractPixelValue(offset) {
-        let px_val = undefined; // pixel value
-        if (this._BITPIX == 16) {
-            // 16-bit 2's complement binary integer
-            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parse16bit2sComplement(this._u8data[offset], this._u8data[offset + 1]);
-        }
-        else if (this._BITPIX == 32) {
-            // IEEE 754 half precision (float16) ??
-            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parse32bit2sComplement(this._u8data[offset], this._u8data[offset + 1], this._u8data[offset + 2], this._u8data[offset + 3]);
-        }
-        else if (this._BITPIX == -32) {
-            // 32-bit IEEE single-precision floating point
-            // px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]);
-            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 4), 8, 23);
-        }
-        else if (this._BITPIX == 64) {
-            // 64-bit 2's complement binary integer
-            throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
-        }
-        else if (this._BITPIX == -64) {
-            // 64-bit IEEE double-precision floating point
-            //https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
-            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 8), 11, 52);
-        }
-        return px_val;
-    }
-    pixel2physicalValue(pxval) {
-        if (this._BZERO === undefined || this._BSCALE === undefined) {
-            throw new Error("Either BZERO or BSCALE is undefined");
-        }
-        return this._BZERO + this._BSCALE * pxval;
-    }
-}
-//# sourceMappingURL=ParsePayload.js.map
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/ParseUtils.js":
-/*!*******************************************!*\
-  !*** ../FITSParser/lib-esm/ParseUtils.js ***!
-  \*******************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ParseUtils": () => (/* binding */ ParseUtils)
-/* harmony export */ });
-/**
- * Summary. (bla bla bla)
- *
- * Description. (bla bla bla)
- *
- * @link   github https://github.com/fab77/FITSParser
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- */
-class ParseUtils {
-    static getStringAt(data, offset, length) {
-        const chars = [];
-        for (let i = offset, j = 0; i < offset + length; i++, j++) {
-            chars[j] = String.fromCharCode(data.charCodeAt(i) & 0xff);
-        }
-        return chars.join("");
-    }
-    static byteString(n) {
-        if (n < 0 || n > 255 || n % 1 !== 0) {
-            throw new Error(n + " does not fit in a byte");
-        }
-        return ("000000000" + n.toString(2)).substr(-8);
-    }
-    static parse32bitSinglePrecisionFloatingPoint(byte1, byte2, byte3, byte4) {
-        let long = (((((byte1 << 8) + byte2) << 8) + byte3) << 8) + byte4;
-        if (long < 0)
-            long += 4294967296;
-        const float = (1.0 + (long & 0x007fffff) / 0x0800000) *
-            Math.pow(2, ((long & 0x7f800000) >> 23) - 127);
-        return float;
-    }
-    static convertBlankToBytes(blank, nbytes) {
-        let str = Math.abs(blank).toString(2);
-        while (str.length / 8 < nbytes) {
-            str += "0";
-        }
-        const buffer = new ArrayBuffer(nbytes);
-        const uint8 = new Uint8Array(buffer);
-        for (let i = 0; i < nbytes; i++) {
-            uint8[i] = parseInt(str.substr(8 * i, 8 * (i + 1)), 2);
-        }
-        return uint8;
-    }
-    /** https://gist.github.com/Manouchehri/f4b41c8272db2d6423fa987e844dd9ac */
-    static parseFloatingPointFormat(bytes, ebits, fbits) {
-        // Bytes to bits
-        const bits = [];
-        for (let i = bytes.length; i; i -= 1) {
-            let byte = bytes[i - 1];
-            for (let j = 8; j; j -= 1) {
-                bits.push(byte % 2 ? 1 : 0);
-                byte = byte >> 1;
-            }
-        }
-        bits.reverse();
-        const str = bits.join("");
-        // Unpack sign, exponent, fraction
-        const bias = (1 << (ebits - 1)) - 1;
-        const s = parseInt(str.substring(0, 1), 2) ? -1 : 1;
-        const e = parseInt(str.substring(1, 1 + ebits), 2);
-        const f = parseInt(str.substring(1 + ebits), 2);
-        // Produce number
-        if (e === (1 << ebits) - 1) {
-            return f !== 0 ? undefined : s * Infinity;
-        }
-        else if (e > 0) {
-            return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, fbits));
-        }
-        else if (f !== 0) {
-            return s * Math.pow(2, -(bias - 1)) * (f / Math.pow(2, fbits));
-        }
-        else {
-            return s * 0;
-        }
-    }
-    static generate16bit2sComplement(val) {
-        throw new TypeError("not implemented yet" + val);
-    }
-    static parse16bit2sComplement(byte1, byte2) {
-        const unsigned = (byte1 << 8) | byte2;
-        if (unsigned & 0x8000) {
-            return unsigned | 0xffff0000;
-        }
-        else {
-            return unsigned;
-        }
-    }
-    static parse32bit2sComplement(byte1, byte2, byte3, byte4) {
-        const unsigned = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-        const s = (unsigned & 0x80000000) >> 31;
-        let res = unsigned & 0xffffffff;
-        if (s) {
-            res = (~unsigned & 0xffffffff) + 1;
-            return -1 * res;
-        }
-        return res;
-    }
-    /**
-     *
-     * @param {*} data string?
-     * @param {*} offset offset in the data
-     * @returns returns an integer between 0 and 65535 representing the UTF-16 code unit at the given index.
-     */
-    static getByteAt(data, offset) {
-        const dataOffset = 0;
-        return data.charCodeAt(offset + dataOffset) & 0xff;
-    }
-    static extractPixelValue(offset, bytes, bitpix) {
-        let px_val = undefined; // pixel value
-        // let px_val1, px_val2, px_val3, px_val4;
-        if (bitpix == 16) {
-            // 16-bit 2's complement binary integer
-            px_val = ParseUtils.parse16bit2sComplement(bytes[offset], bytes[offset + 1]);
-        }
-        else if (bitpix == 32) {
-            // IEEE 754 half precision (float16) ??
-            px_val = ParseUtils.parse32bit2sComplement(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
-        }
-        else if (bitpix == -32) {
-            // 32-bit IEEE single-precision floating point
-            // px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]);
-            px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 8, 23);
-        }
-        else if (bitpix == 64) {
-            // 64-bit 2's complement binary integer
-            throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
-        }
-        else if (bitpix == -64) {
-            // 64-bit IEEE double-precision floating point
-            //https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
-            px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 11, 52);
-        }
-        return px_val;
-    }
-}
-// export default ParseUtils;
-//# sourceMappingURL=ParseUtils.js.map
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/index.js":
-/*!**************************************!*\
-  !*** ../FITSParser/lib-esm/index.js ***!
-  \**************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "FITSHeader": () => (/* reexport safe */ _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeader),
-/* harmony export */   "FITSHeaderItem": () => (/* reexport safe */ _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem),
-/* harmony export */   "FITSParser": () => (/* reexport safe */ _FITSParser_js__WEBPACK_IMPORTED_MODULE_2__.FITSParser),
-/* harmony export */   "FITSWriter": () => (/* reexport safe */ _FITSWriter_js__WEBPACK_IMPORTED_MODULE_3__.FITSWriter),
-/* harmony export */   "ParseHeader": () => (/* reexport safe */ _ParseHeader_js__WEBPACK_IMPORTED_MODULE_4__.ParseHeader),
-/* harmony export */   "ParsePayload": () => (/* reexport safe */ _ParsePayload_js__WEBPACK_IMPORTED_MODULE_5__.ParsePayload),
-/* harmony export */   "ParseUtils": () => (/* reexport safe */ _ParseUtils_js__WEBPACK_IMPORTED_MODULE_6__.ParseUtils)
-/* harmony export */ });
-/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
-/* harmony import */ var _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeader.js */ "../FITSParser/lib-esm/model/FITSHeader.js");
-/* harmony import */ var _FITSParser_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FITSParser.js */ "../FITSParser/lib-esm/FITSParser.js");
-/* harmony import */ var _FITSWriter_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FITSWriter.js */ "../FITSParser/lib-esm/FITSWriter.js");
-/* harmony import */ var _ParseHeader_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ParseHeader.js */ "../FITSParser/lib-esm/ParseHeader.js");
-/* harmony import */ var _ParsePayload_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ParsePayload.js */ "../FITSParser/lib-esm/ParsePayload.js");
-/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ParseUtils.js */ "../FITSParser/lib-esm/ParseUtils.js");
-
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/model/FITSHeader.js":
-/*!*************************************************!*\
-  !*** ../FITSParser/lib-esm/model/FITSHeader.js ***!
-  \*************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "FITSHeader": () => (/* binding */ FITSHeader)
-/* harmony export */ });
-/**
- * Summary. (bla bla bla)
- *
- * Description. (bla bla bla)
- *
- * @link   github https://github.com/fab77/FITSParser
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- */
-// reference FTIS standard doc https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
-class FITSHeader extends Map {
-    constructor() {
-        super();
-        this._offset = undefined;
-        this._items = [];
-    }
-    set offset(offset) {
-        this._offset = offset;
-    }
-    get offset() {
-        return this._offset;
-    }
-    getItemList() {
-        return this._items;
-    }
-    getItemListOf(key) {
-        const res = [];
-        for (let i = 0; i < this._items.length; i++) {
-            const item = this._items[i];
-            if (item.key == key) {
-                res.push(item);
-            }
-        }
-        return res;
-    }
-    addItemAtTheBeginning(item) {
-        if (item.key !== undefined) {
-            if ([
-                "SIMPLE",
-                "BITPIX",
-                "NAXIS",
-                "NAXIS1",
-                "NAXIS2",
-                "BLANK",
-                "BZERO",
-                "BSCALE",
-                "DATAMIN",
-                "DATAMAX",
-                "NPIX",
-                "ORDER",
-                "CRPIX1",
-                "CRPIX2",
-                "CDELT1",
-                "CDELT2",
-            ].includes(item.key)) {
-                this.set(item.key, item.value);
-            }
-        }
-        const newitemlist = [item].concat(this._items);
-        this._items = newitemlist;
-    }
-    addItem(item) {
-        if (item.key !== undefined) {
-            if ([
-                "SIMPLE",
-                "BITPIX",
-                "NAXIS",
-                "NAXIS1",
-                "NAXIS2",
-                "BLANK",
-                "BZERO",
-                "BSCALE",
-                "DATAMIN",
-                "DATAMAX",
-                "NPIX",
-                "ORDER",
-                "CRPIX1",
-                "CRPIX2",
-                "CDELT1",
-                "CDELT2",
-            ].includes(item.key)) {
-                this.set(item.key, item.value);
-            }
-        }
-        this._items.push(item);
-    }
-    getNumRows() {
-        return this._items.length;
-    }
-}
-//# sourceMappingURL=FITSHeader.js.map
-
-/***/ }),
-
-/***/ "../FITSParser/lib-esm/model/FITSHeaderItem.js":
-/*!*****************************************************!*\
-  !*** ../FITSParser/lib-esm/model/FITSHeaderItem.js ***!
-  \*****************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "FITSHeaderItem": () => (/* binding */ FITSHeaderItem)
-/* harmony export */ });
-/**
- * Summary. (bla bla bla)
- *
- * Description. (bla bla bla)
- *
- * @link   github https://github.com/fab77/FITSParser
- * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
- */
-class FITSHeaderItem {
-    constructor(key, value, comment) {
-        this._key = key !== undefined ? key : undefined;
-        this._value = value !== undefined ? value : undefined;
-        this._comment = comment !== undefined ? comment : undefined;
-    }
-    get key() {
-        return this._key;
-    }
-    get comment() {
-        return this._comment;
-    }
-    get value() {
-        return this._value;
-    }
-}
-//# sourceMappingURL=FITSHeaderItem.js.map
 
 /***/ }),
 
@@ -4251,7 +3293,7 @@ class Healpix {
         let dc = 0.5 / this.nside;
         let xc = (xyf.ix + 0.5) / this.nside;
         let yc = (xyf.iy + 0.5) / this.nside;
-        let d = 1.0 / (this.nside);
+        // let d = 1.0/(this.nside);
         // console.log("------------------------");
         // console.log("xc, yc, dc "+xc+","+ yc+","+ dc);
         // console.log("xc+dc-d, yc+dc, xyf.face, d "+(xc+dc) +","+ (yc+dc)+","+
@@ -4300,6 +3342,19 @@ class Healpix {
         return points;
     }
     ;
+    getPointsForXyfNoStep(x, y, face) {
+        let nside = Math.pow(2, this.order);
+        let points = new Array();
+        let xyf = new _Xyf_js__WEBPACK_IMPORTED_MODULE_8__.Xyf(x, y, face);
+        let dc = 0.5 / nside;
+        let xc = (xyf.ix + 0.5) / nside;
+        let yc = (xyf.iy + 0.5) / nside;
+        points[0] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc + dc, xyf.face).toVec3();
+        points[1] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc + dc, xyf.face).toVec3();
+        points[2] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc - dc, xyf.face).toVec3();
+        points[3] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc - dc, xyf.face).toVec3();
+        return points;
+    }
     getPointsForXyf(x, y, step, face) {
         let nside = step * Math.pow(2, this.order);
         let points = new Array();
@@ -4908,8 +3963,8 @@ class Hploc {
     ;
     toVec3() {
         var st = this.have_sth ? this.sth : Math.sqrt((1.0 - this.z) * (1.0 + this.z));
-        var vector = new _Vec3_js__WEBPACK_IMPORTED_MODULE_0__.Vec3(st * Hploc.cos(this.phi), st * Hploc.sin(this.phi), this.z);
-        //	var vector = new Vec3(st*Math.cos(this.phi),st*Math.sin(this.phi),this.z);
+        // var vector = new Vec3(st*Hploc.cos(this.phi),st*Hploc.sin(this.phi),this.z);
+        var vector = new _Vec3_js__WEBPACK_IMPORTED_MODULE_0__.Vec3(st * Math.cos(this.phi), st * Math.sin(this.phi), this.z);
         return vector;
     }
     ;
@@ -5478,6 +4533,988 @@ class pstack {
     ;
 }
 //# sourceMappingURL=pstack.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/FITSParser.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/FITSParser.js ***!
+  \*****************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FITSParser": () => (/* binding */ FITSParser)
+/* harmony export */ });
+/* harmony import */ var _FITSWriter_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./FITSWriter.js */ "./node_modules/jsfitsio/lib-esm/FITSWriter.js");
+/* harmony import */ var _ParsePayload_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ParsePayload.js */ "./node_modules/jsfitsio/lib-esm/ParsePayload.js");
+/* harmony import */ var _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ParseHeader.js */ "./node_modules/jsfitsio/lib-esm/ParseHeader.js");
+/**
+
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+// import fetch from 'cross-fetch';
+// import { readFile } from "node:fs/promises";
+class FITSParser {
+    constructor(url) {
+        this._url = url;
+    }
+    loadFITS() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.getFile(this._url)
+                .then((rawdata) => {
+                if (rawdata !== null && rawdata.byteLength > 0) {
+                    const uint8 = new Uint8Array(rawdata);
+                    const fits = this.processFits(uint8);
+                    return fits;
+                }
+                return null;
+            })
+                .catch((error) => {
+                var _a, _b;
+                if ((_b = (_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.message) {
+                    throw new Error("[FITSParser->loadFITS] " + error.response.data.message);
+                }
+                throw error;
+            });
+        });
+    }
+    processFits(rawdata) {
+        const header = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.parse(rawdata);
+        const payloadParser = new _ParsePayload_js__WEBPACK_IMPORTED_MODULE_1__.ParsePayload(header, rawdata);
+        const pixelvalues = payloadParser.parse();
+        // if (rawdata.length > (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length))) {
+        // let leftover = rawdata.length - (header.getNumRows() + (pixelvalues.length * pixelvalues[0].length));
+        // 	throw new Error("[FITSParser->processFits] It seems that there's at least one more HDU since there are " + leftover + " bytes not processed.");
+        // 	console.warn("It seems that there's at least one more HDU since there are " + leftover + " bytes not processed.")
+        // }
+        return {
+            header: header,
+            data: pixelvalues,
+        };
+    }
+    static generateFITS(header, rawdata) {
+        const writer = new _FITSWriter_js__WEBPACK_IMPORTED_MODULE_0__.FITSWriter();
+        writer.run(header, rawdata);
+        return writer.typedArrayToURL();
+    }
+    getFile(uri) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data;
+            if (!uri.substring(0, 5).toLowerCase().includes("http")) {
+                let p = yield __webpack_require__.e(/*! import() */ "node_modules_jsfitsio_lib-esm_getLocalFile_js").then(__webpack_require__.bind(__webpack_require__, /*! ./getLocalFile.js */ "./node_modules/jsfitsio/lib-esm/getLocalFile.js"));
+                // data = await p.getLocalFile(uri);
+                return yield p.getLocalFile(uri);
+            }
+            else {
+                let p = yield __webpack_require__.e(/*! import() */ "vendors-node_modules_jsfitsio_lib-esm_getFile_js").then(__webpack_require__.bind(__webpack_require__, /*! ./getFile.js */ "./node_modules/jsfitsio/lib-esm/getFile.js"));
+                return p.getFile(uri).then((data) => {
+                    return data;
+                }).catch((err) => {
+                    // console.error("Error in FITSParser getFile ", uri, err);
+                    return null;
+                });
+                // data = await p.getFile(uri);
+                // return await p.getFile(uri).catch((err) => {
+                //   console.error(err);
+                // });
+            }
+            // return data;
+        });
+    }
+}
+//# sourceMappingURL=FITSParser.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/FITSWriter.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/FITSWriter.js ***!
+  \*****************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FITSWriter": () => (/* binding */ FITSWriter)
+/* harmony export */ });
+/* harmony import */ var blob_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! blob-polyfill */ "./node_modules/blob-polyfill/Blob.js");
+/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js");
+/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ParseUtils.js */ "./node_modules/jsfitsio/lib-esm/ParseUtils.js");
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/fitsontheweb
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ * import GnomonicProjection from './GnomonicProjection';
+ * BITPIX definition from https://archive.stsci.edu/fits/fits_standard/node39.html
+ * and "Definition of the Flexible Image Transport System (FITS)" standard document
+ * defined by FITS Working Group from the International Astronomical Union
+ * http://fits.gsfc.nasa.gov/iaufwg/
+ * 8	8-bit Character or unsigned binary integer
+ * 16	16-bit twos-complement binary integer
+ * 32	32-bit twos-complement binary integer
+ * -32	32-bit IEEE single precision floating point
+ * -64	64-bit IEEE double precision floating point
+ *
+ */
+
+
+
+// import fs from 'node:fs/promises';
+class FITSWriter {
+    constructor() {
+        this._headerArray = new Uint8Array();
+        this._payloadArray = new Array();
+        this._fitsData = new Uint8Array();
+    }
+    run(header, rawdata) {
+        this.prepareHeader(header);
+        this._payloadArray = rawdata;
+        this.prepareFITS();
+    }
+    prepareHeader(headerDetails) {
+        const item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem("END");
+        headerDetails.addItem(item);
+        let str = "";
+        for (let i = 0; i < headerDetails.getItemList().length; i++) {
+            const item = headerDetails.getItemList()[i];
+            let s = this.formatHeaderLine(item);
+            if (s !== undefined) {
+                str += s;
+            }
+        }
+        const strBytelen = new TextEncoder().encode(str).length;
+        const nhdu = Math.ceil(strBytelen / 2880);
+        const offset = nhdu * 2880;
+        for (let j = 0; j < offset - strBytelen; j++) {
+            str += " ";
+        }
+        const ab = new ArrayBuffer(str.length);
+        // Javascript character occupies 2 16-bit -> reducing it to 1 byte
+        this._headerArray = new Uint8Array(ab);
+        for (let i = 0; i < str.length; i++) {
+            this._headerArray[i] = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_2__.ParseUtils.getByteAt(str, i);
+        }
+    }
+    // formatHeaderLine(item: string | undefined, value: string | number, comment: string) {
+    formatHeaderLine(item) {
+        let str;
+        let keyword = item.key;
+        let value = item.value;
+        let comment = item.comment;
+        if (keyword !== null && keyword !== undefined) {
+            str = keyword;
+            if (keyword == "END") {
+                for (let j = 80; j > keyword.length; j--) {
+                    str += " ";
+                }
+                return str;
+            }
+            if (keyword == "COMMENT" || keyword == "HISTORY") {
+                for (let i = 0; i < 10 - keyword.length; i++) {
+                    str += " ";
+                }
+                str += value;
+                const len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += " ";
+                }
+                return str;
+            }
+            for (let i = 0; i < 8 - keyword.length; i++) {
+                str += " ";
+            }
+            str += "= ";
+            if (value !== null && value !== undefined) {
+                // value
+                str += value;
+                if (comment !== null && comment !== undefined) {
+                    str += comment;
+                }
+                const len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += " ";
+                }
+            }
+            else {
+                if (comment !== null && comment !== undefined) {
+                    str += comment;
+                }
+                const len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += " ";
+                }
+            }
+        }
+        else {
+            // keyword null
+            str = "";
+            for (let j = 0; j < 18; j++) {
+                str += " ";
+            }
+            if (comment !== null && comment !== undefined) {
+                str += comment;
+                const len = str.length;
+                for (let j = 80; j > len; j--) {
+                    str += " ";
+                }
+            }
+            else {
+                str = "";
+                for (let j = 80; j > 0; j--) {
+                    str += " ";
+                }
+            }
+        }
+        return str;
+    }
+    prepareFITS() {
+        const bytes = new Uint8Array(this._headerArray.length +
+            this._payloadArray[0].length * this._payloadArray.length);
+        bytes.set(this._headerArray, 0);
+        for (let i = 0; i < this._payloadArray.length; i++) {
+            const uint8 = this._payloadArray[i];
+            bytes.set(uint8, this._headerArray.length + i * uint8.length);
+        }
+        this._fitsData = bytes;
+    }
+    // writeFITS(fileuri: string) {
+    //   // const dirname = path.dirname(fileuri);
+    //   // fs.mkdir(dirname, { recursive: true });
+    //   fs.writeFile(fileuri, this._fitsData);
+    //   // if (fs.existsSync(dirname)) {
+    //   //   fs.writeFileSync(fileuri, this._fitsData);
+    //   // } else {
+    //   //   console.error(dirname + " doesn't exist");
+    //   // }
+    // }
+    typedArrayToURL() {
+        const b = new blob_polyfill__WEBPACK_IMPORTED_MODULE_0__.Blob([this._fitsData], { type: "application/fits" });
+        // console.log(`<html><body><img src='${URL.createObjectURL(b)}'</body></html>`);
+        return URL.createObjectURL(b);
+    }
+}
+//# sourceMappingURL=FITSWriter.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/ParseHeader.js":
+/*!******************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/ParseHeader.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ParseHeader": () => (/* binding */ ParseHeader)
+/* harmony export */ });
+/* harmony import */ var _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeader.js */ "./node_modules/jsfitsio/lib-esm/model/FITSHeader.js");
+/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js");
+
+
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class ParseHeader {
+    static parse(rawdata) {
+        // only one header block (2880) allowed atm.
+        // TODO handle multiple header blocks
+        // let headerByteData = new Uint8Array(rawdata, 0, 2880);
+        const textDecoder = new TextDecoder("iso-8859-1");
+        const header = new _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeader();
+        let nline = 0;
+        let key = "";
+        let val;
+        let u8line;
+        let u8key;
+        let u8val;
+        let u8ind;
+        // let ind: string;
+        let item;
+        let fitsLine;
+        item = null;
+        while (key !== "END" && rawdata.length > 0) {
+            // line 80 characters
+            u8line = new Uint8Array(rawdata.slice(nline * 80, nline * 80 + 80));
+            nline++;
+            // key
+            u8key = new Uint8Array(u8line.slice(0, 8));
+            key = textDecoder.decode(u8key).trim();
+            // value indicator
+            u8ind = new Uint8Array(u8line.slice(8, 10));
+            // ind = textDecoder.decode(u8ind);
+            // reading value
+            u8val = new Uint8Array(u8line.slice(10, 80));
+            val = textDecoder.decode(u8val).trim();
+            if (u8ind[0] == 61 && u8ind[1] == 32) {
+                let firstchar = 32;
+                for (let i = 0; i < u8val.length; i++) {
+                    if (u8val[i] != 32) {
+                        firstchar = u8val[i];
+                        break;
+                    }
+                }
+                if (firstchar == 39 || !Number(val)) {
+                    // value starts with '
+                    // [ival, icomment]
+                    fitsLine = ParseHeader.parseStringValue(u8val);
+                }
+                else {
+                    if (firstchar == 84 || firstchar == 70) {
+                        // T or F
+                        fitsLine = ParseHeader.parseLogicalValue(u8val);
+                    }
+                    else {
+                        val = textDecoder.decode(u8val).trim();
+                        if (val.includes(".")) {
+                            fitsLine = ParseHeader.parseFloatValue(u8val);
+                        }
+                        else {
+                            fitsLine = ParseHeader.parseIntValue(u8val);
+                        }
+                    }
+                }
+                item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(key, fitsLine.val, fitsLine.comment);
+            }
+            else {
+                if (key == "COMMENT" || key == "HISTORY") {
+                    item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(key, undefined, val);
+                }
+                else {
+                    let firstchar = 32;
+                    for (let i = 0; i < u8val.length; i++) {
+                        if (u8val[i] != 32) {
+                            firstchar = u8val[i];
+                            break;
+                        }
+                    }
+                    if (firstchar == 47) {
+                        // single / this is the case when no key nor value indicator is defined
+                        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(undefined, undefined, val);
+                    }
+                    else if (firstchar == 32) {
+                        // case when there's a line with only spaces
+                        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem(undefined, undefined, undefined);
+                    }
+                }
+            }
+            if (item != null) {
+                header.addItem(item);
+            }
+        }
+        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem("COMMENT", "FITS generated with FITSParser on ", undefined);
+        header.addItem(item);
+        const now = new Date();
+        item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderItem("COMMENT", now.toString());
+        header.addItem(item);
+        const nblock = Math.ceil(nline / 36);
+        const offset = nblock * 2880;
+        header.offset = offset;
+        return header;
+    }
+    static parseStringValue(u8buffer) {
+        const textDecoder = new TextDecoder("iso-8859-1");
+        const decoded = textDecoder.decode(u8buffer).trim();
+        const idx = decoded.lastIndexOf("/");
+        const val = decoded.substring(0, idx);
+        let comment = decoded.substring(idx);
+        // if (comment === undefined) {
+        //   comment = null;
+        // }
+        return {
+            val: val,
+            comment: comment,
+        };
+    }
+    static parseLogicalValue(u8buffer) {
+        const textDecoder = new TextDecoder("iso-8859-1");
+        const val = textDecoder.decode(u8buffer).trim();
+        const tokens = val.split("/");
+        if (tokens[1] === undefined) {
+            return {
+                val: tokens[0].trim(),
+                comment: undefined,
+            };
+        }
+        return {
+            val: tokens[0].trim(),
+            comment: " /" + tokens[1],
+        };
+    }
+    static parseIntValue(u8buffer) {
+        const textDecoder = new TextDecoder("iso-8859-1");
+        const val = textDecoder.decode(u8buffer).trim();
+        const tokens = val.split("/");
+        if (tokens[1] === undefined) {
+            return {
+                val: parseInt(tokens[0].trim()),
+                comment: undefined,
+            };
+        }
+        return {
+            val: parseInt(tokens[0].trim()),
+            comment: " /" + tokens[1],
+        };
+    }
+    static parseFloatValue(u8buffer) {
+        const textDecoder = new TextDecoder("iso-8859-1");
+        const val = textDecoder.decode(u8buffer).trim();
+        const tokens = val.split("/");
+        if (tokens[1] === undefined) {
+            return {
+                val: parseFloat(tokens[0].trim()),
+                comment: undefined,
+            };
+        }
+        return {
+            val: parseFloat(tokens[0].trim()),
+            comment: " /" + tokens[1],
+        };
+    }
+}
+//# sourceMappingURL=ParseHeader.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/ParsePayload.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/ParsePayload.js ***!
+  \*******************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ParsePayload": () => (/* binding */ ParsePayload)
+/* harmony export */ });
+/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js");
+/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ParseUtils.js */ "./node_modules/jsfitsio/lib-esm/ParseUtils.js");
+// "use strict";
+
+
+// let colorsMap = new Map();
+// colorsMap.set("grayscale","grayscale");
+// colorsMap.set("planck","planck");
+// colorsMap.set("eosb","eosb");
+// colorsMap.set("rainbow","rainbow");
+// colorsMap.set("cmb","cmb");
+// colorsMap.set("cubehelix","cubehelix");
+class ParsePayload {
+    constructor(fitsheader, rawdata) {
+        this._u8data = new Uint8Array();
+        this._BZERO = undefined;
+        this._BSCALE = undefined;
+        this._BLANK = undefined;
+        this._BITPIX = undefined;
+        this._NAXIS1 = undefined;
+        this._NAXIS2 = undefined;
+        this._DATAMIN = undefined;
+        this._DATAMAX = undefined;
+        this._physicalblank = undefined;
+        const buffer = rawdata.slice(fitsheader.offset);
+        this._u8data = new Uint8Array(buffer);
+        this.init(fitsheader);
+    }
+    init(fitsheader) {
+        this._BZERO = fitsheader.get("BZERO");
+        if (this._BZERO === undefined) {
+            this._BZERO = 0;
+        }
+        this._BSCALE = fitsheader.get("BSCALE");
+        if (this._BSCALE === undefined) {
+            this._BSCALE = 1;
+        }
+        this._BLANK = fitsheader.get("BLANK"); // undefined in case it's not present in the header
+        // this._BLANK_pv = this._BZERO + this._BSCALE * this._BLANK || undefined;
+        this._BITPIX = fitsheader.get("BITPIX");
+        this._NAXIS1 = fitsheader.get("NAXIS1");
+        this._NAXIS2 = fitsheader.get("NAXIS2");
+        this._DATAMIN = fitsheader.get("DATAMIN");
+        this._DATAMAX = fitsheader.get("DATAMAX");
+        this._physicalblank = undefined;
+        if (this._DATAMAX === undefined || this._DATAMIN === undefined) {
+            const [min, max] = this.computePhysicalMinAndMax();
+            this._DATAMAX = max;
+            this._DATAMIN = min;
+            const maxitem = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMAX", max, " / computed with FITSParser");
+            const minitem = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMIN", min, " / computed with FITSParser");
+            fitsheader.addItem(maxitem);
+            fitsheader.addItem(minitem);
+            // fitsheader.set("DATAMAX", max);
+            // fitsheader.set("DATAMIN", min);
+        }
+        // let item = new FITSHeaderItem("END", null, null);
+        // fitsheader.addItem(item);
+    }
+    computePhysicalMinAndMax() {
+        let i = 0;
+        if (this._BITPIX === undefined) {
+            throw new Error("BITPIX is not defined");
+        }
+        const bytesXelem = Math.abs(this._BITPIX / 8);
+        const pxLength = this._u8data.byteLength / bytesXelem;
+        let px_val, ph_val;
+        let min = undefined;
+        let max = undefined;
+        if (this._BLANK !== undefined) {
+            this._physicalblank = this.pixel2physicalValue(this._BLANK);
+        }
+        while (i < pxLength) {
+            // px_val = this.extractPixelValue(bytesXelem*i);
+            px_val = this.extractPixelValue(bytesXelem * i);
+            if (px_val === undefined) {
+                i++;
+                continue;
+            }
+            ph_val = this.pixel2physicalValue(px_val);
+            if (min === undefined) {
+                min = ph_val;
+            }
+            if (max === undefined) {
+                max = ph_val;
+            }
+            //TODO check below if
+            if (this._physicalblank === undefined || this._physicalblank !== ph_val) {
+                if (ph_val !== undefined && (ph_val < min || min === undefined)) {
+                    min = ph_val;
+                }
+                if (ph_val !== undefined && (ph_val > max || max === undefined)) {
+                    max = ph_val;
+                }
+            }
+            i++;
+        }
+        return [min, max];
+    }
+    parse() {
+        // let px_val; // pixel array value
+        // let ph_val = undefined; // pixel physical value
+        if (this._BITPIX === undefined) {
+            throw new Error("BITPIX is undefined");
+        }
+        if (this._NAXIS1 === undefined) {
+            throw new Error("NAXIS1 is undefined");
+        }
+        if (this._NAXIS2 === undefined) {
+            throw new Error("NAXIS2 is undefined");
+        }
+        const bytesXelem = Math.abs(this._BITPIX / 8);
+        let pxLength = this._u8data.byteLength / bytesXelem;
+        pxLength = this._NAXIS1 * this._NAXIS2;
+        let k = 0;
+        let c, r;
+        const pixelvalues = [];
+        //  let pixv, pv;
+        while (k < pxLength) {
+            r = Math.floor(k / this._NAXIS1); // row
+            c = (k - r * this._NAXIS1) * bytesXelem; // col
+            if (c === 0) {
+                pixelvalues[r] = new Uint8Array(this._NAXIS1 * bytesXelem);
+            }
+            // px_val = this.extractPixelValue(bytesXelem * k);
+            // ph_val = this.pixel2physicalValue(px_val);
+            // TODO check if ph_val == blank
+            // if not then use ph_val to compute datamin and datamax
+            for (let i = 0; i < bytesXelem; i++) {
+                pixelvalues[r][c + i] = this._u8data[k * bytesXelem + i];
+            }
+            // if (k == 232) {
+            // 	pixv = this.extractPixelValue(k * bytesXelem);
+            // 	pv = this._BZERO + this._BSCALE * pixv;
+            // }
+            k++;
+        }
+        return pixelvalues;
+    }
+    /** this can be deleted */
+    extractPixelValue(offset) {
+        let px_val = undefined; // pixel value
+        if (this._BITPIX == 16) {
+            // 16-bit 2's complement binary integer
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parse16bit2sComplement(this._u8data[offset], this._u8data[offset + 1]);
+        }
+        else if (this._BITPIX == 32) {
+            // IEEE 754 half precision (float16) ??
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parse32bit2sComplement(this._u8data[offset], this._u8data[offset + 1], this._u8data[offset + 2], this._u8data[offset + 3]);
+        }
+        else if (this._BITPIX == -32) {
+            // 32-bit IEEE single-precision floating point
+            // px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]);
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 4), 8, 23);
+        }
+        else if (this._BITPIX == 64) {
+            // 64-bit 2's complement binary integer
+            throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
+        }
+        else if (this._BITPIX == -64) {
+            // 64-bit IEEE double-precision floating point
+            //https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_1__.ParseUtils.parseFloatingPointFormat(this._u8data.slice(offset, offset + 8), 11, 52);
+        }
+        return px_val;
+    }
+    pixel2physicalValue(pxval) {
+        if (this._BZERO === undefined || this._BSCALE === undefined) {
+            throw new Error("Either BZERO or BSCALE is undefined");
+        }
+        return this._BZERO + this._BSCALE * pxval;
+    }
+}
+//# sourceMappingURL=ParsePayload.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/ParseUtils.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/ParseUtils.js ***!
+  \*****************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ParseUtils": () => (/* binding */ ParseUtils)
+/* harmony export */ });
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class ParseUtils {
+    static getStringAt(data, offset, length) {
+        const chars = [];
+        for (let i = offset, j = 0; i < offset + length; i++, j++) {
+            chars[j] = String.fromCharCode(data.charCodeAt(i) & 0xff);
+        }
+        return chars.join("");
+    }
+    static byteString(n) {
+        if (n < 0 || n > 255 || n % 1 !== 0) {
+            throw new Error(n + " does not fit in a byte");
+        }
+        return ("000000000" + n.toString(2)).substr(-8);
+    }
+    static parse32bitSinglePrecisionFloatingPoint(byte1, byte2, byte3, byte4) {
+        let long = (((((byte1 << 8) + byte2) << 8) + byte3) << 8) + byte4;
+        if (long < 0)
+            long += 4294967296;
+        const float = (1.0 + (long & 0x007fffff) / 0x0800000) *
+            Math.pow(2, ((long & 0x7f800000) >> 23) - 127);
+        return float;
+    }
+    static convertBlankToBytes(blank, nbytes) {
+        let str = Math.abs(blank).toString(2);
+        while (str.length / 8 < nbytes) {
+            str += "0";
+        }
+        const buffer = new ArrayBuffer(nbytes);
+        const uint8 = new Uint8Array(buffer);
+        for (let i = 0; i < nbytes; i++) {
+            uint8[i] = parseInt(str.substr(8 * i, 8 * (i + 1)), 2);
+        }
+        return uint8;
+    }
+    /** https://gist.github.com/Manouchehri/f4b41c8272db2d6423fa987e844dd9ac */
+    static parseFloatingPointFormat(bytes, ebits, fbits) {
+        // Bytes to bits
+        const bits = [];
+        for (let i = bytes.length; i; i -= 1) {
+            let byte = bytes[i - 1];
+            for (let j = 8; j; j -= 1) {
+                bits.push(byte % 2 ? 1 : 0);
+                byte = byte >> 1;
+            }
+        }
+        bits.reverse();
+        const str = bits.join("");
+        // Unpack sign, exponent, fraction
+        const bias = (1 << (ebits - 1)) - 1;
+        const s = parseInt(str.substring(0, 1), 2) ? -1 : 1;
+        const e = parseInt(str.substring(1, 1 + ebits), 2);
+        const f = parseInt(str.substring(1 + ebits), 2);
+        // Produce number
+        if (e === (1 << ebits) - 1) {
+            return f !== 0 ? undefined : s * Infinity;
+        }
+        else if (e > 0) {
+            return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, fbits));
+        }
+        else if (f !== 0) {
+            return s * Math.pow(2, -(bias - 1)) * (f / Math.pow(2, fbits));
+        }
+        else {
+            return s * 0;
+        }
+    }
+    static generate16bit2sComplement(val) {
+        throw new TypeError("not implemented yet" + val);
+    }
+    static parse16bit2sComplement(byte1, byte2) {
+        const unsigned = (byte1 << 8) | byte2;
+        if (unsigned & 0x8000) {
+            return unsigned | 0xffff0000;
+        }
+        else {
+            return unsigned;
+        }
+    }
+    static parse32bit2sComplement(byte1, byte2, byte3, byte4) {
+        const unsigned = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+        const s = (unsigned & 0x80000000) >> 31;
+        let res = unsigned & 0xffffffff;
+        if (s) {
+            res = (~unsigned & 0xffffffff) + 1;
+            return -1 * res;
+        }
+        return res;
+    }
+    /**
+     *
+     * @param {*} data string?
+     * @param {*} offset offset in the data
+     * @returns returns an integer between 0 and 65535 representing the UTF-16 code unit at the given index.
+     */
+    static getByteAt(data, offset) {
+        const dataOffset = 0;
+        return data.charCodeAt(offset + dataOffset) & 0xff;
+    }
+    static extractPixelValue(offset, bytes, bitpix) {
+        let px_val = undefined; // pixel value
+        // let px_val1, px_val2, px_val3, px_val4;
+        if (bitpix == 8) {
+            px_val = bytes[0];
+        }
+        else if (bitpix == 16) {
+            // 16-bit 2's complement binary integer
+            px_val = ParseUtils.parse16bit2sComplement(bytes[offset], bytes[offset + 1]);
+        }
+        else if (bitpix == 32) {
+            // IEEE 754 half precision (float16) ??
+            px_val = ParseUtils.parse32bit2sComplement(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
+        }
+        else if (bitpix == -32) {
+            // 32-bit IEEE single-precision floating point
+            // px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]);
+            px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 8, 23);
+        }
+        else if (bitpix == 64) {
+            // 64-bit 2's complement binary integer
+            throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
+        }
+        else if (bitpix == -64) {
+            // 64-bit IEEE double-precision floating point
+            //https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
+            px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 11, 52);
+        }
+        return px_val;
+    }
+}
+// export default ParseUtils;
+//# sourceMappingURL=ParseUtils.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/index.js":
+/*!************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/index.js ***!
+  \************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FITSHeader": () => (/* reexport safe */ _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeader),
+/* harmony export */   "FITSHeaderItem": () => (/* reexport safe */ _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem),
+/* harmony export */   "FITSParser": () => (/* reexport safe */ _FITSParser_js__WEBPACK_IMPORTED_MODULE_2__.FITSParser),
+/* harmony export */   "FITSWriter": () => (/* reexport safe */ _FITSWriter_js__WEBPACK_IMPORTED_MODULE_3__.FITSWriter),
+/* harmony export */   "ParseHeader": () => (/* reexport safe */ _ParseHeader_js__WEBPACK_IMPORTED_MODULE_4__.ParseHeader),
+/* harmony export */   "ParsePayload": () => (/* reexport safe */ _ParsePayload_js__WEBPACK_IMPORTED_MODULE_5__.ParsePayload),
+/* harmony export */   "ParseUtils": () => (/* reexport safe */ _ParseUtils_js__WEBPACK_IMPORTED_MODULE_6__.ParseUtils)
+/* harmony export */ });
+/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js");
+/* harmony import */ var _model_FITSHeader_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeader.js */ "./node_modules/jsfitsio/lib-esm/model/FITSHeader.js");
+/* harmony import */ var _FITSParser_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FITSParser.js */ "./node_modules/jsfitsio/lib-esm/FITSParser.js");
+/* harmony import */ var _FITSWriter_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FITSWriter.js */ "./node_modules/jsfitsio/lib-esm/FITSWriter.js");
+/* harmony import */ var _ParseHeader_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ParseHeader.js */ "./node_modules/jsfitsio/lib-esm/ParseHeader.js");
+/* harmony import */ var _ParsePayload_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ParsePayload.js */ "./node_modules/jsfitsio/lib-esm/ParsePayload.js");
+/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ParseUtils.js */ "./node_modules/jsfitsio/lib-esm/ParseUtils.js");
+
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/model/FITSHeader.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/model/FITSHeader.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FITSHeader": () => (/* binding */ FITSHeader)
+/* harmony export */ });
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+// reference FTIS standard doc https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
+class FITSHeader extends Map {
+    constructor() {
+        super();
+        this._offset = undefined;
+        this._items = [];
+    }
+    set offset(offset) {
+        this._offset = offset;
+    }
+    get offset() {
+        return this._offset;
+    }
+    getItemList() {
+        return this._items;
+    }
+    getItemListOf(key) {
+        const res = [];
+        for (let i = 0; i < this._items.length; i++) {
+            const item = this._items[i];
+            if (item.key == key) {
+                res.push(item);
+            }
+        }
+        return res;
+    }
+    addItemAtTheBeginning(item) {
+        if (item.key !== undefined) {
+            if ([
+                "SIMPLE",
+                "BITPIX",
+                "NAXIS",
+                "NAXIS1",
+                "NAXIS2",
+                "BLANK",
+                "BZERO",
+                "BSCALE",
+                "DATAMIN",
+                "DATAMAX",
+                "NPIX",
+                "ORDER",
+                "CRPIX1",
+                "CRPIX2",
+                "CDELT1",
+                "CDELT2",
+            ].includes(item.key)) {
+                this.set(item.key, item.value);
+            }
+        }
+        const newitemlist = [item].concat(this._items);
+        this._items = newitemlist;
+    }
+    addItem(item) {
+        if (item.key !== undefined) {
+            if ([
+                "SIMPLE",
+                "BITPIX",
+                "NAXIS",
+                "NAXIS1",
+                "NAXIS2",
+                "BLANK",
+                "BZERO",
+                "BSCALE",
+                "DATAMIN",
+                "DATAMAX",
+                "NPIX",
+                "ORDER",
+                "CRPIX1",
+                "CRPIX2",
+                "CDELT1",
+                "CDELT2",
+            ].includes(item.key)) {
+                this.set(item.key, item.value);
+            }
+        }
+        this._items.push(item);
+    }
+    getNumRows() {
+        return this._items.length;
+    }
+}
+//# sourceMappingURL=FITSHeader.js.map
+
+/***/ }),
+
+/***/ "./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js ***!
+  \***************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FITSHeaderItem": () => (/* binding */ FITSHeaderItem)
+/* harmony export */ });
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class FITSHeaderItem {
+    constructor(key, value, comment) {
+        this._key = key !== undefined ? key : undefined;
+        this._value = value !== undefined ? value : undefined;
+        this._comment = comment !== undefined ? comment : undefined;
+    }
+    get key() {
+        return this._key;
+    }
+    get comment() {
+        return this._comment;
+    }
+    get value() {
+        return this._value;
+    }
+}
+//# sourceMappingURL=FITSHeaderItem.js.map
 
 /***/ })
 

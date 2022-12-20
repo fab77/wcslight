@@ -70,19 +70,34 @@ export class HiPSProjection {
                 else {
                     prop = propFile.toString('utf8');
                 }
+                /**
+                    HiPS – Hierarchical Progressive Survey
+                    Version 1.0
+                    IVOA Proposed Recommendation
+                    3rd April 2017
+                    https://www.ivoa.net/documents/HiPS/20170403/PR-HIPS-1.0-20170403.pdf
+                 */
                 const txtArr = prop.split('\n');
+                this._HIPS_TILE_WIDTH = 512;
                 for (let line of txtArr) {
-                    if (line.includes("hips_tile_width")) {
-                        console.log(line);
-                        let val = line.split("=")[1].trim();
+                    if (!line.includes("=")) {
+                        continue;
+                    }
+                    const tokens = line.split("=");
+                    if (tokens[1] === undefined) {
+                        continue;
+                    }
+                    const key = tokens[0].trim();
+                    const val = tokens[1].trim();
+                    if (key == "hips_order") {
+                        this._HIPS_MAX_ORDER = parseInt(val);
+                        console.log("hips_order " + this._HIPS_MAX_ORDER);
+                    }
+                    else if (key == "hips_tile_width") {
                         this._HIPS_TILE_WIDTH = parseInt(val);
                         this._naxis1 = this._HIPS_TILE_WIDTH;
                         this._naxis2 = this._HIPS_TILE_WIDTH;
-                        console.log(`val is ${val}`);
-                        break;
-                    }
-                    else {
-                        this._HIPS_TILE_WIDTH = 512;
+                        console.log("hips_tile_width " + this._HIPS_TILE_WIDTH);
                     }
                 }
                 return propFile;
@@ -118,6 +133,9 @@ export class HiPSProjection {
                 yield this.parsePropertiesFile(baseUrl);
             }
             let order = HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
+            if (order > this._HIPS_MAX_ORDER) {
+                order = this._HIPS_MAX_ORDER;
+            }
             this.init(order);
         });
     }
@@ -126,6 +144,9 @@ export class HiPSProjection {
             this._hipsBaseURI = baseUrl;
             if (this._HIPS_TILE_WIDTH === undefined) {
                 yield this.parsePropertiesFile(baseUrl);
+            }
+            if (order > this._HIPS_MAX_ORDER) {
+                order = this._HIPS_MAX_ORDER;
             }
             this._pxsize = HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
             this.init(order);

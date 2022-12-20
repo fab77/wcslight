@@ -54,6 +54,7 @@ export class HiPSProjection implements AbstractProjection {
 	_radeclist: Array<[number, number]>;
 	_HIPS_TILE_WIDTH: number;
 	_fitsUsed: String[] = [];
+	_HIPS_MAX_ORDER: number;
 
 	/**
 	 * 
@@ -89,31 +90,46 @@ export class HiPSProjection implements AbstractProjection {
 
 	}
 
-	async parsePropertiesFile(baseUrl: string): Promise <any> {
+	async parsePropertiesFile(baseUrl: string): Promise<any> {
 		const fp = new FITSParser(null);
 
-		const promise = fp.getFile(baseUrl + "/properties").then( (propFile: ArrayBuffer | Buffer) => {
+		const promise = fp.getFile(baseUrl + "/properties").then((propFile: ArrayBuffer | Buffer) => {
 			let prop: string;
-			if (  propFile instanceof ArrayBuffer) {
+			if (propFile instanceof ArrayBuffer) {
 				const textDecoder = new TextDecoder("iso-8859-1");
 				prop = textDecoder.decode(new Uint8Array(propFile));
 			} else {
 				prop = propFile.toString('utf8');
 			}
-			
-			
+			/**
+			 	HiPS – Hierarchical Progressive Survey
+				Version 1.0
+				IVOA Proposed Recommendation
+				3rd April 2017
+				https://www.ivoa.net/documents/HiPS/20170403/PR-HIPS-1.0-20170403.pdf
+			 */
 			const txtArr = prop.split('\n');
+			this._HIPS_TILE_WIDTH = 512;
 			for (let line of txtArr) {
-				if (line.includes("hips_tile_width")) {
-					console.log(line);
-					let val = line.split("=")[1].trim();
+				if (!line.includes("=")){
+					continue;
+				}
+
+				const tokens = line.split("=");
+				if (tokens[1] === undefined){
+					continue;
+				}
+				const key = tokens[0].trim()
+				const val = tokens[1].trim()
+
+				if (key == "hips_order") {
+					this._HIPS_MAX_ORDER = parseInt(val);
+					console.log("hips_order "+this._HIPS_MAX_ORDER)
+				} else if (key == "hips_tile_width") {
 					this._HIPS_TILE_WIDTH = parseInt(val);
 					this._naxis1 = this._HIPS_TILE_WIDTH;
 					this._naxis2 = this._HIPS_TILE_WIDTH;
-					console.log(`val is ${val}`)
-					break;
-				} else {
-					this._HIPS_TILE_WIDTH = 512;
+					console.log("hips_tile_width "+this._HIPS_TILE_WIDTH)
 				}
 			}
 			return propFile;
@@ -155,6 +171,9 @@ export class HiPSProjection implements AbstractProjection {
 			await this.parsePropertiesFile(baseUrl);
 		}
 		let order = HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
+		if (order > this._HIPS_MAX_ORDER) {
+			order = this._HIPS_MAX_ORDER
+		}
 		this.init(order);
 	}
 
@@ -162,6 +181,9 @@ export class HiPSProjection implements AbstractProjection {
 		this._hipsBaseURI = baseUrl;
 		if (this._HIPS_TILE_WIDTH === undefined) {
 			await this.parsePropertiesFile(baseUrl);
+		}
+		if (order > this._HIPS_MAX_ORDER){
+			order = this._HIPS_MAX_ORDER
 		}
 		this._pxsize = HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
 		this.init(order);
@@ -264,7 +286,7 @@ export class HiPSProjection implements AbstractProjection {
 
 			promises.push(fp.loadFITS().then((fits) => {
 				if (fits !== null) {
-					let pixno = ( fits.header.get("NPIX") !== undefined ) ? fits.header.get("NPIX") : tileno;
+					let pixno = (fits.header.get("NPIX") !== undefined) ? fits.header.get("NPIX") : tileno;
 					// FITSParser.writeFITS(fits.header, fits.data, destPath+"/Npix"+pixno+".fits");
 					// fitsFilesGenerated.set(destPath+"/Npix"+pixno+".fits",FITSParser.generateFITS(fits.header, fits.data) );
 					fitsFilesGenerated.set(destPath + "/Npix" + pixno + ".fits", fits);
@@ -276,7 +298,7 @@ export class HiPSProjection implements AbstractProjection {
 	}
 
 
-	get fitsUsed(): String[]{
+	get fitsUsed(): String[] {
 		return this._fitsUsed;
 	}
 
@@ -411,7 +433,7 @@ export class HiPSProjection implements AbstractProjection {
 		this._tileslist.forEach((tileno: number) => {
 			// this._pxvalues.set(tileno, new Array(HiPSHelper.DEFAULT_Naxis1_2));  // <- bidimensional
 			// for (let row = 0; row < HiPSHelper.DEFAULT_Naxis1_2; row++) {
-			
+
 			this._pxvalues.set(tileno, new Array(this._HIPS_TILE_WIDTH));  // <- bidimensional
 			for (let row = 0; row < this._HIPS_TILE_WIDTH; row++) {
 				if (this._pxvalues.has(tileno)) {

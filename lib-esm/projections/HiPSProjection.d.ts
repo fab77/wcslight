@@ -25,6 +25,7 @@ export declare class HiPSProjection implements AbstractProjection {
     _radeclist: Array<[number, number]>;
     _HIPS_TILE_WIDTH: number;
     _fitsUsed: String[];
+    _HIPS_MAX_ORDER: number;
     /**
      *
      * * ex with single local file:
