@@ -1,1 +1,0 @@
-{"version":3,"file":"CartesianCoords.d.ts","sourceRoot":"","sources":["../../src/model/CartesianCoords.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,MAAM,oBAAoB,CAAC;AAEnD,MAAM,WAAW,eAAgB,SAAQ,aAAa;IAClD,CAAC,EAAE,MAAM,CAAC;IACb,CAAC,EAAE,MAAM,CAAC;IACP,CAAC,EAAE,MAAM,CAAC;CACb"}

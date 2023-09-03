@@ -619,7 +619,7 @@ export class HiPSProjection implements AbstractProjection {
 
 	// conversion taken from https://astrophysicsandpython.com/2022/03/15/html-js-equatorial-to-galactic-coordinates/
 	convertToGalactic(radeclist: number[][]): number[][] {
-		let finalradeclist: number[][] = [[]];
+		let finalradeclist: number[][] = [];
 		const deg2rad = Math.PI / 180
 		const rad2deg = 180 / Math.PI
 		const l_NCP = deg2rad * 122.930
@@ -657,9 +657,8 @@ export class HiPSProjection implements AbstractProjection {
 			if HiPS in galactic => convert the full list of (RA, Dec) to Galactic  (l, b)
 		*/
 
-		let finalradeclist = radeclist;
 		if (this._isGalactic){
-			finalradeclist = this.convertToGalactic(radeclist);
+			let finalradeclist = this.convertToGalactic(radeclist);
 			radeclist = finalradeclist;
 		}
 
