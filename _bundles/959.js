@@ -1,0 +1,2 @@
+(self.webpackChunkwcslight=self.webpackChunkwcslight||[]).push([[959],{100:()=>{},959:(n,t,e)=>{"use strict";e.r(t),e.d(t,{getLocalFile:()=>i});var c=e(100);function i(n){return t=this,e=void 0,u=function*(){let t;return t=yield(0,c.readFile)(n),t},new((i=void 0)||(i=Promise))((function(n,c){function o(n){try{a(u.next(n))}catch(n){c(n)}}function r(n){try{a(u.throw(n))}catch(n){c(n)}}function a(t){var e;t.done?n(t.value):(e=t.value,e instanceof i?e:new i((function(n){n(e)}))).then(o,r)}a((u=u.apply(t,e||[])).next())}));var t,e,i,u}}}]);
+//# sourceMappingURL=959.js.map

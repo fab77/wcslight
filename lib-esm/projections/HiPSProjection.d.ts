@@ -8,6 +8,7 @@ import { Point } from '../model/Point.js';
 export declare class HiPSProjection implements AbstractProjection {
     _naxis1: number;
     _naxis2: number;
+    _isGalactic: boolean;
     _pixno: number;
     _tileslist: number[];
     _hp: Healpix;
@@ -63,6 +64,7 @@ export declare class HiPSProjection implements AbstractProjection {
     setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>>;
     getImageRADecList(center: Point, radiusDeg: number): Array<[number, number]>;
     pix2world(i: number, j: number): Point;
+    convertToGalactic(radeclist: number[][]): number[][];
     world2pix(radeclist: number[][]): ImagePixel[];
 }
 //# sourceMappingURL=HiPSProjection.d.ts.map

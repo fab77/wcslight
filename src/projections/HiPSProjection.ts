@@ -30,6 +30,7 @@ import { Point } from '../model/Point.js';
 import { CoordsType } from '../model/CoordsType.js';
 import { NumberType } from '../model/NumberType.js';
 import { exit } from 'process';
+import { INSPECT_MAX_BYTES } from 'buffer';
 
 
 
@@ -37,6 +38,7 @@ export class HiPSProjection implements AbstractProjection {
 
 	_naxis1!: number;
 	_naxis2!: number;
+	_isGalactic: boolean = false;
 	_pixno!: number;
 	_tileslist!: number[];
 	_hp!: Healpix;
@@ -130,6 +132,9 @@ export class HiPSProjection implements AbstractProjection {
 					this._naxis1 = this._HIPS_TILE_WIDTH;
 					this._naxis2 = this._HIPS_TILE_WIDTH;
 					console.log("hips_tile_width "+this._HIPS_TILE_WIDTH)
+				} else if (key == "hips_frame" && val == "galactic") {
+					this._isGalactic = true;
+
 				}
 			}
 			return propFile;
@@ -612,6 +617,33 @@ export class HiPSProjection implements AbstractProjection {
 	}
 
 
+	// conversion taken from https://astrophysicsandpython.com/2022/03/15/html-js-equatorial-to-galactic-coordinates/
+	convertToGalactic(radeclist: number[][]): number[][] {
+		let finalradeclist: number[][] = [[]];
+		const deg2rad = Math.PI / 180
+		const rad2deg = 180 / Math.PI
+		const l_NCP = deg2rad * 122.930
+		const d_NGP = deg2rad * 27.1284
+		const a_NGP = deg2rad * 192.8595
+		radeclist.forEach(([ra, dec]) => {
+			const ra_rad = deg2rad * ra
+			const dec_rad = deg2rad * dec
+			// sin(b)
+			const sin_b = Math.sin(d_NGP) * Math.sin(dec_rad) + 
+							Math.cos(d_NGP) * Math.cos(dec_rad) * Math.cos(ra_rad - a_NGP);
+			const b = Math.asin(sin_b)
+			const b_deg = b * rad2deg
+
+			// l_NCP - l
+			const lNCP_minus_l = Math.atan ( ( Math.cos(dec_rad) * Math.sin(ra_rad - a_NGP)) /
+							(Math.sin(dec_rad) * Math.cos(d_NGP) - Math.cos(dec_rad) * Math.sin(d_NGP) * Math.cos(ra_rad - a_NGP)) );
+			const l = l_NCP - lNCP_minus_l
+			const l_deg = l * rad2deg
+			
+			finalradeclist.push([l_deg, b_deg])
+		});
+		return finalradeclist;
+	}
 
 	world2pix(radeclist: number[][]): ImagePixel[] {
 
@@ -620,6 +652,17 @@ export class HiPSProjection implements AbstractProjection {
 		let tileno: number;
 		let prevTileno: number | undefined = undefined;
 		// let k = 0;
+
+		/*
+			if HiPS in galactic => convert the full list of (RA, Dec) to Galactic  (l, b)
+		*/
+
+		let finalradeclist = radeclist;
+		if (this._isGalactic){
+			finalradeclist = this.convertToGalactic(radeclist);
+			radeclist = finalradeclist;
+		}
+
 		radeclist.forEach(([ra, dec]) => {
 
 			let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
