@@ -1,0 +1,1 @@
+{"version":3,"file":"AstroCoords.d.ts","sourceRoot":"","sources":["../../src/model/AstroCoords.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,MAAM,oBAAoB,CAAC;AAEnD,MAAM,WAAW,WAAY,SAAQ,aAAa;IAC9C,KAAK,EAAE,MAAM,CAAC;IACjB,MAAM,EAAE,MAAM,CAAC;IACZ,KAAK,EAAE,MAAM,CAAC;IACjB,MAAM,EAAE,MAAM,CAAC;CACf"}
