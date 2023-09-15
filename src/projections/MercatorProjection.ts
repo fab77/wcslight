@@ -336,7 +336,8 @@ export class MercatorProjection implements AbstractProjection {
             }
         }
 
-        let cidx = (this._naxis2 / 2 - 1) * this._naxis1 + this._naxis1 / 2;
+        // let cidx = (this._naxis2 / 2 - 1) * this._naxis1 + this._naxis1 / 2;
+        let cidx = (this._naxis2 / 2 ) * this._naxis1 + this._naxis1 / 2;
         this._craDeg = radeclist[cidx][0];
         this._cdecDeg = radeclist[cidx][1];
 
