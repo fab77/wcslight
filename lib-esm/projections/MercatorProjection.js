@@ -110,8 +110,8 @@ export class MercatorProjection {
         this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS", 2));
         this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", this._naxis1));
         this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", this._naxis2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", this._ctype1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", this._ctype2));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", "'" + this._ctype1 + "'"));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", "'" + this._ctype2 + "'"));
         this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", this._pxsize)); // ??? Pixel spacing along axis 1 ???
         this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", this._pxsize)); // ??? Pixel spacing along axis 2 ???
         this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", this._naxis1 / 2)); // central/reference pixel i along naxis1
@@ -122,8 +122,8 @@ export class MercatorProjection {
         let max = bzero + bscale * this._maxphysicalval;
         this._fitsheader[0].addItem(new FITSHeaderItem("DATAMIN", min)); // min data value
         this._fitsheader[0].addItem(new FITSHeaderItem("DATAMAX", max)); // max data value
-        this._fitsheader[0].addItem(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
-        this._fitsheader[0].addItem(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
+        this._fitsheader[0].addItem(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'"));
+        this._fitsheader[0].addItem(new FITSHeaderItem("COMMENT", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
         this._fitsheader[0].addItem(new FITSHeaderItem("END"));
         return this._fitsheader;
     }
