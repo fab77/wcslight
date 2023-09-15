@@ -50,6 +50,7 @@ export class HiPSProjection {
      */
     //  constructor(fitsfilepath?: string, hipsBaseURI?: string, pxsize?: number, order?: number) {
     constructor() {
+        this._isGalactic = false;
         this._fitsUsed = [];
         this._wcsname = "HPX"; // TODO check WCS standard
         this._ctype1 = "RA---HPX";
@@ -98,6 +99,9 @@ export class HiPSProjection {
                         this._naxis1 = this._HIPS_TILE_WIDTH;
                         this._naxis2 = this._HIPS_TILE_WIDTH;
                         console.log("hips_tile_width " + this._HIPS_TILE_WIDTH);
+                    }
+                    else if (key == "hips_frame" && val == "galactic") {
+                        this._isGalactic = true;
                     }
                 }
                 return propFile;
@@ -488,12 +492,44 @@ export class HiPSProjection {
         // }
         return p;
     }
+    // conversion taken from https://astrophysicsandpython.com/2022/03/15/html-js-equatorial-to-galactic-coordinates/
+    convertToGalactic(radeclist) {
+        let finalradeclist = [];
+        const deg2rad = Math.PI / 180;
+        const rad2deg = 180 / Math.PI;
+        const l_NCP = deg2rad * 122.930;
+        const d_NGP = deg2rad * 27.1284;
+        const a_NGP = deg2rad * 192.8595;
+        radeclist.forEach(([ra, dec]) => {
+            const ra_rad = deg2rad * ra;
+            const dec_rad = deg2rad * dec;
+            // sin(b)
+            const sin_b = Math.sin(d_NGP) * Math.sin(dec_rad) +
+                Math.cos(d_NGP) * Math.cos(dec_rad) * Math.cos(ra_rad - a_NGP);
+            const b = Math.asin(sin_b);
+            const b_deg = b * rad2deg;
+            // l_NCP - l
+            const lNCP_minus_l = Math.atan((Math.cos(dec_rad) * Math.sin(ra_rad - a_NGP)) /
+                (Math.sin(dec_rad) * Math.cos(d_NGP) - Math.cos(dec_rad) * Math.sin(d_NGP) * Math.cos(ra_rad - a_NGP)));
+            const l = l_NCP - lNCP_minus_l;
+            const l_deg = l * rad2deg;
+            finalradeclist.push([l_deg, b_deg]);
+        });
+        return finalradeclist;
+    }
     world2pix(radeclist) {
         // let imgpxlist = new ImagePixel[radeclist.length];
         let imgpxlist = [];
         let tileno;
         let prevTileno = undefined;
         // let k = 0;
+        /*
+            if HiPS in galactic => convert the full list of (RA, Dec) to Galactic  (l, b)
+        */
+        if (this._isGalactic) {
+            let finalradeclist = this.convertToGalactic(radeclist);
+            radeclist = finalradeclist;
+        }
         radeclist.forEach(([ra, dec]) => {
             let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
             // let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(ra, dec);
