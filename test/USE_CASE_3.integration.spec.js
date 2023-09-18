@@ -148,13 +148,13 @@ function test04() {
 }
 
 
-console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-console.log("Running test 1/4 of USE CASE 2")
-console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-test01();
-console.log(" ")
-console.log(" ")
-console.log(" ")
+// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+// console.log("Running test 1/4 of USE CASE 2")
+// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+// test01();
+// console.log(" ")
+// console.log(" ")
+// console.log(" ")
 
 // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 // console.log("Running test 2/4 of USE CASE 2")
@@ -178,6 +178,42 @@ console.log(" ")
 // test04();
 
 // testX();
+testXX();
+
+
+function testXX() {
+    console.log("###################### ###################### ######################");
+    console.log("USE CASE 3.0: Testing RA Dec in WCS header");
+    let in_hp = new HiPSProjection();
+    let in_pxsize = 0.001;
+    let hipsBaseUrl = 'https://alasky.cds.unistra.fr/Pan-STARRS/DR1/r';
+    in_hp.parsePropertiesFile(hipsBaseUrl).then(async propFile => {
+        in_hp.initFromHiPSLocationAndPxSize(hipsBaseUrl, in_pxsize)
+        let out_mp = new MercatorProjection();
+        let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 186.887977, 6.234586);
+
+        let radius = 135.36/3600;
+        let out_pxsize = 1.0/3600;
+        WCSLight.cutout(centre, radius, out_pxsize, in_hp, out_mp).then(cutoutResult => {
+            let firstHeader = cutoutResult.fitsheader[0];
+            let firstData = cutoutResult.fitsdata.get(0);
+            let destDir = __dirname + '/output/UC3/3_0/Mercator.fits';
+            if (firstData !== undefined) {
+
+                let fw = new FITSWriter();
+                fw.run(firstHeader, firstData)
+                fs.writeFile(destDir, fw._fitsData);
+                console.log(`File written in ${destDir}`);
+
+            } else {
+                // TODO failed
+            }
+            console.log("Files stored in " + destDir);
+        });
+
+    });
+}
+
 
 function testX() {
     let in_hp = new HiPSProjection();
