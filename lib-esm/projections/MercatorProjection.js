@@ -250,8 +250,8 @@ export class MercatorProjection {
                 radeclist.push([this._minra + (r * this._pxsize), this._mindec + (d * this._pxsize)]);
             }
         }
-        let cidx2 = (this._naxis2 / 2 - 1) * this._naxis1 + this._naxis1 / 2;
-        let cidx3 = (this._naxis2 / 2) * this._naxis1 + this._naxis1 / 2;
+        // let cidx2 = (this._naxis2 / 2 - 1) * this._naxis1 + this._naxis1 / 2;
+        // let cidx3 = (this._naxis2 / 2 ) * this._naxis1 + this._naxis1 / 2;
         let cidx = Math.ceil(radeclist.length / 2);
         this._craDeg = radeclist[cidx][0];
         this._cdecDeg = radeclist[cidx][1];

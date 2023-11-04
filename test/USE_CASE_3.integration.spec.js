@@ -180,24 +180,31 @@ function test04() {
 // testX();
 testXX();
 
-
+// http://localhost:4000/api/cutout?radiusasec=118.0&pxsizeasec=2.0&radeg=170.01583333333332&decdeg=18.356805555555557&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
 function testXX() {
     console.log("###################### ###################### ######################");
     console.log("USE CASE 3.0: Testing RA Dec in WCS header");
     let in_hp = new HiPSProjection();
-    let in_pxsize = 0.001;
-    let hipsBaseUrl = 'https://alasky.cds.unistra.fr/Pan-STARRS/DR1/r';
+    // let in_pxsize = 0.001;
+    // let hipsBaseUrl = 'https://alasky.cds.unistra.fr/Pan-STARRS/DR1/r';
+    // let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 186.887977, 6.234586);
+    // let radius = 135.36/3600;
+    // let out_pxsize = 1.0/3600;
+
+    let in_pxsize = 2.0/3600;
+    let hipsBaseUrl = 'http://skies.esac.esa.int/Herschel/PACS160';
+    let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.01583333333332, 18.356805555555557);
+    let out_pxsize = 2.0/3600;
+    let radius = 118.0/3600;
+    
     in_hp.parsePropertiesFile(hipsBaseUrl).then(async propFile => {
         in_hp.initFromHiPSLocationAndPxSize(hipsBaseUrl, in_pxsize)
         let out_mp = new MercatorProjection();
-        let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 186.887977, 6.234586);
-
-        let radius = 135.36/3600;
-        let out_pxsize = 1.0/3600;
+        
         WCSLight.cutout(centre, radius, out_pxsize, in_hp, out_mp).then(cutoutResult => {
             let firstHeader = cutoutResult.fitsheader[0];
             let firstData = cutoutResult.fitsdata.get(0);
-            let destDir = __dirname + '/output/UC3/3_0/Mercator.fits';
+            let destDir = __dirname + '/output/UC3/3_0/Mercator2.fits';
             if (firstData !== undefined) {
 
                 let fw = new FITSWriter();
