@@ -178,8 +178,59 @@ function test04() {
 // test04();
 
 // testX();
-testXX();
+// testXX();
+testXXX();
 
+
+
+// http://localhost:4000/api/cutout?radiusasec=116.0&pxsizeasec=2.0&radeg=180.89974999999998&decdeg=16.055555555555557&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
+// http://localhost:4000/api/cutout?radiusasec=252.0&pxsizeasec=2.0&radeg=180.6760833333333&decdeg=1.976777777777778&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
+
+function testXXX() {
+    console.log("###################### ###################### ######################");
+    console.log("USE CASE 3.0: Testing FITS bytes length (naxis1 x naxis2 x bytes_from_bitpix");
+    let in_hp = new HiPSProjection();
+
+    let in_pxsize = 2.0/3600;
+    let hipsBaseUrl = 'http://skies.esac.esa.int/Herschel/PACS160';
+    let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 180.6760833333333, 1.976777777777778);
+    let out_pxsize = 2.0/3600;
+    let radius = 252.0/3600;
+    
+    in_hp.parsePropertiesFile(hipsBaseUrl).then(async propFile => {
+        in_hp.initFromHiPSLocationAndPxSize(hipsBaseUrl, in_pxsize)
+        let out_mp = new MercatorProjection();
+        
+        WCSLight.cutout(centre, radius, out_pxsize, in_hp, out_mp).then(cutoutResult => {
+            let firstHeader = cutoutResult.fitsheader[0];
+            const naxis1 = firstHeader.get("NAXIS1")
+            const naxis2 = firstHeader.get("NAXIS2")
+            const bitpix = firstHeader.get("BITPIX")
+            const expectedBytesLength = naxis1 * naxis2 * Math.abs(bitpix)
+            console.log("expectedBytesLength: "+expectedBytesLength)
+            
+
+            let firstData = cutoutResult.fitsdata.get(0);
+            const dataLength = firstData.length * firstData[0].length * 8
+            console.log("dataLEngth: "+ dataLength )
+            console.log("Missing :" + (expectedBytesLength - dataLength))
+            let destDir = __dirname + '/output/UC3/3_0/Mercator8.fits';
+            if (firstData !== undefined) {
+
+                let fw = new FITSWriter();
+                fw.run(firstHeader, firstData)
+                fs.writeFile(destDir, fw._fitsData);
+                console.log(`File written in ${destDir}`);
+
+            } else {
+                // TODO failed
+            }
+            console.log("Files stored in " + destDir);
+        });
+
+    });
+
+}
 // http://localhost:3000/api/cutout?radiusasec=420.0&pxsizeasec=2.0&radeg=157.33299999999997&decdeg=29.491444444444447&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
 // http://localhost:3000/api/cutout?radiusasec=118.0&pxsizeasec=2.0&radeg=170.01583333333332&decdeg=18.356805555555557&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
 // http://localhost:3000/api/cutout?radiusasec=96.0&pxsizeasec=2.0&radeg=154.41525&decdeg=22.80997222222222&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160

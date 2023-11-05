@@ -130,13 +130,15 @@ export class MercatorProjection implements AbstractProjection {
 
         this._fitsheader[0] = new FITSHeader();
 
-
+        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS1", this._naxis1));
+        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS2", this._naxis2));
+        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS", 2));
         this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
         this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS", 2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", this._naxis1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", this._naxis2));
+        
+        
+        
 
         if (fitsHeaderParams.get("BLANK") !== undefined) {
             this._fitsheader[0].addItem(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
