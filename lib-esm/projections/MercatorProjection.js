@@ -94,6 +94,9 @@ export class MercatorProjection {
         this._fitsheader[0] = new FITSHeader();
         this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
         this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
+        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS", 2));
+        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", this._naxis1));
+        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", this._naxis2));
         if (fitsHeaderParams.get("BLANK") !== undefined) {
             this._fitsheader[0].addItem(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
         }
@@ -107,9 +110,6 @@ export class MercatorProjection {
             bzero = fitsHeaderParams.get("BZERO");
         }
         this._fitsheader[0].addItem(new FITSHeaderItem("BZERO", bzero));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS", 2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", this._naxis1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", this._naxis2));
         this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", "'" + this._ctype1 + "'"));
         this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", "'" + this._ctype2 + "'"));
         this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", this._pxsize)); // ??? Pixel spacing along axis 1 ???
@@ -250,9 +250,13 @@ export class MercatorProjection {
                 radeclist.push([this._minra + (r * this._pxsize), this._mindec + (d * this._pxsize)]);
             }
         }
+        let cidx = (this._naxis2 / 2) * this._naxis1 + this._naxis1 / 2;
+        if (this._naxis1 % 2 != 0) {
+            cidx = Math.floor(radeclist.length / 2);
+        }
         // let cidx2 = (this._naxis2 / 2 - 1) * this._naxis1 + this._naxis1 / 2;
-        // let cidx3 = (this._naxis2 / 2 ) * this._naxis1 + this._naxis1 / 2;
-        let cidx = Math.ceil(radeclist.length / 2);
+        // let cidx = Math.ceil(radeclist.length / 2);
+        // let cidx = Math.floor(radeclist.length / 2);
         this._craDeg = radeclist[cidx][0];
         this._cdecDeg = radeclist[cidx][1];
         return radeclist;

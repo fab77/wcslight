@@ -180,7 +180,10 @@ function test04() {
 // testX();
 testXX();
 
-// http://localhost:4000/api/cutout?radiusasec=118.0&pxsizeasec=2.0&radeg=170.01583333333332&decdeg=18.356805555555557&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
+// http://localhost:3000/api/cutout?radiusasec=420.0&pxsizeasec=2.0&radeg=157.33299999999997&decdeg=29.491444444444447&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
+// http://localhost:3000/api/cutout?radiusasec=118.0&pxsizeasec=2.0&radeg=170.01583333333332&decdeg=18.356805555555557&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
+// http://localhost:3000/api/cutout?radiusasec=96.0&pxsizeasec=2.0&radeg=154.41525&decdeg=22.80997222222222&hipsbaseuri=http://skies.esac.esa.int/Herschel/PACS160
+
 function testXX() {
     console.log("###################### ###################### ######################");
     console.log("USE CASE 3.0: Testing RA Dec in WCS header");
@@ -191,11 +194,17 @@ function testXX() {
     // let radius = 135.36/3600;
     // let out_pxsize = 1.0/3600;
 
+    // let in_pxsize = 2.0/3600;
+    // let hipsBaseUrl = 'http://skies.esac.esa.int/Herschel/PACS160';
+    // let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.01583333333332, 18.356805555555557);
+    // let out_pxsize = 2.0/3600;
+    // let radius = 118.0/3600;
+    
     let in_pxsize = 2.0/3600;
     let hipsBaseUrl = 'http://skies.esac.esa.int/Herschel/PACS160';
-    let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.01583333333332, 18.356805555555557);
+    let centre = new Point(CoordsType.ASTRO, NumberType.DEGREES, 154.41525, 22.80997222222222);
     let out_pxsize = 2.0/3600;
-    let radius = 118.0/3600;
+    let radius = 96.0/3600;
     
     in_hp.parsePropertiesFile(hipsBaseUrl).then(async propFile => {
         in_hp.initFromHiPSLocationAndPxSize(hipsBaseUrl, in_pxsize)
@@ -204,7 +213,7 @@ function testXX() {
         WCSLight.cutout(centre, radius, out_pxsize, in_hp, out_mp).then(cutoutResult => {
             let firstHeader = cutoutResult.fitsheader[0];
             let firstData = cutoutResult.fitsdata.get(0);
-            let destDir = __dirname + '/output/UC3/3_0/Mercator2.fits';
+            let destDir = __dirname + '/output/UC3/3_0/Mercator8.fits';
             if (firstData !== undefined) {
 
                 let fw = new FITSWriter();
