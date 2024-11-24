@@ -11,7 +11,8 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/WCSLight.js"
+            // "program": "${workspaceFolder}/src/WCSLight.js"
+            "program": "${workspaceFolder}/test/index2.js"
         }
     ]
 }

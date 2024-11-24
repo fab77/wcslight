@@ -31,23 +31,24 @@ import { CoordsType } from '../model/CoordsType.js';
 import { NumberType } from '../model/NumberType.js';
 import { exit } from 'process';
 import { INSPECT_MAX_BYTES } from 'buffer';
+import { FITS } from '../model/FITS.js';
 
 
 
-export class HiPSProjection implements AbstractProjection {
-
-	_naxis1!: number;
-	_naxis2!: number;
+export class HiPSProjection extends AbstractProjection {
+	
+	// _naxis1!: number;
+	// _naxis2!: number;
 	_isGalactic: boolean = false;
 	_pixno!: number;
 	_tileslist!: number[];
 	_hp!: Healpix;
 	_fh_common!: FITSHeader;
-	_ctype1: string; // TODO should be RA ENUM
-	_ctype2: string; // TODO should be Dec ENUM
+	// _ctype1: string; // TODO should be RA ENUM
+	// _ctype2: string; // TODO should be Dec ENUM
 	_wcsname: string;
 	_hipsBaseURI!: string;
-	_pxsize!: number;
+	// _pxsize!: number;
 	_fitsheaderlist: FITSHeader[];
 	_pxvalues: Map<number, Array<Uint8Array>>;
 	_xyGridProj!: HEALPixXYSpace;
@@ -81,10 +82,10 @@ export class HiPSProjection implements AbstractProjection {
 
 	//  constructor(fitsfilepath?: string, hipsBaseURI?: string, pxsize?: number, order?: number) {
 	constructor() {
-
+		super("'RA---HPX'", "'DEC--HPX'")
 		this._wcsname = "HPX"; // TODO check WCS standard
-		this._ctype1 = "RA---HPX";
-		this._ctype2 = "DEC--HPX";
+		// this._ctype1 = "RA---HPX";
+		// this._ctype2 = "DEC--HPX";
 
 		this._pxvalues = new Map<number, Array<Uint8Array>>();
 		this._fitsheaderlist = new Array<FITSHeader>();
@@ -129,8 +130,8 @@ export class HiPSProjection implements AbstractProjection {
 					console.log("hips_order "+this._HIPS_MAX_ORDER)
 				} else if (key == "hips_tile_width") {
 					this._HIPS_TILE_WIDTH = parseInt(val);
-					this._naxis1 = this._HIPS_TILE_WIDTH;
-					this._naxis2 = this._HIPS_TILE_WIDTH;
+					super.naxis1 = this._HIPS_TILE_WIDTH;
+					super.naxis2 = this._HIPS_TILE_WIDTH;
 					console.log("hips_tile_width "+this._HIPS_TILE_WIDTH)
 				} else if (key == "hips_frame" && val == "galactic") {
 					this._isGalactic = true;
@@ -154,9 +155,9 @@ export class HiPSProjection implements AbstractProjection {
 			let order = fits.header.get("ORDER");
 			this.init(order);
 
-			this._naxis1 = fits.header.get("NAXIS1");
-			this._naxis2 = fits.header.get("NAXIS2");
-			this._HIPS_TILE_WIDTH = this._naxis1;
+			super.naxis1 = fits.header.get("NAXIS1");
+			super.naxis2 = fits.header.get("NAXIS2");
+			this._HIPS_TILE_WIDTH = super.naxis1;
 
 			this._pixno = fits.header.get("NPIX");
 
@@ -171,11 +172,13 @@ export class HiPSProjection implements AbstractProjection {
 
 	async initFromHiPSLocationAndPxSize(baseUrl: string, pxsize: number) {
 		this._hipsBaseURI = baseUrl;
-		this._pxsize = pxsize;
+		super.pxsize = pxsize;
 		if (this._HIPS_TILE_WIDTH === undefined) {
 			await this.parsePropertiesFile(baseUrl);
 		}
-		let order = HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
+		// let order = HiPSHelper.computeHiPSOrder(pxsize, this._HIPS_TILE_WIDTH);
+		// let order2 = HiPSHelper.computeHiPSOrder2(pxsize, this._HIPS_TILE_WIDTH);
+		let order = HiPSHelper.computeOrder(pxsize, this._HIPS_TILE_WIDTH);
 		if (order > this._HIPS_MAX_ORDER) {
 			order = this._HIPS_MAX_ORDER
 		}
@@ -190,7 +193,7 @@ export class HiPSProjection implements AbstractProjection {
 		if (order > this._HIPS_MAX_ORDER){
 			order = this._HIPS_MAX_ORDER
 		}
-		this._pxsize = HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
+		super.pxsize = HiPSHelper.computePxSize(order, this._HIPS_TILE_WIDTH);
 		this.init(order);
 	}
 
@@ -228,8 +231,8 @@ export class HiPSProjection implements AbstractProjection {
 
 			header.addItem(new FITSHeaderItem("ORDER", this._norder));
 
-			header.addItem(new FITSHeaderItem("CTYPE1", this._ctype1));
-			header.addItem(new FITSHeaderItem("CTYPE2", this._ctype2));
+			header.addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
+			header.addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
 
 			// header.addItem(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
 			// header.addItem(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
@@ -369,13 +372,6 @@ export class HiPSProjection implements AbstractProjection {
 		}
 
 		return values;
-	}
-
-	computeSquaredNaxes(d: number, ps: number): void {
-		// first aprroximation to be checked
-		this._naxis1 = Math.ceil(d / ps);
-		this._naxis2 = this._naxis1;
-		this._pxsize = ps;
 	}
 
 	prepareCommonHeader(fitsheaderlist: (FITSHeader | undefined)[]): void {
@@ -600,7 +596,7 @@ export class HiPSProjection implements AbstractProjection {
 
 	pix2world(i: number, j: number): Point {
 
-		let xy = HiPSHelper.pix2intermediate(i, j, this._xyGridProj, this._naxis1, this._naxis2);
+		let xy = HiPSHelper.pix2intermediate(i, j, this._xyGridProj, super.naxis1, super.naxis2);
 		// TODO CHECK BELOW before it was only which is supposed to be wrong since intermediate2world returns SphericalCoords, not AstroCoords
 		/**  
 		let raDecDeg = HiPSHelper.intermediate2world(xy[0], xy[1]);
@@ -658,15 +654,14 @@ export class HiPSProjection implements AbstractProjection {
 		*/
 
 		if (this._isGalactic){
-			let finalradeclist = this.convertToGalactic(radeclist);
-			radeclist = finalradeclist;
+			radeclist = this.convertToGalactic(radeclist);
 		}
 
 		radeclist.forEach(([ra, dec]) => {
 
-			let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
+			const p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
 			// let phiTheta_rad = HiPSHelper.astroDegToSphericalRad(ra, dec);
-			let ptg = new Pointing(null, false, p.spherical.thetaRad, p.spherical.phiRad);
+			const ptg = new Pointing(null, false, p.spherical.thetaRad, p.spherical.phiRad);
 
 			tileno = this._hp.ang2pix(ptg);
 			if (prevTileno !== tileno || prevTileno === undefined) {
@@ -675,11 +670,11 @@ export class HiPSProjection implements AbstractProjection {
 			}
 			// let rarad =  HiPSHelper.degToRad(ra);
 			// let decrad = HiPSHelper.degToRad(dec);
-			let xy = HiPSHelper.world2intermediate(p.astro);
+			const xy = HiPSHelper.world2intermediate(p.astro);
 			if (this._HIPS_TILE_WIDTH === undefined) {
 				throw new Error("this._HIPS_TILE_WIDTH undefined");
 			}
-			let ij = HiPSHelper.intermediate2pix(xy[0], xy[1], this._xyGridProj, this._HIPS_TILE_WIDTH);
+			const ij = HiPSHelper.intermediate2pix(xy[0], xy[1], this._xyGridProj, this._HIPS_TILE_WIDTH);
 
 			imgpxlist.push(new ImagePixel(ij[0], ij[1], tileno));
 		});
@@ -688,21 +683,4 @@ export class HiPSProjection implements AbstractProjection {
 	}
 
 
-	// getCanvas2d(tfunction = "linear", colormap = "grayscale", inverse = false) {
-
-	// 	let canvaslist = [];
-	// 	let i = 0;
-	// 	Object.keys(this._pxvalues).forEach((tileno) => {
-	// 		let values = this._pxvalues["" + tileno + ""];
-
-	// 		// TODO change this._fitsheaderlist as per this._pxvalues in order to access to the header by "tileno"
-	// 		let header = this._fitsheaderlist[i];
-
-	// 		let canvas2d = new Canvas2D(values, header, this, tfunction, colormap, inverse);
-	// 		canvaslist.push(canvas2d);
-	// 		i++;
-	// 	});
-
-	// 	return canvaslist;
-	// }
 }

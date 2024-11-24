@@ -20,20 +20,15 @@ import {Point} from '../model/Point.js';
 
 
 export class GnomonicProjection extends AbstractProjection {
-    public get fitsUsed(): String[] {
-        throw new Error('Method not implemented.');
-    }
+
+
+
 
     _minra: number;
     _mindec: number;
-    _naxis1: number;
-    _naxis2: number;
-    _pxsize: number;
     _pxmatrix;
     _fitsheader: FITSHeader[];
     _inflie: string;
-    _ctype1: string; // TODO should be RA ENUM
-    _ctype2: string; // TODO should be Dec ENUM
     _craDeg: number;
     _cdecDeg: number;
     _pxsize1: number;
@@ -44,13 +39,15 @@ export class GnomonicProjection extends AbstractProjection {
     _wcsname: string;
 
     constructor(infile?: string) {
-        super();
-        this._ctype1 = "RA---TAN";
-        this._ctype2 = "DEC--TAN";
-
+        super("'RA---TAN'", "'DEC--TAN'");
         if (infile) {
             this._inflie = infile;
         }
+    }
+
+
+    public get fitsUsed(): String[] {
+        throw new Error('Method not implemented.');
     }
 
     async initFromFile(infile: string): Promise<FITSParsed> {
@@ -62,8 +59,8 @@ export class GnomonicProjection extends AbstractProjection {
             // console.log(fits.header);
             this._pxvalues.set(0, fits.data);
             this._fitsheader[0] = fits.header;
-            this._naxis1 = fits.header.get("NAXIS1");
-            this._naxis2 = fits.header.get("NAXIS2");
+            super.naxis1 = fits.header.get("NAXIS1");
+            super.naxis2 = fits.header.get("NAXIS2");
             this._craDeg = fits.header.getItemListOf("CRVAL1")[0].value;
             this._cdecDeg = fits.header.getItemListOf("CRVAL2")[0].value;
 
@@ -73,11 +70,11 @@ export class GnomonicProjection extends AbstractProjection {
             this._pxsize1 = this._fitsheader[0].getItemListOf("CDELT1")[0].value;
             this._pxsize2 = this._fitsheader[0].getItemListOf("CDELT2")[0].value;
 
-            this._minra = this._craDeg - this._pxsize1 * this._naxis1 / 2;
+            this._minra = this._craDeg - this._pxsize1 * super.naxis1 / 2;
             if (this._minra < 0) {
                 this._minra += 360;
             }
-            this._mindec = this._cdecDeg - this._pxsize2 * this._naxis2 / 2;
+            this._mindec = this._cdecDeg - this._pxsize2 * super.naxis2 / 2;
 
             return fits;
 
@@ -137,16 +134,16 @@ export class GnomonicProjection extends AbstractProjection {
 
 
         this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS", 2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", this._naxis1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", this._naxis2));
+        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", super.naxis1));
+        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", super.naxis2));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", this._ctype1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", this._ctype2));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", this._pxsize)); // ??? Pixel spacing along axis 1 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", this._pxsize)); // ??? Pixel spacing along axis 2 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", this._naxis1 / 2)); // central/reference pixel i along naxis1
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX2", this._naxis2 / 2)); // central/reference pixel j along naxis2
+        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", super.pxsize)); // ??? Pixel spacing along axis 1 ???
+        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", super.pxsize)); // ??? Pixel spacing along axis 2 ???
+        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", super.naxis1 / 2)); // central/reference pixel i along naxis1
+        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX2", super.naxis2 / 2)); // central/reference pixel j along naxis2
         this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL1", this._craDeg)); // central/reference pixel RA
         this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL2", this._cdecDeg)); // central/reference pixel Dec
 
@@ -197,8 +194,8 @@ export class GnomonicProjection extends AbstractProjection {
                     let imgpx = inputPixelsList[p];
                     // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
                     // TODO why I am getting negative i and j? check world2pix!!!
-                    if ((imgpx._j) < 0 || (imgpx._j) >= this._naxis2 ||
-                        (imgpx._i) < 0 || (imgpx._i) >= this._naxis1) {
+                    if ((imgpx._j) < 0 || (imgpx._j) >= super.naxis2 ||
+                        (imgpx._i) < 0 || (imgpx._i) >= super.naxis1) {
                         for (let b = 0; b < bytesXelem; b++) {
                             values[p * bytesXelem + b] = blankBytes[b];
                         }
@@ -217,13 +214,6 @@ export class GnomonicProjection extends AbstractProjection {
         });
         return promise;
 
-    }
-
-    computeSquaredNaxes(d: number, ps: number): void {
-        // first aprroximation to be checked
-        this._naxis1 = Math.ceil(d / ps);
-        this._naxis2 = this._naxis1;
-        this._pxsize = ps;
     }
 
     setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>> {

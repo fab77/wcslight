@@ -14,8 +14,6 @@ import { CutoutResult } from './model/CutoutResult.js';
 import { HEALPixProjection } from './projections/HEALPixProjection.js';
 import { GnomonicProjection } from './projections/GnomonicProjection.js';
 export declare class WCSLight {
-    /** @constructs WCSLight */
-    constructor();
     static cutout(center: Point, radius: number, pxsize: number, inproj: AbstractProjection, outproj: AbstractProjection): Promise<CutoutResult>;
     /**
      *

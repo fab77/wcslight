@@ -3,16 +3,11 @@ import { FITSParsed } from 'jsfitsio';
 import { ImagePixel } from '../model/ImagePixel.js';
 import { AbstractProjection } from './AbstractProjection.js';
 import { Point } from '../model/Point.js';
-export declare class TestProj implements AbstractProjection {
+export declare class TestProj extends AbstractProjection {
     _minra: number;
     _mindec: number;
-    _naxis1: number;
-    _naxis2: number;
-    _pxsize: number;
     _fitsheader: FITSHeader[];
     _infile: string;
-    _ctype1: string;
-    _ctype2: string;
     _craDeg: number;
     _cdecDeg: number;
     _pxsize1: number;

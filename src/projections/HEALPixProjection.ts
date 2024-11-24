@@ -7,6 +7,11 @@ import {AbstractProjection} from "./AbstractProjection.js";
 
 
 export class HEALPixProjection extends AbstractProjection {
+    
+    constructor() {
+        super("'RA---HPX'", "'DEC--HPX'")
+    }
+    
     public get fitsUsed(): String[] {
         throw new Error('Method not implemented.');
     }
@@ -28,9 +33,7 @@ export class HEALPixProjection extends AbstractProjection {
     public getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array> {
         throw new Error('Method not implemented.');
     }
-    public computeSquaredNaxes(d: number, ps: number): void {
-        throw new Error('Method not implemented.');
-    }
+    
     public setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Uint8Array[]> {
         throw new Error('Method not implemented.');
     }

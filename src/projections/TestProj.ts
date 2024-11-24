@@ -16,17 +16,12 @@ import { ImagePixel } from '../model/ImagePixel.js';
 import { AbstractProjection } from './AbstractProjection.js';
 import {Point} from '../model/Point.js';
 
-export class TestProj implements AbstractProjection{
+export class TestProj extends AbstractProjection{
     
     _minra: number;
     _mindec: number;
-    _naxis1: number;
-    _naxis2: number;
-    _pxsize: number;
     _fitsheader: FITSHeader[];
     _infile: string;
-    _ctype1: string; // TODO should be RA ENUM
-    _ctype2: string; // TODO should be Dec ENUM
     _craDeg: number;
     _cdecDeg: number;
     _pxsize1: number;
@@ -36,9 +31,8 @@ export class TestProj implements AbstractProjection{
     _maxphysicalval: number;
     _wcsname: string;
     constructor() {
+        super("RA---MER", "DEC--MER")
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
-        this._ctype1 = "RA---MER";
-        this._ctype2 = "DEC--MER";
         this._pxvalues = new Map<number, Array<Uint8Array>>();
         const fh = new FITSHeader();
         const fp = new FITSParser("./notexistent/");

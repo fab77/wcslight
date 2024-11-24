@@ -69,6 +69,7 @@ export class HiPSHelper {
 
 
 		let k = Math.log2( (HiPSHelper.RES_ORDER_0 / pxXtile) / pxsize);
+		// let k = Math.log2(HiPSHelper.RES_ORDER_0 / (pxXtile * pxsize));
 		k = Math.round(k);
 		// let theta0px = HiPSHelper.RES_ORDER_0;
 		// let k = Math.log2(theta0px) - Math.log2(pxsize * 2**9);
@@ -81,6 +82,51 @@ export class HiPSHelper {
 		return k;
 
 	}
+	static computeHiPSOrder2(pxsize: number, pxXtile: number): number {
+		
+		const k = Math.log2( Math.sqrt(Math.PI/ 3) / ( pxsize * pxXtile) )
+		const order = Math.round(k);
+		console.warn(k)
+ 
+		return order;
+
+	}
+
+
+	// based on "HiPS – Hierarchical Progressive Survey" IVOA recomandation (formula on table 5)
+	static computeOrder(pxAngSizeDeg: number, pxTileWidth: number): number {
+		console.log(`Computing HiPS order having pixel angular size of ${pxAngSizeDeg} in degrees`)
+		const deg2rad = Math.PI / 180
+		const pxAngSizeRad = pxAngSizeDeg * deg2rad
+		console.log(`pixel angular res in radians ${pxAngSizeRad}`)
+		const computedOrder = 0.5 * Math.log2 ( Math.PI / (3 * pxAngSizeRad * pxAngSizeRad * pxTileWidth * pxTileWidth) )
+		console.log(`Order ${computedOrder}`)
+		if (computedOrder < 0) {
+			return 0
+		}
+		return Math.floor(computedOrder)
+	}
+
+	// based on "HiPS – Hierarchical Progressive Survey" IVOA recomandation (formula on table 5)
+	static computePxAngularSize(pxTileWidth: number, order: number) {
+		const computedPxAngSizeRadiant = Math.sqrt( 4 * Math.PI / (12 * (pxTileWidth * (2**order) )**2 ) )
+		console.log(`Computing Pixel size with tile of ${pxTileWidth} pixels and order ${order}`)
+		const rad2deg = 180 / Math.PI
+		const deg = computedPxAngSizeRadiant * rad2deg
+		const arcmin = computedPxAngSizeRadiant * rad2deg * 60
+		const arcsec = computedPxAngSizeRadiant * rad2deg * 3600
+		console.log ("Pixel size in radiant:" + computedPxAngSizeRadiant)
+		console.log ("Pixel size in degrees:" + deg)
+		console.log ("Pixel size in arcmin:" + arcmin)
+		console.log ("Pixel size in arcsec:" + arcsec)
+		return {
+			"rad": computedPxAngSizeRadiant,
+			"deg": deg,
+			"arcmin": arcmin,
+			"arcsec": arcsec
+		}
+	}
+
 
 	/**
 	 * Reference: HiPS – Hierarchical Progressive Survey page 11

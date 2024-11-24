@@ -5,11 +5,11 @@
 import { FITSParser } from 'jsfitsio';
 import { FITSHeader } from 'jsfitsio';
 import { FITSHeaderItem } from 'jsfitsio';
-export class TestProj {
+import { AbstractProjection } from './AbstractProjection.js';
+export class TestProj extends AbstractProjection {
     constructor() {
+        super("RA---MER", "DEC--MER");
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
-        this._ctype1 = "RA---MER";
-        this._ctype2 = "DEC--MER";
         this._pxvalues = new Map();
         const fh = new FITSHeader();
         const fp = new FITSParser("./notexistent/");

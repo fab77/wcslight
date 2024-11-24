@@ -1,5 +1,8 @@
 import { AbstractProjection } from "./AbstractProjection.js";
 export class HEALPixProjection extends AbstractProjection {
+    constructor() {
+        super("'RA---HPX'", "'DEC--HPX'");
+    }
     get fitsUsed() {
         throw new Error('Method not implemented.');
     }
@@ -19,9 +22,6 @@ export class HEALPixProjection extends AbstractProjection {
         throw new Error('Method not implemented.');
     }
     getPixValues(inputPixelsList) {
-        throw new Error('Method not implemented.');
-    }
-    computeSquaredNaxes(d, ps) {
         throw new Error('Method not implemented.');
     }
     setPxsValue(values, fitsHeaderParams) {

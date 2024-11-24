@@ -9,11 +9,7 @@
 
  
 
-import { FITSParser } from 'jsfitsio';
-import { FITSHeader } from 'jsfitsio';
-import { FITSHeaderItem } from 'jsfitsio';
-import { FITSParsed } from 'jsfitsio';
-import { ParseUtils } from 'jsfitsio';
+import { FITSParser, FITSHeader, FITSHeaderItem, FITSParsed, ParseUtils } from 'jsfitsio';
 
 
 import { AbstractProjection } from './AbstractProjection.js';
@@ -22,23 +18,24 @@ import { Point } from '../model/Point.js';
 import { CoordsType } from '../model/CoordsType.js';
 import { NumberType } from '../model/NumberType.js';
 import { exit } from 'process';
+import { FITS } from '../model/FITS.js';
 
 
-export class MercatorProjection implements AbstractProjection {
-
+export class MercatorProjection extends AbstractProjection {
+    
     _minra!: number;
     _mindec!: number;
-    _naxis1!: number;
-    _naxis2!: number;
+    // _naxis1!: number;
+    // _naxis2!: number;
     
     _fitsheader: FITSHeader[];
     _infile!: string;
-    _ctype1: string; // TODO should be RA ENUM
-    _ctype2: string; // TODO should be Dec ENUM
+    // _ctype1: string; // TODO should be RA ENUM
+    // _ctype2: string; // TODO should be Dec ENUM
     _craDeg!: number;
     _cdecDeg!: number;
 
-    _pxsize!: number;
+    // _pxsize!: number;
     _pxsize1!: number;
     _pxsize2!: number;
 
@@ -47,11 +44,12 @@ export class MercatorProjection implements AbstractProjection {
     _maxphysicalval!: number;
     _wcsname: string;
     _fitsUsed: String[];
+    
     constructor() {
-
+        super("'RA---MER'", "'DEC--MER'")
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
-        this._ctype1 = "RA---MER";
-        this._ctype2 = "DEC--MER";
+        // this._ctype1 = "RA---MER";
+        // this._ctype2 = "DEC--MER";
         this._pxvalues = new Map<number, Array<Uint8Array>>();
         this._fitsheader = new Array<FITSHeader>();
     }
@@ -68,8 +66,10 @@ export class MercatorProjection implements AbstractProjection {
             // console.log(fits.header);
             this._pxvalues.set(0, fits.data);
             this._fitsheader[0] = fits.header;
-            this._naxis1 = fits.header.get("NAXIS1");
-            this._naxis2 = fits.header.get("NAXIS2");
+            super.naxis1 = fits.header.get("NAXIS1");
+            super.naxis2 = fits.header.get("NAXIS2");
+            // this._naxis1 = fits.header.get("NAXIS1");
+            // this._naxis2 = fits.header.get("NAXIS2");
             this._craDeg = fits.header.getItemListOf("CRVAL1")[0].value as number;
             this._cdecDeg = fits.header.getItemListOf("CRVAL2")[0].value as number;
 
@@ -85,15 +85,15 @@ export class MercatorProjection implements AbstractProjection {
                 throw new Error("pxsize1 is not equal to pxsize2")
                 exit;
             }
-            this._pxsize = pxsize1;
+            super.pxsize = pxsize1;
 
             // this._minra = this._craDeg - this._pxsize1 * this._naxis1 / 2;
-            this._minra = this._craDeg - this._pxsize * this._naxis1 / 2;
+            this._minra = this._craDeg - super.pxsize * super.naxis1 / 2;
             if (this._minra < 0) {
                 this._minra += 360;
             }
             // this._mindec = this._cdecDeg - this._pxsize2 * this._naxis2 / 2;
-            this._mindec = this._cdecDeg - this._pxsize * this._naxis2 / 2;
+            this._mindec = this._cdecDeg - super.pxsize * super.naxis2 / 2;
 
             return fits;
         });
@@ -130,8 +130,8 @@ export class MercatorProjection implements AbstractProjection {
 
         this._fitsheader[0] = new FITSHeader();
 
-        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS1", this._naxis1));
-        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS2", this._naxis2));
+        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS1", super.naxis1));
+        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS2", super.naxis2));
         this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("NAXIS", 2));
         this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
         this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
@@ -156,13 +156,13 @@ export class MercatorProjection implements AbstractProjection {
         }
         this._fitsheader[0].addItem(new FITSHeaderItem("BZERO", bzero));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", "'"+this._ctype1+"'"));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", "'"+this._ctype2+"'"));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", "'"+super.ctype1+"'"));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", "'"+super.ctype2+"'"));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", this._pxsize)); // ??? Pixel spacing along axis 1 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", this._pxsize)); // ??? Pixel spacing along axis 2 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", this._naxis1 / 2)); // central/reference pixel i along naxis1
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX2", this._naxis2 / 2)); // central/reference pixel j along naxis2
+        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", super.pxsize)); // ??? Pixel spacing along axis 1 ???
+        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", super.pxsize)); // ??? Pixel spacing along axis 2 ???
+        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", super.naxis1 / 2)); // central/reference pixel i along naxis1
+        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX2", super.naxis2 / 2)); // central/reference pixel j along naxis2
         this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL1", this._craDeg)); // central/reference pixel RA
         this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL2", this._cdecDeg)); // central/reference pixel Dec
 
@@ -215,8 +215,8 @@ export class MercatorProjection implements AbstractProjection {
                     let imgpx = inputPixelsList[p];
                     // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
                     // TODO why I am getting negative i and j? check world2pix!!!
-                    if ((imgpx._j) < 0 || (imgpx._j) >= this._naxis2 ||
-                        (imgpx._i) < 0 || (imgpx._i) >= this._naxis1) {
+                    if ((imgpx._j) < 0 || (imgpx._j) >= super.naxis2 ||
+                        (imgpx._i) < 0 || (imgpx._i) >= super.naxis1) {
                         for (let b = 0; b < bytesXelem; b++) {
                             values[p * bytesXelem + b] = blankBytes[b];
                         }
@@ -242,16 +242,6 @@ export class MercatorProjection implements AbstractProjection {
 
     }
 
-
-    computeSquaredNaxes(d: number, ps: number): void {
-        // first approximation to be checked
-        this._naxis1 = Math.ceil(d / ps);
-        this._naxis2 = this._naxis1;
-        this._pxsize = ps;
-    }
-
-
-
     setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>> {
 
         let bytesXelem = Math.abs(fitsHeaderParams.get("BITPIX") / 8);
@@ -270,11 +260,11 @@ export class MercatorProjection implements AbstractProjection {
         // }
         // this._pxvalues.set(0, new Uint8Array[this._naxis2][this._naxis1 * bytesXelem]);
 
-        this._pxvalues.set(0, new Array<Uint8Array>(this._naxis2));
+        this._pxvalues.set(0, new Array<Uint8Array>(super.naxis2));
         let pv = this._pxvalues.get(0);
         if (pv !== undefined) {
-            for (let r = 0; r < this._naxis2; r++) {
-                pv[r] = new Uint8Array(this._naxis1 * bytesXelem);
+            for (let r = 0; r < super.naxis2; r++) {
+                pv[r] = new Uint8Array(super.naxis1 * bytesXelem);
             }
 
             let r!: number;
@@ -284,8 +274,8 @@ export class MercatorProjection implements AbstractProjection {
                 // console.log("processing "+p + " of "+ (values.length / bytesXelem));
 
                 try {
-                    r = Math.floor(p / this._naxis1);
-                    c = (p - r * this._naxis1) * bytesXelem;
+                    r = Math.floor(p / super.naxis1);
+                    c = (p - r * super.naxis1) * bytesXelem;
 
                     for (b = 0; b < bytesXelem; b++) {
                         pv[r][c + b] = values[p * bytesXelem + b];
@@ -321,8 +311,8 @@ export class MercatorProjection implements AbstractProjection {
     getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]> {
 
 
-        this.computeSquaredNaxes(2 * radius, pxsize); // compute naxis[1, 2]
-        this._pxsize = pxsize;
+        super.computeSquaredNaxes(2 * radius, pxsize); // compute naxis[1, 2]
+        super.pxsize = pxsize;
         this._minra = center.astro.raDeg - radius;
         if (this._minra < 0) {
             this._minra += 360;
@@ -331,14 +321,14 @@ export class MercatorProjection implements AbstractProjection {
 
         let radeclist: Array<[number, number]> = new Array<[number, number]>();
 
-        for (let d = 0; d < this._naxis2; d++) {
-            for (let r = 0; r < this._naxis1; r++) {
-                radeclist.push([this._minra + (r * this._pxsize), this._mindec + (d * this._pxsize)]);
+        for (let d = 0; d < super.naxis2; d++) {
+            for (let r = 0; r < super.naxis1; r++) {
+                radeclist.push([this._minra + (r * super.pxsize), this._mindec + (d * super.pxsize)]);
             }
         }
 
-        let cidx = (this._naxis2 / 2 ) * this._naxis1 + this._naxis1 / 2;
-        if (this._naxis1 % 2 != 0) {
+        let cidx = (super.naxis2 / 2 ) * super.naxis1 + super.naxis1 / 2;
+        if (super.naxis1 % 2 != 0) {
             cidx = Math.floor(radeclist.length / 2);
         }
 
@@ -355,34 +345,6 @@ export class MercatorProjection implements AbstractProjection {
     }
 
 
-    // getImageRADecList(center: AstroCoords, radius: number, pxsize: number): Promise<number[][]> {
-
-    //     let promise = new Promise<[]> ( (resolve, reject) => {
-    //         this.computeSquaredNaxes (2 * radius, pxsize); // compute naxis[1, 2]
-    //         this._pxsize = pxsize;
-    //         this._minra = center.raDeg - radius;
-    //         if (this._minra < 0) {
-    //             this._minra += 360;
-    //         }
-    //         this._mindec = center.decDeg - radius;
-
-    //         let radeclist:number[][] = new Array<Array<number>>();
-
-    //         for (let d = 0; d < this._naxis2; d++) {
-    //             for (let r = 0; r < this._naxis1; r++) {
-    //                 radeclist.push([ this._minra + (r * this._pxsize), this._mindec + (d * this._pxsize)]);
-    //             }    
-    //         }
-
-    //         let cidx = (this._naxis2/2 - 1) * this._naxis1 +  this._naxis1/2;
-    //         this._craDeg = radeclist[ cidx ][0];
-    //         this._cdecDeg = radeclist[ cidx ][1];
-
-    //         resolve(radeclist);
-    //     });
-    //     return promise;
-
-    // }
 
     /** TODO !!! check and handle RA passing through 360-0 */
     pix2world(i: number, j: number): Point {
@@ -391,35 +353,14 @@ export class MercatorProjection implements AbstractProjection {
         let dec: number;
         // ra = i * this._stepra + this._minra;
         // dec = j * this._stepdec + this._mindec;
-        ra = i * this._pxsize + this._minra;
-        dec = j * this._pxsize + this._mindec;
+        ra = i * super.pxsize + this._minra;
+        dec = j * super.pxsize + this._mindec;
         let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
         return p;
         // return [ra, dec];
 
     }
 
-    // world2pix (radeclist: number[][]): Promise<ImagePixel[]> {
-
-    //     let promise = new Promise<ImagePixel[]> ( (resolve, reject) => {
-
-    //         this.initFromFile(this._infile).then( (data) => {
-    //             let imgpxlist = [];
-
-    //             for (let radecItem of radeclist) {
-    //                 let ra = radecItem[0];
-    //                 let dec = radecItem[1];
-    //                 let i = Math.floor((ra - this._minra) / this._pxsize1);
-    //                 let j = Math.floor((dec - this._mindec) / this._pxsize2);
-    //                 imgpxlist.push(new ImagePixel(i, j));
-    //             }
-
-    //             resolve(imgpxlist);
-    //         });
-
-    //     });
-    //     return promise;
-    // }
 
     world2pix(radeclist: number[][]): ImagePixel[] {
 
@@ -430,20 +371,13 @@ export class MercatorProjection implements AbstractProjection {
             let dec = radecItem[1];
             // let i = Math.floor((ra - this._minra) / this._pxsize1);
             // let j = Math.floor((dec - this._mindec) / this._pxsize2);
-            let i = Math.floor((ra - this._minra) / this._pxsize);
-            let j = Math.floor((dec - this._mindec) / this._pxsize);
+            let i = Math.floor((ra - this._minra) / super.pxsize);
+            let j = Math.floor((dec - this._mindec) / super.pxsize);
             imgpxlist.push(new ImagePixel(i, j));
         }
 
         return imgpxlist;
 
     }
-
-    // getCanvas2d(tfunction = "linear", colormap = "grayscale", inverse = false) {
-
-    // 	let canvas2d =  new Canvas2D(this._pxvalues, this._fitsheader, this, tfunction, colormap, inverse);
-    // 	return canvas2d;
-    // }
-
 
 }

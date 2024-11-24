@@ -16,11 +16,9 @@ import { CutoutResult } from './model/CutoutResult.js';
 
 import { HEALPixProjection } from './projections/HEALPixProjection.js';
 import { GnomonicProjection } from './projections/GnomonicProjection.js';
+import { FITS } from './model/FITS.js';
 
 export class WCSLight {
-
-    /** @constructs WCSLight */
-    constructor() { }
 
     static async cutout(center: Point, radius: number,
         pxsize: number, inproj: AbstractProjection, outproj: AbstractProjection): Promise<CutoutResult> {
@@ -44,19 +42,21 @@ export class WCSLight {
             if (invalues !== undefined) {
                 const fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
                 const fitsheader = outproj.getFITSHeader();
-                // let canvas2d = outproj.getCanvas2d();
+                const fits = new FITS(fitsheader, fitsdata)
+                
                 const res: CutoutResult = {
-                    fitsheader: fitsheader,
-                    fitsdata: fitsdata,
+                    fitsheader: fits.header,
+                    fitsdata: fits.data,
                     inproj: inproj,
                     outproj: outproj,
                     fitsused: inproj.fitsUsed
                 };
                 return res;
             } else {
+                const nanFits = outproj.generateFITSWithNaN()
                 const res: CutoutResult = {
-                    fitsheader: null,
-                    fitsdata: null,
+                    fitsheader: nanFits.header,
+                    fitsdata: nanFits.data,
                     inproj: inproj,
                     outproj: outproj,
                     fitsused: inproj.fitsUsed

@@ -23,9 +23,7 @@ import { FITSHeaderItem } from 'jsfitsio';
 import { ParseUtils } from 'jsfitsio';
 export class GnomonicProjection extends AbstractProjection {
     constructor(infile) {
-        super();
-        this._ctype1 = "RA---TAN";
-        this._ctype2 = "DEC--TAN";
+        super("'RA---TAN'", "'DEC--TAN'");
         if (infile) {
             this._inflie = infile;
         }
@@ -34,14 +32,18 @@ export class GnomonicProjection extends AbstractProjection {
         throw new Error('Method not implemented.');
     }
     initFromFile(infile) {
+        const _super = Object.create(null, {
+            naxis1: { get: () => super.naxis1, set: v => super.naxis1 = v },
+            naxis2: { get: () => super.naxis2, set: v => super.naxis2 = v }
+        });
         return __awaiter(this, void 0, void 0, function* () {
             let fp = new FITSParser(infile);
             let promise = fp.loadFITS().then(fits => {
                 // console.log(fits.header);
                 this._pxvalues.set(0, fits.data);
                 this._fitsheader[0] = fits.header;
-                this._naxis1 = fits.header.get("NAXIS1");
-                this._naxis2 = fits.header.get("NAXIS2");
+                _super.naxis1 = fits.header.get("NAXIS1");
+                _super.naxis2 = fits.header.get("NAXIS2");
                 this._craDeg = fits.header.getItemListOf("CRVAL1")[0].value;
                 this._cdecDeg = fits.header.getItemListOf("CRVAL2")[0].value;
                 // TODO CDELT could not be present. In this is the case, 
@@ -49,11 +51,11 @@ export class GnomonicProjection extends AbstractProjection {
                 // [Ref. Representation of celestial coordinates in FITS - equation (1)]
                 this._pxsize1 = this._fitsheader[0].getItemListOf("CDELT1")[0].value;
                 this._pxsize2 = this._fitsheader[0].getItemListOf("CDELT2")[0].value;
-                this._minra = this._craDeg - this._pxsize1 * this._naxis1 / 2;
+                this._minra = this._craDeg - this._pxsize1 * _super.naxis1 / 2;
                 if (this._minra < 0) {
                     this._minra += 360;
                 }
-                this._mindec = this._cdecDeg - this._pxsize2 * this._naxis2 / 2;
+                this._mindec = this._cdecDeg - this._pxsize2 * _super.naxis2 / 2;
                 return fits;
             });
             yield promise;
@@ -98,14 +100,14 @@ export class GnomonicProjection extends AbstractProjection {
         }
         this._fitsheader[0].addItem(new FITSHeaderItem("BZERO", bzero));
         this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS", 2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", this._naxis1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", this._naxis2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", this._ctype1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", this._ctype2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", this._pxsize)); // ??? Pixel spacing along axis 1 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", this._pxsize)); // ??? Pixel spacing along axis 2 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", this._naxis1 / 2)); // central/reference pixel i along naxis1
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX2", this._naxis2 / 2)); // central/reference pixel j along naxis2
+        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", super.naxis1));
+        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", super.naxis2));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", super.pxsize)); // ??? Pixel spacing along axis 1 ???
+        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", super.pxsize)); // ??? Pixel spacing along axis 2 ???
+        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", super.naxis1 / 2)); // central/reference pixel i along naxis1
+        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX2", super.naxis2 / 2)); // central/reference pixel j along naxis2
         this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL1", this._craDeg)); // central/reference pixel RA
         this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL2", this._cdecDeg)); // central/reference pixel Dec
         let min = bzero + bscale * this._minphysicalval;
@@ -132,6 +134,10 @@ export class GnomonicProjection extends AbstractProjection {
         return header;
     }
     getPixValues(inputPixelsList) {
+        const _super = Object.create(null, {
+            naxis2: { get: () => super.naxis2 },
+            naxis1: { get: () => super.naxis1 }
+        });
         return __awaiter(this, void 0, void 0, function* () {
             let promise = new Promise((resolve, reject) => {
                 try {
@@ -143,8 +149,8 @@ export class GnomonicProjection extends AbstractProjection {
                         let imgpx = inputPixelsList[p];
                         // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
                         // TODO why I am getting negative i and j? check world2pix!!!
-                        if ((imgpx._j) < 0 || (imgpx._j) >= this._naxis2 ||
-                            (imgpx._i) < 0 || (imgpx._i) >= this._naxis1) {
+                        if ((imgpx._j) < 0 || (imgpx._j) >= _super.naxis2 ||
+                            (imgpx._i) < 0 || (imgpx._i) >= _super.naxis1) {
                             for (let b = 0; b < bytesXelem; b++) {
                                 values[p * bytesXelem + b] = blankBytes[b];
                             }
@@ -163,12 +169,6 @@ export class GnomonicProjection extends AbstractProjection {
             });
             return promise;
         });
-    }
-    computeSquaredNaxes(d, ps) {
-        // first aprroximation to be checked
-        this._naxis1 = Math.ceil(d / ps);
-        this._naxis2 = this._naxis1;
-        this._pxsize = ps;
     }
     setPxsValue(values, fitsHeaderParams) {
         // let bytesXelem = Math.abs(fitsHeaderParams.get("BITPIX") / 8);

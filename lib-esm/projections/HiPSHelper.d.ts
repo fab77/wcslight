@@ -28,6 +28,14 @@ export declare class HiPSHelper {
      * @returns {int} nside
      */
     static computeHiPSOrder(pxsize: number, pxXtile: number): number;
+    static computeHiPSOrder2(pxsize: number, pxXtile: number): number;
+    static computeOrder(pxAngSizeDeg: number, pxTileWidth: number): number;
+    static computePxAngularSize(pxTileWidth: number, order: number): {
+        rad: number;
+        deg: number;
+        arcmin: number;
+        arcsec: number;
+    };
     /**
      * Reference: HiPS – Hierarchical Progressive Survey page 11
      * pxsize =~ sqrt[4 * PI / (12 * (512 * 2^order)^2)]

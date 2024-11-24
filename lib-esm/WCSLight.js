@@ -20,9 +20,8 @@ import { MercatorProjection } from './projections/MercatorProjection.js';
 import { HiPSProjection } from './projections/HiPSProjection.js';
 import { HEALPixProjection } from './projections/HEALPixProjection.js';
 import { GnomonicProjection } from './projections/GnomonicProjection.js';
+import { FITS } from './model/FITS.js';
 export class WCSLight {
-    /** @constructs WCSLight */
-    constructor() { }
     static cutout(center, radius, pxsize, inproj, outproj) {
         return __awaiter(this, void 0, void 0, function* () {
             const outRADecList = outproj.getImageRADecList(center, radius, pxsize);
@@ -43,10 +42,10 @@ export class WCSLight {
                 if (invalues !== undefined) {
                     const fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
                     const fitsheader = outproj.getFITSHeader();
-                    // let canvas2d = outproj.getCanvas2d();
+                    const fits = new FITS(fitsheader, fitsdata);
                     const res = {
-                        fitsheader: fitsheader,
-                        fitsdata: fitsdata,
+                        fitsheader: fits.header,
+                        fitsdata: fits.data,
                         inproj: inproj,
                         outproj: outproj,
                         fitsused: inproj.fitsUsed
@@ -54,9 +53,10 @@ export class WCSLight {
                     return res;
                 }
                 else {
+                    const nanFits = outproj.generateFITSWithNaN();
                     const res = {
-                        fitsheader: null,
-                        fitsdata: null,
+                        fitsheader: nanFits.header,
+                        fitsdata: nanFits.data,
                         inproj: inproj,
                         outproj: outproj,
                         fitsused: inproj.fitsUsed

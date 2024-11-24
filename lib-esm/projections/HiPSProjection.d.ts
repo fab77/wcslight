@@ -5,19 +5,14 @@ import { AbstractProjection } from './AbstractProjection.js';
 import { HEALPixXYSpace } from '../model/HEALPixXYSpace.js';
 import { ImagePixel } from '../model/ImagePixel.js';
 import { Point } from '../model/Point.js';
-export declare class HiPSProjection implements AbstractProjection {
-    _naxis1: number;
-    _naxis2: number;
+export declare class HiPSProjection extends AbstractProjection {
     _isGalactic: boolean;
     _pixno: number;
     _tileslist: number[];
     _hp: Healpix;
     _fh_common: FITSHeader;
-    _ctype1: string;
-    _ctype2: string;
     _wcsname: string;
     _hipsBaseURI: string;
-    _pxsize: number;
     _fitsheaderlist: FITSHeader[];
     _pxvalues: Map<number, Array<Uint8Array>>;
     _xyGridProj: HEALPixXYSpace;
@@ -59,7 +54,6 @@ export declare class HiPSProjection implements AbstractProjection {
     getFITSFiles(inputPixelsList: ImagePixel[], destPath: string): Promise<Map<string, FITSParsed>>;
     get fitsUsed(): String[];
     getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined>;
-    computeSquaredNaxes(d: number, ps: number): void;
     prepareCommonHeader(fitsheaderlist: (FITSHeader | undefined)[]): void;
     setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>>;
     getImageRADecList(center: Point, radiusDeg: number): Array<[number, number]>;
