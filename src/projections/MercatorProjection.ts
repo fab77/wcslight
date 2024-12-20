@@ -46,10 +46,8 @@ export class MercatorProjection extends AbstractProjection {
     _fitsUsed: String[];
     
     constructor() {
-        super("'RA---MER'", "'DEC--MER'")
+        super("'RA---CAR'", "'DEC--CAR'")
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
-        // this._ctype1 = "RA---MER";
-        // this._ctype2 = "DEC--MER";
         this._pxvalues = new Map<number, Array<Uint8Array>>();
         this._fitsheader = new Array<FITSHeader>();
     }
@@ -156,8 +154,8 @@ export class MercatorProjection extends AbstractProjection {
         }
         this._fitsheader[0].addItem(new FITSHeaderItem("BZERO", bzero));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", "'"+super.ctype1+"'"));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", "'"+super.ctype2+"'"));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
 
         this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", super.pxsize)); // ??? Pixel spacing along axis 1 ???
         this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", super.pxsize)); // ??? Pixel spacing along axis 2 ???
