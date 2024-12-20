@@ -24,10 +24,8 @@ import { NumberType } from '../model/NumberType.js';
 import { exit } from 'process';
 export class MercatorProjection extends AbstractProjection {
     constructor() {
-        super("'RA---MER'", "'DEC--MER'");
+        super("'RA---CAR'", "'DEC--CAR'");
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
-        // this._ctype1 = "RA---MER";
-        // this._ctype2 = "DEC--MER";
         this._pxvalues = new Map();
         this._fitsheader = new Array();
     }
@@ -116,8 +114,8 @@ export class MercatorProjection extends AbstractProjection {
             bzero = fitsHeaderParams.get("BZERO");
         }
         this._fitsheader[0].addItem(new FITSHeaderItem("BZERO", bzero));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", "'" + super.ctype1 + "'"));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", "'" + super.ctype2 + "'"));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
+        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
         this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", super.pxsize)); // ??? Pixel spacing along axis 1 ???
         this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", super.pxsize)); // ??? Pixel spacing along axis 2 ???
         this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", super.naxis1 / 2)); // central/reference pixel i along naxis1
