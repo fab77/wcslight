@@ -6,14 +6,14 @@
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-import { FITSHeader, FITSParsed } from 'jsfitsio';
+import { FITSHeaderManager, FITSParsed } from 'jsfitsio';
 import { AbstractProjection } from './AbstractProjection.js';
 import { ImagePixel } from '../model/ImagePixel.js';
 import { Point } from '../model/Point.js';
 export declare class MercatorProjection extends AbstractProjection {
     _minra: number;
     _mindec: number;
-    _fitsheader: FITSHeader[];
+    _fitsheader: FITSHeaderManager[];
     _infile: string;
     _craDeg: number;
     _cdecDeg: number;
@@ -27,12 +27,12 @@ export declare class MercatorProjection extends AbstractProjection {
     constructor();
     initFromFile(infile: string): Promise<FITSParsed>;
     extractPhysicalValues(fits: FITSParsed): number[][];
-    prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
-    getFITSHeader(): FITSHeader[];
-    getCommonFitsHeaderParams(): FITSHeader;
+    prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[];
+    getFITSHeader(): FITSHeaderManager[];
+    getCommonFitsHeaderParams(): FITSHeaderManager;
     get fitsUsed(): String[];
     getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array>;
-    setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>>;
+    setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>>;
     getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]>;
     /** TODO !!! check and handle RA passing through 360-0 */
     pix2world(i: number, j: number): Point;

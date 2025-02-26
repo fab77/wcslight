@@ -10,7 +10,7 @@
 
 
 import { FITSParser } from 'jsfitsio';
-import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderManager } from 'jsfitsio';
 import { FITSHeaderItem } from 'jsfitsio';
 import { FITSParsed } from 'jsfitsio';
 import { ParseUtils } from 'jsfitsio';
@@ -37,19 +37,14 @@ import { FITS } from '../model/FITS.js';
 
 export class HiPSProjection extends AbstractProjection {
 	
-	// _naxis1!: number;
-	// _naxis2!: number;
 	_isGalactic: boolean = false;
 	_pixno!: number;
 	_tileslist!: number[];
 	_hp!: Healpix;
-	_fh_common!: FITSHeader;
-	// _ctype1: string; // TODO should be RA ENUM
-	// _ctype2: string; // TODO should be Dec ENUM
+	_fh_common!: FITSHeaderManager;
 	_wcsname: string;
 	_hipsBaseURI!: string;
-	// _pxsize!: number;
-	_fitsheaderlist: FITSHeader[];
+	_fitsheaderlist: FITSHeaderManager[];
 	_pxvalues: Map<number, Array<Uint8Array>>;
 	_xyGridProj!: HEALPixXYSpace;
 	_norder!: number;
@@ -88,21 +83,24 @@ export class HiPSProjection extends AbstractProjection {
 		// this._ctype2 = "DEC--HPX";
 
 		this._pxvalues = new Map<number, Array<Uint8Array>>();
-		this._fitsheaderlist = new Array<FITSHeader>();
+		this._fitsheaderlist = new Array<FITSHeaderManager>();
 		this._radeclist = new Array<[number, number]>();
 
 	}
 
 	async parsePropertiesFile(baseUrl: string): Promise<any> {
-		const fp = new FITSParser(null);
 
-		const promise = fp.getFile(baseUrl + "/properties").then((propFile: ArrayBuffer | Buffer) => {
+		const propFile = await fetch(baseUrl + "/properties")
+		// const fp = new FITSParser(null);
+
+		// const promise = fp.getFile(baseUrl + "/properties").then((propFile: ArrayBuffer | Buffer) => {
 			let prop: string;
 			if (propFile instanceof ArrayBuffer) {
 				const textDecoder = new TextDecoder("iso-8859-1");
 				prop = textDecoder.decode(new Uint8Array(propFile));
 			} else {
-				prop = propFile.toString('utf8');
+				// prop = propFile.toString('utf8');
+				prop = propFile.toString();
 			}
 			/**
 			 	HiPS – Hierarchical Progressive Survey
@@ -139,16 +137,17 @@ export class HiPSProjection extends AbstractProjection {
 				}
 			}
 			return propFile;
-		});
+		// });
 
-		await promise;
-		return promise;
+		// await promise;
+		// return promise;
 	}
 
 	async initFromFile(fitsfilepath: string): Promise<FITSParsed> {
-		let fp = new FITSParser(fitsfilepath);
+		const fits = await FITSParser.loadFITS(fitsfilepath)
+		// let fp = new FITSParser(fitsfilepath);
 
-		let promise = fp.loadFITS().then(fits => {
+		// let promise = fp.loadFITS().then(fits => {
 			this._pxvalues.set(0, fits.data);
 			this._fitsheaderlist[0] = fits.header;
 
@@ -163,9 +162,9 @@ export class HiPSProjection extends AbstractProjection {
 
 			this._xyGridProj = HiPSHelper.setupByTile(this._pixno, this._hp);
 			return fits;
-		});
-		await promise;
-		return promise;
+		// });
+		// await promise;
+		// return promise;
 	}
 
 
@@ -203,53 +202,53 @@ export class HiPSProjection extends AbstractProjection {
 		this._hp = new Healpix(this._nside);
 	}
 
-	prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[] {
+	prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[] {
 		for (let header of this._fitsheaderlist) {
 
-			header.addItemAtTheBeginning(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
-			header.addItemAtTheBeginning(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
+			header.insert(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
+			header.insert(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
 
 			if (fitsHeaderParams.get("BLANK") !== undefined) {
-				header.addItem(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
+				header.insert(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
 			}
 			let bscale = 1.0;
 			if (fitsHeaderParams.get("BSCALE") !== undefined) {
 				bscale = fitsHeaderParams.get("BSCALE");
-				header.addItem(new FITSHeaderItem("BSCALE", bscale));
+				header.insert(new FITSHeaderItem("BSCALE", bscale));
 			}
 
 
 			let bzero = 0.0;
 			if (fitsHeaderParams.get("BZERO") !== undefined) {
 				bzero = fitsHeaderParams.get("BZERO");
-				header.addItem(new FITSHeaderItem("BZERO", bzero));
+				header.insert(new FITSHeaderItem("BZERO", bzero));
 			}
 
-			header.addItem(new FITSHeaderItem("NAXIS", 2));
-			header.addItem(new FITSHeaderItem("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2));
-			header.addItem(new FITSHeaderItem("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2));
+			header.insert(new FITSHeaderItem("NAXIS", 2));
+			header.insert(new FITSHeaderItem("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2));
+			header.insert(new FITSHeaderItem("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2));
 
-			header.addItem(new FITSHeaderItem("ORDER", this._norder));
+			header.insert(new FITSHeaderItem("ORDER", this._norder));
 
-			header.addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
-			header.addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
+			header.insert(new FITSHeaderItem("CTYPE1", super.ctype1));
+			header.insert(new FITSHeaderItem("CTYPE2", super.ctype2));
 
-			// header.addItem(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
-			// header.addItem(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
+			// header.insert(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
+			// header.insert(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
 
-			header.addItem(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
-			header.addItem(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
+			header.insert(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
+			header.insert(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
 
 		}
 		return this._fitsheaderlist;
 	}
 
 
-	getFITSHeader(): FITSHeader[] {
+	getFITSHeader(): FITSHeaderManager[] {
 		return this._fitsheaderlist;
 	}
 
-	getCommonFitsHeaderParams(): FITSHeader {
+	getCommonFitsHeaderParams(): FITSHeaderManager {
 		return this._fh_common;
 	}
 
@@ -289,10 +288,11 @@ export class HiPSProjection extends AbstractProjection {
 			let tileno = hipstileno;
 			let dir = Math.floor(tileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
 			let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + tileno + ".fits";
-			let fp = new FITSParser(fitsurl);
+			// let fp = new FITSParser(fitsurl);
 
 
-			promises.push(fp.loadFITS().then((fits) => {
+			// promises.push(fp.loadFITS().then((fits) => {
+			promises.push(FITSParser.loadFITS(fitsurl).then((fits) => {
 				if (fits !== null) {
 					let pixno = (fits.header.get("NPIX") !== undefined) ? fits.header.get("NPIX") : tileno;
 					// FITSParser.writeFITS(fits.header, fits.data, destPath+"/Npix"+pixno+".fits");
@@ -319,7 +319,7 @@ export class HiPSProjection extends AbstractProjection {
 
 		let pixcount = inputPixelsList.length;
 		let values: Uint8Array | undefined = undefined;
-		let fitsheaderlist: (FITSHeader | undefined)[] = [];
+		let fitsheaderlist: (FITSHeaderManager | undefined)[] = [];
 		let promises = [];
 
 		let self = this;
@@ -328,8 +328,10 @@ export class HiPSProjection extends AbstractProjection {
 			let dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
 			let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
 			console.log(`Identified source file ${fitsurl}`)
-			let fp = new FITSParser(fitsurl);
-			promises.push(fp.loadFITS().then((fits) => {
+			
+			// let fp = new FITSParser(fitsurl);
+			// promises.push(fp.loadFITS().then((fits) => {
+			promises.push(FITSParser.loadFITS(fitsurl).then((fits) => {
 
 				if (fits === null) {
 					fitsheaderlist.push(undefined);
@@ -374,22 +376,22 @@ export class HiPSProjection extends AbstractProjection {
 		return values;
 	}
 
-	prepareCommonHeader(fitsheaderlist: (FITSHeader | undefined)[]): void {
+	prepareCommonHeader(fitsheaderlist: (FITSHeaderManager | undefined)[]): void {
 		if (fitsheaderlist === undefined) {
 			return;
 		}
 		if (!this._fh_common) {
-			this._fh_common = new FITSHeader();
+			this._fh_common = new FITSHeaderManager();
 		}
 
 		for (let i = 0; i < fitsheaderlist.length; i++) {
 			let header = fitsheaderlist[i];
 			if (header !== undefined) {
 
-				for (let item of header.getItemList()) {
+				for (let item of header.getItems()) {
 					if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(item.key)) {
 						if (!this._fh_common.getItemListOf(item.key)[0]) {
-							this._fh_common.addItem(new FITSHeaderItem(item.key, item.value));
+							this._fh_common.insert(new FITSHeaderItem(item.key, item.value));
 						} else if (this._fh_common.getItemListOf(item.key)[0].value !== item.value) { // this should not happen 
 							throw new Error("Error parsing headers. " + item.key + " was " + this._fh_common.getItemListOf(item.key)[0] + " and now is " + item.value);
 						}
@@ -411,7 +413,7 @@ export class HiPSProjection extends AbstractProjection {
 	// 	return pval;
 	// }
 
-	setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>> {
+	setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>> {
 
 		// let vidx = 0; // <------ ERROR!!!!! pixel are not organized by tile!!!
 
@@ -515,22 +517,22 @@ export class HiPSProjection extends AbstractProjection {
 		fhKeys.forEach((tileno) => {
 			if (nodata.get("" + tileno + "") == false) { // there are data
 				// tileno = parseInt(tileno);
-				let header = new FITSHeader();
+				let header = new FITSHeaderManager();
 				header.set("NPIX", tileno);
 				// TODO CONVERT minval and maxval to physical values!
-				// header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap["" + tileno + ""][0]));
-				// header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap["" + tileno + ""][1]));
-				header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap.get("" + tileno + "")[0]));
-				header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap.get("" + tileno + "")[1]));
-				header.addItem(new FITSHeaderItem("NPIX", tileno));
+				// header.insert(new FITSHeaderItem("DATAMIN", minmaxmap["" + tileno + ""][0]));
+				// header.insert(new FITSHeaderItem("DATAMAX", minmaxmap["" + tileno + ""][1]));
+				header.insert(new FITSHeaderItem("DATAMIN", minmaxmap.get("" + tileno + "")[0]));
+				header.insert(new FITSHeaderItem("DATAMAX", minmaxmap.get("" + tileno + "")[1]));
+				header.insert(new FITSHeaderItem("NPIX", tileno));
 
 				let vec3 = this._hp.pix2vec(tileno);
 				let ptg = new Pointing(vec3);
 				let crval1 = radToDeg(ptg.phi);
 				let crval2 = 90 - radToDeg(ptg.theta);
 
-				header.addItem(new FITSHeaderItem("CRVAL1", crval1));
-				header.addItem(new FITSHeaderItem("CRVAL2", crval2));
+				header.insert(new FITSHeaderItem("CRVAL1", crval1));
+				header.insert(new FITSHeaderItem("CRVAL2", crval2));
 
 				this._fitsheaderlist.push(header);
 			} else { // no data

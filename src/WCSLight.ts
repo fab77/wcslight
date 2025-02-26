@@ -78,7 +78,12 @@ export class WCSLight {
      * @returns {URL}
      */
     static generateFITS(fitsheader: any, fitsdata: any): string {
-        const blobUrl = FITSParser.generateFITS(fitsheader, fitsdata);
+        const fitsParsed = {
+            header: fitsheader,
+            data: fitsdata
+        }
+        // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
+        const blobUrl = FITSParser.generateFITSForWeb(fitsParsed);
         return blobUrl;
     }
 

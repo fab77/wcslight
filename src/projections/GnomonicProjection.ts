@@ -12,7 +12,7 @@
 import { AbstractProjection } from './AbstractProjection.js';
 import { ImagePixel } from '../model/ImagePixel.js';
 import { FITSParser } from 'jsfitsio';
-import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderManager } from 'jsfitsio';
 import { FITSHeaderItem } from 'jsfitsio';
 import { FITSParsed } from 'jsfitsio';
 import { ParseUtils } from 'jsfitsio';
@@ -27,7 +27,7 @@ export class GnomonicProjection extends AbstractProjection {
     _minra: number;
     _mindec: number;
     _pxmatrix;
-    _fitsheader: FITSHeader[];
+    _fitsheader: FITSHeaderManager[];
     _inflie: string;
     _craDeg: number;
     _cdecDeg: number;
@@ -52,9 +52,10 @@ export class GnomonicProjection extends AbstractProjection {
 
     async initFromFile(infile: string): Promise<FITSParsed> {
 
-        let fp = new FITSParser(infile);
+        const fits = await FITSParser.loadFITS(infile)
+        // let fp = new FITSParser(infile);
 
-        let promise = fp.loadFITS().then(fits => {
+        // let promise = fp.loadFITS().then(fits => {
 
             // console.log(fits.header);
             this._pxvalues.set(0, fits.data);
@@ -78,9 +79,9 @@ export class GnomonicProjection extends AbstractProjection {
 
             return fits;
 
-        });
-        await promise;
-        return promise;
+        // });
+        // await promise;
+        // return promise;
     }
 
     extractPhysicalValues(fits: FITSParsed): number[][] {
@@ -108,71 +109,71 @@ export class GnomonicProjection extends AbstractProjection {
 
     }
 
-    prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[] {
+    prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[] {
 
-        this._fitsheader[0] = new FITSHeader();
+        this._fitsheader[0] = new FITSHeaderManager();
 
 
-        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
-        this._fitsheader[0].addItemAtTheBeginning(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
+        this._fitsheader[0].insert(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
+        this._fitsheader[0].insert(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
 
         if (fitsHeaderParams.get("BLANK") !== undefined) {
-            this._fitsheader[0].addItem(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
+            this._fitsheader[0].insert(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
         }
 
         let bscale = 1.0;
         if (fitsHeaderParams.get("BSCALE") !== undefined) {
             bscale = fitsHeaderParams.get("BSCALE");
         }
-        this._fitsheader[0].addItem(new FITSHeaderItem("BSCALE", bscale));
+        this._fitsheader[0].insert(new FITSHeaderItem("BSCALE", bscale));
 
         let bzero = 0.0;
         if (fitsHeaderParams.get("BZERO") !== undefined) {
             bzero = fitsHeaderParams.get("BZERO");
         }
-        this._fitsheader[0].addItem(new FITSHeaderItem("BZERO", bzero));
+        this._fitsheader[0].insert(new FITSHeaderItem("BZERO", bzero));
 
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS", 2));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS1", super.naxis1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("NAXIS2", super.naxis2));
+        this._fitsheader[0].insert(new FITSHeaderItem("NAXIS", 2));
+        this._fitsheader[0].insert(new FITSHeaderItem("NAXIS1", super.naxis1));
+        this._fitsheader[0].insert(new FITSHeaderItem("NAXIS2", super.naxis2));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
-        this._fitsheader[0].addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
+        this._fitsheader[0].insert(new FITSHeaderItem("CTYPE1", super.ctype1));
+        this._fitsheader[0].insert(new FITSHeaderItem("CTYPE2", super.ctype2));
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT1", super.pxsize)); // ??? Pixel spacing along axis 1 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CDELT2", super.pxsize)); // ??? Pixel spacing along axis 2 ???
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX1", super.naxis1 / 2)); // central/reference pixel i along naxis1
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRPIX2", super.naxis2 / 2)); // central/reference pixel j along naxis2
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL1", this._craDeg)); // central/reference pixel RA
-        this._fitsheader[0].addItem(new FITSHeaderItem("CRVAL2", this._cdecDeg)); // central/reference pixel Dec
+        this._fitsheader[0].insert(new FITSHeaderItem("CDELT1", super.pxsize)); // ??? Pixel spacing along axis 1 ???
+        this._fitsheader[0].insert(new FITSHeaderItem("CDELT2", super.pxsize)); // ??? Pixel spacing along axis 2 ???
+        this._fitsheader[0].insert(new FITSHeaderItem("CRPIX1", super.naxis1 / 2)); // central/reference pixel i along naxis1
+        this._fitsheader[0].insert(new FITSHeaderItem("CRPIX2", super.naxis2 / 2)); // central/reference pixel j along naxis2
+        this._fitsheader[0].insert(new FITSHeaderItem("CRVAL1", this._craDeg)); // central/reference pixel RA
+        this._fitsheader[0].insert(new FITSHeaderItem("CRVAL2", this._cdecDeg)); // central/reference pixel Dec
 
         let min = bzero + bscale * this._minphysicalval;
         let max = bzero + bscale * this._maxphysicalval;
-        this._fitsheader[0].addItem(new FITSHeaderItem("DATAMIN", min)); // min data value
-        this._fitsheader[0].addItem(new FITSHeaderItem("DATAMAX", max)); // max data value
+        this._fitsheader[0].insert(new FITSHeaderItem("DATAMIN", min)); // min data value
+        this._fitsheader[0].insert(new FITSHeaderItem("DATAMAX", max)); // max data value
 
 
-        this._fitsheader[0].addItem(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
-        this._fitsheader[0].addItem(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
-        this._fitsheader[0].addItem(new FITSHeaderItem("END"));
+        this._fitsheader[0].insert(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
+        this._fitsheader[0].insert(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
+        this._fitsheader[0].insert(new FITSHeaderItem("END"));
 
         return this._fitsheader;
 
     }
 
-    getFITSHeader(): FITSHeader[] {
+    getFITSHeader(): FITSHeaderManager[] {
         return this._fitsheader;
     }
 
-    getCommonFitsHeaderParams(): FITSHeader {
-        let header = new FITSHeader();
+    getCommonFitsHeaderParams(): FITSHeaderManager {
+        let header = new FITSHeaderManager();
         for (const [key, value] of this._fitsheader[0]) {
             // I could add a list of used NPIXs to be included in the comment of the output FITS
             if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER",].includes(key)) {
 
                 // header.set(key, value);
-                header.addItem(new FITSHeaderItem(key, value));
+                header.insert(new FITSHeaderItem(key, value));
 
             }
         }
@@ -216,7 +217,7 @@ export class GnomonicProjection extends AbstractProjection {
 
     }
 
-    setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>> {
+    setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>> {
         // let bytesXelem = Math.abs(fitsHeaderParams.get("BITPIX") / 8);
         // let minpixb = ParseUtils.extractPixelValue(0, values.slice(0, bytesXelem), fitsHeaderParams.get("BITPIX"));
         // let maxpixb = minpixb;

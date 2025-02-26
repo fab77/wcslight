@@ -2,18 +2,16 @@
 // import { FITSHeader } from 'fitsparser/model/FITSHeader';
 // import { FITSHeaderItem } from 'fitsparser/model/FITSHeaderItem';
 // import { FITSParsed } from 'fitsparser/model/FITSParsed';
-import { FITSParser } from 'jsfitsio';
-import { FITSHeader } from 'jsfitsio';
-import { FITSHeaderItem } from 'jsfitsio';
 import { AbstractProjection } from './AbstractProjection.js';
 export class TestProj extends AbstractProjection {
     constructor() {
-        super("RA---MER", "DEC--MER");
-        this._wcsname = "MER"; // TODO check WCS standard and create ENUM
-        this._pxvalues = new Map();
-        const fh = new FITSHeader();
-        const fp = new FITSParser("./notexistent/");
-        const fhi = new FITSHeaderItem("mykey", "myvalue", "mycomment");
+        super("RA---TST", "DEC--TST");
+        // this._wcsname = "MER"; // TODO check WCS standard and create ENUM
+        // this._pxvalues = new Map<number, Array<Uint8Array>>();
+        // const fh = new FITSHeader();
+        // const fp = new FITSParser("./notexistent/");
+        // const fp = FITSParser.loadFITS("./notexistent/");
+        // const fhi = new FITSHeaderItem("mykey", "myvalue", "mycomment");
     }
     get fitsUsed() {
         throw new Error('Method not implemented.');

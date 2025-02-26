@@ -1,4 +1,5 @@
-import { FITSParser, FITSHeader, FITSWriter } from "jsfitsio";
+// import { FITSParser, FITSHeader, FITSWriter } from "jsfitsio";
+import { FITSParser, FITSHeaderManager, FITSWriter } from "jsfitsio";
 
 import { CoordsType } from "../lib-esm/model/CoordsType.js";
 import { NumberType } from "../lib-esm/model/NumberType.js";
@@ -82,9 +83,11 @@ async function testNaNFits() {
         let destDir = __dirname + '/output/newtest/Mercator.fits';
         if (firstData !== undefined) {
 
-            let fw = new FITSWriter();
-            fw.run(firstHeader, firstData)
-            fs.writeFile(destDir, fw._fitsData);
+            const fits = {header: cutoutResult.fitsheader[0], data: cutoutResult.fitsdata.get(0)};
+            // let fw = new FITSWriter();
+            // fw.run(firstHeader, firstData)
+            // fs.writeFile(destDir, fw._fitsData);
+            FITSWriter.writeFITSFile(fits, destDir);
             console.log(`File written in ${destDir}`);
 
         } 

@@ -1,4 +1,4 @@
-import { FITSHeader } from "jsfitsio";
+import { FITSHeaderManager } from "jsfitsio";
 import { FITSParsed } from "jsfitsio";
 import { ImagePixel } from "../model/ImagePixel.js";
 import { Point } from "../model/Point.js";
@@ -29,12 +29,12 @@ export declare abstract class AbstractProjection {
     protected get ctype2(): string;
     protected set ctype2(value: string);
     abstract initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed | undefined>;
-    abstract prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
-    abstract getFITSHeader(): FITSHeader[];
-    abstract getCommonFitsHeaderParams(): FITSHeader;
+    abstract prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[];
+    abstract getFITSHeader(): FITSHeaderManager[];
+    abstract getCommonFitsHeaderParams(): FITSHeaderManager;
     abstract extractPhysicalValues(fits: FITSParsed): number[][];
     abstract getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined>;
-    abstract setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>>;
+    abstract setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>>;
     abstract getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]>;
     abstract pix2world(i: number, j: number): Point;
     abstract get fitsUsed(): String[];

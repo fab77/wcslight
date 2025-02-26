@@ -17,10 +17,8 @@ import { radToDeg } from '../model/Utils.js'; // TODO change package
 import { CoordsType } from "../model/CoordsType.js";
 import { HEALPixXYSpace } from "../model/HEALPixXYSpace.js";
 import { Point } from "../model/Point.js";
-import { SphericalCoords } from "../model/SphericalCoords.js";
 import { NumberType } from '../model/NumberType.js';
 import { AstroCoords } from "../model/AstroCoords.js";
-import { EquatorialCoords } from "../model/EquatorialCoords.js";
 
 export class HiPSHelper {
 

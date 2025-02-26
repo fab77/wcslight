@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 import { FITSParser } from 'jsfitsio';
-import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderManager } from 'jsfitsio';
 import { FITSHeaderItem } from 'jsfitsio';
 import { ParseUtils } from 'jsfitsio';
 import { Healpix } from "healpixjs";
@@ -52,8 +52,6 @@ export class HiPSProjection extends AbstractProjection {
     //  constructor(fitsfilepath?: string, hipsBaseURI?: string, pxsize?: number, order?: number) {
     constructor() {
         super("'RA---HPX'", "'DEC--HPX'");
-        // _naxis1!: number;
-        // _naxis2!: number;
         this._isGalactic = false;
         this._fitsUsed = [];
         this._wcsname = "HPX"; // TODO check WCS standard
@@ -69,53 +67,55 @@ export class HiPSProjection extends AbstractProjection {
             naxis2: { get: () => super.naxis2, set: v => super.naxis2 = v }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            const fp = new FITSParser(null);
-            const promise = fp.getFile(baseUrl + "/properties").then((propFile) => {
-                let prop;
-                if (propFile instanceof ArrayBuffer) {
-                    const textDecoder = new TextDecoder("iso-8859-1");
-                    prop = textDecoder.decode(new Uint8Array(propFile));
+            const propFile = yield fetch(baseUrl + "/properties");
+            // const fp = new FITSParser(null);
+            // const promise = fp.getFile(baseUrl + "/properties").then((propFile: ArrayBuffer | Buffer) => {
+            let prop;
+            if (propFile instanceof ArrayBuffer) {
+                const textDecoder = new TextDecoder("iso-8859-1");
+                prop = textDecoder.decode(new Uint8Array(propFile));
+            }
+            else {
+                // prop = propFile.toString('utf8');
+                prop = propFile.toString();
+            }
+            /**
+                HiPS – Hierarchical Progressive Survey
+                Version 1.0
+                IVOA Proposed Recommendation
+                3rd April 2017
+                https://www.ivoa.net/documents/HiPS/20170403/PR-HIPS-1.0-20170403.pdf
+             */
+            const txtArr = prop.split('\n');
+            this._HIPS_TILE_WIDTH = 512;
+            for (let line of txtArr) {
+                if (!line.includes("=")) {
+                    continue;
                 }
-                else {
-                    prop = propFile.toString('utf8');
+                const tokens = line.split("=");
+                if (tokens[1] === undefined) {
+                    continue;
                 }
-                /**
-                    HiPS – Hierarchical Progressive Survey
-                    Version 1.0
-                    IVOA Proposed Recommendation
-                    3rd April 2017
-                    https://www.ivoa.net/documents/HiPS/20170403/PR-HIPS-1.0-20170403.pdf
-                 */
-                const txtArr = prop.split('\n');
-                this._HIPS_TILE_WIDTH = 512;
-                for (let line of txtArr) {
-                    if (!line.includes("=")) {
-                        continue;
-                    }
-                    const tokens = line.split("=");
-                    if (tokens[1] === undefined) {
-                        continue;
-                    }
-                    const key = tokens[0].trim();
-                    const val = tokens[1].trim();
-                    if (key == "hips_order") {
-                        this._HIPS_MAX_ORDER = parseInt(val);
-                        console.log("hips_order " + this._HIPS_MAX_ORDER);
-                    }
-                    else if (key == "hips_tile_width") {
-                        this._HIPS_TILE_WIDTH = parseInt(val);
-                        _super.naxis1 = this._HIPS_TILE_WIDTH;
-                        _super.naxis2 = this._HIPS_TILE_WIDTH;
-                        console.log("hips_tile_width " + this._HIPS_TILE_WIDTH);
-                    }
-                    else if (key == "hips_frame" && val == "galactic") {
-                        this._isGalactic = true;
-                    }
+                const key = tokens[0].trim();
+                const val = tokens[1].trim();
+                if (key == "hips_order") {
+                    this._HIPS_MAX_ORDER = parseInt(val);
+                    console.log("hips_order " + this._HIPS_MAX_ORDER);
                 }
-                return propFile;
-            });
-            yield promise;
-            return promise;
+                else if (key == "hips_tile_width") {
+                    this._HIPS_TILE_WIDTH = parseInt(val);
+                    _super.naxis1 = this._HIPS_TILE_WIDTH;
+                    _super.naxis2 = this._HIPS_TILE_WIDTH;
+                    console.log("hips_tile_width " + this._HIPS_TILE_WIDTH);
+                }
+                else if (key == "hips_frame" && val == "galactic") {
+                    this._isGalactic = true;
+                }
+            }
+            return propFile;
+            // });
+            // await promise;
+            // return promise;
         });
     }
     initFromFile(fitsfilepath) {
@@ -124,21 +124,22 @@ export class HiPSProjection extends AbstractProjection {
             naxis2: { get: () => super.naxis2, set: v => super.naxis2 = v }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            let fp = new FITSParser(fitsfilepath);
-            let promise = fp.loadFITS().then(fits => {
-                this._pxvalues.set(0, fits.data);
-                this._fitsheaderlist[0] = fits.header;
-                let order = fits.header.get("ORDER");
-                this.init(order);
-                _super.naxis1 = fits.header.get("NAXIS1");
-                _super.naxis2 = fits.header.get("NAXIS2");
-                this._HIPS_TILE_WIDTH = _super.naxis1;
-                this._pixno = fits.header.get("NPIX");
-                this._xyGridProj = HiPSHelper.setupByTile(this._pixno, this._hp);
-                return fits;
-            });
-            yield promise;
-            return promise;
+            const fits = yield FITSParser.loadFITS(fitsfilepath);
+            // let fp = new FITSParser(fitsfilepath);
+            // let promise = fp.loadFITS().then(fits => {
+            this._pxvalues.set(0, fits.data);
+            this._fitsheaderlist[0] = fits.header;
+            let order = fits.header.get("ORDER");
+            this.init(order);
+            _super.naxis1 = fits.header.get("NAXIS1");
+            _super.naxis2 = fits.header.get("NAXIS2");
+            this._HIPS_TILE_WIDTH = _super.naxis1;
+            this._pixno = fits.header.get("NPIX");
+            this._xyGridProj = HiPSHelper.setupByTile(this._pixno, this._hp);
+            return fits;
+            // });
+            // await promise;
+            // return promise;
         });
     }
     initFromHiPSLocationAndPxSize(baseUrl, pxsize) {
@@ -183,31 +184,31 @@ export class HiPSProjection extends AbstractProjection {
     }
     prepareFITSHeader(fitsHeaderParams) {
         for (let header of this._fitsheaderlist) {
-            header.addItemAtTheBeginning(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
-            header.addItemAtTheBeginning(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
+            header.insert(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
+            header.insert(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
             if (fitsHeaderParams.get("BLANK") !== undefined) {
-                header.addItem(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
+                header.insert(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
             }
             let bscale = 1.0;
             if (fitsHeaderParams.get("BSCALE") !== undefined) {
                 bscale = fitsHeaderParams.get("BSCALE");
-                header.addItem(new FITSHeaderItem("BSCALE", bscale));
+                header.insert(new FITSHeaderItem("BSCALE", bscale));
             }
             let bzero = 0.0;
             if (fitsHeaderParams.get("BZERO") !== undefined) {
                 bzero = fitsHeaderParams.get("BZERO");
-                header.addItem(new FITSHeaderItem("BZERO", bzero));
+                header.insert(new FITSHeaderItem("BZERO", bzero));
             }
-            header.addItem(new FITSHeaderItem("NAXIS", 2));
-            header.addItem(new FITSHeaderItem("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2));
-            header.addItem(new FITSHeaderItem("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2));
-            header.addItem(new FITSHeaderItem("ORDER", this._norder));
-            header.addItem(new FITSHeaderItem("CTYPE1", super.ctype1));
-            header.addItem(new FITSHeaderItem("CTYPE2", super.ctype2));
-            // header.addItem(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
-            // header.addItem(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
-            header.addItem(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
-            header.addItem(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
+            header.insert(new FITSHeaderItem("NAXIS", 2));
+            header.insert(new FITSHeaderItem("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2));
+            header.insert(new FITSHeaderItem("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2));
+            header.insert(new FITSHeaderItem("ORDER", this._norder));
+            header.insert(new FITSHeaderItem("CTYPE1", super.ctype1));
+            header.insert(new FITSHeaderItem("CTYPE2", super.ctype2));
+            // header.insert(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
+            // header.insert(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
+            header.insert(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
+            header.insert(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
         }
         return this._fitsheaderlist;
     }
@@ -249,8 +250,9 @@ export class HiPSProjection extends AbstractProjection {
                 let tileno = hipstileno;
                 let dir = Math.floor(tileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
                 let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + tileno + ".fits";
-                let fp = new FITSParser(fitsurl);
-                promises.push(fp.loadFITS().then((fits) => {
+                // let fp = new FITSParser(fitsurl);
+                // promises.push(fp.loadFITS().then((fits) => {
+                promises.push(FITSParser.loadFITS(fitsurl).then((fits) => {
                     if (fits !== null) {
                         let pixno = (fits.header.get("NPIX") !== undefined) ? fits.header.get("NPIX") : tileno;
                         // FITSParser.writeFITS(fits.header, fits.data, destPath+"/Npix"+pixno+".fits");
@@ -281,8 +283,9 @@ export class HiPSProjection extends AbstractProjection {
                 let dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
                 let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
                 console.log(`Identified source file ${fitsurl}`);
-                let fp = new FITSParser(fitsurl);
-                promises.push(fp.loadFITS().then((fits) => {
+                // let fp = new FITSParser(fitsurl);
+                // promises.push(fp.loadFITS().then((fits) => {
+                promises.push(FITSParser.loadFITS(fitsurl).then((fits) => {
                     if (fits === null) {
                         fitsheaderlist.push(undefined);
                     }
@@ -321,15 +324,15 @@ export class HiPSProjection extends AbstractProjection {
             return;
         }
         if (!this._fh_common) {
-            this._fh_common = new FITSHeader();
+            this._fh_common = new FITSHeaderManager();
         }
         for (let i = 0; i < fitsheaderlist.length; i++) {
             let header = fitsheaderlist[i];
             if (header !== undefined) {
-                for (let item of header.getItemList()) {
+                for (let item of header.getItems()) {
                     if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(item.key)) {
                         if (!this._fh_common.getItemListOf(item.key)[0]) {
-                            this._fh_common.addItem(new FITSHeaderItem(item.key, item.value));
+                            this._fh_common.insert(new FITSHeaderItem(item.key, item.value));
                         }
                         else if (this._fh_common.getItemListOf(item.key)[0].value !== item.value) { // this should not happen 
                             throw new Error("Error parsing headers. " + item.key + " was " + this._fh_common.getItemListOf(item.key)[0] + " and now is " + item.value);
@@ -429,20 +432,20 @@ export class HiPSProjection extends AbstractProjection {
         fhKeys.forEach((tileno) => {
             if (nodata.get("" + tileno + "") == false) { // there are data
                 // tileno = parseInt(tileno);
-                let header = new FITSHeader();
+                let header = new FITSHeaderManager();
                 header.set("NPIX", tileno);
                 // TODO CONVERT minval and maxval to physical values!
-                // header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap["" + tileno + ""][0]));
-                // header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap["" + tileno + ""][1]));
-                header.addItem(new FITSHeaderItem("DATAMIN", minmaxmap.get("" + tileno + "")[0]));
-                header.addItem(new FITSHeaderItem("DATAMAX", minmaxmap.get("" + tileno + "")[1]));
-                header.addItem(new FITSHeaderItem("NPIX", tileno));
+                // header.insert(new FITSHeaderItem("DATAMIN", minmaxmap["" + tileno + ""][0]));
+                // header.insert(new FITSHeaderItem("DATAMAX", minmaxmap["" + tileno + ""][1]));
+                header.insert(new FITSHeaderItem("DATAMIN", minmaxmap.get("" + tileno + "")[0]));
+                header.insert(new FITSHeaderItem("DATAMAX", minmaxmap.get("" + tileno + "")[1]));
+                header.insert(new FITSHeaderItem("NPIX", tileno));
                 let vec3 = this._hp.pix2vec(tileno);
                 let ptg = new Pointing(vec3);
                 let crval1 = radToDeg(ptg.phi);
                 let crval2 = 90 - radToDeg(ptg.theta);
-                header.addItem(new FITSHeaderItem("CRVAL1", crval1));
-                header.addItem(new FITSHeaderItem("CRVAL2", crval2));
+                header.insert(new FITSHeaderItem("CRVAL1", crval1));
+                header.insert(new FITSHeaderItem("CRVAL2", crval2));
                 this._fitsheaderlist.push(header);
             }
             else { // no data

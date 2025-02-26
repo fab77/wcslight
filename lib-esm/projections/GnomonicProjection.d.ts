@@ -8,14 +8,14 @@
  */
 import { AbstractProjection } from './AbstractProjection.js';
 import { ImagePixel } from '../model/ImagePixel.js';
-import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderManager } from 'jsfitsio';
 import { FITSParsed } from 'jsfitsio';
 import { Point } from '../model/Point.js';
 export declare class GnomonicProjection extends AbstractProjection {
     _minra: number;
     _mindec: number;
     _pxmatrix: any;
-    _fitsheader: FITSHeader[];
+    _fitsheader: FITSHeaderManager[];
     _inflie: string;
     _craDeg: number;
     _cdecDeg: number;
@@ -29,11 +29,11 @@ export declare class GnomonicProjection extends AbstractProjection {
     get fitsUsed(): String[];
     initFromFile(infile: string): Promise<FITSParsed>;
     extractPhysicalValues(fits: FITSParsed): number[][];
-    prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
-    getFITSHeader(): FITSHeader[];
-    getCommonFitsHeaderParams(): FITSHeader;
+    prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[];
+    getFITSHeader(): FITSHeaderManager[];
+    getCommonFitsHeaderParams(): FITSHeaderManager;
     getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array>;
-    setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeader): Map<number, Array<Uint8Array>>;
+    setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>>;
     getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]>;
     pix2world(i: number, j: number): Point;
     world2pix(radeclist: number[][]): ImagePixel[];

@@ -1,4 +1,4 @@
-import { FITSHeader, FITSHeaderItem } from "jsfitsio";
+import { FITSHeaderManager, FITSHeaderItem } from "jsfitsio";
 import { FITSParsed } from "jsfitsio";
 // import { AstroCoords } from "src/model/AstroCoords";
 import { ImagePixel } from "../model/ImagePixel.js";
@@ -82,11 +82,11 @@ export abstract class AbstractProjection {
     order?: number
   ): Promise<FITSParsed | undefined>;
 
-  public abstract prepareFITSHeader(fitsHeaderParams: FITSHeader): FITSHeader[];
+  public abstract prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[];
 
-  public abstract getFITSHeader(): FITSHeader[];
+  public abstract getFITSHeader(): FITSHeaderManager[];
 
-  public abstract getCommonFitsHeaderParams(): FITSHeader;
+  public abstract getCommonFitsHeaderParams(): FITSHeaderManager;
 
   public abstract extractPhysicalValues(fits: FITSParsed): number[][];
 
@@ -96,7 +96,7 @@ export abstract class AbstractProjection {
 
   public abstract setPxsValue(
     values: Uint8Array,
-    fitsHeaderParams: FITSHeader
+    fitsHeaderParams: FITSHeaderManager
   ): Map<number, Array<Uint8Array>>;
 
   public abstract getImageRADecList(
@@ -120,37 +120,37 @@ export abstract class AbstractProjection {
       );
     }
 
-    let fitsheaders: FITSHeader[] = [];
+    let fitsheaderList: FITSHeaderManager[] = [];
 
-    let fitsheader = new FITSHeader();
+    let fitsheader: FITSHeaderManager = new FITSHeaderManager();
 
-    fitsheader.addItemAtTheBeginning(new FITSHeaderItem("NAXIS1", this.naxis1));
-    fitsheader.addItemAtTheBeginning(new FITSHeaderItem("NAXIS2", this.naxis2));
-    fitsheader.addItemAtTheBeginning(new FITSHeaderItem("NAXIS", 2));
-    fitsheader.addItemAtTheBeginning(new FITSHeaderItem("BITPIX", "-64"));
-    fitsheader.addItemAtTheBeginning(new FITSHeaderItem("SIMPLE", "T"));
-    fitsheader.addItem(new FITSHeaderItem("BSCALE", 1));
-    fitsheader.addItem(new FITSHeaderItem("BZERO", 0));
+    fitsheader.insert(new FITSHeaderItem("NAXIS1", this.naxis1));
+    fitsheader.insert(new FITSHeaderItem("NAXIS2", this.naxis2));
+    fitsheader.insert(new FITSHeaderItem("NAXIS", 2));
+    fitsheader.insert(new FITSHeaderItem("BITPIX", "-64"));
+    fitsheader.insert(new FITSHeaderItem("SIMPLE", "T"));
+    fitsheader.insert(new FITSHeaderItem("BSCALE", 1));
+    fitsheader.insert(new FITSHeaderItem("BZERO", 0));
 
-    fitsheader.addItem(new FITSHeaderItem("CTYPE1", this.ctype1));
-    fitsheader.addItem(new FITSHeaderItem("CTYPE2", this.ctype2));
-    fitsheader.addItem(new FITSHeaderItem("CDELT1", this.pxsize)); // ??? Pixel spacing along axis 1 ???
-    fitsheader.addItem(new FITSHeaderItem("CDELT2", this.pxsize)); // ??? Pixel spacing along axis 2 ???
-    fitsheader.addItem(new FITSHeaderItem("CRPIX1", this.naxis1 / 2)); // central/reference pixel i along naxis1
-    fitsheader.addItem(new FITSHeaderItem("CRPIX2", this.naxis2 / 2)); // central/reference pixel j along naxis2
-    fitsheader.addItem(new FITSHeaderItem("CRVAL1", NaN)); // central/reference pixel RA
-    fitsheader.addItem(new FITSHeaderItem("CRVAL2", NaN)); // central/reference pixel Dec
+    fitsheader.insert(new FITSHeaderItem("CTYPE1", this.ctype1));
+    fitsheader.insert(new FITSHeaderItem("CTYPE2", this.ctype2));
+    fitsheader.insert(new FITSHeaderItem("CDELT1", this.pxsize)); // ??? Pixel spacing along axis 1 ???
+    fitsheader.insert(new FITSHeaderItem("CDELT2", this.pxsize)); // ??? Pixel spacing along axis 2 ???
+    fitsheader.insert(new FITSHeaderItem("CRPIX1", this.naxis1 / 2)); // central/reference pixel i along naxis1
+    fitsheader.insert(new FITSHeaderItem("CRPIX2", this.naxis2 / 2)); // central/reference pixel j along naxis2
+    fitsheader.insert(new FITSHeaderItem("CRVAL1", NaN)); // central/reference pixel RA
+    fitsheader.insert(new FITSHeaderItem("CRVAL2", NaN)); // central/reference pixel Dec
 
-    fitsheader.addItem(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'"));
-    fitsheader.addItem(
+    fitsheader.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'"));
+    fitsheader.insert(
       new FITSHeaderItem(
         "COMMENT",
         "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"
       )
     );
-    fitsheader.addItem(new FITSHeaderItem("END"));
+    fitsheader.insert(new FITSHeaderItem("END"));
 
-    fitsheaders.push(fitsheader);
+    fitsheaderList.push(fitsheader);
 
     let bytesXelem = 8;
     // why not usign a simple arrays?
@@ -162,7 +162,7 @@ export abstract class AbstractProjection {
       pv.get(0)[r].fill(255);
     }
 
-    const fitsNan: FITS = new FITS(fitsheaders, pv);
+    const fitsNan: FITS = new FITS(fitsheaderList, pv);
 
     return fitsNan;
   }
