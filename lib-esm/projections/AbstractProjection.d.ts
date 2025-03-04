@@ -28,7 +28,7 @@ export declare abstract class AbstractProjection {
     protected set ctype1(value: string);
     protected get ctype2(): string;
     protected set ctype2(value: string);
-    abstract initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed | undefined>;
+    abstract initFromFile(fitsfilepath?: string, hipsURI?: string, pxsize?: number, order?: number): Promise<FITSParsed | null>;
     abstract prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[];
     abstract getFITSHeader(): FITSHeaderManager[];
     abstract getCommonFitsHeaderParams(): FITSHeaderManager;

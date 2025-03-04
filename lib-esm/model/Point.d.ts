@@ -7,10 +7,12 @@ import { CoordsType } from './CoordsType.js';
 import { SphericalCoords } from './SphericalCoords.js';
 import { NumberType } from './NumberType.js';
 export declare class Point {
-    #private;
+    private astro;
+    private spherical;
+    private cartesian;
     constructor(in_type: CoordsType, unit: NumberType, ...coords: Array<number>);
-    get spherical(): SphericalCoords;
-    get astro(): AstroCoords;
-    get cartesian(): CartesianCoords;
+    getSpherical(): SphericalCoords;
+    getAstro(): AstroCoords;
+    getCartesian(): CartesianCoords;
 }
 //# sourceMappingURL=Point.d.ts.map

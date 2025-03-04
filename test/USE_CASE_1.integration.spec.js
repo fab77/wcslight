@@ -17,20 +17,36 @@ async function test01 () {
     const hp = new HiPSProjection();
     const inputFile = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160/Norder8/Dir40000/Npix47180.fits";
     console.log(`[test01] Loading file ${inputFile}`)
-    hp.initFromFile(inputFile).then((fits) => {
-        if (fits !== undefined) {
-            console.log(`[test01] BITPIX: ${fits.header.get('BITPIX')}`);
-            console.log(`[test01] NAXIS1: ${fits.header.get('NAXIS1')}`);
-            console.log(`[test01] NAXIS2: ${fits.header.get('NAXIS2')}`);
-            console.log(`[test01] payload bytes length ${fits.data.length * fits.data[0].length}`);
+
+    const fits = await hp.initFromFile(inputFile)
+    if (fits !== undefined) {
+        console.log(`[test01] BITPIX: ${fits.header.get('BITPIX')}`);
+        console.log(`[test01] NAXIS1: ${fits.header.get('NAXIS1')}`);
+        console.log(`[test01] NAXIS2: ${fits.header.get('NAXIS2')}`);
+        console.log(`[test01] payload bytes length ${fits.data.length * fits.data[0].length}`);
+
+        const physicalValues = hp.extractPhysicalValues(fits);
+        const fw = new FITSWriter();
+        fw.run(fits.header, fits.data);
+
+        fs.writeFile(__dirname + "/output/UC1_0_Npix47180.fits", fw._fitsData);
+    }
+
+
+    // hp.initFromFile(inputFile).then((fits) => {
+    //     if (fits !== undefined) {
+    //         console.log(`[test01] BITPIX: ${fits.header.get('BITPIX')}`);
+    //         console.log(`[test01] NAXIS1: ${fits.header.get('NAXIS1')}`);
+    //         console.log(`[test01] NAXIS2: ${fits.header.get('NAXIS2')}`);
+    //         console.log(`[test01] payload bytes length ${fits.data.length * fits.data[0].length}`);
     
-            const physicalValues = hp.extractPhysicalValues(fits);
-            const fw = new FITSWriter();
-            fw.run(fits.header, fits.data);
+    //         const physicalValues = hp.extractPhysicalValues(fits);
+    //         const fw = new FITSWriter();
+    //         fw.run(fits.header, fits.data);
     
-            fs.writeFile(__dirname + "/output/UC1_0_Npix47180.fits", fw._fitsData);
-        }
-    }).catch((err) => console.log(err));
+    //         fs.writeFile(__dirname + "/output/UC1_0_Npix47180.fits", fw._fitsData);
+    //     }
+    // }).catch((err) => console.log(err));
 }
 
 

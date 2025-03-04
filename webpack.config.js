@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const PATHS = {
   entryPoint4Browser: path.resolve(__dirname, 'src/index.ts'),
-  bundles: path.resolve(__dirname, '_bundles'),
+  bundles: path.resolve(__dirname, 'dist'),
 }
 
 

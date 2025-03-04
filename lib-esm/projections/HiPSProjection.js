@@ -53,6 +53,7 @@ export class HiPSProjection extends AbstractProjection {
     constructor() {
         super("'RA---HPX'", "'DEC--HPX'");
         this._isGalactic = false;
+        this._HIPS_TILE_WIDTH = 512;
         this._fitsUsed = [];
         this._wcsname = "HPX"; // TODO check WCS standard
         // this._ctype1 = "RA---HPX";
@@ -80,7 +81,7 @@ export class HiPSProjection extends AbstractProjection {
                 prop = propFile.toString();
             }
             /**
-                HiPS – Hierarchical Progressive Survey
+                  HiPS – Hierarchical Progressive Survey
                 Version 1.0
                 IVOA Proposed Recommendation
                 3rd April 2017
@@ -125,21 +126,25 @@ export class HiPSProjection extends AbstractProjection {
         });
         return __awaiter(this, void 0, void 0, function* () {
             const fits = yield FITSParser.loadFITS(fitsfilepath);
-            // let fp = new FITSParser(fitsfilepath);
-            // let promise = fp.loadFITS().then(fits => {
+            if (fits == null) {
+                return null;
+            }
             this._pxvalues.set(0, fits.data);
             this._fitsheaderlist[0] = fits.header;
-            let order = fits.header.get("ORDER");
-            this.init(order);
-            _super.naxis1 = fits.header.get("NAXIS1");
-            _super.naxis2 = fits.header.get("NAXIS2");
+            const order = fits.header.findById("ORDER");
+            const naxis1 = fits.header.findById("NAXIS1");
+            const naxis2 = fits.header.findById("NAXIS2");
+            const pixno = fits.header.findById("NPIX");
+            if (!(order === null || order === void 0 ? void 0 : order.value) || !(naxis1 === null || naxis1 === void 0 ? void 0 : naxis1.value) || !(naxis2 === null || naxis2 === void 0 ? void 0 : naxis2.value) || !(pixno === null || pixno === void 0 ? void 0 : pixno.value)) {
+                return null;
+            }
+            this.init(Number(order.value));
+            this._pixno = Number(pixno.value);
+            _super.naxis1 = Number(naxis1);
+            _super.naxis2 = Number(naxis2);
             this._HIPS_TILE_WIDTH = _super.naxis1;
-            this._pixno = fits.header.get("NPIX");
             this._xyGridProj = HiPSHelper.setupByTile(this._pixno, this._hp);
             return fits;
-            // });
-            // await promise;
-            // return promise;
         });
     }
     initFromHiPSLocationAndPxSize(baseUrl, pxsize) {
@@ -183,32 +188,40 @@ export class HiPSProjection extends AbstractProjection {
         this._hp = new Healpix(this._nside);
     }
     prepareFITSHeader(fitsHeaderParams) {
+        var _a, _b;
+        // validation
+        const fitsHeaderItem_bitpix = fitsHeaderParams.findById("BITPIX");
+        const fitsHeaderItem_simple = fitsHeaderParams.findById("SIMPLE");
+        if (!(fitsHeaderItem_bitpix === null || fitsHeaderItem_bitpix === void 0 ? void 0 : fitsHeaderItem_bitpix.value) || !(fitsHeaderItem_simple === null || fitsHeaderItem_simple === void 0 ? void 0 : fitsHeaderItem_simple.value)) {
+            return [];
+        }
         for (let header of this._fitsheaderlist) {
-            header.insert(new FITSHeaderItem("BITPIX", fitsHeaderParams.get("BITPIX")));
-            header.insert(new FITSHeaderItem("SIMPLE", fitsHeaderParams.get("SIMPLE")));
-            if (fitsHeaderParams.get("BLANK") !== undefined) {
-                header.insert(new FITSHeaderItem("BLANK", fitsHeaderParams.get("BLANK")));
+            header.insert(new FITSHeaderItem("BITPIX", fitsHeaderItem_bitpix.value, ""));
+            header.insert(new FITSHeaderItem("SIMPLE", fitsHeaderItem_simple.value, ""));
+            const fitsHeaderItem_blank = fitsHeaderParams.findById("BLANK");
+            if (fitsHeaderItem_blank !== null) {
+                header.insert(new FITSHeaderItem("BLANK", fitsHeaderItem_blank.value, ""));
             }
             let bscale = 1.0;
-            if (fitsHeaderParams.get("BSCALE") !== undefined) {
-                bscale = fitsHeaderParams.get("BSCALE");
-                header.insert(new FITSHeaderItem("BSCALE", bscale));
+            if (fitsHeaderParams.findById("BSCALE") !== null) {
+                bscale = Number((_a = fitsHeaderParams.findById("BSCALE")) === null || _a === void 0 ? void 0 : _a.value);
             }
+            header.insert(new FITSHeaderItem("BSCALE", bscale, ""));
             let bzero = 0.0;
-            if (fitsHeaderParams.get("BZERO") !== undefined) {
-                bzero = fitsHeaderParams.get("BZERO");
-                header.insert(new FITSHeaderItem("BZERO", bzero));
+            if (fitsHeaderParams.findById("BZERO") !== null) {
+                bzero = Number((_b = fitsHeaderParams.findById("BZERO")) === null || _b === void 0 ? void 0 : _b.value);
             }
-            header.insert(new FITSHeaderItem("NAXIS", 2));
-            header.insert(new FITSHeaderItem("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2));
-            header.insert(new FITSHeaderItem("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2));
-            header.insert(new FITSHeaderItem("ORDER", this._norder));
-            header.insert(new FITSHeaderItem("CTYPE1", super.ctype1));
-            header.insert(new FITSHeaderItem("CTYPE2", super.ctype2));
+            header.insert(new FITSHeaderItem("BZERO", bzero, ""));
+            header.insert(new FITSHeaderItem("NAXIS", 2, ""));
+            header.insert(new FITSHeaderItem("NAXIS1", HiPSHelper.DEFAULT_Naxis1_2, ""));
+            header.insert(new FITSHeaderItem("NAXIS2", HiPSHelper.DEFAULT_Naxis1_2, ""));
+            header.insert(new FITSHeaderItem("ORDER", this._norder, ""));
+            header.insert(new FITSHeaderItem("CTYPE1", super.ctype1, ""));
+            header.insert(new FITSHeaderItem("CTYPE2", super.ctype2, ""));
             // header.insert(new FITSHeaderItem("CRPIX1", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel i along naxis1
             // header.insert(new FITSHeaderItem("CRPIX2", HiPSHelper.DEFAULT_Naxis1_2/2)); // central/reference pixel j along naxis2
-            header.insert(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x"));
-            header.insert(new FITSHeaderItem("COMMENT", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
+            header.insert(new FITSHeaderItem("ORIGIN", "WCSLight v.0.x", ""));
+            header.insert(new FITSHeaderItem("COMMENT", "", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
         }
         return this._fitsheaderlist;
     }
@@ -219,20 +232,29 @@ export class HiPSProjection extends AbstractProjection {
         return this._fh_common;
     }
     extractPhysicalValues(fits) {
-        let bzero = fits.header.get("BZERO");
-        let bscale = fits.header.get("BSCALE");
-        let naxis1 = fits.header.get("NAXIS1");
-        let naxis2 = fits.header.get("NAXIS2");
-        let bitpix = fits.header.get("BITPIX");
-        let bytesXelem = Math.abs(bitpix / 8);
-        let blankBytes = ParseUtils.convertBlankToBytes(fits.header.get("BLANK"), bytesXelem); // TODO => ??????? Im not using it. it should be used!
-        // let physicalvalues = new Array[naxis2][naxis1];
+        var _a, _b, _c, _d, _e, _f;
+        const bzero = Number((_a = fits.header.findById("BZERO")) === null || _a === void 0 ? void 0 : _a.value);
+        const bscale = Number((_b = fits.header.findById("BSCALE")) === null || _b === void 0 ? void 0 : _b.value);
+        const naxis1 = Number((_c = fits.header.findById("NAXIS1")) === null || _c === void 0 ? void 0 : _c.value);
+        const naxis2 = Number((_d = fits.header.findById("NAXIS2")) === null || _d === void 0 ? void 0 : _d.value);
+        const bitpix = Number((_e = fits.header.findById("BITPIX")) === null || _e === void 0 ? void 0 : _e.value);
+        const blank = Number((_f = fits.header.findById("BLANK")) === null || _f === void 0 ? void 0 : _f.value);
+        // validation
+        if (!bzero || !bscale || !naxis1 || !naxis2 || !bitpix || !blank) {
+            return [];
+        }
+        const bytesXelem = Math.abs(bitpix / 8);
+        const blankBytes = ParseUtils.convertBlankToBytes(blank, bytesXelem); // TODO => ??????? Im not using it. it should be used!
         let physicalvalues = new Array(naxis2);
         for (let n2 = 0; n2 < naxis2; n2++) {
             physicalvalues[n2] = new Array(naxis1);
             for (let n1 = 0; n1 < naxis1; n1++) {
-                let pixval = ParseUtils.extractPixelValue(0, fits.data[n2].slice(n1 * bytesXelem, (n1 + 1) * bytesXelem), bitpix);
-                let physicalVal = bzero + bscale * pixval;
+                const pixval = ParseUtils.extractPixelValue(0, fits.data[n2].slice(n1 * bytesXelem, (n1 + 1) * bytesXelem), bitpix);
+                if (pixval == null) {
+                    console.error("pixel value is null");
+                    return [];
+                }
+                const physicalVal = bzero + bscale * pixval;
                 physicalvalues[n2][n1] = physicalVal;
             }
         }
@@ -250,14 +272,12 @@ export class HiPSProjection extends AbstractProjection {
                 let tileno = hipstileno;
                 let dir = Math.floor(tileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
                 let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + tileno + ".fits";
-                // let fp = new FITSParser(fitsurl);
-                // promises.push(fp.loadFITS().then((fits) => {
                 promises.push(FITSParser.loadFITS(fitsurl).then((fits) => {
+                    var _a;
                     if (fits !== null) {
-                        let pixno = (fits.header.get("NPIX") !== undefined) ? fits.header.get("NPIX") : tileno;
-                        // FITSParser.writeFITS(fits.header, fits.data, destPath+"/Npix"+pixno+".fits");
-                        // fitsFilesGenerated.set(destPath+"/Npix"+pixno+".fits",FITSParser.generateFITS(fits.header, fits.data) );
-                        fitsFilesGenerated.set(destPath + "/Npix" + pixno + ".fits", fits);
+                        const pixno = (_a = fits.header.findById("NPIX")) === null || _a === void 0 ? void 0 : _a.value;
+                        console.log(`requested tile number ${tileno}, received fits npix ${pixno}`);
+                        fitsFilesGenerated.set(destPath + "/Npix" + tileno + ".fits", fits);
                     }
                 }));
             }
@@ -275,25 +295,31 @@ export class HiPSProjection extends AbstractProjection {
                 tilesset.add(imgpx.tileno);
             });
             let pixcount = inputPixelsList.length;
-            let values = undefined;
+            let values = new Uint8Array();
             let fitsheaderlist = [];
             let promises = [];
             let self = this;
             for (let hipstileno of tilesset) {
-                let dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
-                let fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
+                const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
+                const fitsurl = this._hipsBaseURI + "/Norder" + this._norder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
                 console.log(`Identified source file ${fitsurl}`);
-                // let fp = new FITSParser(fitsurl);
-                // promises.push(fp.loadFITS().then((fits) => {
                 promises.push(FITSParser.loadFITS(fitsurl).then((fits) => {
+                    var _a, _b, _c;
                     if (fits === null) {
-                        fitsheaderlist.push(undefined);
+                        // TODO REVIEW THIS
+                        fitsheaderlist.push(new FITSHeaderManager());
                     }
                     else {
                         self._fitsUsed.push(fitsurl);
-                        let bytesXelem = Math.abs(fits.header.get("BITPIX") / 8);
-                        let blankBytes = ParseUtils.convertBlankToBytes(fits.header.get("BLANK"), bytesXelem); // => ???????
-                        if (values === undefined) {
+                        const bitpix = Number((_a = fits.header.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
+                        const naxis1 = Number((_b = fits.header.findById("NAXIS1")) === null || _b === void 0 ? void 0 : _b.value);
+                        const naxis2 = Number((_c = fits.header.findById("NAXIS2")) === null || _c === void 0 ? void 0 : _c.value);
+                        if (!bitpix || !naxis1 || !naxis2) {
+                            console.error(`bitpix: ${bitpix}, naxis1: ${naxis1}, naxis2: ${naxis2} for fits file ${fitsurl}`);
+                            return;
+                        }
+                        const bytesXelem = Math.abs(bitpix / 8);
+                        if (values.length == 0) {
                             values = new Uint8Array(pixcount * bytesXelem);
                         }
                         // console.log(fitsurl + " loaded");
@@ -301,8 +327,7 @@ export class HiPSProjection extends AbstractProjection {
                         for (let p = 0; p < pixcount; p++) {
                             let imgpx = inputPixelsList[p];
                             if (imgpx.tileno === hipstileno) {
-                                // if (imgpx._j < HiPSHelper.DEFAULT_Naxis1_2 && imgpx._i < HiPSHelper.DEFAULT_Naxis1_2) {
-                                if (imgpx._j < fits.header.get("NAXIS1") && imgpx._i < fits.header.get("NAXIS2")) {
+                                if (imgpx._j < naxis1 && imgpx._i < naxis2) {
                                     for (let b = 0; b < bytesXelem; b++) {
                                         values[p * bytesXelem + b] = fits.data[imgpx._j][imgpx._i * bytesXelem + b];
                                     }
@@ -313,13 +338,12 @@ export class HiPSProjection extends AbstractProjection {
                 }));
             }
             yield Promise.all(promises);
-            if (fitsheaderlist !== undefined) {
-                this.prepareCommonHeader(fitsheaderlist);
-            }
+            this.prepareCommonHeader(fitsheaderlist);
             return values;
         });
     }
     prepareCommonHeader(fitsheaderlist) {
+        var _a;
         if (fitsheaderlist === undefined) {
             return;
         }
@@ -331,11 +355,11 @@ export class HiPSProjection extends AbstractProjection {
             if (header !== undefined) {
                 for (let item of header.getItems()) {
                     if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(item.key)) {
-                        if (!this._fh_common.getItemListOf(item.key)[0]) {
-                            this._fh_common.insert(new FITSHeaderItem(item.key, item.value));
+                        if (!this._fh_common.findById(item.key)) {
+                            this._fh_common.insert(new FITSHeaderItem(item.key, item.value, ""));
                         }
-                        else if (this._fh_common.getItemListOf(item.key)[0].value !== item.value) { // this should not happen 
-                            throw new Error("Error parsing headers. " + item.key + " was " + this._fh_common.getItemListOf(item.key)[0] + " and now is " + item.value);
+                        else if (((_a = this._fh_common.findById(item.key)) === null || _a === void 0 ? void 0 : _a.value) !== item.value) { // TODO this should never happen 
+                            throw new Error("Error parsing headers. " + item.key + " was " + this._fh_common.findById(item.key) + " and now is " + item.value);
                         }
                     }
                 }
@@ -349,10 +373,21 @@ export class HiPSProjection extends AbstractProjection {
     // }
     setPxsValue(values, fitsHeaderParams) {
         // let vidx = 0; // <------ ERROR!!!!! pixel are not organized by tile!!!
+        var _a, _b, _c;
         // let pxXTile = HiPSHelper.DEFAULT_Naxis1_2 * HiPSHelper.DEFAULT_Naxis1_2;
-        let bytesXelem = Math.abs(fitsHeaderParams.get("BITPIX") / 8);
-        let bscale = (fitsHeaderParams.get("BSCALE") !== undefined) ? fitsHeaderParams.get("BSCALE") : 1.0;
-        let bzero = (fitsHeaderParams.get("BZERO") !== undefined) ? fitsHeaderParams.get("BZERO") : 0.0;
+        const bitpix = Number((_a = fitsHeaderParams.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
+        let bscale = Number((_b = fitsHeaderParams.findById("BSCALE")) === null || _b === void 0 ? void 0 : _b.value);
+        let bzero = Number((_c = fitsHeaderParams.findById("BZERO")) === null || _c === void 0 ? void 0 : _c.value);
+        if (!bitpix) {
+            return new Map();
+        }
+        let bytesXelem = Math.abs(bitpix / 8);
+        if (!bscale) {
+            bscale = 1.0;
+        }
+        if (!bzero) {
+            bzero = 0.0;
+        }
         if (bytesXelem === undefined || bscale === undefined || bzero === undefined) {
             throw new Error("BITPIX, BSCALE or BZERO are undefined");
         }
@@ -416,7 +451,10 @@ export class HiPSProjection extends AbstractProjection {
             if (this._pxvalues.has(pixtileno)) {
                 let p = this._pxvalues.get(pixtileno);
                 if (p !== undefined) {
-                    let valpixb = ParseUtils.extractPixelValue(0, p[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), fitsHeaderParams.get("BITPIX"));
+                    let valpixb = ParseUtils.extractPixelValue(0, p[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), bitpix);
+                    if (valpixb == null) {
+                        continue;
+                    }
                     let valphysical = bzero + bscale * valpixb;
                     if (valphysical < min || isNaN(min)) {
                         minmaxmap.get("" + pixtileno + "")[0] = valphysical;
@@ -433,19 +471,19 @@ export class HiPSProjection extends AbstractProjection {
             if (nodata.get("" + tileno + "") == false) { // there are data
                 // tileno = parseInt(tileno);
                 let header = new FITSHeaderManager();
-                header.set("NPIX", tileno);
+                header.insert(new FITSHeaderItem("NPIX", tileno, ""));
                 // TODO CONVERT minval and maxval to physical values!
                 // header.insert(new FITSHeaderItem("DATAMIN", minmaxmap["" + tileno + ""][0]));
                 // header.insert(new FITSHeaderItem("DATAMAX", minmaxmap["" + tileno + ""][1]));
-                header.insert(new FITSHeaderItem("DATAMIN", minmaxmap.get("" + tileno + "")[0]));
-                header.insert(new FITSHeaderItem("DATAMAX", minmaxmap.get("" + tileno + "")[1]));
-                header.insert(new FITSHeaderItem("NPIX", tileno));
+                header.insert(new FITSHeaderItem("DATAMIN", minmaxmap.get("" + tileno + "")[0], ""));
+                header.insert(new FITSHeaderItem("DATAMAX", minmaxmap.get("" + tileno + "")[1], ""));
+                header.insert(new FITSHeaderItem("NPIX", tileno, ""));
                 let vec3 = this._hp.pix2vec(tileno);
                 let ptg = new Pointing(vec3);
                 let crval1 = radToDeg(ptg.phi);
                 let crval2 = 90 - radToDeg(ptg.theta);
-                header.insert(new FITSHeaderItem("CRVAL1", crval1));
-                header.insert(new FITSHeaderItem("CRVAL2", crval2));
+                header.insert(new FITSHeaderItem("CRVAL1", crval1, ""));
+                header.insert(new FITSHeaderItem("CRVAL2", crval2, ""));
                 this._fitsheaderlist.push(header);
             }
             else { // no data

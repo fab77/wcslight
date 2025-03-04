@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node16", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
-    "module": "es6",
+    "moduleResolution": "nodenext", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
+    "module": "NodeNext",
     "target": "es6",  // Modern browsers support all ES6 features, so ES6 is a good choice. 
     "lib": ["es6", "dom"],
     "outDir": "lib-esm",
     "allowSyntheticDefaultImports": true,
-    "suppressImplicitAnyIndexErrors": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "strict": true,
+    "esModuleInterop": true
   },
   "include": [
-    "src/**/*",
+    "src/**/**/*",
     "test/USE_CASE_1.integration.spec.ts",
   ],
   "exclude": [

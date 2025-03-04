@@ -27,7 +27,7 @@ export class WCSLight {
             const outRADecList = outproj.getImageRADecList(center, radius, pxsize);
             if (outRADecList.length == 0) {
                 const res = {
-                    fitsheader: null,
+                    fitsheader: [],
                     fitsdata: null,
                     inproj: inproj,
                     outproj: outproj,

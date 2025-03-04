@@ -21,4 +21,5 @@ export { HiPSHelper } from './projections/HiPSHelper.js';
 export { HiPSProjection } from './projections/HiPSProjection.js';
 export { MercatorProjection } from './projections/MercatorProjection.js';
 export { TestProj } from './projections/TestProj.js';
+export { HiPSFITS } from './projections/HiPS/HiPSFITS.js';
 //# sourceMappingURL=index.d.ts.map

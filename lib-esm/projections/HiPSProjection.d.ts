@@ -43,7 +43,7 @@ export declare class HiPSProjection extends AbstractProjection {
      */
     constructor();
     parsePropertiesFile(baseUrl: string): Promise<any>;
-    initFromFile(fitsfilepath: string): Promise<FITSParsed>;
+    initFromFile(fitsfilepath: string): Promise<FITSParsed | null>;
     initFromHiPSLocationAndPxSize(baseUrl: string, pxsize: number): Promise<void>;
     initFromHiPSLocationAndOrder(baseUrl: string, order: number): Promise<void>;
     init(order: number): void;
@@ -54,7 +54,7 @@ export declare class HiPSProjection extends AbstractProjection {
     getFITSFiles(inputPixelsList: ImagePixel[], destPath: string): Promise<Map<string, FITSParsed>>;
     get fitsUsed(): String[];
     getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined>;
-    prepareCommonHeader(fitsheaderlist: (FITSHeaderManager | undefined)[]): void;
+    prepareCommonHeader(fitsheaderlist: FITSHeaderManager[]): void;
     setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>>;
     getImageRADecList(center: Point, radiusDeg: number): Array<[number, number]>;
     pix2world(i: number, j: number): Point;

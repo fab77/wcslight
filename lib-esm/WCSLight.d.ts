@@ -23,7 +23,7 @@ export declare class WCSLight {
      */
     static generateFITS(fitsheader: any, fitsdata: any): string;
     static changeProjection(filepath: any, outprojname: any): void;
-    static getProjection(projectionName: string): MercatorProjection | HiPSProjection | HEALPixProjection | GnomonicProjection;
+    static getProjection(projectionName: string): MercatorProjection | HiPSProjection | HEALPixProjection | GnomonicProjection | null;
     static getAvaillableProjections(): string[];
 }
 //# sourceMappingURL=WCSLight.d.ts.map

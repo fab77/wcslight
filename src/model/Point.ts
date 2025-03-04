@@ -8,46 +8,45 @@ import { AstroCoords} from './AstroCoords.js';
 import { CoordsType } from './CoordsType.js';
 import { SphericalCoords } from './SphericalCoords.js';
 import { NumberType } from './NumberType.js';
-import { EquatorialCoords } from './EquatorialCoords.js';
-import { GalacticCoords } from './GalacticCoords.js';
+import { Config } from '../Config.js';
 
 export class Point{
 
-	#astro: AstroCoords;
-	// #equatorial: EquatorialCoords;
-	// #galactic: GalacticCoords;
+	private astro!: AstroCoords
+	// equatorial: EquatorialCoords;
+	// galactic: GalacticCoords;
 
-	#spherical: SphericalCoords;
-	#cartesian: CartesianCoords;
+	private spherical!: SphericalCoords;
+	private cartesian!: CartesianCoords;
 
 	constructor(in_type: CoordsType, unit: NumberType, ...coords: Array<number>) {
 
 		if (in_type == CoordsType.CARTESIAN){
-			this.#cartesian.x = parseFloat(coords[0].toFixed(global.MAX_DECIMALS));
-			this.#cartesian.y = parseFloat(coords[1].toFixed(global.MAX_DECIMALS));
-			this.#cartesian.z = parseFloat(coords[2].toFixed(global.MAX_DECIMALS));
-			this.#spherical = cartesianToSpherical(this.#cartesian);
+			this.cartesian.x = parseFloat(coords[0].toFixed(Config.MAX_DECIMALS));
+			this.cartesian.y = parseFloat(coords[1].toFixed(Config.MAX_DECIMALS));
+			this.cartesian.z = parseFloat(coords[2].toFixed(Config.MAX_DECIMALS));
+			this.spherical = cartesianToSpherical(this.cartesian);
 
-			this.#astro = sphericalToAstro(this.#spherical);
+			this.astro = sphericalToAstro(this.spherical);
 			
 		} else if (in_type == CoordsType.ASTRO){
-			this.#astro = fillAstro(coords[0],  coords[1], unit);
-			this.#spherical = astroToSpherical(this.#astro);
-			this.#cartesian = sphericalToCartesian(this.#spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+			this.astro = fillAstro(coords[0],  coords[1], unit);
+			this.spherical = astroToSpherical(this.astro);
+			this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
 	
 		} else if (in_type == CoordsType.SPHERICAL){
-			this.#spherical = fillSpherical(coords[0],  coords[1], unit);
-			this.#cartesian = sphericalToCartesian(this.#spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
-			this.#astro = sphericalToAstro(this.#spherical);
+			this.spherical = fillSpherical(coords[0],  coords[1], unit);
+			this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+			this.astro = sphericalToAstro(this.spherical);
 
 		} else{
 			console.error("CoordsType "+in_type+" not recognised.");
 		}
-		if (this.#spherical.phiDeg > 360) {
-			this.#spherical.phiDeg -= 360;
+		if (this.spherical.phiDeg > 360) {
+			this.spherical.phiDeg -= 360;
 		}
-		if (this.#astro.raDeg > 360) {
-			this.#astro.raDeg -= 360;
+		if (this.astro.raDeg > 360) {
+			this.astro.raDeg -= 360;
 		}
 	}
 
@@ -56,55 +55,55 @@ export class Point{
 		
 	// 	if (in_type == CoordsType.CARTESIAN){
 
-	// 		this.#cartesian.x = parseFloat((in_options as CartesianCoords).x.toFixed(global.MAX_DECIMALS));
-	// 		this.#cartesian.y = parseFloat((in_options as CartesianCoords).y.toFixed(global.MAX_DECIMALS));
-	// 		this.#cartesian.z = parseFloat((in_options as CartesianCoords).z.toFixed(global.MAX_DECIMALS));
+	// 		this.cartesian.x = parseFloat((in_options as CartesianCoords).x.toFixed(global.MAX_DECIMALS));
+	// 		this.cartesian.y = parseFloat((in_options as CartesianCoords).y.toFixed(global.MAX_DECIMALS));
+	// 		this.cartesian.z = parseFloat((in_options as CartesianCoords).z.toFixed(global.MAX_DECIMALS));
 
-	// 		this.#spherical = cartesianToSpherical(this.#cartesian);
-	// 		this.#astro = sphericalToAstro(this.#spherical);
+	// 		this.spherical = cartesianToSpherical(this.cartesian);
+	// 		this.astro = sphericalToAstro(this.spherical);
 			
 	// 	}else if (in_type == CoordsType.ASTRO){
 			
 	// 		if ((in_options as AstroCoords).raDeg && (in_options as AstroCoords).decDeg) {
-	// 			this.#astro = radegDecdegToAstro((in_options as AstroCoords).raDeg,  (in_options as AstroCoords).decDeg );
+	// 			this.astro = radegDecdegToAstro((in_options as AstroCoords).raDeg,  (in_options as AstroCoords).decDeg );
 	// 		} else if ((in_options as AstroCoords).raRad && (in_options as AstroCoords).decRad) {
-	// 			this.#astro = raradDecradToAstro((in_options as AstroCoords).raRad,  (in_options as AstroCoords).decRad );
+	// 			this.astro = raradDecradToAstro((in_options as AstroCoords).raRad,  (in_options as AstroCoords).decRad );
 	// 		} else {
 	// 			console.error("AstroCoords incomplete "+ in_options );
 	// 			return null;
 	// 		}
-	// 		this.#spherical = astroToSpherical(this.#astro);
-	// 		this.#cartesian = sphericalToCartesian(this.#spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+	// 		this.spherical = astroToSpherical(this.astro);
+	// 		this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
 			
 	// 	}else if (in_type == CoordsType.SPHERICAL){
 
 	// 		if ((in_options as SphericalCoords).phiDeg && (in_options as SphericalCoords).thetaDeg) {
-	// 			this.#spherical = phidegThetadegToSpherical((in_options as SphericalCoords).phiDeg,  (in_options as SphericalCoords).thetaDeg );
+	// 			this.spherical = phidegThetadegToSpherical((in_options as SphericalCoords).phiDeg,  (in_options as SphericalCoords).thetaDeg );
 	// 		} else if ((in_options as SphericalCoords).phiRad && (in_options as SphericalCoords).thetaRad) {
-	// 			this.#spherical = phiradThetaradToSpherical((in_options as SphericalCoords).phiRad,  (in_options as SphericalCoords).thetaRad );
+	// 			this.spherical = phiradThetaradToSpherical((in_options as SphericalCoords).phiRad,  (in_options as SphericalCoords).thetaRad );
 	// 		} else {
 	// 			console.error("SphericalCoords incomplete "+ in_options );
 	// 			return null;
 	// 		}
 
-	// 		this.#cartesian = sphericalToCartesian(this.#spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
-	// 		this.#astro = sphericalToAstro(this.#spherical);
+	// 		this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+	// 		this.astro = sphericalToAstro(this.spherical);
 			
 	// 	}else{
 	// 		console.error("CoordsType "+in_type+" not recognised.");
 	// 	}
 	// }
 
-	get spherical() {
-		return this.#spherical;
+	getSpherical() {
+		return this.spherical;
 	}
 
-	get astro() {
-		return this.#astro;
+	getAstro() {
+		return this.astro;
 	}
 
-	get cartesian() {
-		return this.#cartesian;
+	getCartesian() {
+		return this.cartesian;
 	}
 	// // taken from Healpixjs->Vec3. //TODO Point and Vec3 should be unified 
 	// /** Scale the vector by a given factor
