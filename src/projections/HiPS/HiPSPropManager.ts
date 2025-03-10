@@ -62,6 +62,8 @@ export class HiPSPropManager {
                 hipsProp.addItem(HiPSProp.TILE_WIDTH, tileWidth)
             } else if (key == "hips_frame" && val == "galactic") {
                 hipsProp.addItem(HiPSProp.FRAME, val)
+            } else {
+                hipsProp.addItem(key, val)
             }
         }
         return new HiPSProp()

@@ -112,8 +112,6 @@ export class MercatorProjection extends AbstractProjection {
             }
         }
         return physicalvalues;
-
-
     }
 
     prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[] {
@@ -170,6 +168,7 @@ export class MercatorProjection extends AbstractProjection {
         return this._fitsheader;
 
     }
+
     getFITSHeader(): FITSHeaderManager[] {
         return this._fitsheader;
     }
@@ -184,7 +183,6 @@ export class MercatorProjection extends AbstractProjection {
             if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER",].includes(key)) {
                 const value = item.value
                 header.insert(new FITSHeaderItem(key, value, ""));
-
             }
         }
         return header;
@@ -310,6 +308,18 @@ export class MercatorProjection extends AbstractProjection {
 
     }
 
+    static prepareHeader(radius: number, pixelAngSize: number,
+        bitpix: number, bscale?: number, bzero?: number
+    ) {
+        if (!bscale) bscale = 1
+        if (!bzero) bzero = 0
+        const naxis1 = Math.ceil(2 * radius / pixelAngSize);
+        const naxis2 = naxis1
+        if (!bitpix) {
+            throw new Error("Bitpix not defined")
+        }
+
+    }
 
     public computeSquaredNaxes(d: number, ps: number): void {
         this._naxis1 = Math.ceil(d / ps);

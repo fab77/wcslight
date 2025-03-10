@@ -8,7 +8,6 @@ import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
 import { FITSHeaderManager, FITSParser } from "jsfitsio";
 import { TilesRaDecList } from "./TilesRaDecList.js";
 import { HiPSFITS } from "./HiPSFITS.js";
-import { AbstractProjection } from "../AbstractProjection.js";
 import { ImagePixel } from "../../model/ImagePixel.js";
 import { HiPSHelper } from "../HiPSHelper.js";
 import { CoordsType } from "../../model/CoordsType.js";
@@ -19,18 +18,12 @@ import { HEALPixXYSpace } from "../../model/HEALPixXYSpace.js";
 
 export class HiPSProj {
 
-    private ctype1: string
-    private ctype2: string
-    private fitsList: FITSList
     private baseURL: string
     private healpix: Healpix | null = null
     private hipsProp: HiPSProp | null = null
 
     constructor(baseHiPSPath: string) {
         this.baseURL = baseHiPSPath
-        this.ctype1 = 'RA---HPX'
-        this.ctype2 = 'DEC--HPX'
-        this.fitsList = new FITSList()
         this.init()
         if (this.healpix == null) {
             console.warn("healpix is null")
@@ -55,9 +48,13 @@ export class HiPSProj {
 
 
 
-    // getImageRADecList(center: Point, radiusDeg: number): Array<[number, number]> {
+    
+    // static getImageRADecList(center: Point, radiusDeg: number, hipsOrder: number, TILE_WIDTH?: number): TilesRaDecList | null {
     static getImageRADecList(center: Point, radiusDeg: number, pixelAngSize: number, TILE_WIDTH?: number): TilesRaDecList | null {
 
+
+        // const hipsSide = 2**hipsOrder
+        // const healpix = new Healpix(hipsSide)
         if (!TILE_WIDTH) TILE_WIDTH = 512
         const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
 
@@ -159,10 +156,11 @@ export class HiPSProj {
 
     }
 
-    static world2pix(radeclist: number[][], pixelAngSize: number, isGalactic: boolean, TILE_WIDTH?: number): ImagePixel[] {
+    static world2pix(radeclist: number[][], hipsOrder: number, isGalactic: boolean, TILE_WIDTH?: number): ImagePixel[] {
 
         if (!TILE_WIDTH) TILE_WIDTH = 512
-        const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
+        // const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
+        const healpix = HiPSHelper.getHelpixByOrder(hipsOrder)
         let imgpxlist: ImagePixel[] = [];
         let tileno: number;
         let prevTileno: number | null = null;
@@ -219,10 +217,11 @@ export class HiPSProj {
         return finalradeclist;
     }
 
-    static async getPixelValues(inputPixelsList: ImagePixel[], baseHiPSURL: string, pixelAngSize: number, TILE_WIDTH?: number): Promise<Uint8Array | null> {
+    static async getPixelValues(inputPixelsList: ImagePixel[], baseHiPSURL: string, hipsOrder: number, TILE_WIDTH?: number): Promise<Uint8Array | null> {
 
         if (!TILE_WIDTH) TILE_WIDTH = 512
-        const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
+        // const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
+        const healpix = HiPSHelper.getHelpixByOrder(hipsOrder)
         const order = healpix.order
 
         let tilesset = new Set<number>();
@@ -238,7 +237,7 @@ export class HiPSProj {
 
         let promises = [];
 
-        let fitsList = new FITSList()
+        // let fitsList = new FITSList()
         for (let hipstileno of tilesset) {
 
             const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
@@ -249,9 +248,9 @@ export class HiPSProj {
             promises.push(FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
 
                 if (fitsParsed) {
-                    const hipsFits = new HiPSFITS(fitsParsed, null, null)
-                    hipsFits.initFromFITSParsed(fitsParsed)
-                    fitsList.addFITS(hipsFits)
+                    // const hipsFits = new HiPSFITS(fitsParsed, null, null)
+                    // hipsFits.initFromFITSParsed(fitsParsed)
+                    // fitsList.addFITS(hipsFits)
 
                     const bitpix = Number(fitsParsed.header.findById("BITPIX")?.value)
                     const naxis1 = Number(fitsParsed.header.findById("NAXIS1")?.value)

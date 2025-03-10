@@ -18,6 +18,9 @@ import { HEALPixProjection } from './projections/HEALPixProjection.js';
 import { FITS } from './model/FITS.js';
 import { FITSList } from './projections/HiPS/FITSList.js';
 import { HiPSFITS } from './projections/HiPS/HiPSFITS.js';
+import { HiPSPropManager } from './projections/HiPS/HiPSPropManager.js';
+import { HiPSProp } from './projections/HiPS/HiPSProp.js';
+import { HiPSHelper } from './projections/HiPSHelper.js';
 
 export class WCSLight {
 
@@ -56,15 +59,51 @@ export class WCSLight {
     }
 
     static async hipsCutout(center: Point, radius: number,
-        pxsize: number, baseHiPSURL: string, outproj: AbstractProjection, isGalactic: boolean = false ): Promise<CutoutResult | null> {
+        pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder: number | null = null ): Promise<CutoutResult | null> {
         
-        const outRADecList: Array<Array<number>> = outproj.getImageRADecList(center, radius, pxsize)
-        if (!outRADecList) return null
-        const inputPixelsList = HiPSProj.world2pix(outRADecList, pxsize, isGalactic)
-        const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL);
-        const fitsHeaderParams = HiPSProj.getCommonFitsHeaderParams();
-        const fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
+        const hipsProp = await HiPSPropManager.parsePropertyFile(baseHiPSURL)
+        const hipsMaxOrder: number = hipsProp.getItem(HiPSProp.ORDER)
+        const hipsFrame = hipsProp.getItem(HiPSProp.FRAME)
+        const TILE_WIDTH = hipsProp.getItem(HiPSProp.TILE_WIDTH)
 
+        let isGalactic: boolean = false
+        if (hipsFrame.toLowerCase() == 'galactic') {
+            isGalactic = true
+        }
+
+        if (!hipsOrder) {    
+            const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
+            hipsOrder = Number(healpix.order)    
+        }
+        if (hipsOrder > hipsMaxOrder) {
+            throw new Error("requested HiPS order exceeds the maximum HiPS order ")
+        }
+
+        /*
+        below how naxis are computed
+        outproj.getImageRADecList -> computeSquaredNaxes -> set naxis1 and naxis2
+        */
+        const outRADecList: Array<Array<number>> = outproj.getImageRADecList(center, radius, pixelAngSize)
+        if (!outRADecList) return null
+
+        // TODO check if the 2 methods  below can be merged
+        const inputPixelsList = HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH)
+        const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH);
+        // TODO GET HEADER 
+        if (invalues == null) {
+            throw new Error("No HiPS data found.")
+        }
+
+        // computeSquaredNaxes to get naxis1 naxis2 in get header
+        const header = outproj.prepareHeader(
+            radius, pixelAngSize, 
+            hipsProp.getItem(HiPSProp.BITPIX), 
+            hipsProp.getItem(HiPSProp.BSCALE), 
+            hipsProp.getItem(HiPSProp.BZERO))
+        // TODO set values in outproj
+        const fitsdata = outproj.setPxsValue(invalues, header);
+
+        // TODO set outproj header
         return null
     }
 
