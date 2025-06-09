@@ -7,9 +7,8 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 import { Healpix } from 'healpixjs';
-import { HEALPixXYSpace } from "../model/HEALPixXYSpace.js";
+import { Pointing } from "healpixjs";
 import { Point } from "../model/Point.js";
-import { AstroCoords } from "../model/AstroCoords.js";
 export declare class HiPSHelper {
     static DEFAULT_Naxis1_2: number;
     static RES_ORDER_0: number;
@@ -27,9 +26,9 @@ export declare class HiPSHelper {
      * @param {decimal degrees} pxsize
      * @returns {int} nside
      */
-    static computeHiPSOrder(pxsize: number, pxXtile: number): number;
-    static computeHiPSOrder2(pxsize: number, pxXtile: number): number;
     static computeOrder(pxAngSizeDeg: number, pxTileWidth: number): number;
+    static getHelpixByOrder(order: number): Healpix;
+    static getHelpixBypxAngSize(pixelAngulaSize: number, TILE_WIDTH: number): Healpix;
     static computePxAngularSize(pxTileWidth: number, order: number): {
         rad: number;
         deg: number;
@@ -48,11 +47,6 @@ export declare class HiPSHelper {
      * @param {decimal} r Radius of the circle in radians
      * @returns
      */
-    static computeBbox(point: Point, r: number): number[];
-    static setupByTile(tileno: number, hp: Healpix): HEALPixXYSpace;
-    static world2intermediate(ac: AstroCoords): [number, number];
-    static intermediate2pix(x: number, y: number, xyGridProj: HEALPixXYSpace, pxXtile: number): [number, number];
-    static pix2intermediate(i: number, j: number, xyGridProj: HEALPixXYSpace, naxis1: number, naxis2: number): [number, number];
-    static intermediate2world(x: number, y: number): Point;
+    static computeBbox(point: Point, r: number): Pointing[];
 }
 //# sourceMappingURL=HiPSHelper.d.ts.map

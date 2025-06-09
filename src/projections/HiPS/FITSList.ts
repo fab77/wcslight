@@ -4,8 +4,7 @@ import { HiPSFITS } from "./HiPSFITS.js";
 export class FITSList{
     private fitslist: Map<number, HiPSFITS> = new Map()
 
-    constructor(){
-    }
+    constructor(){}
 
     getFITSList(): Map<number, HiPSFITS>{
         return this.fitslist

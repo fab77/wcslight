@@ -3,7 +3,6 @@ import { AstroCoords } from "../../model/AstroCoords.js";
 import { HEALPixXYSpace } from "../../model/HEALPixXYSpace.js";
 import { Point } from "../../model/Point.js";
 export declare class HiPSIntermediateProj {
-    static DEFAULT_Naxis1_2: number;
     static RES_ORDER_0: number;
     static H: number;
     static K: number;

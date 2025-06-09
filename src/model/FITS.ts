@@ -1,11 +1,11 @@
 
-import { FITSHeader } from 'jsfitsio';
+import { FITSHeaderManager } from 'jsfitsio';
 
 export class FITS {
-    _header: FITSHeader[]
+    _header: FITSHeaderManager[]
     _data: Map<number, Array<Uint8Array>>
 
-    constructor(header: FITSHeader[], data: Map<number, Array<Uint8Array>>) {
+    constructor(header: FITSHeaderManager[], data: Map<number, Array<Uint8Array>>) {
         this._header = header
         this._data = data
     }

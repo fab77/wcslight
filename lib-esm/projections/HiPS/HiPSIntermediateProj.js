@@ -162,8 +162,6 @@ export class HiPSIntermediateProj {
         return p;
     }
 }
-HiPSIntermediateProj.DEFAULT_Naxis1_2 = 512; // TODO check where it is used. Is that configurable?
-// static RES_ORDER_0: number = 58.6 / HiPSHelper.pxXtile;
 HiPSIntermediateProj.RES_ORDER_0 = 58.6;
 HiPSIntermediateProj.H = 4;
 HiPSIntermediateProj.K = 3;

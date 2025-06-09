@@ -8,10 +8,10 @@ function Utils() {
 export function cartesianToSpherical(xyz) {
     let dotXYZ = dot(xyz, xyz);
     let r = Math.sqrt(dotXYZ);
-    let thetaRad = Math.acos(xyz[2] / r);
+    let thetaRad = Math.acos(xyz.z / r);
     let thetaDeg = radToDeg(thetaRad);
     // NB: in atan(y/x) is written with params switched atan2(x, y)
-    let phiRad = Math.atan2(xyz[1], xyz[0]);
+    let phiRad = Math.atan2(xyz.y, xyz.x);
     let phiDeg = radToDeg(phiRad);
     if (phiDeg < 0) {
         phiDeg += 360;
@@ -85,6 +85,7 @@ export function fillAstro(ra, dec, unit) {
     }
     else {
         console.error("Wrong operation. NumberType " + unit + " not supported");
+        return null;
     }
 }
 export function fillSpherical(phi, theta, unit) {
@@ -106,6 +107,7 @@ export function fillSpherical(phi, theta, unit) {
     }
     else {
         console.error("Wrong operation. NumberType " + unit + " not supported");
+        return null;
     }
 }
 function dot(a, b) {

@@ -7,7 +7,7 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 export class ImagePixel {
-    constructor(i = null, j = null, tileno = null) {
+    constructor(i, j, tileno = NaN) {
         this._i = i;
         this._j = j;
         this._tileno = tileno;

@@ -1,14 +1,12 @@
 import { FITSHeaderItem, FITSHeaderManager, FITSParsed, FITSParser, ParseUtils } from "jsfitsio"
-import { HiPSProp } from "./HiPSProp.js"
+
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js"
 import { Healpix, Pointing } from "healpixjs"
 import { HEALPixXYSpace } from "../../model/HEALPixXYSpace.js"
 import { astroToSpherical, fillAstro, radToDeg } from "../../model/Utils.js"
 import { NumberType } from "../../model/NumberType.js"
-import { FITSProp } from "./FITSProp.js"
 import { HiPSHelper } from "../HiPSHelper.js"
-
-
+import { HiPSProp } from "./HiPSProp.js"
 
 export class HiPSFITS {
 
@@ -141,20 +139,26 @@ export class HiPSFITS {
 
 
         for (let rdidx = 0; rdidx < raDecList.length; rdidx++) {
+            
             const [ra, dec] = raDecList[rdidx]
+            
             const ac = fillAstro(ra, dec, NumberType.DEGREES)
+            if (ac == null) {
+                console.error(`Error converting ${ra}, ${dec} into AstroCoords object`)
+                continue
+            }
+            
             const sc = astroToSpherical(ac)
             const ptg = new Pointing(null, false, sc.thetaRad, sc.phiRad)
             const pixtileno: number = this.healpix.ang2pix(ptg)
+            if (pixtileno != this.tileno) {
+                continue
+            }
 
             const xy = HiPSIntermediateProj.world2intermediate(ac);
             let ij = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], this.intermediateXYGrid, this.tileWidth);
             const col = ij[0];
             const row = ij[1];
-
-            if (pixtileno != this.tileno) {
-                continue
-            }
 
             for (let b = 0; b < bytesXelem; b++) {
                 const byte = originalValues[rdidx * bytesXelem + b];

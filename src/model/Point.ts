@@ -30,15 +30,21 @@ export class Point{
 			this.astro = sphericalToAstro(this.spherical);
 			
 		} else if (in_type == CoordsType.ASTRO){
-			this.astro = fillAstro(coords[0],  coords[1], unit);
-			this.spherical = astroToSpherical(this.astro);
-			this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+			const c = fillAstro(coords[0],  coords[1], unit);
+			if (c !== null) {
+				this.astro = c
+				this.spherical = astroToSpherical(this.astro);
+				this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+			}
+			
 	
 		} else if (in_type == CoordsType.SPHERICAL){
-			this.spherical = fillSpherical(coords[0],  coords[1], unit);
-			this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
-			this.astro = sphericalToAstro(this.spherical);
-
+			const s = fillSpherical(coords[0],  coords[1], unit);
+			if (s !== null) {
+				this.spherical = s
+				this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+				this.astro = sphericalToAstro(this.spherical);
+			}
 		} else{
 			console.error("CoordsType "+in_type+" not recognised.");
 		}

@@ -4,7 +4,7 @@ export declare class FITSList {
     constructor();
     getFITSList(): Map<number, HiPSFITS>;
     getFITS(tileno: number): HiPSFITS | null;
-    addFITSByURL(url: string): void;
+    addFITSByURL(url: string): Promise<void>;
     addFITS(fits: HiPSFITS): void;
 }
 //# sourceMappingURL=FITSList.d.ts.map

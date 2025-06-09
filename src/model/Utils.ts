@@ -17,10 +17,10 @@ function Utils(){
 export function cartesianToSpherical(xyz: CartesianCoords): SphericalCoords{
 	let dotXYZ = dot(xyz, xyz);
 	let r = Math.sqrt(dotXYZ);	
-	let thetaRad = Math.acos(xyz[2]/r);
+	let thetaRad = Math.acos(xyz.z/r);
 	let thetaDeg = radToDeg(thetaRad);
 	// NB: in atan(y/x) is written with params switched atan2(x, y)
-	let phiRad = Math.atan2(xyz[1],xyz[0]);
+	let phiRad = Math.atan2(xyz.y,xyz.x);
 	let phiDeg = radToDeg(phiRad);
 
 	if (phiDeg < 0){
@@ -86,7 +86,7 @@ export function sphericalToCartesian(phiTheta: SphericalCoords, r: number): Cart
 	};
 };
 
-export function fillAstro(ra: number, dec: number, unit: NumberType): AstroCoords{
+export function fillAstro(ra: number, dec: number, unit: NumberType): AstroCoords | null{
 	if (unit == NumberType.DEGREES) {
 		return {
 			"raDeg": ra,
@@ -103,12 +103,13 @@ export function fillAstro(ra: number, dec: number, unit: NumberType): AstroCoord
 		}
 	} else {
 		console.error("Wrong operation. NumberType " + unit + " not supported");
+		return null
 	}
 	
 }
 
 
-export function fillSpherical(phi: number, theta: number, unit: NumberType):  SphericalCoords{
+export function fillSpherical(phi: number, theta: number, unit: NumberType):  SphericalCoords | null{
 	if (unit == NumberType.DEGREES) {
 		return {
 			"phiDeg": phi,
@@ -125,6 +126,7 @@ export function fillSpherical(phi: number, theta: number, unit: NumberType):  Sp
 		}
 	} else {
 		console.error("Wrong operation. NumberType " + unit + " not supported");
+		return null
 	}
 }
 

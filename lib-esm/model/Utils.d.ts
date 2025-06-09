@@ -11,8 +11,8 @@ export declare function cartesianToSpherical(xyz: CartesianCoords): SphericalCoo
 export declare function sphericalToAstro(phiTheta: SphericalCoords): AstroCoords;
 export declare function astroToSpherical(raDec: AstroCoords): SphericalCoords;
 export declare function sphericalToCartesian(phiTheta: SphericalCoords, r: number): CartesianCoords;
-export declare function fillAstro(ra: number, dec: number, unit: NumberType): AstroCoords;
-export declare function fillSpherical(phi: number, theta: number, unit: NumberType): SphericalCoords;
+export declare function fillAstro(ra: number, dec: number, unit: NumberType): AstroCoords | null;
+export declare function fillSpherical(phi: number, theta: number, unit: NumberType): SphericalCoords | null;
 export declare function colorHex2RGB(hexColor: string): [number, number, number];
 export declare function degToRad(degrees: number): number;
 export declare function radToDeg(radians: number): number;

@@ -1,5 +1,6 @@
 export class FITSProp {
     constructor() {
+        // static SIMPLE:string = "SIMPLE"
         this.itemMap = new Map();
     }
     addItem(key, value) {
@@ -9,7 +10,7 @@ export class FITSProp {
         return this.itemMap.get(key);
     }
 }
-FITSProp.TILE_WIDTH = "TILE_WIDTH";
-FITSProp.ORDER = "ORDER";
+// static TILE_WIDTH:string = "TILE_WIDTH"
+// static ORDER:string = "ORDER"
 FITSProp.NPIX = "NPIX";
 //# sourceMappingURL=FITSProp.js.map

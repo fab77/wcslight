@@ -14,7 +14,7 @@ export class ImagePixel {
     _j: number;     // int j of input projection
     _tileno: number;// int
     
-    constructor (i: number = null, j: number = null, tileno: number = null) {
+    constructor (i: number, j: number, tileno: number = NaN) {
         this._i = i;
         this._j = j;
         this._tileno = tileno;

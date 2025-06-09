@@ -8,18 +8,18 @@
  */
 
 import { FITSParsed, FITSParser } from 'jsfitsio';
-import { MercatorProjection } from './projections/Mercator/MercatorProjection.js';
-import { HiPSProj } from './projections/HiPS/HiPSProj.js';
+import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
+import { HiPSProj } from './projections/hips/HiPSProj.js';
 import { Point } from './model/Point.js';
 import { AbstractProjection } from './projections/AbstractProjection.js';
 import { CutoutResult } from './model/CutoutResult.js';
 
-import { HEALPixProjection } from './projections/HEALPixProjection.js';
+// import { HEALPixProjection } from './projections/HEALPixProjection.js';
 import { FITS } from './model/FITS.js';
-import { FITSList } from './projections/HiPS/FITSList.js';
-import { HiPSFITS } from './projections/HiPS/HiPSFITS.js';
-import { HiPSPropManager } from './projections/HiPS/HiPSPropManager.js';
-import { HiPSProp } from './projections/HiPS/HiPSProp.js';
+import { FITSList } from './projections/hips/FITSList.js';
+import { HiPSFITS } from './projections/hips/HiPSFITS.js';
+import { HiPSPropManager } from './projections/hips/HiPSPropManager.js';
+import { HiPSProp } from './projections/hips/HiPSProp.js';
 import { HiPSHelper } from './projections/HiPSHelper.js';
 
 export class WCSLight {
@@ -27,6 +27,7 @@ export class WCSLight {
     static async cutoutToHips(center: Point, radius: number,
         pxsize: number, filePath: string): Promise<FITSList | null> {
 
+        // only MERCATOR supported at the moment
         const inProjection = await WCSLight.extractProjectionType(filePath)
         if (!inProjection) return null
 
@@ -58,6 +59,7 @@ export class WCSLight {
 
     }
 
+    // TODO: instead of using AbstractProjection, use a constant file with supported projection names
     static async hipsCutout(center: Point, radius: number,
         pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder: number | null = null ): Promise<CutoutResult | null> {
         
@@ -89,11 +91,11 @@ export class WCSLight {
         // TODO check if the 2 methods  below can be merged
         const inputPixelsList = HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH)
         const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH);
-        // TODO GET HEADER 
+        
         if (invalues == null) {
             throw new Error("No HiPS data found.")
         }
-
+        // TODO GET HEADER 
         // computeSquaredNaxes to get naxis1 naxis2 in get header
         const header = outproj.prepareHeader(
             radius, pixelAngSize, 
@@ -194,10 +196,10 @@ export class WCSLight {
             return new MercatorProjection();
         } else if (projectionName === "HiPS") {
             return new HiPSProjection();
-        } else if (projectionName === "HEALPix") {
-            return new HEALPixProjection();
-        } else if (projectionName === "Gnomonic") {
-            return new GnomonicProjection();
+        // } else if (projectionName === "HEALPix") {
+        //     return new HEALPixProjection();
+        // } else if (projectionName === "Gnomonic") {
+        //     return new GnomonicProjection();
         } else {
             return null;
             // throw new ProjectionNotFound(projectionName);

@@ -10,7 +10,7 @@ export declare class ImagePixel {
     _i: number;
     _j: number;
     _tileno: number;
-    constructor(i?: number, j?: number, tileno?: number);
+    constructor(i: number, j: number, tileno?: number);
     geti(): number;
     getj(): number;
     get tileno(): number;

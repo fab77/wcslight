@@ -1,6 +1,5 @@
 import { FITSHeaderManager, FITSParsed } from "jsfitsio";
 import { HiPSProp } from "./HiPSProp.js";
-import { Healpix } from "healpixjs";
 export declare class HiPSFITS {
     private payload;
     private header;
@@ -13,14 +12,17 @@ export declare class HiPSFITS {
     private max;
     private static CTYPE1;
     private static CTYPE2;
-    constructor(fitsParsed: FITSParsed | null, tileno: number | null, hipsProp: HiPSProp | null, healpix: Healpix | null);
+    private static NPIX;
+    constructor(fitsParsed: FITSParsed | null, tileno: number | null, hipsProp: HiPSProp | null);
+    initFromUint8Array(raDecList: [number, number][], originalValues: Uint8Array, fitsHeaderParams: FITSHeaderManager): void;
+    initFromFITSParsed(fitsParsed: FITSParsed): void;
     getTileno(): number;
-    initFromFile(fitsParsed: FITSParsed): void;
+    private computeMinMax;
     static downloadFITSFile(path: string): Promise<FITSParsed | null>;
     getFITS(): FITSParsed;
-    setPayload(raDecList: [number, number][], originalValues: Uint8Array, fitsHeaderParams: FITSHeaderManager): void;
+    private setPayload;
     private addMandatoryItemToHeader;
     private addItemToHeader;
-    setHeader(fitsHeaderParams: FITSHeaderManager): void;
+    private setHeader;
 }
 //# sourceMappingURL=HiPSFITS.d.ts.map
