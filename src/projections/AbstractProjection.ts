@@ -1,9 +1,10 @@
-import { FITSHeaderManager, FITSHeaderItem } from "jsfitsio";
-import { FITSParsed } from "jsfitsio";
+import { FITSHeaderManager } from "jsfitsio";
+// import { FITSHeaderManager, FITSHeaderItem } from "jsfitsio";
+// import { FITSParsed } from "jsfitsio";
 // import { AstroCoords } from "src/model/AstroCoords";
-import { ImagePixel } from "../model/ImagePixel.js";
+// import { ImagePixel } from "../model/ImagePixel.js";
 import { Point } from "../model/Point.js";
-import { FITS } from "../model/FITS.js";
+// import { FITS } from "../model/FITS.js";
 import { TilesRaDecList2 } from "./hips/TilesRaDecList2.js";
 
 /**
@@ -89,17 +90,17 @@ export abstract class AbstractProjection {
 
   public abstract getCommonFitsHeaderParams(): FITSHeaderManager;
 
-  public abstract getBitpix(): number;
+  // public abstract getBitpix(): number;
 //   public abstract extractPhysicalValues(fits: FITSParsed): number[][];
 
-  public abstract getPixValues(
-    tilesRaDecList: TilesRaDecList2
-  ): Promise<Uint8Array | undefined>;
+  // public abstract getPixValues(
+  //   tilesRaDecList: TilesRaDecList2
+  // ): Promise<Uint8Array | undefined>;
 
   public abstract setPxsValue(
-    values: Uint8Array,
-    fitsHeaderParams: FITSHeaderManager
-  ): Map<number, Array<Uint8Array>>;
+    values: TilesRaDecList2,
+    bitpix: number, scale: number, zero: number
+  ): TilesRaDecList2;
 
   public abstract getImageRADecList(
     center: Point,
@@ -109,7 +110,7 @@ export abstract class AbstractProjection {
 
   public abstract pix2world(i: number, j: number): Point;
 
-  public abstract get fitsUsed(): String[];
+  // public abstract get fitsUsed(): String[];
 
   // public abstract world2pix(radeclist: number[][]): ImagePixel[];
   public abstract world2pix(radeclist: TilesRaDecList2): TilesRaDecList2;

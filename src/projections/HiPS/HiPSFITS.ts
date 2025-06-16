@@ -15,7 +15,7 @@ export class HiPSFITS {
     private header!: FITSHeaderManager
     private tileno!: number
     private order!: number
-    // private tileWidth!: number
+    private tileWidth!: number
     private healpix!: Healpix
     private intermediateXYGrid!: HEALPixXYSpace
     private min: number = NaN
@@ -41,7 +41,8 @@ export class HiPSFITS {
                 console.error("NAXIS1 and NAXIS2 do not match.")
                 throw new Error("NAXIS1 and NAXIS2 do not match.")
             }
-            this.tileno = naxis1
+            this.tileWidth = naxis1
+            this.tileno = tileno
             this.healpix = HiPSHelper.getHelpixByOrder(this.order)
             this.intermediateXYGrid = HiPSIntermediateProj.setupByTile(this.tileno, this.healpix)
 
@@ -57,6 +58,14 @@ export class HiPSFITS {
     //     this.setPayload(raDecList, originalValues, fitsHeaderParams)
     //     this.setHeader(fitsHeaderParams)
     // }
+
+    getHeader(){
+        return this.header
+    }
+
+    getPayload() {
+        return this.payload
+    }
 
     initFromFITSParsed(fitsParsed: FITSParsed) {
 

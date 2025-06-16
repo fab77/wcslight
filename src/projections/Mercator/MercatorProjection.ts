@@ -18,7 +18,7 @@ import { CoordsType } from '../../model/CoordsType.js';
 import { NumberType } from '../../model/NumberType.js';
 import { TilesRaDecList2 } from '../hips/TilesRaDecList2.js';
 import { ImagePixel } from '../hips/ImagePixel.js';
-import { HiPSProp } from '../hips/HiPSProp.js';
+// import { HiPSProp } from '../hips/HiPSProp.js';
 
 
 export class MercatorProjection extends AbstractProjection {
@@ -27,6 +27,7 @@ export class MercatorProjection extends AbstractProjection {
     mindec!: number;
     naxis1!: number;
     naxis2!: number;
+    bitpix!: number
 
     fitsheader: FITSHeaderManager;
     pxvalues: Array<Uint8Array>;
@@ -65,6 +66,7 @@ export class MercatorProjection extends AbstractProjection {
         this.naxis1 = Number(fits.header.findById("NAXIS1")?.value)
         this.naxis2 = Number(fits.header.findById("NAXIS2")?.value)
 
+        this.bitpix = fits.header.findById("BITPIX")?.value as number;
         this.craDeg = fits.header.findById("CRVAL1")?.value as number;
         this.cdecDeg = fits.header.findById("CRVAL2")?.value as number;
 
@@ -86,12 +88,8 @@ export class MercatorProjection extends AbstractProjection {
 
     }
 
-    getBitpix(): number {
-        return this.getBitpix()
-    }
-
     getBytePerValue(): number {
-        return Math.abs(this.getBitpix() / 8);
+        return Math.abs(this.bitpix / 8);
     }
 
 
@@ -206,8 +204,8 @@ export class MercatorProjection extends AbstractProjection {
         }
         this.fitsheader.insert(new FITSHeaderItem("BZERO", bzero, ""));
 
-        this.fitsheader.insert(new FITSHeaderItem("CTYPE1", this.ctype1, ""));
-        this.fitsheader.insert(new FITSHeaderItem("CTYPE2", this.ctype2, ""));
+        this.fitsheader.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+        this.fitsheader.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
 
         this.fitsheader.insert(new FITSHeaderItem("CDELT1", this.pxsize, "")); // ??? Pixel spacing along axis 1 ???
         this.fitsheader.insert(new FITSHeaderItem("CDELT2", this.pxsize, "")); // ??? Pixel spacing along axis 2 ???
@@ -247,75 +245,77 @@ export class MercatorProjection extends AbstractProjection {
     }
 
 
-
     setPxsValue(raDecList: TilesRaDecList2, bitpix: number, scale: number = 1, zero: number = 0): TilesRaDecList2 {
-
-        let bytesXelem = Math.abs(bitpix / 8);
-
-        const value = raDecList.getImagePixelList()[0].value
-        if (value) {
-            let minpixb = ParseUtils.extractPixelValue(0, value.slice(0, bytesXelem), bitpix);
-        }
-
-        if (!minpixb) {
-            console.error("minpixb is null")
-            throw new Error("minpixb is null")
-        }
-        let maxpixb = minpixb;
-
-        this._minphysicalval = zero + scale * minpixb;
-        this._maxphysicalval = zero + scale * maxpixb;
-
-        this._pxvalues.set(0, new Array<Uint8Array>(this.naxis2));
-        let pv = this._pxvalues.get(0);
-        if (pv !== undefined) {
-            for (let r = 0; r < this.naxis2; r++) {
-                pv[r] = new Uint8Array(this.naxis1 * bytesXelem);
-            }
-
-            let r!: number;
-            let c!: number;
-            let b!: number;
-            for (let p = 0; (p * bytesXelem) < values.length; p++) {
-                // console.log("processing "+p + " of "+ (values.length / bytesXelem));
-
-                try {
-                    r = Math.floor(p / this.naxis1);
-                    c = (p - r * this.naxis1) * bytesXelem;
-
-                    for (b = 0; b < bytesXelem; b++) {
-                        pv[r][c + b] = values[p * bytesXelem + b];
-                    }
-
-
-                    const valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), bitpix);
-                    if (!valpixb) {
-                        console.error("valpixb is null")
-                        throw new Error("valpixb is null")
-                    }
-
-                    let valphysical = zero + scale * valpixb;
-
-                    if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
-                        this._minphysicalval = valphysical;
-                    } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
-                        this._maxphysicalval = valphysical;
-                    }
-                } catch (err) {
-                    console.log(err)
-                    console.log("p " + p)
-                    console.log("r %, c %, b %" + r, c, b)
-                    console.log("this._pxvalues[r][c + b] " + pv[r][c + b])
-                    console.log("values[p * bytesXelem + b] " + values[p * bytesXelem + b])
-                }
-
-            }
-        }
-
-        this.prepareFITSHeader(fitsHeaderParams);
-        return this._pxvalues;
-
+        return new TilesRaDecList2()
     }
+    // setPxsValue(raDecList: TilesRaDecList2, bitpix: number, scale: number = 1, zero: number = 0): TilesRaDecList2 {
+
+    //     let bytesXelem = Math.abs(bitpix / 8);
+
+    //     const value = raDecList.getImagePixelList()[0].value
+    //     if (value) {
+    //         let minpixb = ParseUtils.extractPixelValue(0, value.slice(0, bytesXelem), bitpix);
+    //     }
+
+    //     if (!minpixb) {
+    //         console.error("minpixb is null")
+    //         throw new Error("minpixb is null")
+    //     }
+    //     let maxpixb = minpixb;
+
+    //     this._minphysicalval = zero + scale * minpixb;
+    //     this._maxphysicalval = zero + scale * maxpixb;
+
+    //     this._pxvalues.set(0, new Array<Uint8Array>(this.naxis2));
+    //     let pv = this._pxvalues.get(0);
+    //     if (pv !== undefined) {
+    //         for (let r = 0; r < this.naxis2; r++) {
+    //             pv[r] = new Uint8Array(this.naxis1 * bytesXelem);
+    //         }
+
+    //         let r!: number;
+    //         let c!: number;
+    //         let b!: number;
+    //         for (let p = 0; (p * bytesXelem) < values.length; p++) {
+    //             // console.log("processing "+p + " of "+ (values.length / bytesXelem));
+
+    //             try {
+    //                 r = Math.floor(p / this.naxis1);
+    //                 c = (p - r * this.naxis1) * bytesXelem;
+
+    //                 for (b = 0; b < bytesXelem; b++) {
+    //                     pv[r][c + b] = values[p * bytesXelem + b];
+    //                 }
+
+
+    //                 const valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), bitpix);
+    //                 if (!valpixb) {
+    //                     console.error("valpixb is null")
+    //                     throw new Error("valpixb is null")
+    //                 }
+
+    //                 let valphysical = zero + scale * valpixb;
+
+    //                 if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
+    //                     this._minphysicalval = valphysical;
+    //                 } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
+    //                     this._maxphysicalval = valphysical;
+    //                 }
+    //             } catch (err) {
+    //                 console.log(err)
+    //                 console.log("p " + p)
+    //                 console.log("r %, c %, b %" + r, c, b)
+    //                 console.log("this._pxvalues[r][c + b] " + pv[r][c + b])
+    //                 console.log("values[p * bytesXelem + b] " + values[p * bytesXelem + b])
+    //             }
+
+    //         }
+    //     }
+
+    //     this.prepareFITSHeader(fitsHeaderParams);
+    //     return this._pxvalues;
+
+    // }
 
 
     // computeSquaredNaxes(d: number, ps: number): void {
@@ -370,8 +370,8 @@ export class MercatorProjection extends AbstractProjection {
         let dec: number;
         // ra = i * this._stepra + this._minra;
         // dec = j * this._stepdec + this._mindec;
-        ra = i * this._pxsize + this._minra;
-        dec = j * this._pxsize + this._mindec;
+        ra = i * this.pxsize + this.minra;
+        dec = j * this.pxsize + this.mindec;
         let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
         return p;
         // return [ra, dec];
@@ -382,10 +382,15 @@ export class MercatorProjection extends AbstractProjection {
     world2pix(raDeclist: TilesRaDecList2): TilesRaDecList2 {
 
         const bytesXvalue = this.getBytePerValue()
+
+        // TODO if I have the this.fitsheader available here, check if I can retrieve this.bitpix, this.pxsize, ... with this.fitsheader
+        // and remove the attributes at object level (with this)
         const blank = Number(this.fitsheader.findById("BLANK")?.value)
         const blankBytes = ParseUtils.convertBlankToBytes(blank, bytesXvalue);
 
         for (let imgPx of raDeclist.getImagePixelList()) {
+
+            // console.log("raDeclist.getImagePixelList().indexOf(imgPx) " + raDeclist.getImagePixelList().indexOf(imgPx))
             const ra = imgPx.getRADeg();
             const dec = imgPx.getDecDeg();
 
@@ -393,10 +398,10 @@ export class MercatorProjection extends AbstractProjection {
             const j = Math.floor((dec - this.mindec) / this.pxsize);
 
             if (j < 0 || j >= this.naxis2 || i < 0 || i >= this.naxis1) {
-                imgPx.setValue(blankBytes, this.getBitpix())
+                imgPx.setValue(blankBytes, this.bitpix)
             } else {
                 const currentValue = this.pxvalues[j].slice(i * bytesXvalue, (i + 1) * bytesXvalue);
-                imgPx.setValue(currentValue, this.getBitpix())
+                imgPx.setValue(currentValue, this.bitpix)
             }
         }
         return raDeclist;

@@ -4,8 +4,8 @@ import { FITSParser, FITSHeaderManager, FITSWriter } from "jsfitsio";
 import { CoordsType } from "../lib-esm/model/CoordsType.js";
 import { NumberType } from "../lib-esm/model/NumberType.js";
 import { Point } from "../lib-esm/model/Point.js";
-import { HiPSProjection } from "../lib-esm/projections/HiPSProjection.js";
-import { MercatorProjection } from "../lib-esm/projections/MercatorProjection.js";
+// import { HiPSProjection } from "../lib-esm/projections/HiPSProjection.js";
+// import { MercatorProjection } from "../lib-esm/projections/MercatorProjection.js";
 
 
 import { WCSLight } from '../lib-esm/WCSLight.js';
@@ -186,7 +186,18 @@ function testOrderComputation() {
     console.log(`Order ${computedOrder}`)
 }
 
-testNaNFits();
+
+
+function testRefactoring(){
+    const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.015, 18.35);
+    WCSLight.cutoutToHips(center, 0.06, 0.0005, "/Users/fgiordano/Desktop/REORG/PhD/code/github/wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
+        console.log(res)
+    })
+}
+
+
+testRefactoring()
+// testNaNFits();
 // testFits();
 // testOrderComputation()
 // computeOrder(0.005, 512)
