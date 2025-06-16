@@ -1,4 +1,5 @@
 export class TilesRaDecList {
+
     raDecList!: Array<[number, number]>
     tilesNumberList!: Array<number>
 

@@ -4,6 +4,7 @@ import { FITSParsed } from "jsfitsio";
 import { ImagePixel } from "../model/ImagePixel.js";
 import { Point } from "../model/Point.js";
 import { FITS } from "../model/FITS.js";
+import { TilesRaDecList2 } from "./hips/TilesRaDecList2.js";
 
 /**
  * Summary. (bla bla bla)
@@ -84,14 +85,15 @@ export abstract class AbstractProjection {
 
 //   public abstract prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[];
 
-  public abstract getFITSHeader(): FITSHeaderManager[];
+  public abstract getFITSHeader(): FITSHeaderManager;
 
   public abstract getCommonFitsHeaderParams(): FITSHeaderManager;
 
+  public abstract getBitpix(): number;
 //   public abstract extractPhysicalValues(fits: FITSParsed): number[][];
 
   public abstract getPixValues(
-    inputPixelsList: ImagePixel[]
+    tilesRaDecList: TilesRaDecList2
   ): Promise<Uint8Array | undefined>;
 
   public abstract setPxsValue(
@@ -103,13 +105,14 @@ export abstract class AbstractProjection {
     center: Point,
     radius: number,
     pxsize: number
-  ): Array<[number, number]>;
+  ): TilesRaDecList2;
 
   public abstract pix2world(i: number, j: number): Point;
 
   public abstract get fitsUsed(): String[];
 
-  public abstract world2pix(radeclist: number[][]): ImagePixel[];
+  // public abstract world2pix(radeclist: number[][]): ImagePixel[];
+  public abstract world2pix(radeclist: TilesRaDecList2): TilesRaDecList2;
 
 //   // public abstract generateFITSWithNaN(): FITS;
 

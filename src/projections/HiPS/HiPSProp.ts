@@ -1,16 +1,11 @@
 export class HiPSProp {
 
-    static TILE_WIDTH:string = "TILE_WIDTH"
-    static FRAME:string = "FRAME"
-    static ORDER:string = "ORDER"
+    static TILE_WIDTH:string = "hips_tile_width"
+    static FRAME:string = "hips_frame"
+    static ORDER:string = "hips_order"
     static GALACTIC:string = "galactic"
-    // static NAXIS:string = "NAXIS"
-    // static NAXIS1:string = "NAXIS1"
-    // static NAXIS2:string = "NAXIS2"
-    // static BITPIX:string = "BITPIX"
-    // static BSCALE:string = "BSCALE"
-    // static BZERO:string = "BZERO"
-    // static SIMPLE:string = "SIMPLE"
+    static SCALE:string = "hips_pixel_scale"
+    static BITPIX:string = "hips_pixel_bitpix"
 
 
     private itemMap: Map<string, any> = new Map<string, any>()

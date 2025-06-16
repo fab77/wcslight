@@ -21,39 +21,59 @@ import { HiPSFITS } from './projections/hips/HiPSFITS.js';
 import { HiPSPropManager } from './projections/hips/HiPSPropManager.js';
 import { HiPSProp } from './projections/hips/HiPSProp.js';
 import { HiPSHelper } from './projections/HiPSHelper.js';
+import { TilesRaDecList2 } from './projections/hips/TilesRaDecList2.js';
 
 export class WCSLight {
 
+    /**
+     * This function receives a FITS and generate a cutout on HiPS FITS.
+     * @param center of the cutout in degrees
+     * @param radius of the cutout in degrees
+     * @param pxsize of the cutout in degrees
+     * @param filePath of the input FITS file
+     * @returns fitsList of FITS in HiPS format
+     */
     static async cutoutToHips(center: Point, radius: number,
         pxsize: number, filePath: string): Promise<FITSList | null> {
 
-        // only MERCATOR supported at the moment
+        const HiPS_TILE_WIDTH = 512
+
+        // 0. here is missing the validation/check that the input file used to get the value, contains the center ...
+        
+        // 1. open input fits file and understand the projection and set up in inprojection details like NAXIS1-2, CDELT1-2, CRVAL1-2, minRa and minDec
         const inProjection = await WCSLight.extractProjectionType(filePath)
         if (!inProjection) return null
-
-        const tilesRaDecList = HiPSProj.getImageRADecList(center, radius, pxsize)
-        if (!tilesRaDecList) {
+        // const bitpix = inProjection.getBitpix()
+        
+        // 2. from HiPS output projection, compute the list of RA,Dec and related tileno based on center, radius, pxsize, and tilewidth forced to 512
+        const outTilesRaDecList: TilesRaDecList2|null = HiPSProj.getImageRADecList(center, radius, pxsize, HiPS_TILE_WIDTH)
+        if (!outTilesRaDecList) {
             return null
         }
 
-        const inputPixelsList = inProjection.world2pix(tilesRaDecList.getRaDecList())
-        const invalues = await inProjection.getPixValues(inputPixelsList)
-        const fitsHeaderParams = inProjection.getCommonFitsHeaderParams();
+        // 3. by using the list of RA and Dec on point 2., convert RA,Dec into i,j used in the input projection to get pixel values (try to merge the 2 calls below in one single method)
+        inProjection.world2pix(outTilesRaDecList)
+        // const invalues = await inProjection.getPixValues(tilesRaDecList)
+        
+        // 4. collect the details required to construct the output HiPS projection header 
+        // const fitsHeaderParams = inProjection.getCommonFitsHeaderParams();
 
-        if (invalues !== undefined) {
-            const fitsFileList = HiPSProj.getFITSFiles(invalues, tilesRaDecList, fitsHeaderParams, pxsize);
-            return fitsFileList
-        }
-
-        return null
+        // here pass inProjection.getFITSHeader()
+        // 5. generate output HiPS FITS file(s)
+        const fitsFileList = HiPSProj.getFITSFiles(outTilesRaDecList, inProjection.getFITSHeader(), pxsize, HiPS_TILE_WIDTH);
+        return fitsFileList
+        
     }
 
+    // only MERCATOR supported at the moment
     static async extractProjectionType(filePath: string): Promise<AbstractProjection | null> {
         let fits: FITSParsed | null = await FITSParser.loadFITS(filePath)
         if (!fits) return null
         const ctype = String(fits.header.findById("CTYPE1")?.value)
         if (ctype.includes("MER")){
-            return new MercatorProjection()
+            let projection = new MercatorProjection()
+            projection.initFromFile(filePath)
+            return projection
         }
         return null
 
@@ -73,7 +93,7 @@ export class WCSLight {
             isGalactic = true
         }
 
-        if (!hipsOrder) {    
+        if (!hipsOrder) {
             const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
             hipsOrder = Number(healpix.order)    
         }
@@ -85,26 +105,33 @@ export class WCSLight {
         below how naxis are computed
         outproj.getImageRADecList -> computeSquaredNaxes -> set naxis1 and naxis2
         */
-        const outRADecList: Array<Array<number>> = outproj.getImageRADecList(center, radius, pixelAngSize)
+        const outRADecList: TilesRaDecList2 = outproj.getImageRADecList(center, radius, pixelAngSize)
         if (!outRADecList) return null
 
         // TODO check if the 2 methods  below can be merged
-        const inputPixelsList = HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH)
-        const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH);
+        HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL)
+        // const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH);
         
-        if (invalues == null) {
-            throw new Error("No HiPS data found.")
-        }
-        // TODO GET HEADER 
+        // if (invalues == null) {
+        //     throw new Error("No HiPS data found.")
+        // }
+        // // TODO GET HEADER 
         // computeSquaredNaxes to get naxis1 naxis2 in get header
-        const header = outproj.prepareHeader(
-            radius, pixelAngSize, 
-            hipsProp.getItem(HiPSProp.BITPIX), 
-            hipsProp.getItem(HiPSProp.BSCALE), 
-            hipsProp.getItem(HiPSProp.BZERO))
+        
+        // const header = outproj.prepareHeader(
+        //     radius, pixelAngSize, 
+        //     hipsProp.getItem(HiPSProp.BITPIX), 
+        //     hipsProp.getItem(HiPSProp.SCALE), 
+        //     hipsProp.getItem(HiPSProp.TILE_WIDTH), 
+        //     hipsProp.getItem(HiPSProp.ZERO))
         // TODO set values in outproj
-        const fitsdata = outproj.setPxsValue(invalues, header);
+        const fitsdata = outproj.setPxsValue(outRADecList, header);
 
+        const header = outproj.computeHeader(pixelAngSize, 
+            hipsProp.getItem(HiPSProp.BITPIX), 
+            hipsProp.getItem(HiPSProp.SCALE
+            ))
+        
         // TODO set outproj header
         return null
     }

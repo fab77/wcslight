@@ -53,18 +53,11 @@ export class HiPSPropManager {
             }
             const key = tokens[0].trim()
             const val = tokens[1].trim()
-
-            if (key == "hips_order") {
-                const order = parseInt(val)
-                hipsProp.addItem(HiPSProp.ORDER, order)
-            } else if (key == "hips_tile_width") {
-                const tileWidth = parseInt(val)
-                hipsProp.addItem(HiPSProp.TILE_WIDTH, tileWidth)
-            } else if (key == "hips_frame" && val == "galactic") {
-                hipsProp.addItem(HiPSProp.FRAME, val)
-            } else {
-                hipsProp.addItem(key, val)
+            let value: string|number = val
+            if (key == HiPSProp.ORDER || key == HiPSProp.TILE_WIDTH || key == HiPSProp.SCALE || key == HiPSProp.BITPIX) {
+                value = parseInt(val)
             }
+            hipsProp.addItem(key, value)
         }
         return new HiPSProp()
     }
