@@ -25,16 +25,22 @@ export class HiPSPropManager {
     }
     static getPorpertyFromWeb(baseHiPSPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const propFileBuffer = yield fetch(baseHiPSPath + "/properties");
-            let propFile;
-            if (propFileBuffer instanceof ArrayBuffer) {
-                const textDecoder = new TextDecoder("iso-8859-1");
-                propFile = textDecoder.decode(new Uint8Array(propFileBuffer));
+            const response = yield fetch(baseHiPSPath + "/properties");
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             else {
-                propFile = propFileBuffer.toString();
+                const propFile = yield response.text();
+                return propFile;
             }
-            return propFile;
+            // let propFile: string
+            // if (response instanceof ArrayBuffer) {
+            //     const textDecoder = new TextDecoder("iso-8859-1")
+            //     propFile = textDecoder.decode(new Uint8Array(response))
+            // } else {
+            //     propFile = response.toString()
+            // }
+            // return propFile
         });
     }
     static getPorpertyFromFS(baseHiPSPath) {
@@ -60,22 +66,13 @@ export class HiPSPropManager {
             }
             const key = tokens[0].trim();
             const val = tokens[1].trim();
-            if (key == "hips_order") {
-                const order = parseInt(val);
-                hipsProp.addItem(HiPSProp.ORDER, order);
+            let value = val;
+            if (key == HiPSProp.ORDER || key == HiPSProp.TILE_WIDTH || key == HiPSProp.SCALE || key == HiPSProp.BITPIX) {
+                value = parseInt(val);
             }
-            else if (key == "hips_tile_width") {
-                const tileWidth = parseInt(val);
-                hipsProp.addItem(HiPSProp.TILE_WIDTH, tileWidth);
-            }
-            else if (key == "hips_frame" && val == "galactic") {
-                hipsProp.addItem(HiPSProp.FRAME, val);
-            }
-            else {
-                hipsProp.addItem(key, val);
-            }
+            hipsProp.addItem(key, value);
         }
-        return new HiPSProp();
+        return hipsProp;
     }
 }
 //# sourceMappingURL=HiPSPropManager.js.map

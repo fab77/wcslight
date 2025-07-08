@@ -123,7 +123,7 @@ export class WCSLight {
         if (!outRADecList) return null
 
         // TODO check if the 2 methods  below can be merged
-        HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL)
+        const raDecWithValues = await HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL)
         // const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH);
         
         // if (invalues == null) {
@@ -132,12 +132,36 @@ export class WCSLight {
         // // TODO GET HEADER 
         // computeSquaredNaxes to get naxis1 naxis2 in get header
         
-        // const header = outproj.prepareHeader(
-        //     radius, pixelAngSize, 
-        //     hipsProp.getItem(HiPSProp.BITPIX), 
-        //     hipsProp.getItem(HiPSProp.SCALE), 
-        //     hipsProp.getItem(HiPSProp.TILE_WIDTH), 
-        //     hipsProp.getItem(HiPSProp.ZERO))
+
+
+        /** info required:
+         * SIMPLE  = T                                                                     
+            BITPIX  = -64                                                                   
+            NAXIS   = 2                                                                     
+            NAXIS1  = 512                                                                   
+            NAXIS2  = 512                                                                   
+            BSCALE  = 1                                                                     
+            BZERO   = 0                                                                     
+            CTYPE1  = RA---HPX                                                              
+            CTYPE2  = DEC--HPX                                                              
+            DATAMIN = 0                                                                     
+            DATAMAX = 0                                                                     
+            hips_order= 7                                                                   
+            NPIX    = 113056                                                                
+            CRPIX1  = 56528                                                                 
+            CRPIX2  = 56528                                                                 
+            ORIGIN  = WCSLight v.0.x                                                        
+            COMMENT =  / WCSLight v0.x developed by F.Giordano and Y.Ascasibar              
+            CRVAL1  = 170.15625                                                             
+            CRVAL2  = 18.5243910738658                                                      
+            END                                                                             
+         */
+        const header = outproj.prepareHeader(
+            radius, pixelAngSize, 
+            hipsProp.getItem(HiPSProp.BITPIX), 
+            hipsProp.getItem(HiPSProp.SCALE), 
+            hipsProp.getItem(HiPSProp.TILE_WIDTH), 
+            hipsProp.getItem(HiPSProp.ZERO))
         // TODO set values in outproj
 
 

@@ -13,6 +13,7 @@ import { WCSLight } from '../lib-esm/WCSLight.js';
 import fs from 'node:fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { MercatorProjection } from "../lib-esm/projections/mercator/MercatorProjection.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -187,16 +188,33 @@ function testOrderComputation() {
 }
 
 
-
+// from Mercator to HiPS
 function testRefactoring(){
     const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.015, 18.35);
-    WCSLight.cutoutToHips(center, 0.06, 0.0005, "/Users/fgiordano/Desktop/REORG/PhD/code/github/wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
+    WCSLight.cutoutToHips(center, 0.06, 0.0005, "./wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
         console.log(res)
     })
 }
 
+// from HiPS to Mercator
+function testRefactoring2(){
+    // https://alasky.cds.unistra.fr/DECaPS/DR1/g/
+    // center = 287.566192 -0.66041762 GAL
+    // center = 161.182571 -59.6974797 ICRSd
+    // radius = 0.5
+    // pxsize = 0.001
+    const hipsUrl = "https://alasky.cds.unistra.fr/DECaPS/DR1/g/"
+    const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 161.182571, -59.6974797)
+    const pxSize_deg = 0.001
+    const radius_deg = 0.5
+    let mercatorOutProj = new MercatorProjection()
+    WCSLight.hipsCutout(center, radius_deg, pxSize_deg, hipsUrl, mercatorOutProj).then(res => {
+        console.log(res)
+    })
+}
 
 testRefactoring()
+testRefactoring2()
 // testNaNFits();
 // testFits();
 // testOrderComputation()

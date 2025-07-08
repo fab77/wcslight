@@ -6,17 +6,25 @@
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
+import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
 import { Point } from './model/Point.js';
 import { AbstractProjection } from './projections/AbstractProjection.js';
 import { CutoutResult } from './model/CutoutResult.js';
 import { FITSList } from './projections/hips/FITSList.js';
 import { HiPSFITS } from './projections/hips/HiPSFITS.js';
 export declare class WCSLight {
+    /**
+     * This function receives a FITS and generate a cutout on HiPS FITS.
+     * @param center of the cutout in degrees
+     * @param radius of the cutout in degrees
+     * @param pxsize of the cutout in degrees
+     * @param filePath of the input FITS file
+     * @returns fitsList of FITS in HiPS format
+     */
     static cutoutToHips(center: Point, radius: number, pxsize: number, filePath: string): Promise<FITSList | null>;
     static extractProjectionType(filePath: string): Promise<AbstractProjection | null>;
     static hipsCutout(center: Point, radius: number, pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder?: number | null): Promise<CutoutResult | null>;
     static hipsFITSChangeProjection(): HiPSFITS | null;
-    static cutout(center: Point, radius: number, pxsize: number, inproj: AbstractProjection, outproj: AbstractProjection): Promise<CutoutResult>;
     /**
      *
      * @param {*} fitsheader
@@ -24,8 +32,7 @@ export declare class WCSLight {
      * @returns {URL}
      */
     static generateFITS(fitsheader: any, fitsdata: any): string;
-    static changeProjection(filepath: any, outprojname: any): void;
-    static getProjection(projectionName: string): any;
+    static getProjection(projectionName: string): MercatorProjection | null;
     static getAvaillableProjections(): string[];
 }
 //# sourceMappingURL=WCSLight.d.ts.map

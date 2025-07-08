@@ -165,7 +165,7 @@ export class HiPSProj {
 
     }
 
-    static world2pix(radeclist: TilesRaDecList2, hipsOrder: number, isGalactic: boolean, TILE_WIDTH: number, baseHiPSURL: string): TilesRaDecList2 {
+    static async world2pix(radeclist: TilesRaDecList2, hipsOrder: number, isGalactic: boolean, TILE_WIDTH: number, baseHiPSURL: string): Promise<TilesRaDecList2 | null> {
 
         const healpix = HiPSHelper.getHelpixByOrder(hipsOrder)
 
@@ -198,9 +198,10 @@ export class HiPSProj {
                 imgpx.setij(ij[0], ij[1])
                 imgpx.setTileNumber(tileno)
             }
+            radeclist.addTileNumber(tileno)
         });
-        this.getPixelValues(radeclist, baseHiPSURL, hipsOrder)
-        return radeclist
+        let result = await HiPSProj.getPixelValues(radeclist, baseHiPSURL, hipsOrder)
+        return result
     }
 
     // TODO move this to Utils.js

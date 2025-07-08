@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { FITSHeaderItem, FITSHeaderManager, FITSParser, ParseUtils } from "jsfitsio";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
 import { Pointing } from "healpixjs";
-import { astroToSpherical, fillAstro, radToDeg } from "../../model/Utils.js";
+import { fillAstro, radToDeg } from "../../model/Utils.js";
 import { NumberType } from "../../model/NumberType.js";
 import { HiPSHelper } from "../HiPSHelper.js";
 import { HiPSProp } from "./HiPSProp.js";
@@ -35,14 +35,25 @@ export class HiPSFITS {
                 console.error("NAXIS1 and NAXIS2 do not match.");
                 throw new Error("NAXIS1 and NAXIS2 do not match.");
             }
-            this.tileno = naxis1;
+            this.tileWidth = naxis1;
+            this.tileno = tileno;
             this.healpix = HiPSHelper.getHelpixByOrder(this.order);
             this.intermediateXYGrid = HiPSIntermediateProj.setupByTile(this.tileno, this.healpix);
         }
     }
-    initFromUint8Array(raDecList, originalValues, fitsHeaderParams) {
-        this.setPayload(raDecList, originalValues, fitsHeaderParams);
+    initFromUint8Array(imagePixelList, fitsHeaderParams, tileWidth) {
+        this.setPayload(imagePixelList, fitsHeaderParams, tileWidth);
         this.setHeader(fitsHeaderParams);
+    }
+    // initFromUint8Array(raDecList: [number, number][], originalValues: Uint8Array, fitsHeaderParams: FITSHeaderManager) {
+    //     this.setPayload(raDecList, originalValues, fitsHeaderParams)
+    //     this.setHeader(fitsHeaderParams)
+    // }
+    getHeader() {
+        return this.header;
+    }
+    getPayload() {
+        return this.payload;
     }
     initFromFITSParsed(fitsParsed) {
         var _a, _b, _c, _d;
@@ -102,9 +113,8 @@ export class HiPSFITS {
     getFITS() {
         return { header: this.header, data: this.payload };
     }
-    setPayload(raDecList, originalValues, fitsHeaderParams) {
+    setPayload(imagePixelList, fitsHeaderParams, tileWidth) {
         var _a, _b, _c;
-        this.payload = new Array(this.tileWidth);
         const bitpix = Number((_a = fitsHeaderParams.findById(FITSHeaderManager.BITPIX)) === null || _a === void 0 ? void 0 : _a.value);
         const bzero = Number((_b = fitsHeaderParams.findById(FITSHeaderManager.BZERO)) === null || _b === void 0 ? void 0 : _b.value);
         const bscale = Number((_c = fitsHeaderParams.findById(FITSHeaderManager.BSCALE)) === null || _c === void 0 ? void 0 : _c.value);
@@ -113,49 +123,90 @@ export class HiPSFITS {
             console.error("BITPIX not defined");
             throw new Error("BITPIX not defined");
         }
-        for (let row = 0; row < this.tileWidth; row++) {
-            this.payload[row] = new Uint8Array(this.tileWidth * bytesXelem);
+        this.payload = new Array(tileWidth);
+        for (let row = 0; row < tileWidth; row++) {
+            this.payload[row] = new Uint8Array(tileWidth * bytesXelem);
         }
-        for (let rdidx = 0; rdidx < raDecList.length; rdidx++) {
-            const [ra, dec] = raDecList[rdidx];
+        imagePixelList.forEach((imgpx) => {
+            const ra = imgpx.getRADeg();
+            const dec = imgpx.getDecDeg();
             const ac = fillAstro(ra, dec, NumberType.DEGREES);
             if (ac == null) {
                 console.error(`Error converting ${ra}, ${dec} into AstroCoords object`);
-                continue;
-            }
-            const sc = astroToSpherical(ac);
-            const ptg = new Pointing(null, false, sc.thetaRad, sc.phiRad);
-            const pixtileno = this.healpix.ang2pix(ptg);
-            if (pixtileno != this.tileno) {
-                continue;
+                return;
             }
             const xy = HiPSIntermediateProj.world2intermediate(ac);
-            let ij = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], this.intermediateXYGrid, this.tileWidth);
-            const col = ij[0];
-            const row = ij[1];
+            const [col, row] = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], this.intermediateXYGrid, tileWidth);
+            if (row < 0 || row >= tileWidth || col < 0 || col >= tileWidth)
+                return;
+            const valueBytes = imgpx.getValue();
+            if (!valueBytes)
+                return; // or continue, depending on context
             for (let b = 0; b < bytesXelem; b++) {
-                const byte = originalValues[rdidx * bytesXelem + b];
-                this.payload[row][col * bytesXelem + b] = byte;
-                // TODO check what's nodata!
-                // if (nodata.get("" + pixtileno + "")) {
-                // 	if (byte != 0) {
-                // 		nodata.set("" + pixtileno + "", false);
-                // 	}
-                // }
-                const valpixb = ParseUtils.extractPixelValue(0, this.payload[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), bitpix);
-                if (valpixb == null) {
-                    continue;
-                }
-                const valphysical = bzero + bscale * valpixb;
-                if (valphysical < this.min || isNaN(this.min)) {
-                    this.min = valphysical;
-                }
-                else if (valphysical > this.max || isNaN(this.max)) {
-                    this.max = valphysical;
-                }
+                this.payload[row][col * bytesXelem + b] = valueBytes[b];
             }
-        }
+            const valpixb = ParseUtils.extractPixelValue(0, valueBytes, bitpix);
+            if (valpixb == null)
+                return;
+            const valphysical = bzero + bscale * valpixb;
+            if (isNaN(this.min) || valphysical < this.min)
+                this.min = valphysical;
+            if (isNaN(this.max) || valphysical > this.max)
+                this.max = valphysical;
+        });
     }
+    // private setPayload(raDecList: [number, number][], originalValues: Uint8Array, fitsHeaderParams: FITSHeaderManager) {
+    //     const bitpix = Number(fitsHeaderParams.findById(FITSHeaderManager.BITPIX)?.value)
+    //     const bzero = Number(fitsHeaderParams.findById(FITSHeaderManager.BZERO)?.value)
+    //     const bscale = Number(fitsHeaderParams.findById(FITSHeaderManager.BSCALE)?.value)
+    //     const bytesXelem = Math.abs(bitpix / 8)
+    //     if (!bytesXelem) {
+    //         console.error("BITPIX not defined")
+    //         throw new Error("BITPIX not defined")
+    //     }
+    //     this.payload = new Array(this.tileWidth)
+    //     for (let row = 0; row < this.tileWidth; row++) {
+    //         this.payload[row] = new Uint8Array(this.tileWidth * bytesXelem)
+    //     }
+    //     for (let rdidx = 0; rdidx < raDecList.length; rdidx++) {
+    //         const [ra, dec] = raDecList[rdidx]
+    //         const ac = fillAstro(ra, dec, NumberType.DEGREES)
+    //         if (ac == null) {
+    //             console.error(`Error converting ${ra}, ${dec} into AstroCoords object`)
+    //             continue
+    //         }
+    //         const sc = astroToSpherical(ac)
+    //         const ptg = new Pointing(null, false, sc.thetaRad, sc.phiRad)
+    //         const pixtileno: number = this.healpix.ang2pix(ptg)
+    //         if (pixtileno != this.tileno) {
+    //             continue
+    //         }
+    //         const xy = HiPSIntermediateProj.world2intermediate(ac);
+    //         let ij = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], this.intermediateXYGrid, this.tileWidth);
+    //         const col = ij[0];
+    //         const row = ij[1];
+    //         for (let b = 0; b < bytesXelem; b++) {
+    //             const byte = originalValues[rdidx * bytesXelem + b];
+    //             this.payload[row][col * bytesXelem + b] = byte
+    //             // TODO check what's nodata!
+    //             // if (nodata.get("" + pixtileno + "")) {
+    //             // 	if (byte != 0) {
+    //             // 		nodata.set("" + pixtileno + "", false);
+    //             // 	}
+    //             // }
+    //             const valpixb = ParseUtils.extractPixelValue(0, this.payload[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), bitpix);
+    //             if (valpixb == null) {
+    //                 continue
+    //             }
+    //             const valphysical = bzero + bscale * valpixb;
+    //             if (valphysical < this.min || isNaN(this.min)) {
+    //                 this.min = valphysical;
+    //             } else if (valphysical > this.max || isNaN(this.max)) {
+    //                 this.max = valphysical;
+    //             }
+    //         }
+    //     }
+    // }
     addMandatoryItemToHeader(key, fitsHeaderParams) {
         var _a;
         const value = (_a = fitsHeaderParams.findById(key)) === null || _a === void 0 ? void 0 : _a.value;

@@ -17,50 +17,53 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { FITSParser, FITSHeaderManager, FITSHeaderItem, ParseUtils } from 'jsfitsio';
 import { AbstractProjection } from '../AbstractProjection.js';
-import { ImagePixel } from '../../model/ImagePixel.js';
 import { Point } from '../../model/Point.js';
 import { CoordsType } from '../../model/CoordsType.js';
 import { NumberType } from '../../model/NumberType.js';
+import { TilesRaDecList2 } from '../hips/TilesRaDecList2.js';
+import { ImagePixel } from '../hips/ImagePixel.js';
+// import { HiPSProp } from '../hips/HiPSProp.js';
 export class MercatorProjection extends AbstractProjection {
     constructor() {
         super();
-        this._fitsUsed = [];
-        this._ctype1 = "'RA---CAR'";
-        this._ctype2 = "'DEC--CAR'";
+        this.CTYPE1 = "'RA---CAR'";
+        this.CTYPE2 = "'DEC--CAR'";
         this._wcsname = "MER"; // TODO check WCS standard and create ENUM
-        this._pxvalues = new Map();
-        this._fitsheader = new Array();
+        this.pxvalues = new Array();
+        this.fitsheader = new FITSHeaderManager();
     }
     initFromFile(infile) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d, _e, _f;
+            var _a, _b, _c, _d, _e, _f, _g;
             const fits = yield FITSParser.loadFITS(infile);
             if (!fits) {
                 console.error("FITS is null");
                 throw new Error("FITS is null");
             }
-            this._infile = infile;
-            this._fitsUsed.push(infile);
-            this._pxvalues.set(0, fits.data);
-            this._fitsheader[0] = fits.header;
-            this._naxis1 = Number((_a = fits.header.findById("NAXIS1")) === null || _a === void 0 ? void 0 : _a.value);
-            this._naxis2 = Number((_b = fits.header.findById("NAXIS2")) === null || _b === void 0 ? void 0 : _b.value);
-            this._craDeg = (_c = fits.header.findById("CRVAL1")) === null || _c === void 0 ? void 0 : _c.value;
-            this._cdecDeg = (_d = fits.header.findById("CRVAL2")) === null || _d === void 0 ? void 0 : _d.value;
-            const pxsize1 = (_e = this._fitsheader[0].findById("CDELT1")) === null || _e === void 0 ? void 0 : _e.value;
-            const pxsize2 = (_f = this._fitsheader[0].findById("CDELT2")) === null || _f === void 0 ? void 0 : _f.value;
+            this.pxvalues = fits.data;
+            this.fitsheader = fits.header;
+            this.naxis1 = Number((_a = fits.header.findById("NAXIS1")) === null || _a === void 0 ? void 0 : _a.value);
+            this.naxis2 = Number((_b = fits.header.findById("NAXIS2")) === null || _b === void 0 ? void 0 : _b.value);
+            this.bitpix = (_c = fits.header.findById("BITPIX")) === null || _c === void 0 ? void 0 : _c.value;
+            this.craDeg = (_d = fits.header.findById("CRVAL1")) === null || _d === void 0 ? void 0 : _d.value;
+            this.cdecDeg = (_e = fits.header.findById("CRVAL2")) === null || _e === void 0 ? void 0 : _e.value;
+            const pxsize1 = (_f = this.fitsheader.findById("CDELT1")) === null || _f === void 0 ? void 0 : _f.value;
+            const pxsize2 = (_g = this.fitsheader.findById("CDELT2")) === null || _g === void 0 ? void 0 : _g.value;
             if (pxsize1 !== pxsize2 || pxsize1 === undefined || pxsize2 === undefined) {
                 throw new Error("pxsize1 is not equal to pxsize2");
             }
-            this._pxsize = pxsize1;
-            this._minra = this._craDeg - this._pxsize * this._naxis1 / 2;
-            if (this._minra < 0) {
-                this._minra += 360;
+            this.pxsize = pxsize1;
+            this.minra = this.craDeg - this.pxsize * this.naxis1 / 2;
+            if (this.minra < 0) {
+                this.minra += 360;
             }
             // this._mindec = this._cdecDeg - this._pxsize2 * this._naxis2 / 2;
-            this._mindec = this._cdecDeg - this._pxsize * this._naxis2 / 2;
+            this.mindec = this.cdecDeg - this.pxsize * this.naxis2 / 2;
             return fits;
         });
+    }
+    getBytePerValue() {
+        return Math.abs(this.bitpix / 8);
     }
     extractPhysicalValues(fits) {
         var _a, _b, _c, _d, _e;
@@ -83,161 +86,34 @@ export class MercatorProjection extends AbstractProjection {
         }
         return physicalvalues;
     }
-    prepareFITSHeader(fitsHeaderParams) {
-        var _a, _b, _c, _d, _e;
-        this._fitsheader[0] = new FITSHeaderManager();
-        this._fitsheader[0].insert(new FITSHeaderItem("NAXIS1", this._naxis1, ""));
-        this._fitsheader[0].insert(new FITSHeaderItem("NAXIS2", this._naxis2, ""));
-        this._fitsheader[0].insert(new FITSHeaderItem("NAXIS", 2, ""));
-        const bitpix = Number((_a = fitsHeaderParams.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
-        this._fitsheader[0].insert(new FITSHeaderItem("BITPIX", bitpix, ""));
-        const simple = Number((_b = fitsHeaderParams.findById("SIMPLE")) === null || _b === void 0 ? void 0 : _b.value);
-        this._fitsheader[0].insert(new FITSHeaderItem("SIMPLE", simple, ""));
-        const blank = Number((_c = fitsHeaderParams.findById("BLANK")) === null || _c === void 0 ? void 0 : _c.value);
-        if (blank) {
-            this._fitsheader[0].insert(new FITSHeaderItem("BLANK", blank, ""));
-        }
-        let bscale = Number((_d = fitsHeaderParams.findById("BSCALE")) === null || _d === void 0 ? void 0 : _d.value);
-        if (!bscale) {
-            bscale = 1.0;
-        }
-        this._fitsheader[0].insert(new FITSHeaderItem("BSCALE", bscale, ""));
-        let bzero = Number((_e = fitsHeaderParams.findById("BZERO")) === null || _e === void 0 ? void 0 : _e.value);
-        if (!bzero) {
-            bzero = 0.0;
-        }
-        this._fitsheader[0].insert(new FITSHeaderItem("BZERO", bzero, ""));
-        this._fitsheader[0].insert(new FITSHeaderItem("CTYPE1", this._ctype1, ""));
-        this._fitsheader[0].insert(new FITSHeaderItem("CTYPE2", this._ctype2, ""));
-        this._fitsheader[0].insert(new FITSHeaderItem("CDELT1", this._pxsize, "")); // ??? Pixel spacing along axis 1 ???
-        this._fitsheader[0].insert(new FITSHeaderItem("CDELT2", this._pxsize, "")); // ??? Pixel spacing along axis 2 ???
-        this._fitsheader[0].insert(new FITSHeaderItem("CRPIX1", this._naxis1 / 2, "")); // central/reference pixel i along naxis1
-        this._fitsheader[0].insert(new FITSHeaderItem("CRPIX2", this._naxis2 / 2, "")); // central/reference pixel j along naxis2
-        this._fitsheader[0].insert(new FITSHeaderItem("CRVAL1", this._craDeg, "")); // central/reference pixel RA
-        this._fitsheader[0].insert(new FITSHeaderItem("CRVAL2", this._cdecDeg, "")); // central/reference pixel Dec
-        let min = bzero + bscale * this._minphysicalval;
-        let max = bzero + bscale * this._maxphysicalval;
-        this._fitsheader[0].insert(new FITSHeaderItem("DATAMIN", min, "")); // min data value
-        this._fitsheader[0].insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
-        this._fitsheader[0].insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
-        this._fitsheader[0].insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
-        this._fitsheader[0].insert(new FITSHeaderItem("END", "", ""));
-        return this._fitsheader;
+    computeHeader(pxsize, bitpix, scale = 1, zero = 0, blank = 0) {
+        const header = new FITSHeaderManager();
+        header.insert(new FITSHeaderItem("SIMPLE", "'T'", ""));
+        header.insert(new FITSHeaderItem("BITPIX", bitpix, ""));
+        header.insert(new FITSHeaderItem("NAXIS", 2, ""));
+        header.insert(new FITSHeaderItem("NAXIS1", this.naxis1, ""));
+        header.insert(new FITSHeaderItem("NAXIS2", this.naxis2, ""));
+        header.insert(new FITSHeaderItem("BLANK", blank, ""));
+        header.insert(new FITSHeaderItem("BSCALE", scale, ""));
+        header.insert(new FITSHeaderItem("BZERO", zero, ""));
+        header.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+        header.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+        header.insert(new FITSHeaderItem("CDELT1", pxsize, "")); // ??? Pixel spacing along axis 1 ???
+        header.insert(new FITSHeaderItem("CDELT2", pxsize, "")); // ??? Pixel spacing along axis 2 ???
+        header.insert(new FITSHeaderItem("CRPIX1", this.naxis1 / 2, "")); // central/reference pixel i along naxis1
+        header.insert(new FITSHeaderItem("CRPIX2", this.naxis2 / 2, "")); // central/reference pixel j along naxis2
+        header.insert(new FITSHeaderItem("CRVAL1", this.craDeg, "")); // central/reference pixel RA
+        header.insert(new FITSHeaderItem("CRVAL2", this.cdecDeg, "")); // central/reference pixel Dec
+        let min = zero + scale * this._minphysicalval;
+        let max = zero + scale * this._maxphysicalval;
+        header.insert(new FITSHeaderItem("DATAMIN", min, "")); // min data value
+        header.insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
+        header.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
+        header.insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
+        header.insert(new FITSHeaderItem("END", "", ""));
+        return this.fitsheader;
     }
-    getFITSHeader() {
-        return this._fitsheader;
-    }
-    getCommonFitsHeaderParams() {
-        let header = new FITSHeaderManager();
-        for (const item of this._fitsheader[0].getItems()) {
-            const key = item.key;
-            // for (let i = 0; i < this._fitsheader[0].getItems(); i++ ) {
-            // I could add a list of used NPIXs to be included in the comment of the output FITS
-            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER",].includes(key)) {
-                const value = item.value;
-                header.insert(new FITSHeaderItem(key, value, ""));
-            }
-        }
-        return header;
-    }
-    get fitsUsed() {
-        return this._fitsUsed;
-    }
-    getPixValues(inputPixelsList) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let promise = new Promise((resolve, reject) => {
-                var _a, _b;
-                try {
-                    const bitpix = Number((_a = this._fitsheader[0].findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
-                    let bytesXelem = Math.abs(bitpix / 8);
-                    const blank = Number((_b = this._fitsheader[0].findById("BLANK")) === null || _b === void 0 ? void 0 : _b.value);
-                    let blankBytes = ParseUtils.convertBlankToBytes(blank, bytesXelem);
-                    let pixcount = inputPixelsList.length;
-                    let values = new Uint8Array(pixcount * bytesXelem);
-                    for (let p = 0; p < pixcount; p++) {
-                        let imgpx = inputPixelsList[p];
-                        // TODO check when input is undefined. atm it puts 0 bur it should be BLANK
-                        // TODO why I am getting negative i and j? check world2pix!!!
-                        if ((imgpx._j) < 0 || (imgpx._j) >= this._naxis2 ||
-                            (imgpx._i) < 0 || (imgpx._i) >= this._naxis1) {
-                            for (let b = 0; b < bytesXelem; b++) {
-                                values[p * bytesXelem + b] = blankBytes[b];
-                            }
-                        }
-                        else {
-                            let pv = this._pxvalues.get(0);
-                            if (pv !== undefined) {
-                                for (let b = 0; b < bytesXelem; b++) {
-                                    values[p * bytesXelem + b] = pv[imgpx._j][(imgpx._i) * bytesXelem + b];
-                                }
-                            }
-                        }
-                    }
-                    resolve(values);
-                }
-                catch (err) {
-                    reject("[MercatorProjection] ERROR: " + err);
-                }
-            });
-            return promise;
-        });
-    }
-    setPxsValue(values, fitsHeaderParams) {
-        var _a, _b, _c, _d, _e;
-        const bitpix = Number((_a = this._fitsheader[0].findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
-        let bytesXelem = Math.abs(bitpix / 8);
-        let minpixb = ParseUtils.extractPixelValue(0, values.slice(0, bytesXelem), Number((_b = fitsHeaderParams.findById("BITPIX")) === null || _b === void 0 ? void 0 : _b.value));
-        if (!minpixb) {
-            console.error("minpixb is null");
-            throw new Error("minpixb is null");
-        }
-        let maxpixb = minpixb;
-        let bscale = (fitsHeaderParams.findById("BSCALE") !== undefined) ? Number((_c = fitsHeaderParams.findById("BSCALE")) === null || _c === void 0 ? void 0 : _c.value) : 1.0;
-        let bzero = (fitsHeaderParams.findById("BZERO") !== undefined) ? Number((_d = fitsHeaderParams.findById("BZERO")) === null || _d === void 0 ? void 0 : _d.value) : 0.0;
-        this._minphysicalval = bzero + bscale * minpixb;
-        this._maxphysicalval = bzero + bscale * maxpixb;
-        this._pxvalues.set(0, new Array(this._naxis2));
-        let pv = this._pxvalues.get(0);
-        if (pv !== undefined) {
-            for (let r = 0; r < this._naxis2; r++) {
-                pv[r] = new Uint8Array(this._naxis1 * bytesXelem);
-            }
-            let r;
-            let c;
-            let b;
-            for (let p = 0; (p * bytesXelem) < values.length; p++) {
-                // console.log("processing "+p + " of "+ (values.length / bytesXelem));
-                try {
-                    r = Math.floor(p / this._naxis1);
-                    c = (p - r * this._naxis1) * bytesXelem;
-                    for (b = 0; b < bytesXelem; b++) {
-                        pv[r][c + b] = values[p * bytesXelem + b];
-                    }
-                    const valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), Number((_e = fitsHeaderParams.findById("BITPIX")) === null || _e === void 0 ? void 0 : _e.value));
-                    if (!valpixb) {
-                        console.error("valpixb is null");
-                        throw new Error("valpixb is null");
-                    }
-                    let valphysical = bzero + bscale * valpixb;
-                    if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
-                        this._minphysicalval = valphysical;
-                    }
-                    else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
-                        this._maxphysicalval = valphysical;
-                    }
-                }
-                catch (err) {
-                    console.log(err);
-                    console.log("p " + p);
-                    console.log("r %, c %, b %" + r, c, b);
-                    console.log("this._pxvalues[r][c + b] " + pv[r][c + b]);
-                    console.log("values[p * bytesXelem + b] " + values[p * bytesXelem + b]);
-                }
-            }
-        }
-        this.prepareFITSHeader(fitsHeaderParams);
-        return this._pxvalues;
-    }
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
     static prepareHeader(radius, pixelAngSize, bitpix, bscale, bzero) {
         if (!bscale)
             bscale = 1;
@@ -249,35 +125,151 @@ export class MercatorProjection extends AbstractProjection {
             throw new Error("Bitpix not defined");
         }
     }
-    computeSquaredNaxes(d, ps) {
-        this._naxis1 = Math.ceil(d / ps);
-        this._naxis2 = this._naxis1;
-        this._pxsize = ps;
-    }
-    getImageRADecList(center, radius, pxsize) {
-        this.computeSquaredNaxes(2 * radius, pxsize); // compute naxis[1, 2]
-        this._pxsize = pxsize;
-        this._minra = center.getAstro().raDeg - radius;
-        if (this._minra < 0) {
-            this._minra += 360;
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
+    prepareFITSHeader(fitsHeaderParams) {
+        var _a, _b, _c, _d, _e;
+        this.fitsheader = new FITSHeaderManager();
+        this.fitsheader.insert(new FITSHeaderItem("NAXIS1", this.naxis1, ""));
+        this.fitsheader.insert(new FITSHeaderItem("NAXIS2", this.naxis2, ""));
+        this.fitsheader.insert(new FITSHeaderItem("NAXIS", 2, ""));
+        const bitpix = Number((_a = fitsHeaderParams.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
+        this.fitsheader.insert(new FITSHeaderItem("BITPIX", bitpix, ""));
+        const simple = Number((_b = fitsHeaderParams.findById("SIMPLE")) === null || _b === void 0 ? void 0 : _b.value);
+        this.fitsheader.insert(new FITSHeaderItem("SIMPLE", simple, ""));
+        const blank = Number((_c = fitsHeaderParams.findById("BLANK")) === null || _c === void 0 ? void 0 : _c.value);
+        if (blank) {
+            this.fitsheader.insert(new FITSHeaderItem("BLANK", blank, ""));
         }
-        this._mindec = center.getAstro().decDeg - radius;
-        let radeclist = new Array();
-        for (let d = 0; d < this._naxis2; d++) {
-            for (let r = 0; r < this._naxis1; r++) {
-                radeclist.push([this._minra + (r * this._pxsize), this._mindec + (d * this._pxsize)]);
+        let bscale = Number((_d = fitsHeaderParams.findById("BSCALE")) === null || _d === void 0 ? void 0 : _d.value);
+        if (!bscale) {
+            bscale = 1.0;
+        }
+        this.fitsheader.insert(new FITSHeaderItem("BSCALE", bscale, ""));
+        let bzero = Number((_e = fitsHeaderParams.findById("BZERO")) === null || _e === void 0 ? void 0 : _e.value);
+        if (!bzero) {
+            bzero = 0.0;
+        }
+        this.fitsheader.insert(new FITSHeaderItem("BZERO", bzero, ""));
+        this.fitsheader.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+        this.fitsheader.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+        this.fitsheader.insert(new FITSHeaderItem("CDELT1", this.pxsize, "")); // ??? Pixel spacing along axis 1 ???
+        this.fitsheader.insert(new FITSHeaderItem("CDELT2", this.pxsize, "")); // ??? Pixel spacing along axis 2 ???
+        this.fitsheader.insert(new FITSHeaderItem("CRPIX1", this.naxis1 / 2, "")); // central/reference pixel i along naxis1
+        this.fitsheader.insert(new FITSHeaderItem("CRPIX2", this.naxis2 / 2, "")); // central/reference pixel j along naxis2
+        this.fitsheader.insert(new FITSHeaderItem("CRVAL1", this.craDeg, "")); // central/reference pixel RA
+        this.fitsheader.insert(new FITSHeaderItem("CRVAL2", this.cdecDeg, "")); // central/reference pixel Dec
+        let min = bzero + bscale * this._minphysicalval;
+        let max = bzero + bscale * this._maxphysicalval;
+        this.fitsheader.insert(new FITSHeaderItem("DATAMIN", min, "")); // min data value
+        this.fitsheader.insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
+        this.fitsheader.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
+        this.fitsheader.insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
+        this.fitsheader.insert(new FITSHeaderItem("END", "", ""));
+        return this.fitsheader;
+    }
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
+    getFITSHeader() {
+        return this.fitsheader;
+    }
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
+    getCommonFitsHeaderParams() {
+        let header = new FITSHeaderManager();
+        for (const item of this.fitsheader.getItems()) {
+            const key = item.key;
+            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER",].includes(key)) {
+                const value = item.value;
+                header.insert(new FITSHeaderItem(key, value, ""));
             }
         }
-        let cidx = (this._naxis2 / 2) * this._naxis1 + this._naxis1 / 2;
-        if (this._naxis1 % 2 != 0) {
-            cidx = Math.floor(radeclist.length / 2);
+        return header;
+    }
+    setPxsValue(raDecList, bitpix, scale = 1, zero = 0) {
+        return new TilesRaDecList2();
+    }
+    // setPxsValue(raDecList: TilesRaDecList2, bitpix: number, scale: number = 1, zero: number = 0): TilesRaDecList2 {
+    //     let bytesXelem = Math.abs(bitpix / 8);
+    //     const value = raDecList.getImagePixelList()[0].value
+    //     if (value) {
+    //         let minpixb = ParseUtils.extractPixelValue(0, value.slice(0, bytesXelem), bitpix);
+    //     }
+    //     if (!minpixb) {
+    //         console.error("minpixb is null")
+    //         throw new Error("minpixb is null")
+    //     }
+    //     let maxpixb = minpixb;
+    //     this._minphysicalval = zero + scale * minpixb;
+    //     this._maxphysicalval = zero + scale * maxpixb;
+    //     this._pxvalues.set(0, new Array<Uint8Array>(this.naxis2));
+    //     let pv = this._pxvalues.get(0);
+    //     if (pv !== undefined) {
+    //         for (let r = 0; r < this.naxis2; r++) {
+    //             pv[r] = new Uint8Array(this.naxis1 * bytesXelem);
+    //         }
+    //         let r!: number;
+    //         let c!: number;
+    //         let b!: number;
+    //         for (let p = 0; (p * bytesXelem) < values.length; p++) {
+    //             // console.log("processing "+p + " of "+ (values.length / bytesXelem));
+    //             try {
+    //                 r = Math.floor(p / this.naxis1);
+    //                 c = (p - r * this.naxis1) * bytesXelem;
+    //                 for (b = 0; b < bytesXelem; b++) {
+    //                     pv[r][c + b] = values[p * bytesXelem + b];
+    //                 }
+    //                 const valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), bitpix);
+    //                 if (!valpixb) {
+    //                     console.error("valpixb is null")
+    //                     throw new Error("valpixb is null")
+    //                 }
+    //                 let valphysical = zero + scale * valpixb;
+    //                 if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
+    //                     this._minphysicalval = valphysical;
+    //                 } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
+    //                     this._maxphysicalval = valphysical;
+    //                 }
+    //             } catch (err) {
+    //                 console.log(err)
+    //                 console.log("p " + p)
+    //                 console.log("r %, c %, b %" + r, c, b)
+    //                 console.log("this._pxvalues[r][c + b] " + pv[r][c + b])
+    //                 console.log("values[p * bytesXelem + b] " + values[p * bytesXelem + b])
+    //             }
+    //         }
+    //     }
+    //     this.prepareFITSHeader(fitsHeaderParams);
+    //     return this._pxvalues;
+    // }
+    // computeSquaredNaxes(d: number, ps: number): void {
+    //     this._naxis1 = Math.ceil(d / ps);
+    //     this._naxis2 = this._naxis1;
+    //     this._pxsize = ps;
+    // }
+    getImageRADecList(center, radius, pxsize) {
+        const naxis1 = Math.ceil(2 * radius / pxsize);
+        const naxis2 = naxis1;
+        let minra = center.getAstro().raDeg - radius;
+        if (minra < 0) {
+            minra += 360;
         }
-        // let cidx2 = (this._naxis2 / 2 - 1) * this._naxis1 + this._naxis1 / 2;
-        // let cidx = Math.ceil(radeclist.length / 2);
-        // let cidx = Math.floor(radeclist.length / 2);
-        this._craDeg = radeclist[cidx][0];
-        this._cdecDeg = radeclist[cidx][1];
-        return radeclist;
+        const mindec = center.getAstro().decDeg - radius;
+        const tilesRaDecList = new TilesRaDecList2();
+        // let radeclist: Array<[number, number]> = new Array<[number, number]>();
+        // let centralRa, centralDec
+        for (let d = 0; d < naxis2; d++) {
+            for (let r = 0; r < naxis1; r++) {
+                tilesRaDecList.addImagePixel(new ImagePixel(minra + (r * pxsize), mindec + (d * pxsize), undefined));
+                // radeclist.push([minra + (r * pxsize), mindec + (d * pxsize)]);
+            }
+        }
+        const centralImgpx = tilesRaDecList.getImagePixelList().length / 2 - 1;
+        // let cidx = (naxis2 / 2) * naxis1 + naxis1 / 2;
+        // if (naxis1 % 2 != 0) {
+        //     cidx = Math.floor(radeclist.length / 2);
+        // }
+        // this._craDeg = radeclist[cidx][0];
+        // this._cdecDeg = radeclist[cidx][1];
+        // return radeclist
+        return tilesRaDecList;
     }
     /** TODO !!! check and handle RA passing through 360-0 */
     pix2world(i, j) {
@@ -285,24 +277,34 @@ export class MercatorProjection extends AbstractProjection {
         let dec;
         // ra = i * this._stepra + this._minra;
         // dec = j * this._stepdec + this._mindec;
-        ra = i * this._pxsize + this._minra;
-        dec = j * this._pxsize + this._mindec;
+        ra = i * this.pxsize + this.minra;
+        dec = j * this.pxsize + this.mindec;
         let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
         return p;
         // return [ra, dec];
     }
-    world2pix(radeclist) {
-        let imgpxlist = [];
-        for (let radecItem of radeclist) {
-            let ra = radecItem[0];
-            let dec = radecItem[1];
-            // let i = Math.floor((ra - this._minra) / this._pxsize1);
-            // let j = Math.floor((dec - this._mindec) / this._pxsize2);
-            let i = Math.floor((ra - this._minra) / this._pxsize);
-            let j = Math.floor((dec - this._mindec) / this._pxsize);
-            imgpxlist.push(new ImagePixel(i, j));
+    world2pix(raDeclist) {
+        var _a;
+        const bytesXvalue = this.getBytePerValue();
+        // TODO if I have the this.fitsheader available here, check if I can retrieve this.bitpix, this.pxsize, ... with this.fitsheader
+        // and remove the attributes at object level (with this)
+        const blank = Number((_a = this.fitsheader.findById("BLANK")) === null || _a === void 0 ? void 0 : _a.value);
+        const blankBytes = ParseUtils.convertBlankToBytes(blank, bytesXvalue);
+        for (let imgPx of raDeclist.getImagePixelList()) {
+            // console.log("raDeclist.getImagePixelList().indexOf(imgPx) " + raDeclist.getImagePixelList().indexOf(imgPx))
+            const ra = imgPx.getRADeg();
+            const dec = imgPx.getDecDeg();
+            const i = Math.floor((ra - this.minra) / this.pxsize);
+            const j = Math.floor((dec - this.mindec) / this.pxsize);
+            if (j < 0 || j >= this.naxis2 || i < 0 || i >= this.naxis1) {
+                imgPx.setValue(blankBytes, this.bitpix);
+            }
+            else {
+                const currentValue = this.pxvalues[j].slice(i * bytesXvalue, (i + 1) * bytesXvalue);
+                imgPx.setValue(currentValue, this.bitpix);
+            }
         }
-        return imgpxlist;
+        return raDeclist;
     }
 }
 //# sourceMappingURL=MercatorProjection.js.map

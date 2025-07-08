@@ -1,12 +1,5 @@
 export class HiPSProp {
     constructor() {
-        // static NAXIS:string = "NAXIS"
-        // static NAXIS1:string = "NAXIS1"
-        // static NAXIS2:string = "NAXIS2"
-        // static BITPIX:string = "BITPIX"
-        // static BSCALE:string = "BSCALE"
-        // static BZERO:string = "BZERO"
-        // static SIMPLE:string = "SIMPLE"
         this.itemMap = new Map();
     }
     addItem(key, value) {
@@ -19,8 +12,10 @@ export class HiPSProp {
         return this.itemMap.get(HiPSProp.FRAME) == HiPSProp.GALACTIC;
     }
 }
-HiPSProp.TILE_WIDTH = "TILE_WIDTH";
-HiPSProp.FRAME = "FRAME";
-HiPSProp.ORDER = "ORDER";
+HiPSProp.TILE_WIDTH = "hips_tile_width";
+HiPSProp.FRAME = "hips_frame";
+HiPSProp.ORDER = "hips_order";
 HiPSProp.GALACTIC = "galactic";
+HiPSProp.SCALE = "hips_pixel_scale";
+HiPSProp.BITPIX = "hips_pixel_bitpix";
 //# sourceMappingURL=HiPSProp.js.map

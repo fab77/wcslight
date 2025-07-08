@@ -1,6 +1,6 @@
 import { FITSHeaderManager } from "jsfitsio";
-import { ImagePixel } from "../model/ImagePixel.js";
 import { Point } from "../model/Point.js";
+import { TilesRaDecList2 } from "./hips/TilesRaDecList2.js";
 /**
  * Summary. (bla bla bla)
  *
@@ -10,13 +10,11 @@ import { Point } from "../model/Point.js";
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 export declare abstract class AbstractProjection {
-    abstract getFITSHeader(): FITSHeaderManager[];
+    abstract getFITSHeader(): FITSHeaderManager;
     abstract getCommonFitsHeaderParams(): FITSHeaderManager;
-    abstract getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array | undefined>;
-    abstract setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>>;
-    abstract getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]>;
+    abstract setPxsValue(values: TilesRaDecList2, bitpix: number, scale: number, zero: number): TilesRaDecList2;
+    abstract getImageRADecList(center: Point, radius: number, pxsize: number): TilesRaDecList2;
     abstract pix2world(i: number, j: number): Point;
-    abstract get fitsUsed(): String[];
-    abstract world2pix(radeclist: number[][]): ImagePixel[];
+    abstract world2pix(radeclist: TilesRaDecList2): TilesRaDecList2;
 }
 //# sourceMappingURL=AbstractProjection.d.ts.map

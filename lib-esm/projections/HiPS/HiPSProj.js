@@ -15,12 +15,13 @@ import { Pointing } from "healpixjs";
 import { degToRad } from "../../model/Utils.js";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
 import { FITSParser } from "jsfitsio";
-import { TilesRaDecList } from "./TilesRaDecList.js";
 import { HiPSFITS } from "./HiPSFITS.js";
-import { ImagePixel } from "../../model/ImagePixel.js";
+// import { ImagePixel } from "../../model/ImagePixel.js";
+import { ImagePixel } from "./ImagePixel.js";
 import { HiPSHelper } from "../HiPSHelper.js";
 import { CoordsType } from "../../model/CoordsType.js";
 import { NumberType } from "../../model/NumberType.js";
+import { TilesRaDecList2 } from "./TilesRaDecList2.js";
 export class HiPSProj {
     constructor(baseHiPSPath) {
         this.healpix = null;
@@ -49,34 +50,39 @@ export class HiPSProj {
             return hipsProp;
         });
     }
-    // static getImageRADecList(center: Point, radiusDeg: number, hipsOrder: number, TILE_WIDTH?: number): TilesRaDecList | null {
     static getImageRADecList(center, radiusDeg, pixelAngSize, TILE_WIDTH) {
-        // const hipsSide = 2**hipsOrder
-        // const healpix = new Healpix(hipsSide)
-        if (!TILE_WIDTH)
-            TILE_WIDTH = 512;
         const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH);
+        // let tilesRaDecList2 = new TilesRaDecList2(healpix.order)
+        let tilesRaDecList2 = new TilesRaDecList2();
         const ptg = new Pointing(null, false, center.getSpherical().thetaRad, center.getSpherical().phiRad);
         const radius_rad = degToRad(radiusDeg);
-        // with fact 8 the original Java code starts returning the the ptg pixel. with my JS porting only from fact 16
+        // ??? with fact 8 the original Java code starts returning the the ptg pixel. with my JS porting only from fact 16
         const rangeset = healpix.queryDiscInclusive(ptg, radius_rad, 4); // <= check it 
         // TODO try to replace tileslist with FITSList!!!
-        const tileslist = [];
+        // const tileslist: Array<number> = [];
         for (let p = 0; p < rangeset.r.length; p++) {
-            if (!tileslist.includes(rangeset.r[p]) && rangeset.r[p] != 0) {
-                tileslist.push(rangeset.r[p]);
+            // if (!tileslist.includes(rangeset.r[p]) && rangeset.r[p] != 0) {
+            //     tileslist.push(rangeset.r[p]);
+            // }
+            if (!tilesRaDecList2.getTilesList().includes(rangeset.r[p]) && rangeset.r[p] != 0) {
+                tilesRaDecList2.addTileNumber(rangeset.r[p]);
+                // tileslist.push(rangeset.r[p]);
             }
         }
         const cpix = healpix.ang2pix(ptg);
-        if (!tileslist.includes(cpix)) {
-            tileslist.push(cpix);
+        // if (!tileslist.includes(cpix)) {
+        //     tileslist.push(cpix);
+        // }
+        if (!tilesRaDecList2.getTilesList().includes(cpix)) {
+            tilesRaDecList2.getTilesList().push(cpix);
         }
-        let raDecList = [];
+        // let raDecList: Array<[number, number]> = []
         let minra = center.getAstro().raDeg - radiusDeg;
         let maxra = center.getAstro().raDeg + radiusDeg;
         let mindec = center.getAstro().decDeg - radiusDeg;
         let maxdec = center.getAstro().decDeg + radiusDeg;
-        tileslist.forEach((tileno) => {
+        tilesRaDecList2.getTilesList().forEach((tileno) => {
+            // tileslist.forEach((tileno: number) => {
             for (let j = 0; j < TILE_WIDTH; j++) {
                 for (let i = 0; i < TILE_WIDTH; i++) {
                     const point = HiPSProj.pix2world(i, j, tileno, healpix, TILE_WIDTH);
@@ -86,12 +92,14 @@ export class HiPSProj {
                         point.getAstro().decDeg < mindec || point.getAstro().decDeg > maxdec) {
                         continue;
                     }
-                    raDecList.push([point.getAstro().raDeg, point.getAstro().decDeg]);
+                    tilesRaDecList2.addImagePixel(new ImagePixel(point.getAstro().raDeg, point.getAstro().decDeg, tileno));
+                    // raDecList.push([point.getAstro().raDeg, point.getAstro().decDeg]);
                 }
             }
         });
-        const tilesRaDecList = new TilesRaDecList(raDecList, tileslist);
-        return tilesRaDecList;
+        // const tilesRaDecList = new TilesRaDecList(raDecList, tileslist)
+        // return tilesRaDecList
+        return tilesRaDecList2;
     }
     static pix2world(i, j, tileno, healpix, TILE_WIDTH) {
         let p = null;
@@ -116,59 +124,64 @@ export class HiPSProj {
         }
         return p;
     }
-    static getFITSFiles(inputValues, tilesRaDecList, fitsHeaderParams, pixelAngSize, TILE_WIDTH) {
-        if (!TILE_WIDTH)
-            TILE_WIDTH = 512;
+    // static getFITSFiles(inputValues: Uint8Array, tilesRaDecList: TilesRaDecList, fitsHeaderParams: FITSHeaderManager, pixelAngSize: number, TILE_WIDTH?: number): FITSList {
+    static getFITSFiles(tilesRaDecList, fitsHeaderParams, pixelAngSize, TILE_WIDTH) {
         const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH);
         let fitsList = new FITSList();
-        tilesRaDecList.getTilesNumberList().forEach((tileno) => {
+        tilesRaDecList.getTilesList().forEach((tileno) => {
             let hipsProp = new HiPSProp();
             hipsProp.addItem(HiPSProp.ORDER, healpix.order);
             hipsProp.addItem(HiPSProp.TILE_WIDTH, TILE_WIDTH);
             const hipsFits = new HiPSFITS(null, tileno, hipsProp);
-            hipsFits.initFromUint8Array(tilesRaDecList.getRaDecList(), inputValues, fitsHeaderParams);
+            const imagePixelsByTilesNo = tilesRaDecList.getImagePixelsByTile(tileno);
+            hipsFits.initFromUint8Array(imagePixelsByTilesNo, fitsHeaderParams, TILE_WIDTH);
             fitsList.addFITS(hipsFits);
         });
         return fitsList;
     }
-    static world2pix(radeclist, hipsOrder, isGalactic, TILE_WIDTH) {
-        if (!TILE_WIDTH)
-            TILE_WIDTH = 512;
-        // const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
-        const healpix = HiPSHelper.getHelpixByOrder(hipsOrder);
-        let imgpxlist = [];
-        let tileno;
-        let prevTileno = null;
-        /* if HiPS in galactic => convert the full list of (RA, Dec) to Galactic  (l, b) */
-        if (isGalactic) {
-            radeclist = HiPSProj.convertToGalactic(radeclist);
-        }
-        let xyGridProj = null;
-        radeclist.forEach(([ra, dec]) => {
-            const p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
-            const ptg = new Pointing(null, false, p.getSpherical().thetaRad, p.getSpherical().phiRad);
-            tileno = healpix.ang2pix(ptg);
-            if (prevTileno !== tileno || prevTileno == null) {
-                xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
-                prevTileno = tileno;
+    static world2pix(radeclist, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const healpix = HiPSHelper.getHelpixByOrder(hipsOrder);
+            let tileno;
+            let prevTileno = null;
+            /* if HiPS in galactic => convert the full list of (RA, Dec) to Galactic  (l, b) */
+            if (isGalactic) {
+                HiPSProj.convertToGalactic(radeclist);
             }
-            if (xyGridProj) {
-                const xy = HiPSIntermediateProj.world2intermediate(p.getAstro());
-                const ij = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], xyGridProj, TILE_WIDTH);
-                imgpxlist.push(new ImagePixel(ij[0], ij[1], tileno));
-            }
+            let xyGridProj = null;
+            radeclist.getImagePixelList().forEach((imgpx) => {
+                const ra = imgpx.getRADeg();
+                const dec = imgpx.getDecDeg();
+                const p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
+                const ptg = new Pointing(null, false, p.getSpherical().thetaRad, p.getSpherical().phiRad);
+                tileno = healpix.ang2pix(ptg);
+                if (prevTileno !== tileno || prevTileno == null) {
+                    xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
+                    prevTileno = tileno;
+                }
+                if (xyGridProj) {
+                    const xy = HiPSIntermediateProj.world2intermediate(p.getAstro());
+                    const ij = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], xyGridProj, TILE_WIDTH);
+                    imgpx.setij(ij[0], ij[1]);
+                    imgpx.setTileNumber(tileno);
+                }
+                radeclist.addTileNumber(tileno);
+            });
+            let result = yield HiPSProj.getPixelValues(radeclist, baseHiPSURL, hipsOrder);
+            return result;
         });
-        return imgpxlist;
     }
     // TODO move this to Utils.js
     static convertToGalactic(radeclist) {
-        let finalradeclist = [];
+        // let finalradeclist: number[][] = [];
         const deg2rad = Math.PI / 180;
         const rad2deg = 180 / Math.PI;
         const l_NCP = deg2rad * 122.930;
         const d_NGP = deg2rad * 27.1284;
         const a_NGP = deg2rad * 192.8595;
-        radeclist.forEach(([ra, dec]) => {
+        radeclist.getImagePixelList().forEach((imgpx) => {
+            const ra = imgpx.getRADeg();
+            const dec = imgpx.getDecDeg();
             const ra_rad = deg2rad * ra;
             const dec_rad = deg2rad * dec;
             // sin(b)
@@ -181,39 +194,23 @@ export class HiPSProj {
                 (Math.sin(dec_rad) * Math.cos(d_NGP) - Math.cos(dec_rad) * Math.sin(d_NGP) * Math.cos(ra_rad - a_NGP)));
             const l = l_NCP - lNCP_minus_l;
             const l_deg = l * rad2deg;
-            finalradeclist.push([l_deg, b_deg]);
+            imgpx.setRADecDeg(l_deg, b_deg);
+            // finalradeclist.push([l_deg, b_deg])
         });
-        return finalradeclist;
+        // return finalradeclist;
     }
-    static getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH) {
+    static getPixelValues(raDecList, baseHiPSURL, hipsOrder) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!TILE_WIDTH)
-                TILE_WIDTH = 512;
-            // const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH)
-            const healpix = HiPSHelper.getHelpixByOrder(hipsOrder);
-            const order = healpix.order;
-            let tilesset = new Set();
-            inputPixelsList.forEach((imgpx) => {
-                tilesset.add(imgpx.tileno);
-            });
-            let pixcount = inputPixelsList.length;
-            // TODO change the code below to used HiPSFITS and FITSList instead!
-            let values = new Uint8Array();
-            // TODO change the code below to used HiPSFITS and FITSList instead!
-            let fitsheaderlist = [];
+            const tilesset = raDecList.getTilesList();
             let promises = [];
-            // let fitsList = new FITSList()
             for (let hipstileno of tilesset) {
                 const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
-                const fitsurl = baseHiPSURL + "/Norder" + order + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
+                const fitsurl = baseHiPSURL + "/Norder" + hipsOrder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
                 console.log(`Identified source file ${fitsurl}`);
                 // TODO change the code below to used HiPSFITS and FITSList instead!
                 promises.push(FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
                     var _a, _b, _c;
                     if (fitsParsed) {
-                        // const hipsFits = new HiPSFITS(fitsParsed, null, null)
-                        // hipsFits.initFromFITSParsed(fitsParsed)
-                        // fitsList.addFITS(hipsFits)
                         const bitpix = Number((_a = fitsParsed.header.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
                         const naxis1 = Number((_b = fitsParsed.header.findById("NAXIS1")) === null || _b === void 0 ? void 0 : _b.value);
                         const naxis2 = Number((_c = fitsParsed.header.findById("NAXIS2")) === null || _c === void 0 ? void 0 : _c.value);
@@ -222,25 +219,18 @@ export class HiPSProj {
                             return;
                         }
                         const bytesXelem = Math.abs(bitpix / 8);
-                        if (values.length == 0) {
-                            values = new Uint8Array(pixcount * bytesXelem);
-                        }
-                        fitsheaderlist.push(fitsParsed.header);
-                        for (let p = 0; p < pixcount; p++) {
-                            let imgpx = inputPixelsList[p];
-                            if (imgpx.tileno === hipstileno) {
-                                if (imgpx._j < naxis1 && imgpx._i < naxis2) {
-                                    for (let b = 0; b < bytesXelem; b++) {
-                                        values[p * bytesXelem + b] = fitsParsed.data[imgpx._j][imgpx._i * bytesXelem + b];
-                                    }
-                                }
+                        raDecList.getImagePixelsByTile(hipstileno).forEach((imgpx) => {
+                            const valueBytes = new Uint8Array(bytesXelem);
+                            for (let b = 0; b < bytesXelem; b++) {
+                                valueBytes[b] = fitsParsed.data[imgpx.getj()][imgpx.geti() * bytesXelem + b];
                             }
-                        }
+                            imgpx.setValue(valueBytes, bitpix);
+                        });
                     }
                 }));
             }
             yield Promise.all(promises);
-            return values;
+            return raDecList;
         });
     }
 }

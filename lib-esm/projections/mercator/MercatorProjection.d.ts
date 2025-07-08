@@ -8,41 +8,39 @@
  */
 import { FITSHeaderManager, FITSParsed } from 'jsfitsio';
 import { AbstractProjection } from '../AbstractProjection.js';
-import { ImagePixel } from '../../model/ImagePixel.js';
 import { Point } from '../../model/Point.js';
+import { TilesRaDecList2 } from '../hips/TilesRaDecList2.js';
 export declare class MercatorProjection extends AbstractProjection {
-    _minra: number;
-    _mindec: number;
-    _naxis1: number;
-    _naxis2: number;
-    _fitsheader: FITSHeaderManager[];
-    _infile: string;
-    _ctype1: string;
-    _ctype2: string;
-    _craDeg: number;
-    _cdecDeg: number;
-    _pxsize: number;
-    _pxsize1: number;
-    _pxsize2: number;
-    _pxvalues: Map<number, Array<Uint8Array>>;
+    minra: number;
+    mindec: number;
+    naxis1: number;
+    naxis2: number;
+    bitpix: number;
+    fitsheader: FITSHeaderManager;
+    pxvalues: Array<Uint8Array>;
+    CTYPE1: string;
+    CTYPE2: string;
+    craDeg: number;
+    cdecDeg: number;
+    pxsize: number;
+    pxsize1: number;
+    pxsize2: number;
     _minphysicalval: number;
     _maxphysicalval: number;
     _wcsname: string;
-    _fitsUsed: String[];
     constructor();
     initFromFile(infile: string): Promise<FITSParsed>;
+    getBytePerValue(): number;
     extractPhysicalValues(fits: FITSParsed): number[][];
-    prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager[];
-    getFITSHeader(): FITSHeaderManager[];
-    getCommonFitsHeaderParams(): FITSHeaderManager;
-    get fitsUsed(): String[];
-    getPixValues(inputPixelsList: ImagePixel[]): Promise<Uint8Array>;
-    setPxsValue(values: Uint8Array, fitsHeaderParams: FITSHeaderManager): Map<number, Array<Uint8Array>>;
+    computeHeader(pxsize: number, bitpix: number, scale?: number, zero?: number, blank?: number): FITSHeaderManager;
     static prepareHeader(radius: number, pixelAngSize: number, bitpix: number, bscale?: number, bzero?: number): void;
-    computeSquaredNaxes(d: number, ps: number): void;
-    getImageRADecList(center: Point, radius: number, pxsize: number): Array<[number, number]>;
+    prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager;
+    getFITSHeader(): FITSHeaderManager;
+    getCommonFitsHeaderParams(): FITSHeaderManager;
+    setPxsValue(raDecList: TilesRaDecList2, bitpix: number, scale?: number, zero?: number): TilesRaDecList2;
+    getImageRADecList(center: Point, radius: number, pxsize: number): TilesRaDecList2;
     /** TODO !!! check and handle RA passing through 360-0 */
     pix2world(i: number, j: number): Point;
-    world2pix(radeclist: number[][]): ImagePixel[];
+    world2pix(raDeclist: TilesRaDecList2): TilesRaDecList2;
 }
 //# sourceMappingURL=MercatorProjection.d.ts.map

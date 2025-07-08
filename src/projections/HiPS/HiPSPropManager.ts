@@ -16,15 +16,21 @@ export class HiPSPropManager {
     }
 
     private static async getPorpertyFromWeb(baseHiPSPath: string): Promise<string> {
-        const propFileBuffer = await fetch(baseHiPSPath + "/properties")
-        let propFile: string
-        if (propFileBuffer instanceof ArrayBuffer) {
-            const textDecoder = new TextDecoder("iso-8859-1")
-            propFile = textDecoder.decode(new Uint8Array(propFileBuffer))
+        const response = await fetch(baseHiPSPath + "/properties")
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`)
         } else {
-            propFile = propFileBuffer.toString()
+            const propFile = await response.text()
+            return propFile
         }
-        return propFile
+        // let propFile: string
+        // if (response instanceof ArrayBuffer) {
+        //     const textDecoder = new TextDecoder("iso-8859-1")
+        //     propFile = textDecoder.decode(new Uint8Array(response))
+        // } else {
+        //     propFile = response.toString()
+        // }
+        // return propFile
     }
 
     private static async getPorpertyFromFS(baseHiPSPath: string): Promise<string> {
@@ -59,6 +65,6 @@ export class HiPSPropManager {
             }
             hipsProp.addItem(key, value)
         }
-        return new HiPSProp()
+        return hipsProp
     }
 }

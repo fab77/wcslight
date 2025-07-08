@@ -3,6 +3,8 @@ export declare class HiPSProp {
     static FRAME: string;
     static ORDER: string;
     static GALACTIC: string;
+    static SCALE: string;
+    static BITPIX: string;
     private itemMap;
     constructor();
     addItem(key: string, value: any): void;
