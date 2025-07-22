@@ -95,12 +95,13 @@ export class WCSLight {
 
     // TODO: instead of using AbstractProjection, use a constant file with supported projection names
     static async hipsCutout(center: Point, radius: number,
-        pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder: number | null = null ): Promise<CutoutResult | null> {
+        pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder: number | null = null ): Promise<FITS | null> {
         
         const hipsProp = await HiPSPropManager.parsePropertyFile(baseHiPSURL)
         const hipsMaxOrder: number = hipsProp.getItem(HiPSProp.ORDER)
         const hipsFrame = hipsProp.getItem(HiPSProp.FRAME)
         const TILE_WIDTH = hipsProp.getItem(HiPSProp.TILE_WIDTH)
+
 
         let isGalactic: boolean = false
         if (hipsFrame.toLowerCase() == 'galactic') {
@@ -122,16 +123,16 @@ export class WCSLight {
         const outRADecList: TilesRaDecList2 = outproj.getImageRADecList(center, radius, pixelAngSize)
         if (!outRADecList) return null
 
-        // TODO check if the 2 methods  below can be merged
+
+        const raDecMinMaxCentral = outRADecList.computeRADecMinMaxCentral()
+        const cRA = raDecMinMaxCentral?.getCentralRA()
+        const cDec = raDecMinMaxCentral?.getCentralDec()
+        const minValue = outRADecList.getMinMaxValues()?.getMinValue()
+        const maxValue = outRADecList.getMinMaxValues()?.getMaxValue()
+
+        
+        // TODO check if possible to compute in the word2pix, when iterating onver ImagePixels, the min and max value.
         const raDecWithValues = await HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL)
-        // const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH);
-        
-        // if (invalues == null) {
-        //     throw new Error("No HiPS data found.")
-        // }
-        // // TODO GET HEADER 
-        // computeSquaredNaxes to get naxis1 naxis2 in get header
-        
 
 
         /** info required:
@@ -156,23 +157,23 @@ export class WCSLight {
             CRVAL2  = 18.5243910738658                                                      
             END                                                                             
          */
+        // TODO BLANK, BZERO, BSCALE must be taken from the FITS tiles and not from the HiPS metadata.
+        const BLANK = 0.0
+        const BZERO = 0.0
+        const BSCALE = 1.0
+
         const header = outproj.prepareHeader(
-            radius, pixelAngSize, 
-            hipsProp.getItem(HiPSProp.BITPIX), 
-            hipsProp.getItem(HiPSProp.SCALE), 
+            pixelAngSize, 
+            hipsProp.getItem(HiPSProp.BITPIX),  
             hipsProp.getItem(HiPSProp.TILE_WIDTH), 
-            hipsProp.getItem(HiPSProp.ZERO))
-        // TODO set values in outproj
-
-
-        // const fitsdata = outproj.setPxsValue(outRADecList, header);
-        // const header = outproj.computeHeader(pixelAngSize, 
-        //     hipsProp.getItem(HiPSProp.BITPIX), 
-        //     hipsProp.getItem(HiPSProp.SCALE
-        //     ))
+            BLANK, BZERO, BSCALE,
+            cRA, cDec,
+            minValue, maxValue)
         
-        // TODO set outproj header
-        return null
+        // USE FITS object here
+        const fits: FITS = outproj.setPxsValue(raDecWithValues, header)
+
+        return fits
     }
 
     static hipsFITSChangeProjection(): HiPSFITS | null {

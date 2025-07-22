@@ -115,6 +115,12 @@ export abstract class AbstractProjection {
   // public abstract world2pix(radeclist: number[][]): ImagePixel[];
   public abstract world2pix(radeclist: TilesRaDecList2): TilesRaDecList2;
 
+  public abstract prepareHeader(pixelAngSize: number, 
+                BITPIX: number, 
+                TILE_WIDTH: number, 
+                BLANK: number, BZERO: number, BSCALE: number,
+                cRA: number, cDec: number,
+                minValue: number, maxValue: number): FITSHeaderManager
 //   // public abstract generateFITSWithNaN(): FITS;
 
 //   public generateFITSWithNaN(): FITS {

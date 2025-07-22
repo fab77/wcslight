@@ -166,7 +166,7 @@ export class HiPSFITS {
         
             if (row < 0 || row >= tileWidth || col < 0 || col >= tileWidth) return;
 
-            const valueBytes = imgpx.getValue();
+            const valueBytes = imgpx.getUint8Value();
             if (!valueBytes) return; // or continue, depending on context
             
             for (let b = 0; b < bytesXelem; b++) {

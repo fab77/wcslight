@@ -266,6 +266,7 @@ export class HiPSProj {
                             valueBytes[b] = fitsParsed.data[imgpx.getj()][imgpx.geti() * bytesXelem + b];
                         }
                         imgpx.setValue(valueBytes, bitpix);
+                        raDecList.setMinMaxValue(imgpx.getValue())
                     })
                 }
             }));

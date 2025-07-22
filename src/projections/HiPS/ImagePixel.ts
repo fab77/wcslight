@@ -1,10 +1,13 @@
+import { ParseUtils } from "jsfitsio"
+
 export class ImagePixel {
     i: number
     j: number
     ra: number
     dec: number
     tileno: number | undefined
-    value: Uint8Array | undefined
+    uint8value: Uint8Array | null = null
+    value: number | null = null
 
     constructor(i: number, j: number, tileno: number | undefined);
 
@@ -26,7 +29,7 @@ export class ImagePixel {
             this.i = -1;
             this.j = -1;
         }
-        this.value = undefined
+        
     }
 
     geti(){
@@ -44,16 +47,21 @@ export class ImagePixel {
         return this.dec
     }
 
-    getValue(){
+    getUint8Value(){
+        return this.uint8value
+    }
+
+    getValue() {
         return this.value
     }
 
     setValue(value: Uint8Array, bitpix: number){
-        if (this.value == undefined) {
+        if (this.uint8value == undefined) {
             const bytesXelem = Math.abs(bitpix / 8);
-            this.value = new Uint8Array(bytesXelem)
+            this.uint8value = new Uint8Array(bytesXelem)
         }
-        this.value = value
+        this.uint8value = value
+        this.value = ParseUtils.extractPixelValue(0, value, bitpix)
     }
 
     setTileNumber(tileno: number) {
