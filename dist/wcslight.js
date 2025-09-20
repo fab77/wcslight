@@ -1,2 +1,5167 @@
-!function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e():"function"==typeof define&&define.amd?define("wcslight",[],e):"object"==typeof exports?exports.wcslight=e():t.wcslight=e()}(self,(()=>(()=>{var t,e,i={152:()=>{},942:()=>{}},s={};function r(t){var e=s[t];if(void 0!==e)return e.exports;var n=s[t]={exports:{}};return i[t].call(n.exports,n,n.exports,r),n.exports}r.m=i,r.d=(t,e)=>{for(var i in e)r.o(e,i)&&!r.o(t,i)&&Object.defineProperty(t,i,{enumerable:!0,get:e[i]})},r.f={},r.e=t=>Promise.all(Object.keys(r.f).reduce(((e,i)=>(r.f[i](t,e),e)),[])),r.u=t=>t+".js",r.g=function(){if("object"==typeof globalThis)return globalThis;try{return this||new Function("return this")()}catch(t){if("object"==typeof window)return window}}(),r.o=(t,e)=>Object.prototype.hasOwnProperty.call(t,e),t={},e="wcslight:",r.l=(i,s,n,a)=>{if(t[i])t[i].push(s);else{var o,h;if(void 0!==n)for(var l=document.getElementsByTagName("script"),c=0;c<l.length;c++){var d=l[c];if(d.getAttribute("src")==i||d.getAttribute("data-webpack")==e+n){o=d;break}}o||(h=!0,(o=document.createElement("script")).charset="utf-8",o.timeout=120,r.nc&&o.setAttribute("nonce",r.nc),o.setAttribute("data-webpack",e+n),o.src=i),t[i]=[s];var u=(e,s)=>{o.onerror=o.onload=null,clearTimeout(p);var r=t[i];if(delete t[i],o.parentNode&&o.parentNode.removeChild(o),r&&r.forEach((t=>t(s))),e)return e(s)},p=setTimeout(u.bind(null,void 0,{type:"timeout",target:o}),12e4);o.onerror=u.bind(null,o.onerror),o.onload=u.bind(null,o.onload),h&&document.head.appendChild(o)}},r.r=t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},(()=>{var t;r.g.importScripts&&(t=r.g.location+"");var e=r.g.document;if(!t&&e&&(e.currentScript&&(t=e.currentScript.src),!t)){var i=e.getElementsByTagName("script");if(i.length)for(var s=i.length-1;s>-1&&(!t||!/^http(s?):/.test(t));)t=i[s--].src}if(!t)throw new Error("Automatic publicPath is not supported in this browser");t=t.replace(/#.*$/,"").replace(/\?.*$/,"").replace(/\/[^\/]+$/,"/"),r.p=t})(),(()=>{var t={992:0,434:0};r.f.j=(e,i)=>{var s=r.o(t,e)?t[e]:void 0;if(0!==s)if(s)i.push(s[2]);else{var n=new Promise(((i,r)=>s=t[e]=[i,r]));i.push(s[2]=n);var a=r.p+r.u(e),o=new Error;r.l(a,(i=>{if(r.o(t,e)&&(0!==(s=t[e])&&(t[e]=void 0),s)){var n=i&&("load"===i.type?"missing":i.type),a=i&&i.target&&i.target.src;o.message="Loading chunk "+e+" failed.\n("+n+": "+a+")",o.name="ChunkLoadError",o.type=n,o.request=a,s[1](o)}}),"chunk-"+e,e)}};var e=(e,i)=>{var s,n,[a,o,h]=i,l=0;if(a.some((e=>0!==t[e]))){for(s in o)r.o(o,s)&&(r.m[s]=o[s]);h&&h(r)}for(e&&e(i);l<a.length;l++)n=a[l],r.o(t,n)&&t[n]&&t[n][0](),t[n]=0},i=self.webpackChunkwcslight=self.webpackChunkwcslight||[];i.forEach(e.bind(null,0)),i.push=e.bind(null,i.push.bind(i))})();var n={};return(()=>{"use strict";r.r(n),r.d(n,{AbstractProjection:()=>p,CoordsType:()=>c,HiPSFITS:()=>O,HiPSHelper:()=>H,HiPSProj:()=>Y,ImagePixel:()=>K,MercatorProjection:()=>T,NumberType:()=>l,Point:()=>M,WCSLight:()=>W,astroToSpherical:()=>I,cartesianToSpherical:()=>f,degToRad:()=>x,fillAstro:()=>y,fillSpherical:()=>w,radToDeg:()=>v,sphericalToAstro:()=>g,sphericalToCartesian:()=>m});class t{constructor(t,e,i){this._key="",this._value="",this._comment="",this._key=t,this._value=e,this._comment=i}get key(){return this._key}get comment(){return this._comment}get value(){return this._value}}class e{constructor(){this.items=[],this.items[0]=new t(e.SIMPLE,"T",""),this.items[1]=new t(e.BITPIX,"",""),this.items[2]=new t(e.NAXIS,2,""),this.items[3]=new t(e.NAXIS1,"",""),this.items[4]=new t(e.NAXIS2,"","")}insert(t){t.key===e.SIMPLE?this.items[0]=t:t.key===e.BITPIX?this.items[1]=t:t.key===e.NAXIS?this.items[2]=t:t.key===e.NAXIS1?this.items[3]=t:t.key===e.NAXIS2?this.items[4]=t:this.items.push(t)}getItems(){return this.items}remove(t){this.items=this.items.filter((e=>e.key!==t))}findById(t){return this.items.find((e=>e.key===t))||null}}e.SIMPLE="SIMPLE",e.BITPIX="BITPIX",e.BZERO="BZERO",e.BSCALE="BSCALE",e.BLANK="BLANK",e.NAXIS="NAXIS",e.NAXIS1="NAXIS1",e.NAXIS2="NAXIS2",e.DATAMIN="DATAMIN",e.DATAMAX="DATAMAX",e.CRVAL1="CRVAL1",e.CRVAL2="CRVAL2",e.CTYPE1="CTYPE1",e.CTYPE2="CTYPE2",e.CRPIX1="CRPIX1",e.CRPIX2="CRPIX2",e.ORIGIN="ORIGIN",e.COMMENT="COMMENT";var i=r(152);class s{static createFITS(t){const e=this.createHeader(t.header),i=this.createData(t.data),s=new Uint8Array(e.length+i.length);return s.set(e,0),s.set(i,e.length),s}static createHeader(t){let e="";for(const i of t.getItems())"END"!==i.key&&(e+=`${i.key?i.key.padEnd(8," "):"        "}${void 0!==i.value?`= ${i.value}`:""}${i.comment?` / ${i.comment}`:""}`.padEnd(80," "));for(e+="END".padEnd(80," ");e.length%2880!=0;)e+=" ";return(new TextEncoder).encode(e)}static createData(t){let e=t.reduce(((t,e)=>t+e.length),0),i=new Uint8Array(e),s=0;for(let e of t)i.set(e,s),s+=e.length;return i}static typedArrayToURL(t){const e=this.createFITS(t),i=new Blob([e],{type:"application/fits"}),s=URL.createObjectURL(i);return console.log(`Generated FITS file URL: ${s}`),setTimeout((()=>s),1e4),console.log(`Generated FITS will be available for 10 seconds: ${s}`),s}static writeFITSFile(t,e){const s=this.createFITS(t);try{i.writeFileSync(e,s),console.log(`FITS file written successfully to: ${e}`)}catch(t){console.error(`Error writing FITS file: ${t}`)}}}class a{static getFITSItemValue(t,e){const i=t.findById(e);let s=null;return i&&(s=Number(i.value)),s}static parse(i){const s=new TextDecoder("ascii").decode(i.slice(0,2880)),r=new e,n=s.match(/.{1,80}/g)||[];for(const e of n){const i=e.slice(0,8).trim();let s,n="";if(i&&"END"!==i){const a=e.slice(10).trim().split("/")[0].trim();s=isNaN(Number(a))?a:Number(a),e.includes("/")&&(n=e.slice(10).trim().split("/")[1].trim());const o=new t(i,s,n);r.insert(o)}}return r}}class o{static getStringAt(t,e,i){const s=[];for(let r=e,n=0;r<e+i;r++,n++)s[n]=String.fromCharCode(255&t.charCodeAt(r));return s.join("")}static byteString(t){if(t<0||t>255||t%1!=0)throw new Error(t+" does not fit in a byte");return("000000000"+t.toString(2)).substr(-8)}static parse32bitSinglePrecisionFloatingPoint(t,e,i,s){let r=(((t<<8)+e<<8)+i<<8)+s;return r<0&&(r+=4294967296),(1+(8388607&r)/8388608)*Math.pow(2,((2139095040&r)>>23)-127)}static convertBlankToBytes(t,e){let i=Math.abs(t).toString(2);for(;i.length/8<e;)i+="0";const s=new ArrayBuffer(e),r=new Uint8Array(s);for(let t=0;t<e;t++)r[t]=parseInt(i.substr(8*t,8*(t+1)),2);return r}static parseFloatingPointFormat(t,e,i){const s=[];for(let e=t.length;e;e-=1){let i=t[e-1];for(let t=8;t;t-=1)s.push(i%2?1:0),i>>=1}s.reverse();const r=s.join(""),n=(1<<e-1)-1,a=parseInt(r.substring(0,1),2)?-1:1,o=parseInt(r.substring(1,1+e),2),h=parseInt(r.substring(1+e),2);return o===(1<<e)-1?0!==h?null:a*(1/0):o>0?a*Math.pow(2,o-n)*(1+h/Math.pow(2,i)):0!==h?a*Math.pow(2,-(n-1))*(h/Math.pow(2,i)):0*a}static generate16bit2sComplement(t){throw new TypeError("not implemented yet"+t)}static parse16bit2sComplement(t,e){const i=t<<8|e;return 32768&i?4294901760|i:i}static parse32bit2sComplement(t,e,i,s){const r=t<<24|e<<16|i<<8|s;let n=4294967295&r;return(2147483648&r)>>31?(n=1+(4294967295&~r),-1*n):n}static getByteAt(t,e){return 255&t.charCodeAt(e+0)}static extractPixelValue(t,e,i){let s=null;if(8==i)s=e[0];else if(16==i)s=o.parse16bit2sComplement(e[t],e[t+1]);else if(32==i)s=o.parse32bit2sComplement(e[t],e[t+1],e[t+2],e[t+3]);else if(-32==i)s=o.parseFloatingPointFormat(e.slice(t,t+8),8,23);else{if(64==i)throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");-64==i&&(s=o.parseFloatingPointFormat(e.slice(t,t+8),11,52))}return s}}class h{static computePhysicalMinAndMax(i,s){const r=a.getFITSItemValue(i,e.BITPIX);if(null===r)return null;const n=a.getFITSItemValue(i,e.NAXIS1);if(null===n)return null;const o=a.getFITSItemValue(i,e.NAXIS2);if(null===o)return null;const l=a.getFITSItemValue(i,e.DATAMIN),c=a.getFITSItemValue(i,e.DATAMAX);if(!r||!n||!o)return null;if(!c||!l){const[e,r]=h.computePhysicalValues(s,i);if(e&&r){const s=new t("DATAMAX",e,"computed by jsfitsio"),n=new t("DATAMIN",r,"computed by jsfitsio");i.insert(s),i.insert(n)}}const d=new t("END","","");return i.insert(d),i}static computePhysicalValues(t,i){const s=a.getFITSItemValue(i,e.BITPIX);if(null===s||isNaN(s))return[null,null];const r=a.getFITSItemValue(i,e.BLANK);if(null===r||isNaN(s))return[null,null];let n=a.getFITSItemValue(i,e.BZERO);null===n&&(n=0);let o=a.getFITSItemValue(i,e.BSCALE);null===o&&(o=1);let l=0;const c=Math.abs(s/8),d=t.byteLength/c;let u=null,p=null,f=null;for(r&&(f=h.pixel2physicalValue(r,o,n));l<d;){let e=h.extractPixelValue(t,c*l,s);if(null===e){l++;continue}let i=h.pixel2physicalValue(e,o,n);u||(u=i),p||(p=i),null!==f&&f===i||(null!==i&&(i<u||null===u)&&(u=i),null!==i&&(i>p||null===p)&&(p=i)),l++}return[u,p]}static pixel2physicalValue(t,e,i){if(null===i||null===e)throw new Error("Either BZERO or BSCALE is null");return i+e*t}static extractPixelValue(t,e,i){let s=null;if(16==i)s=o.parse16bit2sComplement(t[e],t[e+1]);else if(32==i)s=o.parse32bit2sComplement(t[e],t[e+1],t[e+2],t[e+3]);else if(-32==i)s=o.parseFloatingPointFormat(t.slice(e,e+4),8,23);else{if(64==i)throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");-64==i&&(s=o.parseFloatingPointFormat(t.slice(e,e+8),11,52))}return s}}var l,c,d=function(t,e,i,s){return new(i||(i=Promise))((function(r,n){function a(t){try{h(s.next(t))}catch(t){n(t)}}function o(t){try{h(s.throw(t))}catch(t){n(t)}}function h(t){var e;t.done?r(t.value):(e=t.value,e instanceof i?e:new i((function(t){t(e)}))).then(a,o)}h((s=s.apply(t,e||[])).next())}))};class u{static loadFITS(t){return d(this,void 0,void 0,(function*(){const e=yield u.getFile(t);return(null==e?void 0:e.byteLength)?u.processFits(e):null}))}static processFits(t){const e=a.parse(t),i=h.computePhysicalMinAndMax(e,t);if(null==i)return null;const s=new Uint8Array(t.slice(2880));return{header:i,data:u.createMatrix(s,e)}}static createMatrix(t,i){const s=a.getFITSItemValue(i,e.NAXIS1);if(null===s)throw new Error("NAXIS1 not defined.");const r=a.getFITSItemValue(i,e.NAXIS2);if(null===r)throw new Error("NAXIS2 not defined.");const n=a.getFITSItemValue(i,e.BITPIX);if(null===n)throw new Error("BITPIX not defined.");const o=Math.abs(n/8);if(t.length!==s*r*o)throw new Error("Payload size does not match the expected matrix dimensions.");const h=[];for(let e=0;e<r;e++)h.push(t.slice(e*s*o,(e+1)*s*o));return h}static generateFITSForWeb(t){return s.typedArrayToURL(t)}static saveFITSLocally(t,e){return s.writeFITSFile(t,e)}static getFile(t){return d(this,void 0,void 0,(function*(){if(t.substring(0,5).toLowerCase().includes("http")){const e=yield r.e(720).then(r.bind(r,720)),i=yield e.getFile(t);return(null==i?void 0:i.byteLength)?new Uint8Array(i):new Uint8Array(0)}{const e=yield r.e(913).then(r.bind(r,913)),i=yield e.getLocalFile(t);return(null==i?void 0:i.length)?new Uint8Array(i):new Uint8Array(0)}}))}}class p{}function f(t){let e=(s=t,(i=t).x*s.x+i.y*s.y+i.z*s.z);var i,s;let r=Math.sqrt(e),n=Math.acos(t.z/r),a=v(n),o=Math.atan2(t.y,t.x),h=v(o);return h<0&&(h+=360),{phiDeg:h,thetaDeg:a,phiRad:o,thetaRad:n}}function g(t){let e,i;return e=t.phiDeg,e<0&&(e+=360),i=90-t.thetaDeg,{raDeg:e,decDeg:i,raRad:x(e),decRad:x(i)}}function I(t){let e,i;return e=t.raDeg,e<0&&(e+=360),i=90-t.decDeg,{phiDeg:e,thetaDeg:i,phiRad:x(e),thetaRad:x(i)}}function m(t,e){return{x:(e=null==e?1:e)*Math.sin(t.thetaRad)*Math.cos(t.phiRad),y:e*Math.sin(t.thetaRad)*Math.sin(t.phiRad),z:e*Math.cos(t.thetaRad)}}function y(t,e,i){return i==l.DEGREES?{raDeg:t,decDeg:e,raRad:x(t),decRad:x(e)}:i==l.RADIANS?{raRad:t,decRad:e,raDeg:v(t),decDeg:v(e)}:(console.error("Wrong operation. NumberType "+i+" not supported"),null)}function w(t,e,i){return i==l.DEGREES?{phiDeg:t,thetaDeg:e,phiRad:x(t),thetaRad:x(e)}:i==l.RADIANS?{phiDeg:v(t),thetaDeg:v(e),phiRad:t,thetaRad:e}:(console.error("Wrong operation. NumberType "+i+" not supported"),null)}function x(t){return t/180*Math.PI}function v(t){return 180*t/Math.PI}!function(t){t[t.DEGREES=0]="DEGREES",t[t.RADIANS=1]="RADIANS",t[t.DECIMAL=2]="DECIMAL",t[t.HMS=3]="HMS",t[t.DMS=4]="DMS"}(l||(l={})),function(t){t.CARTESIAN="cartesian",t.SPHERICAL="spherical",t.ASTRO="astro"}(c||(c={}));class A{}A.MAX_DECIMALS=6;class M{constructor(t,e,...i){if(t==c.CARTESIAN)this.cartesian.x=parseFloat(i[0].toFixed(A.MAX_DECIMALS)),this.cartesian.y=parseFloat(i[1].toFixed(A.MAX_DECIMALS)),this.cartesian.z=parseFloat(i[2].toFixed(A.MAX_DECIMALS)),this.spherical=f(this.cartesian),this.astro=g(this.spherical);else if(t==c.ASTRO){const t=y(i[0],i[1],e);null!==t&&(this.astro=t,this.spherical=I(this.astro),this.cartesian=m(this.spherical,1))}else if(t==c.SPHERICAL){const t=w(i[0],i[1],e);null!==t&&(this.spherical=t,this.cartesian=m(this.spherical,1),this.astro=g(this.spherical))}else console.error("CoordsType "+t+" not recognised.");this.spherical.phiDeg>360&&(this.spherical.phiDeg-=360),this.astro.raDeg>360&&(this.astro.raDeg-=360)}getSpherical(){return this.spherical}getAstro(){return this.astro}getCartesian(){return this.cartesian}}class P{constructor(){this.tileList=[],this.imagePixelList=new Array}findImagePixel(t,e){return this.imagePixelList.find((i=>i.i===t&&i.j===e))||null}getImagePixelsByTile(t){return this.imagePixelList.filter((e=>e.tileno===t))}getImagePixelList(){return this.imagePixelList}getTilesList(){return this.tileList}addImagePixel(t){this.imagePixelList.push(t)}addTileNumber(t){this.tileList.includes(t)||this.tileList.push(t)}}class S{constructor(t,e,i){this.tileno=i,Number.isInteger(t)&&Number.isInteger(e)?(this.i=t,this.j=e,this.ra=NaN,this.dec=NaN):(this.ra=t,this.dec=e,this.i=-1,this.j=-1),this.value=void 0}geti(){return this.i}getj(){return this.j}getRADeg(){return this.ra}getDecDeg(){return this.dec}getValue(){return this.value}setValue(t,e){if(null==this.value){const t=Math.abs(e/8);this.value=new Uint8Array(t)}this.value=t}setTileNumber(t){this.tileno=t}setij(t,e){this.i=t,this.j=e}setRADecDeg(t,e){this.ra=t,this.dec=e}}class T extends p{constructor(){super(),this.CTYPE1="'RA---CAR'",this.CTYPE2="'DEC--CAR'",this._wcsname="MER",this.pxvalues=new Array,this.fitsheader=new e}initFromFile(t){return e=this,i=void 0,r=function*(){var e,i,s,r,n,a,o;const h=yield u.loadFITS(t);if(!h)throw console.error("FITS is null"),new Error("FITS is null");this.pxvalues=h.data,this.fitsheader=h.header,this.naxis1=Number(null===(e=h.header.findById("NAXIS1"))||void 0===e?void 0:e.value),this.naxis2=Number(null===(i=h.header.findById("NAXIS2"))||void 0===i?void 0:i.value),this.bitpix=null===(s=h.header.findById("BITPIX"))||void 0===s?void 0:s.value,this.craDeg=null===(r=h.header.findById("CRVAL1"))||void 0===r?void 0:r.value,this.cdecDeg=null===(n=h.header.findById("CRVAL2"))||void 0===n?void 0:n.value;const l=null===(a=this.fitsheader.findById("CDELT1"))||void 0===a?void 0:a.value,c=null===(o=this.fitsheader.findById("CDELT2"))||void 0===o?void 0:o.value;if(l!==c||void 0===l||void 0===c)throw new Error("pxsize1 is not equal to pxsize2");return this.pxsize=l,this.minra=this.craDeg-this.pxsize*this.naxis1/2,this.minra<0&&(this.minra+=360),this.mindec=this.cdecDeg-this.pxsize*this.naxis2/2,h},new((s=void 0)||(s=Promise))((function(t,n){function a(t){try{h(r.next(t))}catch(t){n(t)}}function o(t){try{h(r.throw(t))}catch(t){n(t)}}function h(e){var i;e.done?t(e.value):(i=e.value,i instanceof s?i:new s((function(t){t(i)}))).then(a,o)}h((r=r.apply(e,i||[])).next())}));var e,i,s,r}getBytePerValue(){return Math.abs(this.bitpix/8)}extractPhysicalValues(t){var e,i,s,r,n;const a=Number(null===(e=t.header.findById("BZERO"))||void 0===e?void 0:e.value),h=Number(null===(i=t.header.findById("BSCALE"))||void 0===i?void 0:i.value),l=Number(null===(s=t.header.findById("NAXIS1"))||void 0===s?void 0:s.value),c=Number(null===(r=t.header.findById("NAXIS2"))||void 0===r?void 0:r.value),d=Number(null===(n=t.header.findById("BITPIX"))||void 0===n?void 0:n.value),u=Math.abs(d/8);let p=new Array(c);for(let e=0;e<c;e++){p[e]=new Array(l);for(let i=0;i<l;i++){const s=o.extractPixelValue(0,t.data[e].slice(i*u,(i+1)*u),d);if(s){let t=a+h*s;p[e][i]=t}}}return p}computeHeader(i,s,r=1,n=0,a=0){const o=new e;o.insert(new t("SIMPLE","'T'","")),o.insert(new t("BITPIX",s,"")),o.insert(new t("NAXIS",2,"")),o.insert(new t("NAXIS1",this.naxis1,"")),o.insert(new t("NAXIS2",this.naxis2,"")),o.insert(new t("BLANK",a,"")),o.insert(new t("BSCALE",r,"")),o.insert(new t("BZERO",n,"")),o.insert(new t("CTYPE1",this.CTYPE1,"")),o.insert(new t("CTYPE2",this.CTYPE2,"")),o.insert(new t("CDELT1",i,"")),o.insert(new t("CDELT2",i,"")),o.insert(new t("CRPIX1",this.naxis1/2,"")),o.insert(new t("CRPIX2",this.naxis2/2,"")),o.insert(new t("CRVAL1",this.craDeg,"")),o.insert(new t("CRVAL2",this.cdecDeg,""));let h=n+r*this._minphysicalval,l=n+r*this._maxphysicalval;return o.insert(new t("DATAMIN",h,"")),o.insert(new t("DATAMAX",l,"")),o.insert(new t("ORIGIN","'WCSLight v.0.x'","")),o.insert(new t("COMMENT","","'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'")),o.insert(new t("END","","")),this.fitsheader}static prepareHeader(t,e,i,s,r){if(s||(s=1),r||(r=0),Math.ceil(2*t/e),!i)throw new Error("Bitpix not defined")}prepareFITSHeader(i){var s,r,n,a,o;this.fitsheader=new e,this.fitsheader.insert(new t("NAXIS1",this.naxis1,"")),this.fitsheader.insert(new t("NAXIS2",this.naxis2,"")),this.fitsheader.insert(new t("NAXIS",2,""));const h=Number(null===(s=i.findById("BITPIX"))||void 0===s?void 0:s.value);this.fitsheader.insert(new t("BITPIX",h,""));const l=Number(null===(r=i.findById("SIMPLE"))||void 0===r?void 0:r.value);this.fitsheader.insert(new t("SIMPLE",l,""));const c=Number(null===(n=i.findById("BLANK"))||void 0===n?void 0:n.value);c&&this.fitsheader.insert(new t("BLANK",c,""));let d=Number(null===(a=i.findById("BSCALE"))||void 0===a?void 0:a.value);d||(d=1),this.fitsheader.insert(new t("BSCALE",d,""));let u=Number(null===(o=i.findById("BZERO"))||void 0===o?void 0:o.value);u||(u=0),this.fitsheader.insert(new t("BZERO",u,"")),this.fitsheader.insert(new t("CTYPE1",this.CTYPE1,"")),this.fitsheader.insert(new t("CTYPE2",this.CTYPE2,"")),this.fitsheader.insert(new t("CDELT1",this.pxsize,"")),this.fitsheader.insert(new t("CDELT2",this.pxsize,"")),this.fitsheader.insert(new t("CRPIX1",this.naxis1/2,"")),this.fitsheader.insert(new t("CRPIX2",this.naxis2/2,"")),this.fitsheader.insert(new t("CRVAL1",this.craDeg,"")),this.fitsheader.insert(new t("CRVAL2",this.cdecDeg,""));let p=u+d*this._minphysicalval,f=u+d*this._maxphysicalval;return this.fitsheader.insert(new t("DATAMIN",p,"")),this.fitsheader.insert(new t("DATAMAX",f,"")),this.fitsheader.insert(new t("ORIGIN","'WCSLight v.0.x'","")),this.fitsheader.insert(new t("COMMENT","","'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'")),this.fitsheader.insert(new t("END","","")),this.fitsheader}getFITSHeader(){return this.fitsheader}getCommonFitsHeaderParams(){let i=new e;for(const e of this.fitsheader.getItems()){const s=e.key;if(["SIMPLE","BITPIX","BSCALE","BZERO","BLANK","ORDER"].includes(s)){const r=e.value;i.insert(new t(s,r,""))}}return i}setPxsValue(t,e,i=1,s=0){return new P}getImageRADecList(t,e,i){const s=Math.ceil(2*e/i),r=s;let n=t.getAstro().raDeg-e;n<0&&(n+=360);const a=t.getAstro().decDeg-e,o=new P;for(let t=0;t<r;t++)for(let e=0;e<s;e++)o.addImagePixel(new S(n+e*i,a+t*i,void 0));return o.getImagePixelList().length,o}pix2world(t,e){let i,s;return i=t*this.pxsize+this.minra,s=e*this.pxsize+this.mindec,new M(c.ASTRO,l.DEGREES,i,s)}world2pix(t){var e;const i=this.getBytePerValue(),s=Number(null===(e=this.fitsheader.findById("BLANK"))||void 0===e?void 0:e.value),r=o.convertBlankToBytes(s,i);for(let e of t.getImagePixelList()){const t=e.getRADeg(),s=e.getDecDeg(),n=Math.floor((t-this.minra)/this.pxsize),a=Math.floor((s-this.mindec)/this.pxsize);if(a<0||a>=this.naxis2||n<0||n>=this.naxis1)e.setValue(r,this.bitpix);else{const t=this.pxvalues[a].slice(n*i,(n+1)*i);e.setValue(t,this.bitpix)}}return t}}class N{}N.halfpi=1.5707963267948966,N.inv_halfpi=2/Math.PI,N.twopi=2*Math.PI,N.inv_twopi=1/(2*Math.PI);class b{constructor(t,e){this.z=t,this.phi=e}}class E{constructor(t){E.PI4_A=.7853981554508209,E.PI4_B=7.946627356147928e-9,E.PI4_C=3061616997868383e-32,E.M_1_PI=.3183098861837907,t&&(this.sth=0,this.have_sth=!1,this.z=E.cos(t.theta),this._phi=t.phi,Math.abs(this.z)>.99&&(this.sth=E.sin(t.theta),this.have_sth=!0))}setZ(t){this.z=t}get phi(){return this._phi}set phi(t){this._phi=t}setSth(t){this.sth=t}toVec3(){var t=this.have_sth?this.sth:Math.sqrt((1-this.z)*(1+this.z));return new D(t*Math.cos(this.phi),t*Math.sin(this.phi),this.z)}toZphi(){return new b(this.z,this.phi)}static sin(t){let e=t*E.M_1_PI,i=Math.floor(e<0?e-.5:e+.5),s=4*i;return t-=s*E.PI4_A,t-=s*E.PI4_B,t-=s*E.PI4_C,1&i&&(t=-t),this.sincoshelper(t)}static cos(t){let e=t*E.M_1_PI-.5,i=1+2*Math.floor(e<0?e-.5:e+.5),s=2*i;return t-=s*E.PI4_A,t-=s*E.PI4_B,t-=s*E.PI4_C,2&i||(t=-t),E.sincoshelper(t)}static sincoshelper(t){let e=t*t,i=-7972559550090379e-33;return i=i*e+2810099727108632e-30,i=i*e-7647122191181588e-28,i=i*e+1.605904306056645e-10,i=i*e-2.5052108376350205e-8,i=i*e+27557319223919875e-22,i=i*e-.00019841269841269616,i=i*e+.00833333333333333,i=i*e-.16666666666666666,e*i*t+t}static asin(t){return E.mulsign(E.atan2k(Math.abs(t),Math.sqrt((1+t)*(1-t))),t)}static acos(t){return E.mulsign(E.atan2k(Math.sqrt((1+t)*(1-t)),Math.abs(t)),t)+(t<0?Math.PI:0)}static mulsign(t,e){return E.copySign(1,e)*t}static copySign(t,e){return e<0?-Math.abs(t):Math.abs(t)}static atanhelper(t){let e=t*t,i=-1887960084630735e-20;return i=i*e+.00020985007664581698,i=i*e-.0011061183148667248,i=i*e+.003700267441887131,i=i*e-.008898961958876555,i=i*e+.016599329773529202,i=i*e-.025451762493231264,i=i*e+.03378525800013531,i=i*e-.04076291912768365,i=i*e+.04666671500778406,i=i*e-.052367485230348246,i=i*e+.05876663929266736,i=i*e-.06665735793610805,i=i*e+.07692195383117696,i=i*e-.09090899500824501,i=i*e+.11111110564826142,i=i*e-.1428571426677133,i=i*e+.19999999999659127,i=i*e-.3333333333333111,i*e*t+t}static atan2k(t,e){let i=0;if(e<0&&(e=-e,i=-2),t>e){let s=e;e=t,t=-s,i+=1}return E.atanhelper(t/e)+i*(Math.PI/2)}static atan2(t,e){let i=E.atan2k(Math.abs(t),e);return i=E.mulsign(i,e),(E.isinf(e)||0==e)&&(i=Math.PI/2-(E.isinf(e)?E.copySign(1,e)*(Math.PI/2):0)),E.isinf(t)&&(i=Math.PI/2-(E.isinf(e)?E.copySign(1,e)*(1*Math.PI/4):0)),0==t&&(i=-1==E.copySign(1,e)?Math.PI:0),E.isnan(e)||E.isnan(t)?NaN:E.mulsign(i,t)}static isnan(t){return t!=t}static isinf(t){return Math.abs(t)===1/0}}E.PI4_A=.7853981554508209,E.PI4_B=7.946627356147928e-9,E.PI4_C=3061616997868383e-32,E.M_1_PI=.3183098861837907;class R{constructor(t,e,i,s){null!=t?(this.theta=E.atan2(Math.sqrt(t.x*t.x+t.y*t.y),t.z),this.phi=e?-E.atan2(t.y,t.x):E.atan2(t.y,t.x),this.phi<0&&(this.phi=this.phi+2*Math.PI),this.phi>=2*Math.PI&&(this.phi=this.phi-2*Math.PI)):(this.theta=i,this.phi=s)}}class D{constructor(t,e,i){if(t instanceof R){let e=t,i=E.sin(e.theta);this.x=i*E.cos(e.phi),this.y=i*E.sin(e.phi),this.z=E.cos(e.theta)}else this.x=t,this.y=e,this.z=i}getX(){return this.x}getY(){return this.y}getZ(){return this.z}scale(t){this.x*=t,this.y*=t,this.z*=t}cross(t){return new D(this.y*t.z-t.y*this.z,this.z*t.x-t.z*this.x,this.x*t.y-t.x*this.y)}add(t){return new D(this.x+t.x,this.y+t.y,this.z+t.z)}normalize(){let t=1/this.length();this.x*=t,this.y*=t,this.z*=t}norm(){let t=1/this.length();return new D(this.x*t,this.y*t,this.z*t)}length(){return Math.sqrt(this.lengthSquared())}lengthSquared(){return this.x*this.x+this.y*this.y+this.z*this.z}dot(t){return this.x*t.x+this.y*t.y+this.z*t.z}sub(t){return new D(this.x-t.x,this.y-t.y,this.z-t.z)}angle(t){return E.atan2(this.cross(t).length(),this.dot(t))}flip(){this.x*=-1,this.y*=-1,this.z*=-1}static pointing2Vec3(t){let e=E.sin(t.theta),i=e*E.cos(t.phi),s=e*E.sin(t.phi),r=E.cos(t.theta);return new D(i,s,r)}}class _{constructor(t){let e=t.length;if(e>=2){this.center=t[0].add(t[1]),this.center.normalize(),this.cosrad=t[0].dot(this.center);for(let i=2;i<e;++i)t[i].dot(this.center)<this.cosrad&&this.getCircle(t,i)}else console.log("too few points")}getCircle(t,e){this.center=t[0].add(t[e]),this.center.normalize(),this.cosrad=t[0].dot(this.center);for(let i=1;i<e;++i)t[i].dot(this.center)<this.cosrad&&this.getCircle2(t,i,e)}getCircle2(t,e,i){this.center=t[e].add(t[i]),this.center.normalize(),this.cosrad=t[e].dot(this.center);for(let s=0;s<e;++s)t[s].dot(this.center)<this.cosrad&&(this.center=t[e].sub(t[s]).cross(t[i].sub(t[s])),this.center.normalize(),this.cosrad=t[s].dot(this.center),this.cosrad<0&&(this.center.flip(),this.cosrad=-this.cosrad))}getCenter(){return new D(this.center.x,this.center.y,this.center.z)}getCosrad(){return this.cosrad}}class B{constructor(t,e,i){this.fx=t,this.fy=e,this.face=i,this.jrll=new Uint8Array([2,2,2,2,3,3,3,3,4,4,4,4]),this.jpll=new Uint8Array([1,3,5,7,0,2,4,6,1,3,5,7]),this.halfpi=Math.PI/2}toHploc(){let t,e=new E,i=this.jrll[this.face]-this.fx-this.fy;if(i<1){t=i;let s=t*t/3;e.z=1-s,e.z>.99&&(e.sth=Math.sqrt(s*(2-s)),e.have_sth=!0)}else if(i>3){t=4-i;let s=t*t/3;e.z=s-1,e.z<-.99&&(e.sth=Math.sqrt(s*(2-s)),e.have_sth=!0)}else t=1,e.z=2*(2-i)/3;let s=this.jpll[this.face]*t+this.fx-this.fy;return s<0&&(s+=8),s>=8&&(s-=8),e.phi=t<1e-15?0:.5*this.halfpi*s/t,e}toVec3(){return this.toHploc().toVec3()}}class C{constructor(t){this.p=new Array(t),this.o=new Int32Array(t),this.s=0,this.m=0}push(t,e){this.p[this.s]=t,this.o[this.s]=e,++this.s}pop(){--this.s}popToMark(){this.s=this.m}size(){return this.s}mark(){this.m=this.s}otop(){return this.o[this.s-1]}ptop(){return this.p[this.s-1]}}class L{constructor(t){t<0&&console.error("capacity must be positive"),this.r=new Int32Array(t<<1),this.sz=0}append(t){this.append1(t,t+1)}append1(t,e){if(t>=e)return;if(this.sz>0&&t<=this.r[this.sz-1])return t<this.r[this.sz-2]&&console.error("bad append operation"),void(e>this.r[this.sz-1]&&(this.r[this.sz-1]=e));let i=this.sz+2;if(this.r.length<i){let t=Math.max(2*this.r.length,i),e=new Int32Array(t);e.set(this.r),this.r=e}this.r[this.sz]=t,this.r[this.sz+1]=e,this.sz+=2}ensureCapacity(t){this.r.length<t&&this.resize(Math.max(2*this.r.length,t))}resize(t){if(t<this.sz&&console.error("requested array size too small"),t==this.r.length)return;new Int32Array(t);let e=this.r.slice(0,this.sz+1);this.r=e}}class F{constructor(t,e,i){this.ix=t,this.iy=e,this.face=i}}class X{constructor(t){this.order_max=29,this.inv_halfpi=2/Math.PI,this.twothird=2/3,this.ns_max=Math.pow(2,this.order_max),this.ctab=new Uint16Array([0,1,256,257,2,3,258,259,512,513,768,769,514,515,770,771,4,5,260,261,6,7,262,263,516,517,772,773,518,519,774,775,1024,1025,1280,1281,1026,1027,1282,1283,1536,1537,1792,1793,1538,1539,1794,1795,1028,1029,1284,1285,1030,1031,1286,1287,1540,1541,1796,1797,1542,1543,1798,1799,8,9,264,265,10,11,266,267,520,521,776,777,522,523,778,779,12,13,268,269,14,15,270,271,524,525,780,781,526,527,782,783,1032,1033,1288,1289,1034,1035,1290,1291,1544,1545,1800,1801,1546,1547,1802,1803,1036,1037,1292,1293,1038,1039,1294,1295,1548,1549,1804,1805,1550,1551,1806,1807,2048,2049,2304,2305,2050,2051,2306,2307,2560,2561,2816,2817,2562,2563,2818,2819,2052,2053,2308,2309,2054,2055,2310,2311,2564,2565,2820,2821,2566,2567,2822,2823,3072,3073,3328,3329,3074,3075,3330,3331,3584,3585,3840,3841,3586,3587,3842,3843,3076,3077,3332,3333,3078,3079,3334,3335,3588,3589,3844,3845,3590,3591,3846,3847,2056,2057,2312,2313,2058,2059,2314,2315,2568,2569,2824,2825,2570,2571,2826,2827,2060,2061,2316,2317,2062,2063,2318,2319,2572,2573,2828,2829,2574,2575,2830,2831,3080,3081,3336,3337,3082,3083,3338,3339,3592,3593,3848,3849,3594,3595,3850,3851,3084,3085,3340,3341,3086,3087,3342,3343,3596,3597,3852,3853,3598,3599,3854,3855]),this.utab=new Uint16Array([0,1,4,5,16,17,20,21,64,65,68,69,80,81,84,85,256,257,260,261,272,273,276,277,320,321,324,325,336,337,340,341,1024,1025,1028,1029,1040,1041,1044,1045,1088,1089,1092,1093,1104,1105,1108,1109,1280,1281,1284,1285,1296,1297,1300,1301,1344,1345,1348,1349,1360,1361,1364,1365,4096,4097,4100,4101,4112,4113,4116,4117,4160,4161,4164,4165,4176,4177,4180,4181,4352,4353,4356,4357,4368,4369,4372,4373,4416,4417,4420,4421,4432,4433,4436,4437,5120,5121,5124,5125,5136,5137,5140,5141,5184,5185,5188,5189,5200,5201,5204,5205,5376,5377,5380,5381,5392,5393,5396,5397,5440,5441,5444,5445,5456,5457,5460,5461,16384,16385,16388,16389,16400,16401,16404,16405,16448,16449,16452,16453,16464,16465,16468,16469,16640,16641,16644,16645,16656,16657,16660,16661,16704,16705,16708,16709,16720,16721,16724,16725,17408,17409,17412,17413,17424,17425,17428,17429,17472,17473,17476,17477,17488,17489,17492,17493,17664,17665,17668,17669,17680,17681,17684,17685,17728,17729,17732,17733,17744,17745,17748,17749,20480,20481,20484,20485,20496,20497,20500,20501,20544,20545,20548,20549,20560,20561,20564,20565,20736,20737,20740,20741,20752,20753,20756,20757,20800,20801,20804,20805,20816,20817,20820,20821,21504,21505,21508,21509,21520,21521,21524,21525,21568,21569,21572,21573,21584,21585,21588,21589,21760,21761,21764,21765,21776,21777,21780,21781,21824,21825,21828,21829,21840,21841,21844,21845]),this.jrll=new Int16Array([2,2,2,2,3,3,3,3,4,4,4,4]),this.jpll=new Int16Array([1,3,5,7,0,2,4,6,1,3,5,7]),this.xoffset=new Int16Array([-1,-1,0,1,1,1,0,-1]),this.yoffset=new Int16Array([0,1,1,1,0,-1,-1,-1]),this.facearray=[new Int16Array([8,9,10,11,-1,-1,-1,-1,10,11,8,9]),new Int16Array([5,6,7,4,8,9,10,11,9,10,11,8]),new Int16Array([-1,-1,-1,-1,5,6,7,4,-1,-1,-1,-1]),new Int16Array([4,5,6,7,11,8,9,10,11,8,9,10]),new Int16Array([0,1,2,3,4,5,6,7,8,9,10,11]),new Int16Array([1,2,3,0,0,1,2,3,5,6,7,4]),new Int16Array([-1,-1,-1,-1,7,4,5,6,-1,-1,-1,-1]),new Int16Array([3,0,1,2,3,0,1,2,4,5,6,7]),new Int16Array([2,3,0,1,-1,-1,-1,-1,0,1,2,3])],this.swaparray=[new Int16Array([0,0,3]),new Int16Array([0,0,6]),new Int16Array([0,0,0]),new Int16Array([0,0,5]),new Int16Array([0,0,0]),new Int16Array([5,0,0]),new Int16Array([0,0,0]),new Int16Array([6,0,0]),new Int16Array([3,0,0])],t<=this.ns_max&&t>0&&(this.nside=t,this.npface=this.nside*this.nside,this.npix=12*this.npface,this.order=this.nside2order(this.nside),this.nl2=2*this.nside,this.nl3=3*this.nside,this.nl4=4*this.nside,this.fact2=4/this.npix,this.fact1=(this.nside<<1)*this.fact2,this.ncap=2*this.nside*(this.nside-1)),this.bn=[],this.mpr=[],this.cmpr=[],this.smpr=[]}computeBn(){for(let t=0;t<=this.order_max;++t)this.bn[t]=new X(1<<t),this.mpr[t]=this.bn[t].maxPixrad(),this.cmpr[t]=E.cos(this.mpr[t]),this.smpr[t]=E.sin(this.mpr[t])}getNPix(){return this.npix}getBoundaries(t){let e=new Array,i=this.nest2xyf(t),s=.5/this.nside,r=(i.ix+.5)/this.nside,n=(i.iy+.5)/this.nside;return e[0]=new B(r+s,n+s,i.face).toVec3(),e[1]=new B(r-s,n+s,i.face).toVec3(),e[2]=new B(r-s,n-s,i.face).toVec3(),e[3]=new B(r+s,n-s,i.face).toVec3(),e}getBoundariesWithStep(t,e){let i=new Array,s=this.nest2xyf(t),r=.5/this.nside,n=(s.ix+.5)/this.nside,a=(s.iy+.5)/this.nside,o=1/(this.nside*e);for(let t=0;t<e;t++)i[t]=new B(n+r-t*o,a+r,s.face).toVec3(),i[t+e]=new B(n-r,a+r-t*o,s.face).toVec3(),i[t+2*e]=new B(n-r+t*o,a-r,s.face).toVec3(),i[t+3*e]=new B(n+r,a-r+t*o,s.face).toVec3();return i}getPointsForXyfNoStep(t,e,i){let s=Math.pow(2,this.order),r=new Array,n=new F(t,e,i),a=.5/s,o=(n.ix+.5)/s,h=(n.iy+.5)/s;return r[0]=new B(o+a,h+a,n.face).toVec3(),r[1]=new B(o-a,h+a,n.face).toVec3(),r[2]=new B(o-a,h-a,n.face).toVec3(),r[3]=new B(o+a,h-a,n.face).toVec3(),r}getPointsForXyf(t,e,i,s){let r=i*Math.pow(2,this.order),n=new Array,a=new F(t,e,s),o=.5/r,h=(a.ix+.5)/r,l=(a.iy+.5)/r;return n[0]=new B(h+o,l+o,a.face).toVec3(),n[1]=new B(h-o,l+o,a.face).toVec3(),n[2]=new B(h-o,l-o,a.face).toVec3(),n[3]=new B(h+o,l-o,a.face).toVec3(),n}neighbours(t){let e=new Int32Array(8),i=this.nest2xyf(t),s=i.ix,r=i.iy,n=i.face;var a=this.nside-1;if(s>0&&s<a&&r>0&&r<a){let t=Math.floor(n<<2*this.order),i=this.spread_bits(s),a=this.spread_bits(r)<<1,o=this.spread_bits(s+1),h=this.spread_bits(r+1)<<1,l=this.spread_bits(s-1),c=this.spread_bits(r-1)<<1;e[0]=t+l+a,e[1]=t+l+h,e[2]=t+i+h,e[3]=t+o+h,e[4]=t+o+a,e[5]=t+o+c,e[6]=t+i+c,e[7]=t+l+c}else for(let t=0;t<8;++t){let i=s+this.xoffset[t],a=r+this.yoffset[t],o=4;i<0?(i+=this.nside,o-=1):i>=this.nside&&(i-=this.nside,o+=1),a<0?(a+=this.nside,o-=3):a>=this.nside&&(a-=this.nside,o+=3);let h=this.facearray[o][n];if(h>=0){let s=this.swaparray[o][n>>>2];if((1&s)>0&&(i=Math.floor(this.nside-i-1)),(2&s)>0&&(a=Math.floor(this.nside-a-1)),(4&s)>0){let t=i;i=a,a=t}e[t]=this.xyf2nest(i,a,h)}else e[t]=-1}return e}nside2order(t){return t&t-1?-1:Math.log2(t)}nest2xyf(t){let e=Math.floor(t&this.npface-1);return new F(this.compress_bits(e),this.compress_bits(e>>1),Math.floor(t>>2*this.order))}xyf2nest(t,e,i){return Math.floor(i<<2*this.order)+this.spread_bits(t)+(this.spread_bits(e)<<1)}loc2pix(t){let e,i=t.z,s=t.phi,r=Math.abs(i),n=this.fmodulo(s*this.inv_halfpi,4);if(r<=this.twothird){let t=this.nside*(.5+n),s=this.nside*(.75*i),r=Math.floor(t-s),a=Math.floor(t+s),o=Math.floor(r>>>this.order),h=Math.floor(a>>>this.order),l=Math.floor(o==h?4|o:o<h?o:h+8),c=Math.floor(a&this.nside-1),d=Math.floor(this.nside-(r&this.nside-1)-1);e=this.xyf2nest(c,d,l)}else{let s=Math.min(3,Math.floor(n)),a=n-s,o=r<.99||!t.have_sth?this.nside*Math.sqrt(3*(1-r)):this.nside*t.sth/Math.sqrt((1+r)/3),h=Math.floor(a*o),l=Math.floor((1-a)*o);h>=this.nside&&(h=this.nside-1),l>=this.nside&&(l=this.nside-1),e=i>=0?this.xyf2nest(Math.floor(this.nside-l-1),Math.floor(this.nside-h-1),s):this.xyf2nest(Math.floor(h),Math.floor(l),s+8)}return e}pix2vec(t){return this.pix2loc(t).toVec3()}pix2zphi(t){return this.pix2loc(t).toZphi()}pix2loc(t){let e,i=new E(void 0),s=this.nest2xyf(t),r=(this.jrll[s.face]<<this.order)-s.ix-s.iy-1;if(r<this.nside){e=r;let t=e*e*this.fact2;i.z=1-t,i.z>.99&&(i.sth=Math.sqrt(t*(2-t)),i.have_sth=!0)}else if(r>this.nl3){e=this.nl4-r;let t=e*e*this.fact2;i.z=t-1,i.z<-.99&&(i.sth=Math.sqrt(t*(2-t)),i.have_sth=!0)}else e=this.nside,i.z=(this.nl2-r)*this.fact1;let n=this.jpll[s.face]*e+s.ix-s.iy;return n<0&&(n+=8*e),i.phi=e==this.nside?.75*N.halfpi*n*this.fact1:.5*N.halfpi*n/e,i}ang2pix(t,e){return this.loc2pix(new E(t))}fmodulo(t,e){if(t>=0)return t<e?t:t%e;var i=t%e+e;return i===e?0:i}compress_bits(t){var e=Math.floor(21845&t)|Math.floor((1431633920&t)>>>15);return this.ctab[255&e]|this.ctab[e>>>8]<<4}spread_bits(t){return Math.floor(this.utab[255&t])|Math.floor(this.utab[t>>>8&255]<<16)|Math.floor(this.utab[t>>>16&255]<<32)|Math.floor(this.utab[t>>>24&255]<<48)}queryPolygonInclusive(t,e){let i=0!=e,s=t.length;if(!(s>=3))return void console.log("not enough vertices in polygon");let r=new Array;for(let e=0;e<s;++e)r[e]=D.pointing2Vec3(t[e]);let n=new Array,a=0,o=0,h=!1;for(;o<r.length;){let t=r[o],e=null,i=null;o==r.length-1?(i=r[1],e=r[0]):o==r.length-2?(i=r[0],e=r[o+1]):(e=r[o+1],i=r[o+2]),n[o]=t.cross(e).norm();let s=n[o].dot(i);if(0==o)a=s<0?-1:1,new R(t),h=!1;else{if(a*s<0){new R(e),r.splice(o+1,1),n.splice(o,1),h=!0,o-=1;continue}new R(t),h=!1}n[o].scale(a),o+=1}s=r.length;let l=new Array(i?s+1:s);if(l=l.fill(N.halfpi),i){let t=new _(r);n[s]=t.getCenter(),l[s]=E.acos(t.getCosrad())}return this.queryMultiDisc(n,l,e)}queryMultiDisc(t,e,i){this.computeBn();let s=0!=i,r=t.length;if(r!=e.length)return void console.error("inconsistent input arrays");let n=new L(8),a=0;s&&(Math.pow(2,this.order_max-this.order)>=i||console.error("invalid oversampling factor"),i&i-1&&console.error("oversampling factor must be a power of 2"),a=this.ilog2(i));let o,h,l=this.order+a,c=new Array(l+1);for(o=0;o<=l;++o){c[o]=new Array(r);let t=this.bn[o].maxPixrad();for(h=0;h<r;++h)c[o][h]=new Float64Array(3),c[o][h][0]=e[h]+t>Math.PI?-1:E.cos(e[h]+t),c[o][h][1]=0==o?E.cos(e[h]):c[0][h][1],c[o][h][2]=e[h]-t<0?1:E.cos(e[h]-t)}let d=new C(12+3*l);for(let t=0;t<12;t++)d.push(11-t,0);for(;d.size()>0;){let e=d.ptop(),i=d.otop();d.pop();let a=this.bn[i].pix2vec(e),o=3;for(let e=0;e<r&&o>0;++e){let s=a.dot(t[e]);for(let t=0;t<o;++t)s<c[i][e][t]&&(o=t)}o>0&&this.check_pixel(i,l,o,n,e,d,s)}return n}ilog2(t){let e=Math.max(t,1);return 31-Math.clz32(e)}cosdist_zphi(t,e,i,s){return t*i+E.cos(e-s)*Math.sqrt((1-t*t)*(1-i*i))}check_pixel(t,e,i,s,r,n,a){if(0!=i)if(t<this.order)if(i>=3){let e=2*(this.order-t);s.append1(r<<e,r+1<<e)}else for(let e=0;e<4;++e)n.push(4*r+3-e,t+1);else if(t>this.order)if(i>=2)s.append(r>>>2*(t-this.order)),n.popToMark();else if(t<e)for(let e=0;e<4;++e)n.push(4*r+3-e,t+1);else s.append(r>>>2*(t-this.order)),n.popToMark();else if(i>=2)s.append(r);else if(a)if(this.order<e){n.mark();for(let e=0;e<4;++e)n.push(4*r+3-e,t+1)}else s.append(r)}maxPixrad(){let t=new b(2/3,Math.PI/this.nl4),e=this.convertZphi2xyz(t),i=new D(e[0],e[1],e[2]),s=1-1/this.nside;s*=s;let r=new b(1-s/3,0),n=this.convertZphi2xyz(r),a=new D(n[0],n[1],n[2]);return i.angle(a)}convertZphi2xyz(t){let e=Math.sqrt((1-t.z)*(1+t.z));return[e*E.cos(t.phi),e*E.sin(t.phi),t.z]}queryDiscInclusive(t,e,i){this.computeBn();let s=0!=i,r=new L;if(e>=Math.PI)return r.append1(0,this.npix),r;let n=0;s&&(i&i-1&&console.error("oversampling factor must be a power of 2"),n=this.ilog2(i));let a=Math.min(this.order_max,this.order+n),o=D.pointing2Vec3(t),h=new Array(a+1),l=new Array(a+1),c=E.cos(e),d=E.sin(e);for(let t=0;t<=a;t++){let i=this.mpr[t],s=this.cmpr[t],r=this.smpr[t];h[t]=e+i>Math.PI?-1:c*s-d*r,l[t]=e-i<0?1:c*s+d*r}let u=new C(12+3*a);for(let t=0;t<12;t++)u.push(11-t,0);for(;u.size()>0;){let e=u.ptop(),i=u.otop();u.pop();let n=this.bn[i].pix2zphi(e),d=this.cosdist_zphi(o.z,t.phi,n.z,n.phi);if(d>h[i]){let t=d<c?1:d<=l[i]?2:3;this.check_pixel(i,a,t,r,e,u,s)}}return r}}class z{static setupByTile(t,e){let i={min_y:NaN,max_y:NaN,min_x:NaN,max_x:NaN,gridPointsDeg:[]},s=e.getBoundariesWithStep(t,1),r=[];for(let t=0;t<s.length;t++)if(r[t]=new R(s[t]),t>=1){let e=r[t-1].phi,i=r[t].phi;Math.abs(e-i)>Math.PI&&(r[t-1].phi<r[t].phi?r[t-1].phi+=2*Math.PI:r[t].phi+=2*Math.PI)}for(let t=0;t<r.length;t++){let e=r[t].theta,s=Math.PI/2-e,n=r[t].phi,a=new M(c.ASTRO,l.RADIANS,n,s),o=z.world2intermediate(a.getAstro());i.gridPointsDeg[2*t]=o[0],i.gridPointsDeg[2*t+1]=o[1],(isNaN(i.max_y)||o[1]>i.max_y)&&(i.max_y=o[1]),(isNaN(i.min_y)||o[1]<i.min_y)&&(i.min_y=o[1]),(isNaN(i.max_x)||o[0]>i.max_x)&&(i.max_x=o[0]),(isNaN(i.min_x)||o[0]<i.min_x)&&(i.min_x=o[0])}return i}static world2intermediate(t){let e=NaN,i=NaN;if(Math.abs(t.decRad)<=z.THETAX)e=t.raDeg,i=E.sin(t.decRad)*z.K*90/z.H;else if(Math.abs(t.decRad)>z.THETAX){let s=t.raDeg,r=0;(z.K%2!=0||t.decRad>0)&&(r=1);let n=Math.sqrt(z.K*(1-Math.abs(E.sin(t.decRad)))),a=(2*Math.floor((t.raDeg+180)*z.H/360+(1-r)/2)+r)*(180/z.H)-180;e=a+(s-a)*n,i=180/z.H*((z.K+1)/2-n),t.decRad<0&&(i*=-1)}return[e,i]}static intermediate2pix(t,e,i,s){let r,n,a=Math.abs(i.max_x-i.min_x),o=Math.abs(i.max_y-i.min_y);r=(i.min_x>360||i.max_x>360)&&t<i.min_x?(t+360-i.min_x)/a:(t-i.min_x)/a,n=(e-i.min_y)/o;let h=.5-(r-n),l=r+n-.5;return h=Math.floor(h*s),l=Math.floor(l*s),[h,s-l-1]}static pix2intermediate(t,e,i,s,r){let n=s,a=r;s&&(n=s),r&&(a=r);const o=(t+.5)/n,h=(e+.5)/a,l=Math.abs(i.max_x-i.min_x)/2,c=Math.abs(i.max_y-i.min_y)/2,d=(i.max_y+i.min_y)/2;return[i.max_x-l*(o+h),d-c*(h-o)]}static intermediate2world(t,e){let i=NaN,s=NaN;const r=90*(z.K-1)/z.H;if(Math.abs(e)<=r)i=t,s=v(Math.asin(e*z.H/(90*z.K)));else if(Math.abs(e)>r){const r=(z.K+1)/2-Math.abs(e*z.H)/180,n=E.asin(1-r*r/z.K);let a=0;(z.K%2!=0||n>0)&&(a=1);const o=(2*Math.floor((t+180)*z.H/360+(1-a)/2)+a)*(180/z.H)-180;i=o+(t-o)/r,s=v(n),e<=0&&(s*=-1)}return new M(c.ASTRO,l.DEGREES,i,s)}}z.RES_ORDER_0=58.6,z.H=4,z.K=3,z.THETAX=E.asin((z.K-1)/z.K);class H{static computeOrder(t,e){console.log(`Computing HiPS order having pixel angular size of ${t} in degrees`);const i=t*(Math.PI/180);console.log(`pixel angular res in radians ${i}`);const s=.5*Math.log2(Math.PI/(3*i*i*e*e));return console.log(`Order ${s}`),s<0?0:Math.floor(s)}static getHelpixByOrder(t){const e=Math.pow(2,t);return new X(e)}static getHelpixBypxAngSize(t,e){const i=H.computeOrder(t,e),s=Math.pow(2,i);return new X(s)}static computePxAngularSize(t,e){const i=Math.sqrt(4*Math.PI/(12*Math.pow(t*Math.pow(2,e),2)));console.log(`Computing Pixel size with tile of ${t} pixels and order ${e}`);const s=180/Math.PI,r=i*s,n=i*s*60,a=i*s*3600;return console.log("Pixel size in radiant:"+i),console.log("Pixel size in degrees:"+r),console.log("Pixel size in arcmin:"+n),console.log("Pixel size in arcsec:"+a),{rad:i,deg:r,arcmin:n,arcsec:a}}static computePxSize(t,e){return 1/(e*Math.pow(2,t))*Math.sqrt(Math.PI/3)}static computeBbox(t,e){let i=[];return i.push(new R(null,!1,t.getSpherical().thetaRad-e,t.getSpherical().phiRad-e)),i.push(new R(null,!1,t.getSpherical().thetaRad-e,t.getSpherical().phiRad+e)),i.push(new R(null,!1,t.getSpherical().thetaRad+e,t.getSpherical().phiRad+e)),i.push(new R(null,!1,t.getSpherical().thetaRad-e,t.getSpherical().phiRad-e)),i}}H.DEFAULT_Naxis1_2=512,H.RES_ORDER_0=58.6,H.H=4,H.K=3,H.THETAX=E.asin((H.K-1)/H.K);class V{constructor(){this.itemMap=new Map}addItem(t,e){this.itemMap.set(t,e)}getItem(t){return this.itemMap.get(t)}isGalactic(){return this.itemMap.get(V.FRAME)==V.GALACTIC}}V.TILE_WIDTH="hips_tile_width",V.FRAME="hips_frame",V.ORDER="hips_order",V.GALACTIC="galactic",V.SCALE="hips_pixel_scale",V.BITPIX="hips_pixel_bitpix";class O{constructor(t,e,i){if(this.payload=[],this.min=NaN,this.max=NaN,t)this.initFromFITSParsed(t);else{if(!e||!i)throw console.error("tileno or hipsProp are not defined"),new Error("tileno or hipsProp are not defined");{this.order=i.getItem(V.ORDER);const t=i.getItem(V.TILE_WIDTH),s=i.getItem(V.TILE_WIDTH);if(this.tileno=e,t!=s)throw console.error("NAXIS1 and NAXIS2 do not match."),new Error("NAXIS1 and NAXIS2 do not match.");this.tileWidth=t,this.tileno=e,this.healpix=H.getHelpixByOrder(this.order),this.intermediateXYGrid=z.setupByTile(this.tileno,this.healpix)}}}initFromUint8Array(t,e,i){this.setPayload(t,e,i),this.setHeader(e)}getHeader(){return this.header}getPayload(){return this.payload}initFromFITSParsed(t){var i,s,r,n;this.payload=t.data,this.order=Number(null===(i=t.header.findById(V.ORDER))||void 0===i?void 0:i.value);const a=Number(null===(s=t.header.findById(e.NAXIS1))||void 0===s?void 0:s.value),o=Number(null===(r=t.header.findById(e.NAXIS2))||void 0===r?void 0:r.value);if(this.tileno=Number(null===(n=t.header.findById(O.NPIX))||void 0===n?void 0:n.value),isNaN(this.order)||isNaN(a)||isNaN(o)||isNaN(this.tileno))throw console.warn("ORDER, NAXIS1 or NAXIS2 not defined"),new Error("ORDER, NAXIS1 or NAXIS2 not defined");if(a!=o)throw console.error("NAXIS1 and NAXIS2 do not match."),new Error("NAXIS1 and NAXIS2 do not match.");this.tileWidth=a,this.computeMinMax(t),this.setHeader(t.header)}getTileno(){return this.tileno}computeMinMax(t){var i,s,r;const n=Number(null===(i=t.header.findById(e.BITPIX))||void 0===i?void 0:i.value),a=Number(null===(s=t.header.findById(e.BZERO))||void 0===s?void 0:s.value),h=Number(null===(r=t.header.findById(e.BSCALE))||void 0===r?void 0:r.value),l=Math.abs(n/8);for(let e=0;e<t.data.length;e++){const i=t.data[e];for(let t=0;t<i.length;t++){const i=o.extractPixelValue(0,this.payload[e].slice(t*l,t*l+l),n);if(null==i)continue;const s=a+h*i;s<this.min||isNaN(this.min)?this.min=s:(s>this.max||isNaN(this.max))&&(this.max=s)}}}static downloadFITSFile(t){return e=this,i=void 0,r=function*(){const e=yield u.loadFITS(t);return null==e?(console.warn(`fits ${t} doesn't exist`),null):e},new((s=void 0)||(s=Promise))((function(t,n){function a(t){try{h(r.next(t))}catch(t){n(t)}}function o(t){try{h(r.throw(t))}catch(t){n(t)}}function h(e){var i;e.done?t(e.value):(i=e.value,i instanceof s?i:new s((function(t){t(i)}))).then(a,o)}h((r=r.apply(e,i||[])).next())}));var e,i,s,r}getFITS(){return{header:this.header,data:this.payload}}setPayload(t,i,s){var r,n,a;const h=Number(null===(r=i.findById(e.BITPIX))||void 0===r?void 0:r.value),c=Number(null===(n=i.findById(e.BZERO))||void 0===n?void 0:n.value),d=Number(null===(a=i.findById(e.BSCALE))||void 0===a?void 0:a.value),u=Math.abs(h/8);if(!u)throw console.error("BITPIX not defined"),new Error("BITPIX not defined");this.payload=new Array(s);for(let t=0;t<s;t++)this.payload[t]=new Uint8Array(s*u);t.forEach((t=>{const e=t.getRADeg(),i=t.getDecDeg(),r=y(e,i,l.DEGREES);if(null==r)return void console.error(`Error converting ${e}, ${i} into AstroCoords object`);const n=z.world2intermediate(r),[a,p]=z.intermediate2pix(n[0],n[1],this.intermediateXYGrid,s);if(p<0||p>=s||a<0||a>=s)return;const f=t.getValue();if(!f)return;for(let t=0;t<u;t++)this.payload[p][a*u+t]=f[t];const g=o.extractPixelValue(0,f,h);if(null==g)return;const I=c+d*g;(isNaN(this.min)||I<this.min)&&(this.min=I),(isNaN(this.max)||I>this.max)&&(this.max=I)}))}addMandatoryItemToHeader(e,i){var s;const r=null===(s=i.findById(e))||void 0===s?void 0:s.value;if(void 0===r||null==r)throw console.error(`${e} not defined`),new Error(e+" is not defined");const n=new t(e,r,"");this.header.insert(n)}addItemToHeader(e,i){var s;const r=null===(s=i.findById(e))||void 0===s?void 0:s.value;if(void 0!==r||null!=r){const i=new t(e,r,"");this.header.insert(i)}}setHeader(i){this.header=new e,this.addMandatoryItemToHeader(e.SIMPLE,i),this.addMandatoryItemToHeader(e.BITPIX,i),this.addItemToHeader(e.BLANK,i),this.addItemToHeader(e.BSCALE,i),this.addItemToHeader(e.BZERO,i),this.header.insert(new t(e.NAXIS,Number(2),"")),this.header.insert(new t(e.NAXIS1,Number(this.tileWidth),"")),this.header.insert(new t(e.NAXIS2,Number(this.tileWidth),"")),this.header.insert(new t(e.CTYPE1,O.CTYPE1,"")),this.header.insert(new t(e.CTYPE2,O.CTYPE2,"")),this.header.insert(new t(e.DATAMIN,this.min,"")),this.header.insert(new t(e.DATAMAX,this.min,"")),this.header.insert(new t(V.ORDER,Number(this.order),"")),this.header.insert(new t(O.NPIX,Number(this.tileno),""));const s=this.tileno/2;this.header.insert(new t(e.CRPIX1,s,"")),this.header.insert(new t(e.CRPIX2,s,"")),this.header.insert(new t(e.ORIGIN,"WCSLight v.0.x","")),this.header.insert(new t(e.COMMENT,"","WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));let r=this.healpix.pix2vec(this.tileno),n=new R(r),a=v(n.phi),o=90-v(n.theta);this.header.insert(new t(e.CRVAL1,a,"")),this.header.insert(new t(e.CRVAL2,o,"")),this.header.insert(new t("END","",""))}}O.CTYPE1="RA---HPX",O.CTYPE2="DEC--HPX",O.NPIX="NPIX";class j{constructor(){this.fitslist=new Map}getFITSList(){return this.fitslist}getFITS(t){const e=this.fitslist.get(t);return void 0===e?null:e}addFITSByURL(t){return e=this,i=void 0,r=function*(){const e=yield u.loadFITS(t),i=new O(e,null,null);this.fitslist.set(i.getTileno(),i)},new((s=void 0)||(s=Promise))((function(t,n){function a(t){try{h(r.next(t))}catch(t){n(t)}}function o(t){try{h(r.throw(t))}catch(t){n(t)}}function h(e){var i;e.done?t(e.value):(i=e.value,i instanceof s?i:new s((function(t){t(i)}))).then(a,o)}h((r=r.apply(e,i||[])).next())}));var e,i,s,r}addFITS(t){const e=t.getTileno();this.fitslist.set(e,t)}}var k=r(942),q=function(t,e,i,s){return new(i||(i=Promise))((function(r,n){function a(t){try{h(s.next(t))}catch(t){n(t)}}function o(t){try{h(s.throw(t))}catch(t){n(t)}}function h(t){var e;t.done?r(t.value):(e=t.value,e instanceof i?e:new i((function(t){t(e)}))).then(a,o)}h((s=s.apply(t,e||[])).next())}))};class ${static parsePropertyFile(t){return q(this,void 0,void 0,(function*(){let e="";return e=t.includes("http")?yield $.getPorpertyFromWeb(t):yield $.getPorpertyFromFS(t),$.parseHiPSPropertiesBody(e)}))}static getPorpertyFromWeb(t){return q(this,void 0,void 0,(function*(){const e=yield fetch(t+"/properties");if(e.ok)return yield e.text();throw new Error(`HTTP error! Status: ${e.status}`)}))}static getPorpertyFromFS(t){return q(this,void 0,void 0,(function*(){const e=t+"/properties",i=yield(0,k.readFile)(e),s=new Uint8Array(i);return new TextDecoder("ascii").decode(s)}))}static parseHiPSPropertiesBody(t){let e=new V;const i=t.split("\n");for(let t of i){if(!t.includes("="))continue;const i=t.split("=");if(void 0===i[1])continue;const s=i[0].trim(),r=i[1].trim();let n=r;s!=V.ORDER&&s!=V.TILE_WIDTH&&s!=V.SCALE&&s!=V.BITPIX||(n=parseInt(r)),e.addItem(s,n)}return e}}var U=function(t,e,i,s){return new(i||(i=Promise))((function(r,n){function a(t){try{h(s.next(t))}catch(t){n(t)}}function o(t){try{h(s.throw(t))}catch(t){n(t)}}function h(t){var e;t.done?r(t.value):(e=t.value,e instanceof i?e:new i((function(t){t(e)}))).then(a,o)}h((s=s.apply(t,e||[])).next())}))};class Y{constructor(t){if(this.healpix=null,this.hipsProp=null,this.baseURL=t,this.init(),null==this.healpix)throw console.warn("healpix is null"),new Error("healpix is null");if(null==this.hipsProp)throw console.warn("HiPSProp is null"),new Error("HiPSProp is null")}init(){return U(this,void 0,void 0,(function*(){const t=(yield this.parsePropertyFile()).getItem(V.ORDER);this.healpix=H.getHelpixByOrder(t)}))}parsePropertyFile(){return U(this,void 0,void 0,(function*(){return $.parsePropertyFile(this.baseURL)}))}static getImageRADecList(t,e,i,s){const r=H.getHelpixBypxAngSize(i,s);let n=new P;const a=new R(null,!1,t.getSpherical().thetaRad,t.getSpherical().phiRad),o=x(e),h=r.queryDiscInclusive(a,o,4);for(let t=0;t<h.r.length;t++)n.getTilesList().includes(h.r[t])||0==h.r[t]||n.addTileNumber(h.r[t]);const l=r.ang2pix(a);n.getTilesList().includes(l)||n.getTilesList().push(l);let c=t.getAstro().raDeg-e,d=t.getAstro().raDeg+e,u=t.getAstro().decDeg-e,p=t.getAstro().decDeg+e;return n.getTilesList().forEach((t=>{for(let e=0;e<s;e++)for(let i=0;i<s;i++){const a=Y.pix2world(i,e,t,r,s);null!=a&&(a.getAstro().raDeg<c||a.getAstro().raDeg>d||a.getAstro().decDeg<u||a.getAstro().decDeg>p||n.addImagePixel(new S(a.getAstro().raDeg,a.getAstro().decDeg,t)))}})),n}static pix2world(t,e,i,s,r){let n=null;if(!s)throw new Error("Healpix not set.");{const a=z.setupByTile(i,s);let o=z.pix2intermediate(t,e,a,r,r);n=z.intermediate2world(o[0],o[1])}return n}static getFITSFiles(t,e,i,s){const r=H.getHelpixBypxAngSize(i,s);let n=new j;return t.getTilesList().forEach((i=>{let a=new V;a.addItem(V.ORDER,r.order),a.addItem(V.TILE_WIDTH,s);const o=new O(null,i,a),h=t.getImagePixelsByTile(i);o.initFromUint8Array(h,e,s),n.addFITS(o)})),n}static world2pix(t,e,i,s,r){return U(this,void 0,void 0,(function*(){const n=H.getHelpixByOrder(e);let a,o=null;i&&Y.convertToGalactic(t);let h=null;return t.getImagePixelList().forEach((e=>{const i=e.getRADeg(),r=e.getDecDeg(),d=new M(c.ASTRO,l.DEGREES,i,r),u=new R(null,!1,d.getSpherical().thetaRad,d.getSpherical().phiRad);if(a=n.ang2pix(u),o===a&&null!=o||(h=z.setupByTile(a,n),o=a),h){const t=z.world2intermediate(d.getAstro()),i=z.intermediate2pix(t[0],t[1],h,s);e.setij(i[0],i[1]),e.setTileNumber(a)}t.addTileNumber(a)})),yield Y.getPixelValues(t,r,e)}))}static convertToGalactic(t){const e=Math.PI/180,i=180/Math.PI,s=122.93*e,r=27.1284*e,n=192.8595*e;t.getImagePixelList().forEach((t=>{const a=t.getRADeg(),o=t.getDecDeg(),h=e*a,l=e*o,c=Math.sin(r)*Math.sin(l)+Math.cos(r)*Math.cos(l)*Math.cos(h-n),d=Math.asin(c)*i,u=Math.atan(Math.cos(l)*Math.sin(h-n)/(Math.sin(l)*Math.cos(r)-Math.cos(l)*Math.sin(r)*Math.cos(h-n))),p=(s-u)*i;t.setRADecDeg(p,d)}))}static getPixelValues(t,e,i){return U(this,void 0,void 0,(function*(){const s=t.getTilesList();let r=[];for(let n of s){const s=1e4*Math.floor(n/1e4),a=e+"/Norder"+i+"/Dir"+s+"/Npix"+n+".fits";console.log(`Identified source file ${a}`),r.push(u.loadFITS(a).then((e=>{var i,s,r;if(e){const o=Number(null===(i=e.header.findById("BITPIX"))||void 0===i?void 0:i.value),h=Number(null===(s=e.header.findById("NAXIS1"))||void 0===s?void 0:s.value),l=Number(null===(r=e.header.findById("NAXIS2"))||void 0===r?void 0:r.value);if(!o||!h||!l)return void console.error(`bitpix: ${o}, naxis1: ${h}, naxis2: ${l} for fits file ${a}`);const c=Math.abs(o/8);t.getImagePixelsByTile(n).forEach((t=>{const i=new Uint8Array(c);for(let s=0;s<c;s++)i[s]=e.data[t.getj()][t.geti()*c+s];t.setValue(i,o)}))}})))}return yield Promise.all(r),t}))}}var G=function(t,e,i,s){return new(i||(i=Promise))((function(r,n){function a(t){try{h(s.next(t))}catch(t){n(t)}}function o(t){try{h(s.throw(t))}catch(t){n(t)}}function h(t){var e;t.done?r(t.value):(e=t.value,e instanceof i?e:new i((function(t){t(e)}))).then(a,o)}h((s=s.apply(t,e||[])).next())}))};class W{static cutoutToHips(t,e,i,s){return G(this,void 0,void 0,(function*(){const r=yield W.extractProjectionType(s);if(!r)return null;const n=Y.getImageRADecList(t,e,i,512);if(!n)return null;r.world2pix(n);const a=Y.getFITSFiles(n,r.getFITSHeader(),i,512);for(let t of a.getFITSList()){const e=t[0],i=t[1],s=i.getPayload(),r=`./hips_${e}.fits`,n={header:i.getHeader(),data:s};u.saveFITSLocally(n,r)}return a}))}static extractProjectionType(t){return G(this,void 0,void 0,(function*(){var e;let i=yield u.loadFITS(t);if(!i)return null;if(String(null===(e=i.header.findById("CTYPE1"))||void 0===e?void 0:e.value).includes("MER")){let e=new T;return yield e.initFromFile(t),e}return null}))}static hipsCutout(t,e,i,s,r){return G(this,arguments,void 0,(function*(t,e,i,s,r,n=null){const a=yield $.parsePropertyFile(s),o=a.getItem(V.ORDER),h=a.getItem(V.FRAME),l=a.getItem(V.TILE_WIDTH);let c=!1;if("galactic"==h.toLowerCase()&&(c=!0),!n){const t=H.getHelpixBypxAngSize(i,l);n=Number(t.order)}if(n>o)throw new Error("requested HiPS order exceeds the maximum HiPS order ");const d=r.getImageRADecList(t,e,i);if(!d)return null;const u=yield Y.world2pix(d,n,c,l,s);return console.log(u),null}))}static hipsFITSChangeProjection(){return null}static generateFITS(t,e){const i={header:t,data:e};return u.generateFITSForWeb(i)}static getProjection(t){return"Mercator"===t?new T:null}static getAvaillableProjections(){return["Mercator","HiPS","HEALPix"]}}class K{constructor(t,e,i=NaN){this._i=t,this._j=e,this._tileno=i}geti(){return this._i}getj(){return this._j}get tileno(){return this._tileno}}})(),n})()));
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define("wcslight", [], factory);
+	else if(typeof exports === 'object')
+		exports["wcslight"] = factory();
+	else
+		root["wcslight"] = factory();
+})(self, () => {
+return /******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/Config.ts":
+/*!***********************!*\
+  !*** ./src/Config.ts ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Config: () => (/* binding */ Config)
+/* harmony export */ });
+class Config {
+}
+Config.MAX_DECIMALS = 6;
+
+
+/***/ }),
+
+/***/ "./src/WCSLight.ts":
+/*!*************************!*\
+  !*** ./src/WCSLight.ts ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   WCSLight: () => (/* binding */ WCSLight)
+/* harmony export */ });
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var _projections_mercator_MercatorProjection_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./projections/mercator/MercatorProjection.js */ "./src/projections/mercator/MercatorProjection.ts");
+/* harmony import */ var _projections_hips_HiPSProj_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./projections/hips/HiPSProj.js */ "./src/projections/hips/HiPSProj.ts");
+/* harmony import */ var _model_Point_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./model/Point.js */ "./src/model/Point.ts");
+/* harmony import */ var _projections_hips_HiPSPropManager_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./projections/hips/HiPSPropManager.js */ "./src/projections/hips/HiPSPropManager.ts");
+/* harmony import */ var _projections_hips_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./projections/hips/HiPSProperties.js */ "./src/projections/hips/HiPSProperties.ts");
+/* harmony import */ var _projections_HiPSHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./projections/HiPSHelper.js */ "./src/projections/HiPSHelper.ts");
+/* harmony import */ var _model_CoordsType_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./model/CoordsType.js */ "./src/model/CoordsType.ts");
+/* harmony import */ var _model_NumberType_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./model/NumberType.js */ "./src/model/NumberType.ts");
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/wcslight
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+
+class WCSLight {
+    /**
+     * This function receives a FITS and generate a cutout on HiPS FITS.
+     * @param center of the cutout in degrees
+     * @param radius of the cutout in degrees
+     * @param pxsize of the cutout in degrees
+     * @param filePath of the input FITS file
+     * @returns fitsList of FITS in HiPS format
+     */
+    static fitsCutoutToHiPS(center, radius, pxsize, filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const HiPS_TILE_WIDTH = 512;
+            // 0. here is missing the validation/check that the input file used to get the value, contains the center ...
+            // 1. open input fits file and understand the projection and set up in inprojection details like NAXIS1-2, CDELT1-2, CRVAL1-2, minRa and minDec
+            const inProjection = yield WCSLight.extractProjectionType(filePath);
+            if (!inProjection)
+                return null;
+            // const bitpix = inProjection.getBitpix()
+            // 2. from HiPS output projection, compute the list of RA,Dec and related tileno based on center, radius, pxsize, and tilewidth forced to 512
+            const outTilesRaDecList = _projections_hips_HiPSProj_js__WEBPACK_IMPORTED_MODULE_2__.HiPSProj.getImageRADecList(center, radius, pxsize, HiPS_TILE_WIDTH);
+            if (!outTilesRaDecList) {
+                return null;
+            }
+            // 3. by using the list of RA and Dec on point 2., convert RA,Dec into i,j used in the input projection to get pixel values (try to merge the 2 calls below in one single method)
+            inProjection.world2pix(outTilesRaDecList);
+            // const invalues = await inProjection.getPixValues(tilesRaDecList)
+            // 4. collect the details required to construct the output HiPS projection header 
+            // const fitsHeaderParams = inProjection.getCommonFitsHeaderParams();
+            // here pass inProjection.getFITSHeader()
+            // 5. generate output HiPS FITS file(s)
+            const fitsFileList = _projections_hips_HiPSProj_js__WEBPACK_IMPORTED_MODULE_2__.HiPSProj.getFITSFiles(outTilesRaDecList, inProjection.getFITSHeader(), pxsize, HiPS_TILE_WIDTH);
+            for (let hipsFitsEntry of fitsFileList.getFITSList()) {
+                const tileno = hipsFitsEntry[0];
+                const hipsFits = hipsFitsEntry[1];
+                const data = hipsFits.getPayload();
+                const header = hipsFits.getHeader();
+                const FITS_FILE_PATH = `./hips_${tileno}.fits`;
+                const fitsParsed = { header: header, data: data };
+                jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH);
+            }
+            return fitsFileList;
+        });
+    }
+    // only MERCATOR supported at the moment
+    static extractProjectionType(filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            let fits = yield jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser.loadFITS(filePath);
+            if (!fits)
+                return null;
+            const ctype = String((_a = fits.header.findById("CTYPE1")) === null || _a === void 0 ? void 0 : _a.value);
+            if (ctype.includes("MER")) {
+                let projection = new _projections_mercator_MercatorProjection_js__WEBPACK_IMPORTED_MODULE_1__.MercatorProjection();
+                yield projection.initFromFile(filePath);
+                return projection;
+            }
+            return null;
+        });
+    }
+    // TODO: instead of using AbstractProjection, use a constant file with supported projection names
+    static hipsCutoutToFITS(center_1, radius_1, pixelAngSize_1, baseHiPSURL_1, outproj_1) {
+        return __awaiter(this, arguments, void 0, function* (center, radius, pixelAngSize, baseHiPSURL, outproj, hipsOrder = null) {
+            var _a, _b;
+            const hipsProp = yield _projections_hips_HiPSPropManager_js__WEBPACK_IMPORTED_MODULE_4__.HiPSPropManager.parsePropertyFile(baseHiPSURL);
+            const hipsMaxOrder = hipsProp.getItem(_projections_hips_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_5__.HiPSProperties.ORDER);
+            const hipsFrame = hipsProp.getItem(_projections_hips_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_5__.HiPSProperties.FRAME);
+            const TILE_WIDTH = hipsProp.getItem(_projections_hips_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_5__.HiPSProperties.TILE_WIDTH);
+            let isGalactic = false;
+            if (hipsFrame.toLowerCase() == 'galactic') {
+                isGalactic = true;
+            }
+            if (!hipsOrder) {
+                const healpix = _projections_HiPSHelper_js__WEBPACK_IMPORTED_MODULE_6__.HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH);
+                hipsOrder = Number(healpix.order);
+            }
+            if (hipsOrder > hipsMaxOrder) {
+                throw new Error("requested HiPS order exceeds the maximum HiPS order ");
+            }
+            /*
+            below how naxis are computed
+            outproj.getImageRADecList -> computeSquaredNaxes -> set naxis1 and naxis2
+            */
+            const naxisWidth = outproj.computeNaxisWidth(radius, pixelAngSize);
+            const outRADecList = outproj.getImageRADecList(center, radius, pixelAngSize, naxisWidth);
+            if (!outRADecList)
+                return null;
+            const raDecMinMaxCentral = outRADecList.computeRADecMinMaxCentral();
+            const cRA = raDecMinMaxCentral === null || raDecMinMaxCentral === void 0 ? void 0 : raDecMinMaxCentral.getCentralRA();
+            const cDec = raDecMinMaxCentral === null || raDecMinMaxCentral === void 0 ? void 0 : raDecMinMaxCentral.getCentralDec();
+            if (cRA === undefined || cDec === undefined)
+                return null;
+            // TODO check if possible to compute in the word2pix, when iterating onver ImagePixels, the min and max value.
+            const raDecWithValues = yield _projections_hips_HiPSProj_js__WEBPACK_IMPORTED_MODULE_2__.HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL);
+            if (!raDecWithValues)
+                return null;
+            const minValue = (_a = raDecWithValues.getMinMaxValues()) === null || _a === void 0 ? void 0 : _a.getMinValue();
+            const maxValue = (_b = raDecWithValues.getMinMaxValues()) === null || _b === void 0 ? void 0 : _b.getMaxValue();
+            if (minValue === undefined || maxValue === undefined)
+                return null;
+            /** info required:
+             * SIMPLE  = T
+                BITPIX  = -64
+                NAXIS   = 2
+                NAXIS1  = 512
+                NAXIS2  = 512
+                BSCALE  = 1
+                BZERO   = 0
+                CTYPE1  = RA---HPX
+                CTYPE2  = DEC--HPX
+                DATAMIN = 0
+                DATAMAX = 0
+                hips_order= 7
+                NPIX    = 113056
+                CRPIX1  = 56528
+                CRPIX2  = 56528
+                ORIGIN  = WCSLight v.0.x
+                COMMENT =  / WCSLight v0.x developed by F.Giordano and Y.Ascasibar
+                CRVAL1  = 170.15625
+                CRVAL2  = 18.5243910738658
+                END
+             */
+            // TODO BLANK, BZERO, BSCALE must be taken from the FITS tiles and not from the HiPS metadata.
+            const BLANK = 0.0;
+            const BZERO = 0.0;
+            const BSCALE = 1.0;
+            const BITPIX = parseInt(hipsProp.getItem(_projections_hips_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_5__.HiPSProperties.BITPIX));
+            if (BITPIX != 8 && BITPIX != 16 && BITPIX != 32 && BITPIX != -32 && BITPIX != -64) {
+                throw new Error("unsupported BITPIX value");
+            }
+            const fits = outproj.generateFITSFile(pixelAngSize, hipsProp.getItem(_projections_hips_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_5__.HiPSProperties.BITPIX), naxisWidth, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues);
+            console.log(fits);
+            return fits;
+        });
+    }
+    static hipsFITSChangeProjection() {
+        return null;
+    }
+    // static async cutout(center: Point, radius: number,
+    //     pxsize: number, inproj: AbstractProjection, outproj: AbstractProjection): Promise<CutoutResult> {
+    //     // HIPS out
+    //     // MER in
+    //     const outRADecList: Array<Array<number>> = outproj.getImageRADecList(center, radius, pxsize);
+    //     if (outRADecList.length == 0) {
+    //         const res: CutoutResult = {
+    //             fitsheader: [],
+    //             fitsdata: null,
+    //             inproj: inproj,
+    //             outproj: outproj,
+    //             fitsused: inproj.fitsUsed
+    //         };
+    //         return res;
+    //     }
+    //     const inputPixelsList = inproj.world2pix(outRADecList);
+    //     try {
+    //         const invalues = await inproj.getPixValues(inputPixelsList);
+    //         const fitsHeaderParams = inproj.getCommonFitsHeaderParams();
+    //         if (invalues !== undefined) {
+    //             const fitsdata = outproj.setPxsValue(invalues, fitsHeaderParams);
+    //             const fitsheader = outproj.getFITSHeader();
+    //             const fits = new FITS(fitsheader, fitsdata)
+    //             const res: CutoutResult = {
+    //                 fitsheader: fits.header,
+    //                 fitsdata: fits.data,
+    //                 inproj: inproj,
+    //                 outproj: outproj,
+    //                 fitsused: inproj.fitsUsed
+    //             };
+    //             return res;
+    //         } else {
+    //             const nanFits = outproj.generateFITSWithNaN()
+    //             const res: CutoutResult = {
+    //                 fitsheader: nanFits.header,
+    //                 fitsdata: nanFits.data,
+    //                 inproj: inproj,
+    //                 outproj: outproj,
+    //                 fitsused: inproj.fitsUsed
+    //             };
+    //             return res;
+    //         }
+    //     } catch (err) {
+    //         console.error("[WCSLight] ERROR: " + err);
+    //         return null;
+    //     }
+    // }
+    /**
+     *
+     * @param {*} fitsheader
+     * @param {*} fitsdata
+     * @returns {URL}
+     */
+    static generateFITS(fitsheader, fitsdata) {
+        const fitsParsed = {
+            header: fitsheader,
+            data: fitsdata
+        };
+        // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
+        const blobUrl = jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser.generateFITSForWeb(fitsParsed);
+        return blobUrl;
+    }
+    // static changeProjection(filepath, outprojname) {
+    //     // TODO
+    // }
+    static getProjection(projectionName) {
+        if (projectionName === "Mercator") {
+            return new _projections_mercator_MercatorProjection_js__WEBPACK_IMPORTED_MODULE_1__.MercatorProjection();
+            // } else if (projectionName === "HEALPix") {
+            //     return new HEALPixProjection();
+            // } else if (projectionName === "Gnomonic") {
+            //     return new GnomonicProjection();
+        }
+        else {
+            return null;
+            // throw new ProjectionNotFound(projectionName);
+        }
+    }
+    static getAvaillableProjections() {
+        return ["Mercator", "HiPS", "HEALPix"];
+    }
+}
+const center = new _model_Point_js__WEBPACK_IMPORTED_MODULE_3__.Point(_model_CoordsType_js__WEBPACK_IMPORTED_MODULE_7__.CoordsType.ASTRO, _model_NumberType_js__WEBPACK_IMPORTED_MODULE_8__.NumberType.DEGREES, 170.015, 18.35);
+WCSLight.fitsCutoutToHiPS(center, 0.06, 0.0005, "/Users/fgiordano/Desktop/REORG/PhD/code/github/wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
+    console.log(res);
+});
+
+
+/***/ }),
+
+/***/ "./src/model/CoordsType.ts":
+/*!*********************************!*\
+  !*** ./src/model/CoordsType.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CoordsType: () => (/* binding */ CoordsType)
+/* harmony export */ });
+/**
+ * @author Fabrizio Giordano (Fab77)
+ * Enum for coordinate types.
+ * @readonly
+ * @enum {{name: string, hex: string}}
+ */
+var CoordsType;
+(function (CoordsType) {
+    CoordsType["CARTESIAN"] = "cartesian";
+    CoordsType["SPHERICAL"] = "spherical";
+    CoordsType["ASTRO"] = "astro";
+})(CoordsType || (CoordsType = {}));
+
+
+/***/ }),
+
+/***/ "./src/model/FITS.ts":
+/*!***************************!*\
+  !*** ./src/model/FITS.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FITS: () => (/* binding */ FITS)
+/* harmony export */ });
+class FITS {
+    constructor(header, data) {
+        this._header = header;
+        this._data = data;
+    }
+    get header() {
+        return this._header;
+    }
+    get data() {
+        return this._data;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/model/ImagePixel.ts":
+/*!*********************************!*\
+  !*** ./src/model/ImagePixel.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ImagePixel: () => (/* binding */ ImagePixel)
+/* harmony export */ });
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/wcslight
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class ImagePixel {
+    constructor(i, j, tileno = NaN) {
+        this._i = i;
+        this._j = j;
+        this._tileno = tileno;
+    }
+    geti() {
+        return this._i;
+    }
+    getj() {
+        return this._j;
+    }
+    get tileno() {
+        return this._tileno;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/model/NumberType.ts":
+/*!*********************************!*\
+  !*** ./src/model/NumberType.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   NumberType: () => (/* binding */ NumberType)
+/* harmony export */ });
+var NumberType;
+(function (NumberType) {
+    NumberType[NumberType["DEGREES"] = 0] = "DEGREES";
+    NumberType[NumberType["RADIANS"] = 1] = "RADIANS";
+    NumberType[NumberType["DECIMAL"] = 2] = "DECIMAL";
+    NumberType[NumberType["HMS"] = 3] = "HMS";
+    NumberType[NumberType["DMS"] = 4] = "DMS";
+})(NumberType || (NumberType = {}));
+
+
+/***/ }),
+
+/***/ "./src/model/Point.ts":
+/*!****************************!*\
+  !*** ./src/model/Point.ts ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Point: () => (/* binding */ Point)
+/* harmony export */ });
+/* harmony import */ var _Utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Utils.js */ "./src/model/Utils.ts");
+/* harmony import */ var _CoordsType_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CoordsType.js */ "./src/model/CoordsType.ts");
+/* harmony import */ var _Config_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Config.js */ "./src/Config.ts");
+/**
+ * @author Fabrizio Giordano (Fab77)
+ */
+
+
+
+class Point {
+    constructor(in_type, unit, ...coords) {
+        if (in_type == _CoordsType_js__WEBPACK_IMPORTED_MODULE_1__.CoordsType.CARTESIAN) {
+            this.cartesian.x = parseFloat(coords[0].toFixed(_Config_js__WEBPACK_IMPORTED_MODULE_2__.Config.MAX_DECIMALS));
+            this.cartesian.y = parseFloat(coords[1].toFixed(_Config_js__WEBPACK_IMPORTED_MODULE_2__.Config.MAX_DECIMALS));
+            this.cartesian.z = parseFloat(coords[2].toFixed(_Config_js__WEBPACK_IMPORTED_MODULE_2__.Config.MAX_DECIMALS));
+            this.spherical = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.cartesianToSpherical)(this.cartesian);
+            this.astro = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.sphericalToAstro)(this.spherical);
+        }
+        else if (in_type == _CoordsType_js__WEBPACK_IMPORTED_MODULE_1__.CoordsType.ASTRO) {
+            const c = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.fillAstro)(coords[0], coords[1], unit);
+            if (c !== null) {
+                this.astro = c;
+                this.spherical = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.astroToSpherical)(this.astro);
+                this.cartesian = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.sphericalToCartesian)(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+            }
+        }
+        else if (in_type == _CoordsType_js__WEBPACK_IMPORTED_MODULE_1__.CoordsType.SPHERICAL) {
+            const s = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.fillSpherical)(coords[0], coords[1], unit);
+            if (s !== null) {
+                this.spherical = s;
+                this.cartesian = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.sphericalToCartesian)(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+                this.astro = (0,_Utils_js__WEBPACK_IMPORTED_MODULE_0__.sphericalToAstro)(this.spherical);
+            }
+        }
+        else {
+            console.error("CoordsType " + in_type + " not recognised.");
+        }
+        if (this.spherical.phiDeg > 360) {
+            this.spherical.phiDeg -= 360;
+        }
+        if (this.astro.raDeg > 360) {
+            this.astro.raDeg -= 360;
+        }
+    }
+    // constructor(in_options: ICoordsFormat, in_type: CoordsType){
+    // 	if (in_type == CoordsType.CARTESIAN){
+    // 		this.cartesian.x = parseFloat((in_options as CartesianCoords).x.toFixed(global.MAX_DECIMALS));
+    // 		this.cartesian.y = parseFloat((in_options as CartesianCoords).y.toFixed(global.MAX_DECIMALS));
+    // 		this.cartesian.z = parseFloat((in_options as CartesianCoords).z.toFixed(global.MAX_DECIMALS));
+    // 		this.spherical = cartesianToSpherical(this.cartesian);
+    // 		this.astro = sphericalToAstro(this.spherical);
+    // 	}else if (in_type == CoordsType.ASTRO){
+    // 		if ((in_options as AstroCoords).raDeg && (in_options as AstroCoords).decDeg) {
+    // 			this.astro = radegDecdegToAstro((in_options as AstroCoords).raDeg,  (in_options as AstroCoords).decDeg );
+    // 		} else if ((in_options as AstroCoords).raRad && (in_options as AstroCoords).decRad) {
+    // 			this.astro = raradDecradToAstro((in_options as AstroCoords).raRad,  (in_options as AstroCoords).decRad );
+    // 		} else {
+    // 			console.error("AstroCoords incomplete "+ in_options );
+    // 			return null;
+    // 		}
+    // 		this.spherical = astroToSpherical(this.astro);
+    // 		this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+    // 	}else if (in_type == CoordsType.SPHERICAL){
+    // 		if ((in_options as SphericalCoords).phiDeg && (in_options as SphericalCoords).thetaDeg) {
+    // 			this.spherical = phidegThetadegToSpherical((in_options as SphericalCoords).phiDeg,  (in_options as SphericalCoords).thetaDeg );
+    // 		} else if ((in_options as SphericalCoords).phiRad && (in_options as SphericalCoords).thetaRad) {
+    // 			this.spherical = phiradThetaradToSpherical((in_options as SphericalCoords).phiRad,  (in_options as SphericalCoords).thetaRad );
+    // 		} else {
+    // 			console.error("SphericalCoords incomplete "+ in_options );
+    // 			return null;
+    // 		}
+    // 		this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
+    // 		this.astro = sphericalToAstro(this.spherical);
+    // 	}else{
+    // 		console.error("CoordsType "+in_type+" not recognised.");
+    // 	}
+    // }
+    getSpherical() {
+        return this.spherical;
+    }
+    getAstro() {
+        return this.astro;
+    }
+    getCartesian() {
+        return this.cartesian;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/model/Utils.ts":
+/*!****************************!*\
+  !*** ./src/model/Utils.ts ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   astroToSpherical: () => (/* binding */ astroToSpherical),
+/* harmony export */   cartesianToSpherical: () => (/* binding */ cartesianToSpherical),
+/* harmony export */   colorHex2RGB: () => (/* binding */ colorHex2RGB),
+/* harmony export */   decDegToDMS: () => (/* binding */ decDegToDMS),
+/* harmony export */   degToRad: () => (/* binding */ degToRad),
+/* harmony export */   fillAstro: () => (/* binding */ fillAstro),
+/* harmony export */   fillSpherical: () => (/* binding */ fillSpherical),
+/* harmony export */   raDegToHMS: () => (/* binding */ raDegToHMS),
+/* harmony export */   radToDeg: () => (/* binding */ radToDeg),
+/* harmony export */   sphericalToAstro: () => (/* binding */ sphericalToAstro),
+/* harmony export */   sphericalToCartesian: () => (/* binding */ sphericalToCartesian)
+/* harmony export */ });
+/* harmony import */ var _NumberType_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NumberType.js */ "./src/model/NumberType.ts");
+/**
+ * @author Fabrizio Giordano (Fab)
+ */
+// import vec3 from 'gl-matrix';
+
+function Utils() {
+}
+function cartesianToSpherical(xyz) {
+    let dotXYZ = dot(xyz, xyz);
+    let r = Math.sqrt(dotXYZ);
+    let thetaRad = Math.acos(xyz.z / r);
+    let thetaDeg = radToDeg(thetaRad);
+    // NB: in atan(y/x) is written with params switched atan2(x, y)
+    let phiRad = Math.atan2(xyz.y, xyz.x);
+    let phiDeg = radToDeg(phiRad);
+    if (phiDeg < 0) {
+        phiDeg += 360;
+    }
+    return {
+        phiDeg: phiDeg,
+        thetaDeg: thetaDeg,
+        phiRad: phiRad,
+        thetaRad: thetaRad
+    };
+}
+;
+function sphericalToAstro(phiTheta) {
+    let raDeg;
+    let decDeg;
+    raDeg = phiTheta.phiDeg;
+    if (raDeg < 0) {
+        raDeg += 360;
+    }
+    decDeg = 90 - phiTheta.thetaDeg;
+    return {
+        "raDeg": raDeg,
+        "decDeg": decDeg,
+        "raRad": degToRad(raDeg),
+        "decRad": degToRad(decDeg)
+    };
+}
+function astroToSpherical(raDec) {
+    let phiDeg;
+    let thetaDeg;
+    phiDeg = raDec.raDeg;
+    if (phiDeg < 0) {
+        phiDeg += 360;
+    }
+    thetaDeg = 90 - raDec.decDeg;
+    return {
+        "phiDeg": phiDeg,
+        "thetaDeg": thetaDeg,
+        "phiRad": degToRad(phiDeg),
+        "thetaRad": degToRad(thetaDeg),
+    };
+}
+function sphericalToCartesian(phiTheta, r) {
+    r = (r == undefined) ? 1 : r;
+    var x = r * Math.sin(phiTheta.thetaRad) * Math.cos(phiTheta.phiRad);
+    var y = r * Math.sin(phiTheta.thetaRad) * Math.sin(phiTheta.phiRad);
+    var z = r * Math.cos(phiTheta.thetaRad);
+    return {
+        "x": x,
+        "y": y,
+        "z": z
+    };
+}
+;
+function fillAstro(ra, dec, unit) {
+    if (unit == _NumberType_js__WEBPACK_IMPORTED_MODULE_0__.NumberType.DEGREES) {
+        return {
+            "raDeg": ra,
+            "decDeg": dec,
+            "raRad": degToRad(ra),
+            "decRad": degToRad(dec)
+        };
+    }
+    else if (unit == _NumberType_js__WEBPACK_IMPORTED_MODULE_0__.NumberType.RADIANS) {
+        return {
+            "raRad": ra,
+            "decRad": dec,
+            "raDeg": radToDeg(ra),
+            "decDeg": radToDeg(dec)
+        };
+    }
+    else {
+        console.error("Wrong operation. NumberType " + unit + " not supported");
+        return null;
+    }
+}
+function fillSpherical(phi, theta, unit) {
+    if (unit == _NumberType_js__WEBPACK_IMPORTED_MODULE_0__.NumberType.DEGREES) {
+        return {
+            "phiDeg": phi,
+            "thetaDeg": theta,
+            "phiRad": degToRad(phi),
+            "thetaRad": degToRad(theta)
+        };
+    }
+    else if (unit == _NumberType_js__WEBPACK_IMPORTED_MODULE_0__.NumberType.RADIANS) {
+        return {
+            "phiDeg": radToDeg(phi),
+            "thetaDeg": radToDeg(theta),
+            "phiRad": phi,
+            "thetaRad": theta
+        };
+    }
+    else {
+        console.error("Wrong operation. NumberType " + unit + " not supported");
+        return null;
+    }
+}
+function dot(a, b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+function colorHex2RGB(hexColor) {
+    //	console.log(hexColor);
+    var hex1 = hexColor.substring(1, 3);
+    var hex2 = hexColor.substring(3, 5);
+    var hex3 = hexColor.substring(5, 7);
+    var dec1 = parseInt(hex1, 16);
+    var dec2 = parseInt(hex2, 16);
+    var dec3 = parseInt(hex3, 16);
+    var rgb1 = (dec1 / 255).toFixed(2);
+    var rgb2 = (dec2 / 255).toFixed(2);
+    var rgb3 = (dec3 / 255).toFixed(2);
+    return [parseFloat(rgb1), parseFloat(rgb2), parseFloat(rgb3)];
+}
+function degToRad(degrees) {
+    return (degrees / 180) * Math.PI;
+}
+function radToDeg(radians) {
+    return radians * 180 / Math.PI;
+}
+function raDegToHMS(raDeg) {
+    var h = Math.floor(raDeg / 15);
+    var m = Math.floor((raDeg / 15 - h) * 60);
+    var s = (raDeg / 15 - h - m / 60) * 3600;
+    return {
+        h: h,
+        m: m,
+        s: s
+    };
+}
+function decDegToDMS(decDeg) {
+    var sign = 1;
+    if (decDeg < 0) {
+        sign = -1;
+    }
+    var decDeg_abs = Math.abs(decDeg);
+    var d = Math.trunc(decDeg_abs);
+    var m = Math.trunc((decDeg_abs - d) * 60);
+    var s = (decDeg_abs - d - m / 60) * 3600;
+    d = d * sign;
+    return {
+        d: d,
+        m: m,
+        s: s
+    };
+}
+function dms2DecDeg(decDMS) {
+    var sign = Math.sign(decDMS.d);
+    var deg = (decDMS.d) + sign * (decDMS.m / 60) + sign * (decDMS.s / 3600);
+    return deg;
+}
+function hms2RaDeg(raHMS) {
+    var sign = Math.sign(raHMS.h);
+    var deg = (raHMS.h + sign * (raHMS.m / 60) + sign * (raHMS.s / 3600)) * 15;
+    return deg;
+}
+function worldToModel(xy, radius) {
+    var x = xy[0];
+    var y = xy[1];
+    var z = Math.sqrt(radius * radius - xy[0] * xy[0] - xy[1] * xy[1]);
+    return [x, y, z];
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/AbstractProjection.ts":
+/*!***********************************************!*\
+  !*** ./src/projections/AbstractProjection.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AbstractProjection: () => (/* binding */ AbstractProjection)
+/* harmony export */ });
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/wcslight
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class AbstractProjection {
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/HiPSHelper.ts":
+/*!***************************************!*\
+  !*** ./src/projections/HiPSHelper.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HiPSHelper: () => (/* binding */ HiPSHelper)
+/* harmony export */ });
+/* harmony import */ var healpixjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! healpixjs */ "./node_modules/healpixjs/lib-esm/index.js");
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/wcslight
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+
+
+
+class HiPSHelper {
+    /**
+     * Table 1 - ref paper HEALPix — a Framework for High Resolution Discretization,
+     * and Fast Analysis of Data Distributed on the Sphere
+     * K. M. G´orski1,2, E. Hivon3,4, A. J. Banday5, B. D. Wandelt6,7, F. K. Hansen8, M.
+     * Reinecke5, M. Bartelman9
+     */
+    /**
+     *
+     * @param {decimal degrees} pxsize
+     * @returns {int} nside
+     */
+    // static computeHiPSOrder(pxsize: number, pxXtile: number): number {
+    // 	/**
+    // 	 * with same order k (table 1), HIPS angular resolution is higher of order of 512 (2^9) pixels than 
+    // 	 * the HEALPix. This is because each tile in a HiPS is represented by default by 512x512 pixels.\
+    // 	 * Angular resolution of different HEALPix orders in respect to the order 0, can be calculated this
+    // 	 * way:
+    // 	 * 
+    // 	 * 	L(k) = L(0) / 2^k = 58.6 / 2^k
+    // 	 * 
+    // 	 * Therefore, in the case of HiPS we need to take into account the extra resolution given by the 
+    // 	 * 512x512 (2^9) tiles. In this case the above becomes:
+    // 	 * 	
+    // 	 * 	L(k) = L(0) / (2^k * 2^9) 
+    // 	 * 
+    // 	 * Though, in order to compute the required order starting from the pxsize desired (in input) we
+    // 	 * need to perform these steps:
+    // 	 * 
+    // 	 * 	pxsize = L(k) = L(0) / (2^k * 2^9)
+    // 	 * 	2^k = L(0) / (pxsize * 2^9)
+    // 	 *  k * Log2 2 = Log2 L(0) - Log2 (pxsize * 2^9)
+    // 	 * 	k = Log2 L(0) - Log2 (pxsize * 2^9)
+    // 	 * 
+    // 	 */
+    // 	let k = Math.log2( (HiPSHelper.RES_ORDER_0 / pxXtile) / pxsize);
+    // 	// let k = Math.log2(HiPSHelper.RES_ORDER_0 / (pxXtile * pxsize));
+    // 	k = Math.round(k);
+    // 	// let theta0px = HiPSHelper.RES_ORDER_0;
+    // 	// let k = Math.log2(theta0px) - Math.log2(pxsize * 2**9);
+    // 	// k = Match.round(k);
+    // 	// let nside = 2**k;
+    // 	// return {
+    // 	//     "nside" : nside,
+    // 	//     "norder" : k
+    // 	// };
+    // 	return k;
+    // }
+    // static computeHiPSOrder2(pxsize: number, pxXtile: number): number {
+    // 	const k = Math.log2( Math.sqrt(Math.PI/ 3) / ( pxsize * pxXtile) )
+    // 	const order = Math.round(k);
+    // 	console.warn(k)
+    // 	return order;
+    // }
+    // based on "HiPS – Hierarchical Progressive Survey" IVOA recomandation (formula on table 5)
+    static computeOrder(pxAngSizeDeg, pxTileWidth) {
+        console.log(`Computing HiPS order having pixel angular size of ${pxAngSizeDeg} in degrees`);
+        const deg2rad = Math.PI / 180;
+        const pxAngSizeRad = pxAngSizeDeg * deg2rad;
+        console.log(`pixel angular res in radians ${pxAngSizeRad}`);
+        const computedOrder = 0.5 * Math.log2(Math.PI / (3 * pxAngSizeRad * pxAngSizeRad * pxTileWidth * pxTileWidth));
+        console.log(`Order ${computedOrder}`);
+        if (computedOrder < 0) {
+            return 0;
+        }
+        return Math.floor(computedOrder);
+    }
+    static getHelpixByOrder(order) {
+        const nside = Math.pow(2, order);
+        const healpix = new healpixjs__WEBPACK_IMPORTED_MODULE_0__.Healpix(nside);
+        return healpix;
+    }
+    static getHelpixBypxAngSize(pixelAngulaSize, TILE_WIDTH) {
+        const healpixOrder = HiPSHelper.computeOrder(pixelAngulaSize, TILE_WIDTH);
+        const nside = Math.pow(2, healpixOrder);
+        const healpix = new healpixjs__WEBPACK_IMPORTED_MODULE_0__.Healpix(nside);
+        return healpix;
+    }
+    // based on "HiPS – Hierarchical Progressive Survey" IVOA recomandation (formula on table 5)
+    static computePxAngularSize(pxTileWidth, order) {
+        const computedPxAngSizeRadiant = Math.sqrt(4 * Math.PI / (12 * Math.pow((pxTileWidth * (Math.pow(2, order))), 2)));
+        console.log(`Computing Pixel size with tile of ${pxTileWidth} pixels and order ${order}`);
+        const rad2deg = 180 / Math.PI;
+        const deg = computedPxAngSizeRadiant * rad2deg;
+        const arcmin = computedPxAngSizeRadiant * rad2deg * 60;
+        const arcsec = computedPxAngSizeRadiant * rad2deg * 3600;
+        console.log("Pixel size in radiant:" + computedPxAngSizeRadiant);
+        console.log("Pixel size in degrees:" + deg);
+        console.log("Pixel size in arcmin:" + arcmin);
+        console.log("Pixel size in arcsec:" + arcsec);
+        return {
+            "rad": computedPxAngSizeRadiant,
+            "deg": deg,
+            "arcmin": arcmin,
+            "arcsec": arcsec
+        };
+    }
+    /**
+     * Reference: HiPS – Hierarchical Progressive Survey page 11
+     * pxsize =~ sqrt[4 * PI / (12 * (512 * 2^order)^2)]
+     * @param {*} order
+     */
+    static computePxSize(order, pxXtile) {
+        // TODO CHECK IT
+        // let pxsize = 1 / (512 * 2 ** order) * Math.sqrt(Math.PI / 3);
+        let pxsize = 1 / (pxXtile * Math.pow(2, order)) * Math.sqrt(Math.PI / 3);
+        return pxsize;
+    }
+    // /**
+    //  * 
+    //  * @param {Object {ra, dec}} point  decimal degrees
+    //  * @returns {Object {phi_rad, theta_rad}} in radians
+    //  */
+    // static convert2PhiTheta (point: Point) {
+    // 	let phitheta_rad = {};
+    // 	let phiTheta_deg = HiPSHelper.astroDegToSpherical(point.ra, point.dec);
+    // 	phitheta_rad.phi_rad = HiPSHelper.degToRad(phiTheta_deg.phi);
+    //     phitheta_rad.theta_rad = HiPSHelper.degToRad(phiTheta_deg.theta);
+    // 	return phitheta_rad;
+    // }
+    // static astroDegToSphericalRad(raDeg: number, decDeg: number) {
+    // 	let phiThetaDeg = HiPSHelper.astroDegToSpherical(raDeg, decDeg);
+    // 	let phiThetaRad = {
+    // 		phi_rad: HiPSHelper.degToRad(phiThetaDeg.phi),
+    // 		theta_rad: HiPSHelper.degToRad(phiThetaDeg.theta)
+    // 	}
+    // 	return phiThetaRad;
+    // }
+    // static degToRad(degrees: number): number {
+    // 	return (degrees / 180 ) * Math.PI ;
+    // }
+    // static radToDeg(rad: number): number {
+    // 	return (rad / Math.PI ) * 180 ;
+    // }
+    // static astroDegToSpherical(raDeg: number, decDeg: number): Point{
+    // 	let phiDeg: number;
+    // 	let thetaDeg: number;
+    // 	phiDeg = raDeg;
+    // 	if (phiDeg < 0){
+    // 		phiDeg += 360;
+    // 	}
+    // 	thetaDeg = 90 - decDeg;
+    // 	return {
+    // 		phi: phiDeg,
+    // 		theta: thetaDeg
+    // 	};
+    // }
+    /**
+     *
+     * @param {Object {phi_rad, theta_rad}} phiTheta_rad Center of the circle in radians
+     * @param {decimal} r Radius of the circle in radians
+     * @returns
+     */
+    static computeBbox(point, r) {
+        let bbox = [];
+        bbox.push(new healpixjs__WEBPACK_IMPORTED_MODULE_0__.Pointing(null, false, point.getSpherical().thetaRad - r, point.getSpherical().phiRad - r));
+        bbox.push(new healpixjs__WEBPACK_IMPORTED_MODULE_0__.Pointing(null, false, point.getSpherical().thetaRad - r, point.getSpherical().phiRad + r));
+        bbox.push(new healpixjs__WEBPACK_IMPORTED_MODULE_0__.Pointing(null, false, point.getSpherical().thetaRad + r, point.getSpherical().phiRad + r));
+        bbox.push(new healpixjs__WEBPACK_IMPORTED_MODULE_0__.Pointing(null, false, point.getSpherical().thetaRad - r, point.getSpherical().phiRad - r));
+        return bbox;
+    }
+}
+// static pxXtile: number = 512; // TODO in some cases it is different
+HiPSHelper.DEFAULT_Naxis1_2 = 512;
+// static RES_ORDER_0: number = 58.6 / HiPSHelper.pxXtile;
+HiPSHelper.RES_ORDER_0 = 58.6;
+HiPSHelper.H = 4;
+HiPSHelper.K = 3;
+HiPSHelper.THETAX = healpixjs__WEBPACK_IMPORTED_MODULE_0__.Hploc.asin((HiPSHelper.K - 1) / HiPSHelper.K);
+
+
+/***/ }),
+
+/***/ "./src/projections/MinMaxValue.ts":
+/*!****************************************!*\
+  !*** ./src/projections/MinMaxValue.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   MinMaxValue: () => (/* binding */ MinMaxValue)
+/* harmony export */ });
+class MinMaxValue {
+    constructor(min, max) {
+        this.min = min;
+        this.max = max;
+    }
+    getMinValue() {
+        return this.min;
+    }
+    getMaxValue() {
+        return this.max;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/RADecMinMaxCentral.ts":
+/*!***********************************************!*\
+  !*** ./src/projections/RADecMinMaxCentral.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   RADecMinMaxCentral: () => (/* binding */ RADecMinMaxCentral)
+/* harmony export */ });
+class RADecMinMaxCentral {
+    constructor(centralRA, centralDec, minRA, minDec, maxRA, maxDec) {
+        this.centralDec = centralDec;
+        this.centralRA = centralRA;
+        this.maxDec = maxDec;
+        this.maxRA = maxRA;
+        this.minRA = minRA;
+        this.minDec = minDec;
+    }
+    getMinRA() {
+        return this.minRA;
+    }
+    getMinDec() {
+        return this.minDec;
+    }
+    getMaxRA() {
+        return this.maxRA;
+    }
+    getMaxDec() {
+        return this.maxDec;
+    }
+    getCentralRA() {
+        return this.centralRA;
+    }
+    getCentralDec() {
+        return this.centralDec;
+    }
+    setMinRA(minRA) {
+        this.minRA = minRA;
+    }
+    setMinDec(minDec) {
+        this.minDec = minDec;
+    }
+    setMaxRA(maxRA) {
+        this.maxRA = maxRA;
+    }
+    setMaxDec(maxDec) {
+        this.maxDec = maxDec;
+    }
+    setCentralRA(cRA) {
+        this.centralRA = cRA;
+    }
+    setCentralDec(cDec) {
+        this.centralDec = cDec;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/FITSList.ts":
+/*!******************************************!*\
+  !*** ./src/projections/hips/FITSList.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FITSList: () => (/* binding */ FITSList)
+/* harmony export */ });
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var _HiPSFITS_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HiPSFITS.js */ "./src/projections/hips/HiPSFITS.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+class FITSList {
+    constructor() {
+        this.fitslist = new Map();
+    }
+    getFITSList() {
+        return this.fitslist;
+    }
+    getFITS(tileno) {
+        const fits = this.fitslist.get(tileno);
+        return fits === undefined ? null : fits;
+    }
+    addFITSByURL(url) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const fits = yield jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser.loadFITS(url);
+            const hipsFits = new _HiPSFITS_js__WEBPACK_IMPORTED_MODULE_1__.HiPSFITS(fits, null, null);
+            this.fitslist.set(hipsFits.getTileno(), hipsFits);
+        });
+    }
+    addFITS(fits) {
+        const tileno = fits.getTileno();
+        this.fitslist.set(tileno, fits);
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/HiPSFITS.ts":
+/*!******************************************!*\
+  !*** ./src/projections/hips/HiPSFITS.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HiPSFITS: () => (/* binding */ HiPSFITS)
+/* harmony export */ });
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HiPSIntermediateProj.js */ "./src/projections/hips/HiPSIntermediateProj.ts");
+/* harmony import */ var healpixjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! healpixjs */ "./node_modules/healpixjs/lib-esm/index.js");
+/* harmony import */ var _model_Utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../model/Utils.js */ "./src/model/Utils.ts");
+/* harmony import */ var _model_NumberType_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../model/NumberType.js */ "./src/model/NumberType.ts");
+/* harmony import */ var _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../HiPSHelper.js */ "./src/projections/HiPSHelper.ts");
+/* harmony import */ var _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./HiPSProperties.js */ "./src/projections/hips/HiPSProperties.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+class HiPSFITS {
+    constructor(fitsParsed, tileno, hipsProp) {
+        this.payload = [];
+        this.min = NaN;
+        this.max = NaN;
+        if (fitsParsed) {
+            this.initFromFITSParsed(fitsParsed);
+        }
+        else if (!tileno || !hipsProp) {
+            console.error("tileno or hipsProp are not defined");
+            throw new Error("tileno or hipsProp are not defined");
+        }
+        else {
+            this.order = hipsProp.getItem(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_6__.HiPSProperties.ORDER);
+            const naxis1 = hipsProp.getItem(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_6__.HiPSProperties.TILE_WIDTH);
+            const naxis2 = hipsProp.getItem(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_6__.HiPSProperties.TILE_WIDTH);
+            this.tileno = tileno;
+            if (naxis1 != naxis2) {
+                console.error("NAXIS1 and NAXIS2 do not match.");
+                throw new Error("NAXIS1 and NAXIS2 do not match.");
+            }
+            this.tileWidth = naxis1;
+            this.tileno = tileno;
+            this.healpix = _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_5__.HiPSHelper.getHelpixByOrder(this.order);
+            this.intermediateXYGrid = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_1__.HiPSIntermediateProj.setupByTile(this.tileno, this.healpix);
+        }
+    }
+    initFromUint8Array(imagePixelList, fitsHeaderParams, tileWidth) {
+        this.setPayload(imagePixelList, fitsHeaderParams, tileWidth);
+        this.setHeader(fitsHeaderParams);
+    }
+    // initFromUint8Array(raDecList: [number, number][], originalValues: Uint8Array, fitsHeaderParams: FITSHeaderManager) {
+    //     this.setPayload(raDecList, originalValues, fitsHeaderParams)
+    //     this.setHeader(fitsHeaderParams)
+    // }
+    getHeader() {
+        return this.header;
+    }
+    getPayload() {
+        return this.payload;
+    }
+    initFromFITSParsed(fitsParsed) {
+        var _a, _b, _c, _d;
+        this.payload = fitsParsed.data;
+        this.order = Number((_a = fitsParsed.header.findById(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_6__.HiPSProperties.ORDER)) === null || _a === void 0 ? void 0 : _a.value);
+        const naxis1 = Number((_b = fitsParsed.header.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.NAXIS1)) === null || _b === void 0 ? void 0 : _b.value);
+        const naxis2 = Number((_c = fitsParsed.header.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.NAXIS2)) === null || _c === void 0 ? void 0 : _c.value);
+        this.tileno = Number((_d = fitsParsed.header.findById(HiPSFITS.NPIX)) === null || _d === void 0 ? void 0 : _d.value);
+        if (isNaN(this.order) || isNaN(naxis1) || isNaN(naxis2) || isNaN(this.tileno)) {
+            console.warn("ORDER, NAXIS1 or NAXIS2 not defined");
+            throw new Error("ORDER, NAXIS1 or NAXIS2 not defined");
+        }
+        if (naxis1 != naxis2) {
+            console.error("NAXIS1 and NAXIS2 do not match.");
+            throw new Error("NAXIS1 and NAXIS2 do not match.");
+        }
+        this.tileWidth = naxis1;
+        this.computeMinMax(fitsParsed);
+        this.setHeader(fitsParsed.header);
+    }
+    getTileno() {
+        return this.tileno;
+    }
+    computeMinMax(fitsParsed) {
+        var _a, _b, _c;
+        const bitpix = Number((_a = fitsParsed.header.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BITPIX)) === null || _a === void 0 ? void 0 : _a.value);
+        const bzero = Number((_b = fitsParsed.header.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BZERO)) === null || _b === void 0 ? void 0 : _b.value);
+        const bscale = Number((_c = fitsParsed.header.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BSCALE)) === null || _c === void 0 ? void 0 : _c.value);
+        const bytesXelem = Math.abs(bitpix / 8);
+        for (let ridx = 0; ridx < fitsParsed.data.length; ridx++) {
+            const row = fitsParsed.data[ridx];
+            for (let cidx = 0; cidx < row.length; cidx++) {
+                const valpixb = jsfitsio__WEBPACK_IMPORTED_MODULE_0__.ParseUtils.extractPixelValue(0, this.payload[ridx].slice(cidx * bytesXelem, cidx * bytesXelem + bytesXelem), bitpix);
+                if (valpixb == null) {
+                    continue;
+                }
+                const valphysical = bzero + bscale * valpixb;
+                if (valphysical < this.min || isNaN(this.min)) {
+                    this.min = valphysical;
+                }
+                else if (valphysical > this.max || isNaN(this.max)) {
+                    this.max = valphysical;
+                }
+            }
+        }
+    }
+    static downloadFITSFile(path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const fits = yield jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser.loadFITS(path);
+            if (fits == null) {
+                console.warn(`fits ${path} doesn't exist`);
+                return null;
+            }
+            return fits;
+        });
+    }
+    getFITS() {
+        return { header: this.header, data: this.payload };
+    }
+    setPayload(imagePixelList, fitsHeaderParams, tileWidth) {
+        var _a, _b, _c;
+        const bitpix = Number((_a = fitsHeaderParams.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BITPIX)) === null || _a === void 0 ? void 0 : _a.value);
+        const bzero = Number((_b = fitsHeaderParams.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BZERO)) === null || _b === void 0 ? void 0 : _b.value);
+        const bscale = Number((_c = fitsHeaderParams.findById(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BSCALE)) === null || _c === void 0 ? void 0 : _c.value);
+        const bytesXelem = Math.abs(bitpix / 8);
+        if (!bytesXelem) {
+            console.error("BITPIX not defined");
+            throw new Error("BITPIX not defined");
+        }
+        this.payload = new Array(tileWidth);
+        for (let row = 0; row < tileWidth; row++) {
+            this.payload[row] = new Uint8Array(tileWidth * bytesXelem);
+        }
+        imagePixelList.forEach((imgpx) => {
+            const ra = imgpx.getRADeg();
+            const dec = imgpx.getDecDeg();
+            const ac = (0,_model_Utils_js__WEBPACK_IMPORTED_MODULE_3__.fillAstro)(ra, dec, _model_NumberType_js__WEBPACK_IMPORTED_MODULE_4__.NumberType.DEGREES);
+            if (ac == null) {
+                console.error(`Error converting ${ra}, ${dec} into AstroCoords object`);
+                return;
+            }
+            const xy = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_1__.HiPSIntermediateProj.world2intermediate(ac);
+            const [col, row] = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_1__.HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], this.intermediateXYGrid, tileWidth);
+            if (row < 0 || row >= tileWidth || col < 0 || col >= tileWidth)
+                return;
+            const valueBytes = imgpx.getUint8Value();
+            if (!valueBytes)
+                return; // or continue, depending on context
+            for (let b = 0; b < bytesXelem; b++) {
+                this.payload[row][col * bytesXelem + b] = valueBytes[b];
+            }
+            const valpixb = jsfitsio__WEBPACK_IMPORTED_MODULE_0__.ParseUtils.extractPixelValue(0, valueBytes, bitpix);
+            if (valpixb == null)
+                return;
+            const valphysical = bzero + bscale * valpixb;
+            if (isNaN(this.min) || valphysical < this.min)
+                this.min = valphysical;
+            if (isNaN(this.max) || valphysical > this.max)
+                this.max = valphysical;
+        });
+    }
+    // private setPayload(raDecList: [number, number][], originalValues: Uint8Array, fitsHeaderParams: FITSHeaderManager) {
+    //     const bitpix = Number(fitsHeaderParams.findById(FITSHeaderManager.BITPIX)?.value)
+    //     const bzero = Number(fitsHeaderParams.findById(FITSHeaderManager.BZERO)?.value)
+    //     const bscale = Number(fitsHeaderParams.findById(FITSHeaderManager.BSCALE)?.value)
+    //     const bytesXelem = Math.abs(bitpix / 8)
+    //     if (!bytesXelem) {
+    //         console.error("BITPIX not defined")
+    //         throw new Error("BITPIX not defined")
+    //     }
+    //     this.payload = new Array(this.tileWidth)
+    //     for (let row = 0; row < this.tileWidth; row++) {
+    //         this.payload[row] = new Uint8Array(this.tileWidth * bytesXelem)
+    //     }
+    //     for (let rdidx = 0; rdidx < raDecList.length; rdidx++) {
+    //         const [ra, dec] = raDecList[rdidx]
+    //         const ac = fillAstro(ra, dec, NumberType.DEGREES)
+    //         if (ac == null) {
+    //             console.error(`Error converting ${ra}, ${dec} into AstroCoords object`)
+    //             continue
+    //         }
+    //         const sc = astroToSpherical(ac)
+    //         const ptg = new Pointing(null, false, sc.thetaRad, sc.phiRad)
+    //         const pixtileno: number = this.healpix.ang2pix(ptg)
+    //         if (pixtileno != this.tileno) {
+    //             continue
+    //         }
+    //         const xy = HiPSIntermediateProj.world2intermediate(ac);
+    //         let ij = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], this.intermediateXYGrid, this.tileWidth);
+    //         const col = ij[0];
+    //         const row = ij[1];
+    //         for (let b = 0; b < bytesXelem; b++) {
+    //             const byte = originalValues[rdidx * bytesXelem + b];
+    //             this.payload[row][col * bytesXelem + b] = byte
+    //             // TODO check what's nodata!
+    //             // if (nodata.get("" + pixtileno + "")) {
+    //             // 	if (byte != 0) {
+    //             // 		nodata.set("" + pixtileno + "", false);
+    //             // 	}
+    //             // }
+    //             const valpixb = ParseUtils.extractPixelValue(0, this.payload[row].slice(col * bytesXelem, col * bytesXelem + bytesXelem), bitpix);
+    //             if (valpixb == null) {
+    //                 continue
+    //             }
+    //             const valphysical = bzero + bscale * valpixb;
+    //             if (valphysical < this.min || isNaN(this.min)) {
+    //                 this.min = valphysical;
+    //             } else if (valphysical > this.max || isNaN(this.max)) {
+    //                 this.max = valphysical;
+    //             }
+    //         }
+    //     }
+    // }
+    addMandatoryItemToHeader(key, fitsHeaderParams) {
+        var _a;
+        const value = (_a = fitsHeaderParams.findById(key)) === null || _a === void 0 ? void 0 : _a.value;
+        if (value === undefined || value == null) {
+            console.error(`${key} not defined`);
+            throw new Error(key + " is not defined");
+        }
+        const item = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(key, value, "");
+        this.header.insert(item);
+    }
+    addItemToHeader(key, fitsHeaderParams) {
+        var _a;
+        const value = (_a = fitsHeaderParams.findById(key)) === null || _a === void 0 ? void 0 : _a.value;
+        if (value !== undefined || value != null) {
+            const item = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(key, value, "");
+            this.header.insert(item);
+        }
+    }
+    setHeader(fitsHeaderParams) {
+        this.header = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager();
+        this.addMandatoryItemToHeader(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.SIMPLE, fitsHeaderParams);
+        this.addMandatoryItemToHeader(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BITPIX, fitsHeaderParams);
+        this.addItemToHeader(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BLANK, fitsHeaderParams);
+        this.addItemToHeader(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BSCALE, fitsHeaderParams);
+        this.addItemToHeader(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.BZERO, fitsHeaderParams);
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.NAXIS, Number(2), ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.NAXIS1, Number(this.tileWidth), ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.NAXIS2, Number(this.tileWidth), ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.CTYPE1, HiPSFITS.CTYPE1, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.CTYPE2, HiPSFITS.CTYPE2, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.DATAMIN, this.min, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.DATAMAX, this.min, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_6__.HiPSProperties.ORDER, Number(this.order), ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(HiPSFITS.NPIX, Number(this.tileno), ""));
+        const crpix = this.tileno / 2;
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.CRPIX1, crpix, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.CRPIX2, crpix, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.ORIGIN, "WCSLight v.0.x", ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.COMMENT, "", "WCSLight v0.x developed by F.Giordano and Y.Ascasibar"));
+        let vec3 = this.healpix.pix2vec(this.tileno);
+        let ptg = new healpixjs__WEBPACK_IMPORTED_MODULE_2__.Pointing(vec3);
+        let crval1 = (0,_model_Utils_js__WEBPACK_IMPORTED_MODULE_3__.radToDeg)(ptg.phi);
+        let crval2 = 90 - (0,_model_Utils_js__WEBPACK_IMPORTED_MODULE_3__.radToDeg)(ptg.theta);
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.CRVAL1, crval1, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager.CRVAL2, crval2, ""));
+        this.header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("END", "", ""));
+    }
+}
+HiPSFITS.CTYPE1 = "RA---HPX";
+HiPSFITS.CTYPE2 = "DEC--HPX";
+HiPSFITS.NPIX = "NPIX";
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/HiPSIntermediateProj.ts":
+/*!******************************************************!*\
+  !*** ./src/projections/hips/HiPSIntermediateProj.ts ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HiPSIntermediateProj: () => (/* binding */ HiPSIntermediateProj)
+/* harmony export */ });
+/* harmony import */ var healpixjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! healpixjs */ "./node_modules/healpixjs/lib-esm/index.js");
+/* harmony import */ var _model_CoordsType_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../model/CoordsType.js */ "./src/model/CoordsType.ts");
+/* harmony import */ var _model_NumberType_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../model/NumberType.js */ "./src/model/NumberType.ts");
+/* harmony import */ var _model_Point_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../model/Point.js */ "./src/model/Point.ts");
+/* harmony import */ var _model_Utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../model/Utils.js */ "./src/model/Utils.ts");
+
+
+
+
+
+class HiPSIntermediateProj {
+    static setupByTile(tileno, hp) {
+        let xyGridProj = {
+            "min_y": NaN,
+            "max_y": NaN,
+            "min_x": NaN,
+            "max_x": NaN,
+            "gridPointsDeg": []
+        };
+        let cornersVec3 = hp.getBoundariesWithStep(tileno, 1);
+        let pointings = [];
+        for (let i = 0; i < cornersVec3.length; i++) {
+            pointings[i] = new healpixjs__WEBPACK_IMPORTED_MODULE_0__.Pointing(cornersVec3[i]);
+            if (i >= 1) {
+                let a = pointings[i - 1].phi;
+                let b = pointings[i].phi;
+                // case when RA is just crossing the origin (e.g. 357deg - 3deg)
+                if (Math.abs(a - b) > Math.PI) {
+                    if (pointings[i - 1].phi < pointings[i].phi) {
+                        pointings[i - 1].phi += 2 * Math.PI;
+                    }
+                    else {
+                        pointings[i].phi += 2 * Math.PI;
+                    }
+                }
+            }
+        }
+        for (let j = 0; j < pointings.length; j++) {
+            let coThetaRad = pointings[j].theta;
+            // HEALPix works with colatitude (0 North Pole, 180 South Pole)
+            // converting the colatitude in latitude (dec)
+            let decRad = Math.PI / 2 - coThetaRad;
+            let raRad = pointings[j].phi;
+            // projection on healpix grid
+            let p = new _model_Point_js__WEBPACK_IMPORTED_MODULE_3__.Point(_model_CoordsType_js__WEBPACK_IMPORTED_MODULE_1__.CoordsType.ASTRO, _model_NumberType_js__WEBPACK_IMPORTED_MODULE_2__.NumberType.RADIANS, raRad, decRad);
+            let xyDeg = HiPSIntermediateProj.world2intermediate(p.getAstro());
+            xyGridProj.gridPointsDeg[j * 2] = xyDeg[0];
+            xyGridProj.gridPointsDeg[j * 2 + 1] = xyDeg[1];
+            if (isNaN(xyGridProj.max_y) || xyDeg[1] > xyGridProj.max_y) {
+                xyGridProj.max_y = xyDeg[1];
+            }
+            if (isNaN(xyGridProj.min_y) || xyDeg[1] < xyGridProj.min_y) {
+                xyGridProj.min_y = xyDeg[1];
+            }
+            if (isNaN(xyGridProj.max_x) || xyDeg[0] > xyGridProj.max_x) {
+                xyGridProj.max_x = xyDeg[0];
+            }
+            if (isNaN(xyGridProj.min_x) || xyDeg[0] < xyGridProj.min_x) {
+                xyGridProj.min_x = xyDeg[0];
+            }
+        }
+        return xyGridProj;
+    }
+    static world2intermediate(ac) {
+        let x_grid = NaN;
+        let y_grid = NaN;
+        if (Math.abs(ac.decRad) <= HiPSIntermediateProj.THETAX) { // equatorial belts
+            x_grid = ac.raDeg;
+            y_grid = healpixjs__WEBPACK_IMPORTED_MODULE_0__.Hploc.sin(ac.decRad) * HiPSIntermediateProj.K * 90 / HiPSIntermediateProj.H;
+        }
+        else if (Math.abs(ac.decRad) > HiPSIntermediateProj.THETAX) { // polar zones
+            let raDeg = ac.raDeg;
+            let w = 0; // omega
+            if (HiPSIntermediateProj.K % 2 !== 0 || ac.decRad > 0) { // K odd or thetax > 0
+                w = 1;
+            }
+            let sigma = Math.sqrt(HiPSIntermediateProj.K * (1 - Math.abs(healpixjs__WEBPACK_IMPORTED_MODULE_0__.Hploc.sin(ac.decRad))));
+            let phi_c = -180 + (2 * Math.floor(((ac.raDeg + 180) * HiPSIntermediateProj.H / 360) + ((1 - w) / 2)) + w) * (180 / HiPSIntermediateProj.H);
+            x_grid = phi_c + (raDeg - phi_c) * sigma;
+            y_grid = (180 / HiPSIntermediateProj.H) * (((HiPSIntermediateProj.K + 1) / 2) - sigma);
+            if (ac.decRad < 0) {
+                y_grid *= -1;
+            }
+        }
+        return [x_grid, y_grid];
+    }
+    static intermediate2pix(x, y, xyGridProj, pxXtile) {
+        let xInterval = Math.abs(xyGridProj.max_x - xyGridProj.min_x);
+        let yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y);
+        let i_norm;
+        let j_norm;
+        if ((xyGridProj.min_x > 360 || xyGridProj.max_x > 360) && x < xyGridProj.min_x) {
+            i_norm = (x + 360 - xyGridProj.min_x) / xInterval;
+        }
+        else {
+            i_norm = (x - xyGridProj.min_x) / xInterval;
+        }
+        j_norm = (y - xyGridProj.min_y) / yInterval;
+        let i = 0.5 - (i_norm - j_norm);
+        let j = (i_norm + j_norm) - 0.5;
+        // TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
+        // pxXtile
+        // i = Math.floor(i * HiPSHelper.DEFAULT_Naxis1_2);
+        // j = Math.floor(j * HiPSHelper.DEFAULT_Naxis1_2);
+        // return [i, HiPSHelper.DEFAULT_Naxis1_2 - j - 1];
+        i = Math.floor(i * pxXtile);
+        j = Math.floor(j * pxXtile);
+        return [i, pxXtile - j - 1];
+    }
+    static pix2intermediate(i, j, xyGridProj, naxis1, naxis2) {
+        /**
+                   * (i_norm,w_pixel) = (0,0) correspond to the lower-left corner of the facet in the image
+                 * (i_norm,w_pixel) = (1,1) is the upper right corner
+                 * dimamond in figure 1 from "Mapping on the HEalpix grid" paper
+                 * (0,0) leftmost corner
+                 * (1,0) upper corner
+                 * (0,1) lowest corner
+                 * (1,1) rightmost corner
+                 * Thanks YAGO! :p
+                 */
+        // let cnaxis1 = HiPSHelper.pxXtile;
+        // let cnaxis2 = HiPSHelper.pxXtile;
+        let cnaxis1 = naxis1;
+        let cnaxis2 = naxis2;
+        if (naxis1) {
+            cnaxis1 = naxis1;
+        }
+        if (naxis2) {
+            cnaxis2 = naxis2;
+        }
+        const i_norm = (i + 0.5) / cnaxis1;
+        const j_norm = (j + 0.5) / cnaxis2;
+        const xInterval = Math.abs(xyGridProj.max_x - xyGridProj.min_x) / 2.0;
+        const yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y) / 2.0;
+        const yMean = (xyGridProj.max_y + xyGridProj.min_y) / 2.0;
+        // bi-linear interpolation
+        const x = xyGridProj.max_x - xInterval * (i_norm + j_norm);
+        const y = yMean - yInterval * (j_norm - i_norm);
+        return [x, y];
+    }
+    static intermediate2world(x, y) {
+        let phiDeg = NaN;
+        let thetaDeg = NaN;
+        const Yx = 90 * (HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.H;
+        if (Math.abs(y) <= Yx) { // equatorial belts
+            phiDeg = x;
+            thetaDeg = (0,_model_Utils_js__WEBPACK_IMPORTED_MODULE_4__.radToDeg)(Math.asin((y * HiPSIntermediateProj.H) / (90 * HiPSIntermediateProj.K)));
+        }
+        else if (Math.abs(y) > Yx) { // polar regions
+            const sigma = (HiPSIntermediateProj.K + 1) / 2 - Math.abs(y * HiPSIntermediateProj.H) / 180;
+            const thetaRad = healpixjs__WEBPACK_IMPORTED_MODULE_0__.Hploc.asin(1 - (sigma * sigma) / HiPSIntermediateProj.K);
+            let w = 0; // omega
+            if (HiPSIntermediateProj.K % 2 !== 0 || thetaRad > 0) { // K odd or thetax > 0
+                w = 1;
+            }
+            const x_c = -180 + (2 * Math.floor((x + 180) * HiPSIntermediateProj.H / 360 + (1 - w) / 2) + w) * (180 / HiPSIntermediateProj.H);
+            phiDeg = x_c + (x - x_c) / sigma;
+            thetaDeg = (0,_model_Utils_js__WEBPACK_IMPORTED_MODULE_4__.radToDeg)(thetaRad);
+            if (y <= 0) {
+                thetaDeg *= -1;
+            }
+        }
+        // return [phiDeg, thetaDeg];
+        // TODO CHECK THIS!
+        // let p = new Point(CoordsType.SPHERICAL, NumberType.DEGREES, phiDeg, thetaDeg);
+        const p = new _model_Point_js__WEBPACK_IMPORTED_MODULE_3__.Point(_model_CoordsType_js__WEBPACK_IMPORTED_MODULE_1__.CoordsType.ASTRO, _model_NumberType_js__WEBPACK_IMPORTED_MODULE_2__.NumberType.DEGREES, phiDeg, thetaDeg);
+        return p;
+    }
+}
+HiPSIntermediateProj.RES_ORDER_0 = 58.6;
+HiPSIntermediateProj.H = 4;
+HiPSIntermediateProj.K = 3;
+HiPSIntermediateProj.THETAX = healpixjs__WEBPACK_IMPORTED_MODULE_0__.Hploc.asin((HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.K);
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/HiPSProj.ts":
+/*!******************************************!*\
+  !*** ./src/projections/hips/HiPSProj.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HiPSProj: () => (/* binding */ HiPSProj)
+/* harmony export */ });
+/* harmony import */ var _FITSList_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./FITSList.js */ "./src/projections/hips/FITSList.ts");
+/* harmony import */ var _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HiPSProperties.js */ "./src/projections/hips/HiPSProperties.ts");
+/* harmony import */ var _HiPSPropManager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./HiPSPropManager.js */ "./src/projections/hips/HiPSPropManager.ts");
+/* harmony import */ var _model_Point_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../model/Point.js */ "./src/model/Point.ts");
+/* harmony import */ var healpixjs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! healpixjs */ "./node_modules/healpixjs/lib-esm/index.js");
+/* harmony import */ var _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../model/Utils.js */ "./src/model/Utils.ts");
+/* harmony import */ var _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./HiPSIntermediateProj.js */ "./src/projections/hips/HiPSIntermediateProj.ts");
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var _HiPSFITS_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./HiPSFITS.js */ "./src/projections/hips/HiPSFITS.ts");
+/* harmony import */ var _ImagePixel_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ImagePixel.js */ "./src/projections/hips/ImagePixel.ts");
+/* harmony import */ var _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../HiPSHelper.js */ "./src/projections/HiPSHelper.ts");
+/* harmony import */ var _model_CoordsType_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../model/CoordsType.js */ "./src/model/CoordsType.ts");
+/* harmony import */ var _model_NumberType_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../model/NumberType.js */ "./src/model/NumberType.ts");
+/* harmony import */ var _TilesRaDecList2_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./TilesRaDecList2.js */ "./src/projections/hips/TilesRaDecList2.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+
+// import { ImagePixel } from "../../model/ImagePixel.js";
+
+
+
+
+
+class HiPSProj {
+    constructor(baseHiPSPath) {
+        this.healpix = null;
+        this.hipsProp = null;
+        this.baseURL = baseHiPSPath;
+        this.init();
+        if (this.healpix == null) {
+            console.warn("healpix is null");
+            throw new Error("healpix is null");
+        }
+        if (this.hipsProp == null) {
+            console.warn("HiPSProp is null");
+            throw new Error("HiPSProp is null");
+        }
+    }
+    init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const hipsProp = yield this.parsePropertyFile();
+            const order = hipsProp.getItem(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties.ORDER);
+            this.healpix = _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_10__.HiPSHelper.getHelpixByOrder(order);
+        });
+    }
+    parsePropertyFile() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const hipsProp = _HiPSPropManager_js__WEBPACK_IMPORTED_MODULE_2__.HiPSPropManager.parsePropertyFile(this.baseURL);
+            return hipsProp;
+        });
+    }
+    static getImageRADecList(center, radiusDeg, pixelAngSize, TILE_WIDTH) {
+        const healpix = _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_10__.HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH);
+        // let tilesRaDecList2 = new TilesRaDecList2(healpix.order)
+        let tilesRaDecList2 = new _TilesRaDecList2_js__WEBPACK_IMPORTED_MODULE_13__.TilesRaDecList2();
+        const ptg = new healpixjs__WEBPACK_IMPORTED_MODULE_4__.Pointing(null, false, center.getSpherical().thetaRad, center.getSpherical().phiRad);
+        const radius_rad = (0,_model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.degToRad)(radiusDeg);
+        // ??? with fact 8 the original Java code starts returning the the ptg pixel. with my JS porting only from fact 16
+        const rangeset = healpix.queryDiscInclusive(ptg, radius_rad, 4); // <= check it 
+        // TODO try to replace tileslist with FITSList!!!
+        // const tileslist: Array<number> = [];
+        for (let p = 0; p < rangeset.r.length; p++) {
+            // if (!tileslist.includes(rangeset.r[p]) && rangeset.r[p] != 0) {
+            //     tileslist.push(rangeset.r[p]);
+            // }
+            if (!tilesRaDecList2.getTilesList().includes(rangeset.r[p]) && rangeset.r[p] != 0) {
+                tilesRaDecList2.addTileNumber(rangeset.r[p]);
+                // tileslist.push(rangeset.r[p]);
+            }
+        }
+        const cpix = healpix.ang2pix(ptg);
+        // if (!tileslist.includes(cpix)) {
+        //     tileslist.push(cpix);
+        // }
+        if (!tilesRaDecList2.getTilesList().includes(cpix)) {
+            tilesRaDecList2.getTilesList().push(cpix);
+        }
+        // let raDecList: Array<[number, number]> = []
+        let minra = center.getAstro().raDeg - radiusDeg;
+        let maxra = center.getAstro().raDeg + radiusDeg;
+        let mindec = center.getAstro().decDeg - radiusDeg;
+        let maxdec = center.getAstro().decDeg + radiusDeg;
+        tilesRaDecList2.getTilesList().forEach((tileno) => {
+            // tileslist.forEach((tileno: number) => {
+            for (let j = 0; j < TILE_WIDTH; j++) {
+                for (let i = 0; i < TILE_WIDTH; i++) {
+                    const point = HiPSProj.pix2world(i, j, tileno, healpix, TILE_WIDTH);
+                    if (point == null)
+                        continue;
+                    if (point.getAstro().raDeg < minra || point.getAstro().raDeg > maxra ||
+                        point.getAstro().decDeg < mindec || point.getAstro().decDeg > maxdec) {
+                        continue;
+                    }
+                    tilesRaDecList2.addImagePixel(new _ImagePixel_js__WEBPACK_IMPORTED_MODULE_9__.ImagePixel(point.getAstro().raDeg, point.getAstro().decDeg, tileno));
+                    // raDecList.push([point.getAstro().raDeg, point.getAstro().decDeg]);
+                }
+            }
+        });
+        // const tilesRaDecList = new TilesRaDecList(raDecList, tileslist)
+        // return tilesRaDecList
+        return tilesRaDecList2;
+    }
+    static pix2world(i, j, tileno, healpix, TILE_WIDTH) {
+        let p = null;
+        if (healpix) {
+            const xyGridProj = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_6__.HiPSIntermediateProj.setupByTile(tileno, healpix);
+            let xy = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_6__.HiPSIntermediateProj.pix2intermediate(i, j, xyGridProj, TILE_WIDTH, TILE_WIDTH);
+            // TODO CHECK BELOW before it was only which is supposed to be wrong since intermediate2world returns SphericalCoords, not AstroCoords
+            /**
+            let raDecDeg = HiPSHelper.intermediate2world(xy[0], xy[1]);
+            if (raDecDeg[0] > 360){
+                raDecDeg[0] -= 360;
+            }
+            return raDecDeg;
+            */
+            p = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_6__.HiPSIntermediateProj.intermediate2world(xy[0], xy[1]);
+            // if (p.spherical.phiDeg > 360){
+            // 	sc.phiDeg -= 360;
+            // }
+        }
+        else {
+            throw new Error("Healpix not set."); // or handle the issue as per your use case
+        }
+        return p;
+    }
+    // static getFITSFiles(inputValues: Uint8Array, tilesRaDecList: TilesRaDecList, fitsHeaderParams: FITSHeaderManager, pixelAngSize: number, TILE_WIDTH?: number): FITSList {
+    static getFITSFiles(tilesRaDecList, fitsHeaderParams, pixelAngSize, TILE_WIDTH) {
+        const healpix = _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_10__.HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH);
+        let fitsList = new _FITSList_js__WEBPACK_IMPORTED_MODULE_0__.FITSList();
+        tilesRaDecList.getTilesList().forEach((tileno) => {
+            let hipsProp = new _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties();
+            hipsProp.addItem(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties.ORDER, healpix.order);
+            hipsProp.addItem(_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties.TILE_WIDTH, TILE_WIDTH);
+            const hipsFits = new _HiPSFITS_js__WEBPACK_IMPORTED_MODULE_8__.HiPSFITS(null, tileno, hipsProp);
+            const imagePixelsByTilesNo = tilesRaDecList.getImagePixelsByTile(tileno);
+            hipsFits.initFromUint8Array(imagePixelsByTilesNo, fitsHeaderParams, TILE_WIDTH);
+            fitsList.addFITS(hipsFits);
+        });
+        return fitsList;
+    }
+    static world2pix(radeclist, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const healpix = _HiPSHelper_js__WEBPACK_IMPORTED_MODULE_10__.HiPSHelper.getHelpixByOrder(hipsOrder);
+            let tileno;
+            let prevTileno = null;
+            /* if HiPS in galactic => convert the full list of (RA, Dec) to Galactic  (l, b) */
+            if (isGalactic) {
+                HiPSProj.convertToGalactic(radeclist);
+            }
+            let xyGridProj = null;
+            radeclist.getImagePixelList().forEach((imgpx) => {
+                const ra = imgpx.getRADeg();
+                const dec = imgpx.getDecDeg();
+                const p = new _model_Point_js__WEBPACK_IMPORTED_MODULE_3__.Point(_model_CoordsType_js__WEBPACK_IMPORTED_MODULE_11__.CoordsType.ASTRO, _model_NumberType_js__WEBPACK_IMPORTED_MODULE_12__.NumberType.DEGREES, ra, dec);
+                const ptg = new healpixjs__WEBPACK_IMPORTED_MODULE_4__.Pointing(null, false, p.getSpherical().thetaRad, p.getSpherical().phiRad);
+                tileno = healpix.ang2pix(ptg);
+                if (prevTileno !== tileno || prevTileno == null) {
+                    xyGridProj = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_6__.HiPSIntermediateProj.setupByTile(tileno, healpix);
+                    prevTileno = tileno;
+                }
+                if (xyGridProj) {
+                    const xy = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_6__.HiPSIntermediateProj.world2intermediate(p.getAstro());
+                    const ij = _HiPSIntermediateProj_js__WEBPACK_IMPORTED_MODULE_6__.HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], xyGridProj, TILE_WIDTH);
+                    imgpx.setij(ij[0], ij[1]);
+                    imgpx.setTileNumber(tileno);
+                }
+                radeclist.addTileNumber(tileno);
+            });
+            let result = yield HiPSProj.getPixelValues(radeclist, baseHiPSURL, hipsOrder);
+            return result;
+        });
+    }
+    // TODO move this to Utils.js
+    static convertToGalactic(radeclist) {
+        // let finalradeclist: number[][] = [];
+        const deg2rad = Math.PI / 180;
+        const rad2deg = 180 / Math.PI;
+        const l_NCP = deg2rad * 122.930;
+        const d_NGP = deg2rad * 27.1284;
+        const a_NGP = deg2rad * 192.8595;
+        radeclist.getImagePixelList().forEach((imgpx) => {
+            const ra = imgpx.getRADeg();
+            const dec = imgpx.getDecDeg();
+            const ra_rad = deg2rad * ra;
+            const dec_rad = deg2rad * dec;
+            // sin(b)
+            const sin_b = Math.sin(d_NGP) * Math.sin(dec_rad) +
+                Math.cos(d_NGP) * Math.cos(dec_rad) * Math.cos(ra_rad - a_NGP);
+            const b = Math.asin(sin_b);
+            const b_deg = b * rad2deg;
+            // l_NCP - l
+            const lNCP_minus_l = Math.atan((Math.cos(dec_rad) * Math.sin(ra_rad - a_NGP)) /
+                (Math.sin(dec_rad) * Math.cos(d_NGP) - Math.cos(dec_rad) * Math.sin(d_NGP) * Math.cos(ra_rad - a_NGP)));
+            const l = l_NCP - lNCP_minus_l;
+            const l_deg = l * rad2deg;
+            imgpx.setRADecDeg(l_deg, b_deg);
+            // finalradeclist.push([l_deg, b_deg])
+        });
+        // return finalradeclist;
+    }
+    static getPixelValues(raDecList, baseHiPSURL, hipsOrder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tilesset = raDecList.getTilesList();
+            let promises = [];
+            for (let hipstileno of tilesset) {
+                const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
+                const fitsurl = baseHiPSURL + "/Norder" + hipsOrder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
+                console.log(`Identified source file ${fitsurl}`);
+                // TODO change the code below to used HiPSFITS and FITSList instead!
+                promises.push(jsfitsio__WEBPACK_IMPORTED_MODULE_7__.FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
+                    var _a, _b, _c;
+                    if (fitsParsed) {
+                        const bitpix = Number((_a = fitsParsed.header.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
+                        const naxis1 = Number((_b = fitsParsed.header.findById("NAXIS1")) === null || _b === void 0 ? void 0 : _b.value);
+                        const naxis2 = Number((_c = fitsParsed.header.findById("NAXIS2")) === null || _c === void 0 ? void 0 : _c.value);
+                        if (!bitpix || !naxis1 || !naxis2) {
+                            console.error(`bitpix: ${bitpix}, naxis1: ${naxis1}, naxis2: ${naxis2} for fits file ${fitsurl}`);
+                            return;
+                        }
+                        const bytesXelem = Math.abs(bitpix / 8);
+                        raDecList.getImagePixelsByTile(hipstileno).forEach((imgpx) => {
+                            const valueBytes = new Uint8Array(bytesXelem);
+                            for (let b = 0; b < bytesXelem; b++) {
+                                valueBytes[b] = fitsParsed.data[imgpx.getj()][imgpx.geti() * bytesXelem + b];
+                            }
+                            imgpx.setValue(valueBytes, bitpix);
+                            raDecList.setMinMaxValue(imgpx.getValue());
+                        });
+                    }
+                }));
+            }
+            yield Promise.all(promises);
+            return raDecList;
+        });
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/HiPSPropManager.ts":
+/*!*************************************************!*\
+  !*** ./src/projections/hips/HiPSPropManager.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HiPSPropManager: () => (/* binding */ HiPSPropManager)
+/* harmony export */ });
+/* harmony import */ var node_fs_promises__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node:fs/promises */ "?df5f");
+/* harmony import */ var node_fs_promises__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_fs_promises__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HiPSProperties.js */ "./src/projections/hips/HiPSProperties.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+class HiPSPropManager {
+    static parsePropertyFile(baseURL) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let hipsPropText = "";
+            if (baseURL.includes("http")) { // HiPS from web
+                hipsPropText = yield HiPSPropManager.getPorpertyFromWeb(baseURL);
+            }
+            else { // local HiPS
+                hipsPropText = yield HiPSPropManager.getPorpertyFromFS(baseURL);
+            }
+            const hipsProp = HiPSPropManager.parseHiPSPropertiesBody(hipsPropText);
+            return hipsProp;
+        });
+    }
+    static getPorpertyFromWeb(baseHiPSPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(baseHiPSPath + "/properties");
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            else {
+                const propFile = yield response.text();
+                return propFile;
+            }
+            // let propFile: string
+            // if (response instanceof ArrayBuffer) {
+            //     const textDecoder = new TextDecoder("iso-8859-1")
+            //     propFile = textDecoder.decode(new Uint8Array(response))
+            // } else {
+            //     propFile = response.toString()
+            // }
+            // return propFile
+        });
+    }
+    static getPorpertyFromFS(baseHiPSPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const propPath = baseHiPSPath + "/properties";
+            const rawData = yield (0,node_fs_promises__WEBPACK_IMPORTED_MODULE_0__.readFile)(propPath);
+            const uint8 = new Uint8Array(rawData);
+            const textDecoder = new TextDecoder('ascii');
+            const propFile = textDecoder.decode(uint8);
+            return propFile;
+        });
+    }
+    static parseHiPSPropertiesBody(hipsPropText) {
+        let hipsProp = new _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties();
+        const txtArr = hipsPropText.split('\n');
+        for (let line of txtArr) {
+            if (!line.includes("=")) {
+                continue;
+            }
+            const tokens = line.split("=");
+            if (tokens[1] === undefined) {
+                continue;
+            }
+            const key = tokens[0].trim();
+            const val = tokens[1].trim();
+            let value = val;
+            if (key == _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties.ORDER || key == _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties.TILE_WIDTH || key == _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties.SCALE || key == _HiPSProperties_js__WEBPACK_IMPORTED_MODULE_1__.HiPSProperties.BITPIX) {
+                value = parseInt(val);
+            }
+            hipsProp.addItem(key, value);
+        }
+        return hipsProp;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/HiPSProperties.ts":
+/*!************************************************!*\
+  !*** ./src/projections/hips/HiPSProperties.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   HiPSProperties: () => (/* binding */ HiPSProperties)
+/* harmony export */ });
+class HiPSProperties {
+    constructor() {
+        this.itemMap = new Map();
+    }
+    addItem(key, value) {
+        this.itemMap.set(key, value);
+    }
+    getItem(key) {
+        return this.itemMap.get(key);
+    }
+    isGalactic() {
+        return this.itemMap.get(HiPSProperties.FRAME) == HiPSProperties.GALACTIC;
+    }
+}
+HiPSProperties.TILE_WIDTH = "hips_tile_width";
+HiPSProperties.FRAME = "hips_frame";
+HiPSProperties.ORDER = "hips_order";
+HiPSProperties.GALACTIC = "galactic";
+HiPSProperties.SCALE = "hips_pixel_scale";
+HiPSProperties.BITPIX = "hips_pixel_bitpix";
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/ImagePixel.ts":
+/*!********************************************!*\
+  !*** ./src/projections/hips/ImagePixel.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ImagePixel: () => (/* binding */ ImagePixel)
+/* harmony export */ });
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+
+class ImagePixel {
+    constructor(a, b, tileno) {
+        this.uint8value = null;
+        this.value = null;
+        this.tileno = tileno;
+        // Heuristic: if `a` and `b` are integers, treat them as `i` and `j`
+        if (Number.isInteger(a) && Number.isInteger(b)) {
+            this.i = a;
+            this.j = b;
+            this.ra = NaN;
+            this.dec = NaN;
+        }
+        else {
+            this.ra = a;
+            this.dec = b;
+            this.i = -1;
+            this.j = -1;
+        }
+    }
+    geti() {
+        return this.i;
+    }
+    getj() {
+        return this.j;
+    }
+    getRADeg() {
+        return this.ra;
+    }
+    getDecDeg() {
+        return this.dec;
+    }
+    getUint8Value() {
+        return this.uint8value;
+    }
+    getValue() {
+        return this.value;
+    }
+    setValue(value, bitpix) {
+        if (this.uint8value == undefined) {
+            const bytesXelem = Math.abs(bitpix / 8);
+            this.uint8value = new Uint8Array(bytesXelem);
+        }
+        this.uint8value = value;
+        this.value = jsfitsio__WEBPACK_IMPORTED_MODULE_0__.ParseUtils.extractPixelValue(0, value, bitpix);
+    }
+    setTileNumber(tileno) {
+        this.tileno = tileno;
+    }
+    setij(i, j) {
+        this.i = i;
+        this.j = j;
+    }
+    setRADecDeg(ra, dec) {
+        this.ra = ra;
+        this.dec = dec;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/hips/TilesRaDecList2.ts":
+/*!*************************************************!*\
+  !*** ./src/projections/hips/TilesRaDecList2.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   TilesRaDecList2: () => (/* binding */ TilesRaDecList2)
+/* harmony export */ });
+/* harmony import */ var _MinMaxValue_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../MinMaxValue.js */ "./src/projections/MinMaxValue.ts");
+/* harmony import */ var _RADecMinMaxCentral_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../RADecMinMaxCentral.js */ "./src/projections/RADecMinMaxCentral.ts");
+
+
+class TilesRaDecList2 {
+    // constructor(hipsOrder: number) {
+    //     this.hipsOrder = hipsOrder
+    constructor() {
+        this.minPixelValue = null;
+        this.maxPixelValue = null;
+        this.tileList = [];
+        this.imagePixelList = new Array();
+    }
+    findImagePixel(i, j) {
+        return this.imagePixelList.find(p => p.i === i && p.j === j) || null;
+    }
+    getImagePixelsByTile(tileno) {
+        return this.imagePixelList.filter(p => p.tileno === tileno);
+    }
+    getImagePixelList() {
+        return this.imagePixelList;
+    }
+    getTilesList() {
+        return this.tileList;
+    }
+    addImagePixel(imgpx) {
+        this.imagePixelList.push(imgpx);
+    }
+    addTileNumber(tileno) {
+        if (!this.tileList.includes(tileno)) {
+            this.tileList.push(tileno);
+        }
+    }
+    computeRADecMinMaxCentral() {
+        if (this.imagePixelList.length === 0)
+            return null;
+        // Single pass, skip non-finite values
+        let minRA = Infinity, maxRA = -Infinity;
+        let minDec = Infinity, maxDec = -Infinity;
+        for (const p of this.imagePixelList) {
+            if (Number.isFinite(p.ra)) {
+                if (p.ra < minRA)
+                    minRA = p.ra;
+                if (p.ra > maxRA)
+                    maxRA = p.ra;
+            }
+            if (Number.isFinite(p.dec)) {
+                if (p.dec < minDec)
+                    minDec = p.dec;
+                if (p.dec > maxDec)
+                    maxDec = p.dec;
+            }
+        }
+        // If all values were non-finite, bail out
+        if (!Number.isFinite(minRA) || !Number.isFinite(maxRA) ||
+            !Number.isFinite(minDec) || !Number.isFinite(maxDec)) {
+            return null;
+        }
+        const cRA = minRA + (maxRA - minRA) / 2;
+        const cDec = minDec + (maxDec - minDec) / 2;
+        return new _RADecMinMaxCentral_js__WEBPACK_IMPORTED_MODULE_1__.RADecMinMaxCentral(cRA, cDec, minRA, minDec, maxRA, maxDec);
+    }
+    setMinMaxValue(value) {
+        if (!value)
+            return;
+        if (!this.minPixelValue) {
+            this.minPixelValue = value;
+        }
+        else if (value < this.minPixelValue) {
+            this.minPixelValue = value;
+        }
+        if (!this.maxPixelValue) {
+            this.maxPixelValue = value;
+        }
+        else if (value > this.minPixelValue) {
+            this.maxPixelValue = value;
+        }
+    }
+    getMinMaxValues() {
+        if (this.minPixelValue && this.maxPixelValue) {
+            return new _MinMaxValue_js__WEBPACK_IMPORTED_MODULE_0__.MinMaxValue(this.minPixelValue, this.maxPixelValue);
+        }
+        return null;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/projections/mercator/MercatorProjection.ts":
+/*!********************************************************!*\
+  !*** ./src/projections/mercator/MercatorProjection.ts ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   MercatorProjection: () => (/* binding */ MercatorProjection)
+/* harmony export */ });
+/* harmony import */ var jsfitsio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jsfitsio */ "../FITSParser/lib-esm/index.js");
+/* harmony import */ var _AbstractProjection_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../AbstractProjection.js */ "./src/projections/AbstractProjection.ts");
+/* harmony import */ var _model_Point_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../model/Point.js */ "./src/model/Point.ts");
+/* harmony import */ var _model_CoordsType_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../model/CoordsType.js */ "./src/model/CoordsType.ts");
+/* harmony import */ var _model_NumberType_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../model/NumberType.js */ "./src/model/NumberType.ts");
+/* harmony import */ var _hips_TilesRaDecList2_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../hips/TilesRaDecList2.js */ "./src/projections/hips/TilesRaDecList2.ts");
+/* harmony import */ var _hips_ImagePixel_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../hips/ImagePixel.js */ "./src/projections/hips/ImagePixel.ts");
+/* harmony import */ var _model_FITS_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../model/FITS.js */ "./src/model/FITS.ts");
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/wcslight
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+// import { HiPSProp } from '../hips/HiPSProp.js';
+class MercatorProjection extends _AbstractProjection_js__WEBPACK_IMPORTED_MODULE_1__.AbstractProjection {
+    constructor() {
+        super();
+        this.CTYPE1 = "'RA---CAR'";
+        this.CTYPE2 = "'DEC--CAR'";
+        this._wcsname = "MER"; // TODO check WCS standard and create ENUM
+        this.pxvalues = new Array();
+        this.fitsheader = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager();
+    }
+    initFromFile(infile) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g;
+            const fits = yield jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser.loadFITS(infile);
+            if (!fits) {
+                console.error("FITS is null");
+                throw new Error("FITS is null");
+            }
+            this.pxvalues = fits.data;
+            this.fitsheader = fits.header;
+            this.naxis1 = Number((_a = fits.header.findById("NAXIS1")) === null || _a === void 0 ? void 0 : _a.value);
+            this.naxis2 = Number((_b = fits.header.findById("NAXIS2")) === null || _b === void 0 ? void 0 : _b.value);
+            this.bitpix = (_c = fits.header.findById("BITPIX")) === null || _c === void 0 ? void 0 : _c.value;
+            this.craDeg = (_d = fits.header.findById("CRVAL1")) === null || _d === void 0 ? void 0 : _d.value;
+            this.cdecDeg = (_e = fits.header.findById("CRVAL2")) === null || _e === void 0 ? void 0 : _e.value;
+            const pxsize1 = (_f = this.fitsheader.findById("CDELT1")) === null || _f === void 0 ? void 0 : _f.value;
+            const pxsize2 = (_g = this.fitsheader.findById("CDELT2")) === null || _g === void 0 ? void 0 : _g.value;
+            if (pxsize1 !== pxsize2 || pxsize1 === undefined || pxsize2 === undefined) {
+                throw new Error("pxsize1 is not equal to pxsize2");
+            }
+            this.pxsize = pxsize1;
+            this.minra = this.craDeg - this.pxsize * this.naxis1 / 2;
+            if (this.minra < 0) {
+                this.minra += 360;
+            }
+            // this._mindec = this._cdecDeg - this._pxsize2 * this._naxis2 / 2;
+            this.mindec = this.cdecDeg - this.pxsize * this.naxis2 / 2;
+            return fits;
+        });
+    }
+    getBytePerValue() {
+        return Math.abs(this.bitpix / 8);
+    }
+    extractPhysicalValues(fits) {
+        var _a, _b, _c, _d, _e;
+        const bzero = Number((_a = fits.header.findById("BZERO")) === null || _a === void 0 ? void 0 : _a.value);
+        const bscale = Number((_b = fits.header.findById("BSCALE")) === null || _b === void 0 ? void 0 : _b.value);
+        const naxis1 = Number((_c = fits.header.findById("NAXIS1")) === null || _c === void 0 ? void 0 : _c.value);
+        const naxis2 = Number((_d = fits.header.findById("NAXIS2")) === null || _d === void 0 ? void 0 : _d.value);
+        const bitpix = Number((_e = fits.header.findById("BITPIX")) === null || _e === void 0 ? void 0 : _e.value);
+        const bytesXelem = Math.abs(bitpix / 8);
+        let physicalvalues = new Array(naxis2);
+        for (let n2 = 0; n2 < naxis2; n2++) {
+            physicalvalues[n2] = new Array(naxis1);
+            for (let n1 = 0; n1 < naxis1; n1++) {
+                const pixval = jsfitsio__WEBPACK_IMPORTED_MODULE_0__.ParseUtils.extractPixelValue(0, fits.data[n2].slice(n1 * bytesXelem, (n1 + 1) * bytesXelem), bitpix);
+                if (pixval) {
+                    let physicalVal = bzero + bscale * pixval;
+                    physicalvalues[n2][n1] = physicalVal;
+                }
+            }
+        }
+        return physicalvalues;
+    }
+    // computeHeader(pxsize: number, bitpix: number, scale: number = 1, zero: number = 0, blank: number = 0): FITSHeaderManager{
+    //     const header = new FITSHeaderManager()
+    //     header.insert(new FITSHeaderItem("SIMPLE", "'T'", ""));
+    //     header.insert(new FITSHeaderItem("BITPIX", bitpix, ""));
+    //     header.insert(new FITSHeaderItem("NAXIS", 2, ""));
+    //     header.insert(new FITSHeaderItem("NAXIS1", this.naxis1, ""));
+    //     header.insert(new FITSHeaderItem("NAXIS2", this.naxis2, ""));
+    //     header.insert(new FITSHeaderItem("BLANK", blank, ""));
+    //     header.insert(new FITSHeaderItem("BSCALE", scale, ""));
+    //     header.insert(new FITSHeaderItem("BZERO", zero, ""));
+    //     header.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+    //     header.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+    //     header.insert(new FITSHeaderItem("CDELT1", pxsize, "")); // ??? Pixel spacing along axis 1 ???
+    //     header.insert(new FITSHeaderItem("CDELT2", pxsize, "")); // ??? Pixel spacing along axis 2 ???
+    //     header.insert(new FITSHeaderItem("CRPIX1", this.naxis1 / 2, "")); // central/reference pixel i along naxis1
+    //     header.insert(new FITSHeaderItem("CRPIX2", this.naxis2 / 2, "")); // central/reference pixel j along naxis2
+    //     header.insert(new FITSHeaderItem("CRVAL1", this.craDeg, "")); // central/reference pixel RA
+    //     header.insert(new FITSHeaderItem("CRVAL2", this.cdecDeg, "")); // central/reference pixel Dec
+    //     let min = zero + scale * this._minphysicalval;
+    //     let max = zero + scale * this._maxphysicalval;
+    //     header.insert(new FITSHeaderItem("DATAMIN", min, "")); // min data value
+    //     header.insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
+    //     header.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
+    //     header.insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
+    //     header.insert(new FITSHeaderItem("END", "", ""));
+    //     return this.fitsheader;
+    // }
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
+    // static prepareHeader(radius: number, pixelAngSize: number,
+    //     bitpix: number, bscale?: number, bzero?: number
+    // ) {
+    //     if (!bscale) bscale = 1
+    //     if (!bzero) bzero = 0
+    //     const naxis1 = Math.ceil(2 * radius / pixelAngSize);
+    //     const naxis2 = naxis1
+    //     if (!bitpix) {
+    //         throw new Error("Bitpix not defined")
+    //     }
+    // }
+    prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue) {
+        const fitsheader = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager();
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("SIMPLE", "T", ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("NAXIS1", TILE_WIDTH, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("NAXIS2", TILE_WIDTH, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("NAXIS", 2, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("BITPIX", BITPIX, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("BLANK", BLANK, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("BSCALE", BSCALE, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("BZERO", BZERO, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CDELT1", pixelAngSize, "")); // ??? Pixel spacing along axis 1 ???
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CDELT2", pixelAngSize, "")); // ??? Pixel spacing along axis 2 ???
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CRPIX1", TILE_WIDTH / 2, "")); // central/reference pixel i along naxis1
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CRPIX2", TILE_WIDTH / 2, "")); // central/reference pixel j along naxis2
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CRVAL1", cRA, "")); // central/reference pixel RA
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("CRVAL2", cDec, "")); // central/reference pixel Dec
+        const min = BZERO + BSCALE * minValue;
+        const max = BZERO + BSCALE * maxValue;
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMIN", min, "")); // min data value
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMAX", max, "")); // max data value
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
+        fitsheader.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("END", "", ""));
+        return fitsheader;
+    }
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
+    // prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager {
+    //     this.fitsheader = new FITSHeaderManager();
+    //     this.fitsheader.insert(new FITSHeaderItem("NAXIS1", this.naxis1, ""));
+    //     this.fitsheader.insert(new FITSHeaderItem("NAXIS2", this.naxis2, ""));
+    //     this.fitsheader.insert(new FITSHeaderItem("NAXIS", 2, ""));
+    //     const bitpix = Number(fitsHeaderParams.findById("BITPIX")?.value)
+    //     this.fitsheader.insert(new FITSHeaderItem("BITPIX", bitpix, ""));
+    //     const simple = Number(fitsHeaderParams.findById("SIMPLE")?.value)
+    //     this.fitsheader.insert(new FITSHeaderItem("SIMPLE", simple, ""));
+    //     const blank = Number(fitsHeaderParams.findById("BLANK")?.value)
+    //     if (blank) {
+    //         this.fitsheader.insert(new FITSHeaderItem("BLANK", blank, ""));
+    //     }
+    //     let bscale = Number(fitsHeaderParams.findById("BSCALE")?.value)
+    //     if (!bscale) {
+    //         bscale = 1.0;
+    //     }
+    //     this.fitsheader.insert(new FITSHeaderItem("BSCALE", bscale, ""));
+    //     let bzero = Number(fitsHeaderParams.findById("BZERO")?.value)
+    //     if (!bzero) {
+    //         bzero = 0.0;
+    //     }
+    //     this.fitsheader.insert(new FITSHeaderItem("BZERO", bzero, ""));
+    //     this.fitsheader.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+    //     this.fitsheader.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+    //     this.fitsheader.insert(new FITSHeaderItem("CDELT1", this.pxsize, "")); // ??? Pixel spacing along axis 1 ???
+    //     this.fitsheader.insert(new FITSHeaderItem("CDELT2", this.pxsize, "")); // ??? Pixel spacing along axis 2 ???
+    //     this.fitsheader.insert(new FITSHeaderItem("CRPIX1", this.naxis1 / 2, "")); // central/reference pixel i along naxis1
+    //     this.fitsheader.insert(new FITSHeaderItem("CRPIX2", this.naxis2 / 2, "")); // central/reference pixel j along naxis2
+    //     this.fitsheader.insert(new FITSHeaderItem("CRVAL1", this.craDeg, "")); // central/reference pixel RA
+    //     this.fitsheader.insert(new FITSHeaderItem("CRVAL2", this.cdecDeg, "")); // central/reference pixel Dec
+    //     let min = bzero + bscale * this._minphysicalval;
+    //     let max = bzero + bscale * this._maxphysicalval;
+    //     this.fitsheader.insert(new FITSHeaderItem("DATAMIN", min, "")); // min data value
+    //     this.fitsheader.insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
+    //     this.fitsheader.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
+    //     this.fitsheader.insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
+    //     this.fitsheader.insert(new FITSHeaderItem("END", "", ""));
+    //     return this.fitsheader;
+    // }
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
+    getFITSHeader() {
+        return this.fitsheader;
+    }
+    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
+    getCommonFitsHeaderParams() {
+        let header = new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderManager();
+        for (const item of this.fitsheader.getItems()) {
+            const key = item.key;
+            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER",].includes(key)) {
+                const value = item.value;
+                header.insert(new jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(key, value, ""));
+            }
+        }
+        return header;
+    }
+    // computeSquaredNaxes(d: number, ps: number): void {
+    //     this._naxis1 = Math.ceil(d / ps);
+    //     this._naxis2 = this._naxis1;
+    //     this._pxsize = ps;
+    // }
+    computeNaxisWidth(radius, pxsize) {
+        return Math.ceil(2 * radius / pxsize);
+    }
+    getImageRADecList(center, radius, pxsize, naxisWidth) {
+        const naxis1 = naxisWidth;
+        const naxis2 = naxis1;
+        let minra = center.getAstro().raDeg - radius;
+        if (minra < 0) {
+            minra += 360;
+        }
+        const mindec = center.getAstro().decDeg - radius;
+        const tilesRaDecList = new _hips_TilesRaDecList2_js__WEBPACK_IMPORTED_MODULE_5__.TilesRaDecList2();
+        // let radeclist: Array<[number, number]> = new Array<[number, number]>();
+        // let centralRa, centralDec
+        for (let d = 0; d < naxis2; d++) {
+            for (let r = 0; r < naxis1; r++) {
+                tilesRaDecList.addImagePixel(new _hips_ImagePixel_js__WEBPACK_IMPORTED_MODULE_6__.ImagePixel(minra + (r * pxsize), mindec + (d * pxsize), undefined));
+                // radeclist.push([minra + (r * pxsize), mindec + (d * pxsize)]);
+            }
+        }
+        const centralImgpx = tilesRaDecList.getImagePixelList().length / 2 - 1;
+        // let cidx = (naxis2 / 2) * naxis1 + naxis1 / 2;
+        // if (naxis1 % 2 != 0) {
+        //     cidx = Math.floor(radeclist.length / 2);
+        // }
+        // this._craDeg = radeclist[cidx][0];
+        // this._cdecDeg = radeclist[cidx][1];
+        // return radeclist
+        return tilesRaDecList;
+    }
+    /** TODO !!! check and handle RA passing through 360-0 */
+    pix2world(i, j) {
+        let ra;
+        let dec;
+        // ra = i * this._stepra + this._minra;
+        // dec = j * this._stepdec + this._mindec;
+        ra = i * this.pxsize + this.minra;
+        dec = j * this.pxsize + this.mindec;
+        let p = new _model_Point_js__WEBPACK_IMPORTED_MODULE_2__.Point(_model_CoordsType_js__WEBPACK_IMPORTED_MODULE_3__.CoordsType.ASTRO, _model_NumberType_js__WEBPACK_IMPORTED_MODULE_4__.NumberType.DEGREES, ra, dec);
+        return p;
+        // return [ra, dec];
+    }
+    setPixelValues(raDecList, header) {
+        var _a, _b, _c, _d;
+        const BITPIX = (_a = header.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value;
+        if (!Number.isFinite(BITPIX)) {
+            throw new Error("BITPIX not found or invalid in header");
+        }
+        const bytesPerElem = Math.abs(BITPIX) / 8;
+        const width = (_b = header.findById("NAXIS1")) === null || _b === void 0 ? void 0 : _b.value;
+        const height = (_d = (_c = header.findById("NAXIS2")) === null || _c === void 0 ? void 0 : _c.value) !== null && _d !== void 0 ? _d : width; // fallback if square
+        if (!Number.isFinite(width) || width <= 0)
+            throw new Error("NAXIS1 not found or invalid");
+        if (!Number.isFinite(height) || height <= 0)
+            throw new Error("NAXIS2 not found or invalid");
+        const pixels = raDecList.getImagePixelList();
+        if (pixels.length !== width * height) {
+            throw new Error(`Pixel count mismatch: got ${pixels.length}, expected ${width * height}`);
+        }
+        // Map<rowIndex, Uint8Array[]>, each row has length = width
+        const pxvalues = new Map();
+        for (let r = 0; r < height; r++) {
+            pxvalues.set(r, new Array(width));
+        }
+        // Fill in row-major order: for each linear index, compute (row, col)
+        for (let idx = 0; idx < pixels.length; idx++) {
+            const row = Math.floor(idx / width);
+            const col = idx % width;
+            const rowArr = pxvalues.get(row);
+            let u8 = pixels[idx].getUint8Value();
+            if (u8 == null) {
+                // Your pipeline’s ImagePixel.setValue() should have set this already.
+                // Throwing is safer than inventing packing (FITS expects specific endian/precision).
+                throw new Error(`Pixel (${row},${col}) missing Uint8Array for BITPIX=${BITPIX}`);
+            }
+            if (u8.byteLength !== bytesPerElem) {
+                throw new Error(`Pixel (${row},${col}) byteLength=${u8.byteLength} != expected ${bytesPerElem} (BITPIX=${BITPIX})`);
+            }
+            rowArr[col] = u8;
+            // no need to pxvalues.set(row, rowArr); reference already updated
+        }
+        return new _model_FITS_js__WEBPACK_IMPORTED_MODULE_7__.FITS([header], pxvalues);
+    }
+    generateFITSFile(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues) {
+        const header = this.prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue);
+        const fits = this.setPixelValues(raDecWithValues, header);
+        return fits;
+    }
+    world2pix(raDecList) {
+        var _a;
+        const bytesXvalue = this.getBytePerValue();
+        // TODO if I have the this.fitsheader available here, check if I can retrieve this.bitpix, this.pxsize, ... with this.fitsheader
+        // and remove the attributes at object level (with this)
+        const blank = Number((_a = this.fitsheader.findById("BLANK")) === null || _a === void 0 ? void 0 : _a.value);
+        const blankBytes = jsfitsio__WEBPACK_IMPORTED_MODULE_0__.ParseUtils.convertBlankToBytes(blank, bytesXvalue);
+        for (let imgPx of raDecList.getImagePixelList()) {
+            // console.log("raDeclist.getImagePixelList().indexOf(imgPx) " + raDeclist.getImagePixelList().indexOf(imgPx))
+            const ra = imgPx.getRADeg();
+            const dec = imgPx.getDecDeg();
+            const i = Math.floor((ra - this.minra) / this.pxsize);
+            const j = Math.floor((dec - this.mindec) / this.pxsize);
+            if (j < 0 || j >= this.naxis2 || i < 0 || i >= this.naxis1) {
+                imgPx.setValue(blankBytes, this.bitpix);
+            }
+            else {
+                const currentValue = this.pxvalues[j].slice(i * bytesXvalue, (i + 1) * bytesXvalue);
+                imgPx.setValue(currentValue, this.bitpix);
+            }
+            raDecList.setMinMaxValue(imgPx.getValue());
+        }
+        return raDecList;
+    }
+}
+
+
+/***/ }),
+
+/***/ "?3df7":
+/*!********************!*\
+  !*** fs (ignored) ***!
+  \********************/
+/***/ (() => {
+
+/* (ignored) */
+
+/***/ }),
+
+/***/ "?df5f":
+/*!**********************************!*\
+  !*** node:fs/promises (ignored) ***!
+  \**********************************/
+/***/ (() => {
+
+/* (ignored) */
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/FITSParser.js":
+/*!*******************************************!*\
+  !*** ../FITSParser/lib-esm/FITSParser.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FITSParser: () => (/* binding */ FITSParser)
+/* harmony export */ });
+/* harmony import */ var _FITSWriter_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./FITSWriter.js */ "../FITSParser/lib-esm/FITSWriter.js");
+/* harmony import */ var _ParsePayload_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ParsePayload.js */ "../FITSParser/lib-esm/ParsePayload.js");
+/* harmony import */ var _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ParseHeader.js */ "../FITSParser/lib-esm/ParseHeader.js");
+/* harmony import */ var _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./model/FITSHeaderManager.js */ "../FITSParser/lib-esm/model/FITSHeaderManager.js");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+class FITSParser {
+    static loadFITS(url) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const uint8data = yield FITSParser.getFile(url);
+            if (uint8data === null || uint8data === void 0 ? void 0 : uint8data.byteLength) {
+                const fits = FITSParser.processFits(uint8data);
+                return fits;
+            }
+            return null;
+        });
+    }
+    static processFits(rawdata) {
+        const header = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.parse(rawdata);
+        const headerFinalised = _ParsePayload_js__WEBPACK_IMPORTED_MODULE_1__.ParsePayload.computePhysicalMinAndMax(header, rawdata);
+        if (headerFinalised == null) {
+            return null;
+        }
+        const dataOffset = 2880; // Assuming no additional header blocks
+        const payloadBuffer = new Uint8Array(rawdata.slice(dataOffset));
+        const payloadMatrix = FITSParser.createMatrix(payloadBuffer, header);
+        return {
+            header: headerFinalised,
+            data: payloadMatrix
+        };
+    }
+    static createMatrix(payload, header) {
+        const NAXIS1 = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_3__.FITSHeaderManager.NAXIS1);
+        if (NAXIS1 === null) {
+            throw new Error("NAXIS1 not defined.");
+        }
+        const NAXIS2 = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_3__.FITSHeaderManager.NAXIS2);
+        if (NAXIS2 === null) {
+            throw new Error("NAXIS2 not defined.");
+        }
+        const BITPIX = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_3__.FITSHeaderManager.BITPIX);
+        if (BITPIX === null) {
+            throw new Error("BITPIX not defined.");
+        }
+        const bytesXelem = Math.abs(BITPIX / 8);
+        if (payload.length !== NAXIS1 * NAXIS2 * bytesXelem) {
+            throw new Error("Payload size does not match the expected matrix dimensions.");
+        }
+        // const matrix: Array<Uint8Array> = [];
+        const matrix = [];
+        for (let i = 0; i < NAXIS2; i++) {
+            matrix.push(payload.slice(i * NAXIS1 * bytesXelem, (i + 1) * NAXIS1 * bytesXelem));
+        }
+        return matrix;
+    }
+    static generateFITSForWeb(fitsParsed) {
+        return _FITSWriter_js__WEBPACK_IMPORTED_MODULE_0__.FITSWriter.typedArrayToURL(fitsParsed);
+    }
+    static saveFITSLocally(fitsParsed, path) {
+        return _FITSWriter_js__WEBPACK_IMPORTED_MODULE_0__.FITSWriter.writeFITSFile(fitsParsed, path);
+    }
+    static getFile(uri) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!uri.substring(0, 5).toLowerCase().includes("http")) {
+                const p = yield __webpack_require__.e(/*! import() */ "FITSParser_lib-esm_getLocalFile_js").then(__webpack_require__.bind(__webpack_require__, /*! ./getLocalFile.js */ "../FITSParser/lib-esm/getLocalFile.js"));
+                const rawData = yield p.getLocalFile(uri);
+                if (rawData === null || rawData === void 0 ? void 0 : rawData.length) {
+                    const uint8 = new Uint8Array(rawData);
+                    return uint8;
+                }
+                return new Uint8Array(0);
+            }
+            else {
+                const p = yield Promise.all(/*! import() */[__webpack_require__.e("vendors-FITSParser_node_modules_cross-fetch_dist_browser-ponyfill_js"), __webpack_require__.e("FITSParser_lib-esm_getFile_js")]).then(__webpack_require__.bind(__webpack_require__, /*! ./getFile.js */ "../FITSParser/lib-esm/getFile.js"));
+                const rawData = yield p.getFile(uri);
+                if (rawData === null || rawData === void 0 ? void 0 : rawData.byteLength) {
+                    const uint8 = new Uint8Array(rawData);
+                    return uint8;
+                }
+                return new Uint8Array(0);
+            }
+        });
+    }
+}
+// const url = "http://skies.esac.esa.int/Herschel/normalized/PACS_hips160//Norder8/Dir40000/Npix47180.fits"
+// FITSParser.loadFITS(url).then((fits) => {
+//   if (fits == null) {
+//     return null
+//   }
+//   const path = "./fitsTest1.fits"
+//   console.log(fits.header)
+//   FITSParser.saveFITSLocally(fits, path)
+//   console.log("finished")
+// })
+// // const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/empty.fits"
+// const file = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/tests/inputs/Npix43348.fits"
+// FITSParser.loadFITS(file).then((fits) => {
+//   if (fits == null) {
+//     return null
+//   }
+//   const path = "./fitsTest2.fits"
+//   console.log(fits.header)
+//   FITSParser.saveFITSLocally(fits, path)
+//   console.log("finished")
+// })
+//# sourceMappingURL=FITSParser.js.map
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/FITSWriter.js":
+/*!*******************************************!*\
+  !*** ../FITSParser/lib-esm/FITSWriter.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FITSWriter: () => (/* binding */ FITSWriter)
+/* harmony export */ });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fs */ "?3df7");
+// import { FITSHeader } from "./model/FITSHeader.js"
+
+class FITSWriter {
+    static createFITS(fitsParsed) {
+        const headerBytes = this.createHeader(fitsParsed.header);
+        const dataBytes = this.createData(fitsParsed.data);
+        // Concatenate header and data to form a complete FITS file
+        const fitsFile = new Uint8Array(headerBytes.length + dataBytes.length);
+        fitsFile.set(headerBytes, 0);
+        fitsFile.set(dataBytes, headerBytes.length);
+        return fitsFile;
+    }
+    static createHeader(header) {
+        let headerString = "";
+        // Convert header items to FITS 80-character records
+        for (const item of header.getItems()) {
+            if (item.key === "END")
+                continue;
+            const key = item.key ? item.key.padEnd(8, " ") : "        ";
+            const value = item.value !== undefined ? `= ${item.value}` : "";
+            const comment = item.comment ? ` / ${item.comment}` : "";
+            let record = `${key}${value}${comment}`.padEnd(80, " ");
+            headerString += record;
+        }
+        // End header with "END" record and pad to 2880-byte multiple
+        headerString += "END".padEnd(80, " ");
+        while (headerString.length % 2880 !== 0) {
+            headerString += " ";
+        }
+        return new TextEncoder().encode(headerString);
+    }
+    static createData(data) {
+        let totalLength = data.reduce((sum, row) => sum + row.length, 0);
+        let dataBytes = new Uint8Array(totalLength);
+        let offset = 0;
+        for (let row of data) {
+            dataBytes.set(row, offset);
+            offset += row.length;
+        }
+        return dataBytes;
+    }
+    static typedArrayToURL(fitsParsed) {
+        const fitsFile = this.createFITS(fitsParsed);
+        const blob = new Blob([fitsFile], { type: "application/fits" });
+        // console.log(`<html><body><img src='${URL.createObjectURL(b)}'</body></html>`);
+        const url = URL.createObjectURL(blob);
+        console.log(`Generated FITS file URL: ${url}`);
+        const revokeTimeout_sec = 10;
+        setTimeout(() => url, revokeTimeout_sec * 1000);
+        console.log(`Generated FITS will be available for ${revokeTimeout_sec} seconds: ${url}`);
+        return url;
+    }
+    static writeFITSFile(fitsParsed, filePath) {
+        const fitsFile = this.createFITS(fitsParsed);
+        try {
+            fs__WEBPACK_IMPORTED_MODULE_0__.writeFileSync(filePath, fitsFile);
+            console.log(`FITS file written successfully to: ${filePath}`);
+        }
+        catch (error) {
+            console.error(`Error writing FITS file: ${error}`);
+        }
+    }
+}
+// const fitsParsed: FITSParsed = {
+//   header: new FITSHeader(),
+//   data: [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6])]
+// };
+// // Specify the file path
+// const filePath = "/Users/fabriziogiordano/Desktop/PhD/code/new/FITSParser/output.fits";
+// // Write the FITS file to the filesystem
+// FITSWriter.writeFITSFile(fitsParsed, filePath);
+//# sourceMappingURL=FITSWriter.js.map
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/ParseHeader.js":
+/*!********************************************!*\
+  !*** ../FITSParser/lib-esm/ParseHeader.js ***!
+  \********************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ParseHeader: () => (/* binding */ ParseHeader)
+/* harmony export */ });
+/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
+/* harmony import */ var _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeaderManager.js */ "../FITSParser/lib-esm/model/FITSHeaderManager.js");
+// import { FITSHeader } from "./model/FITSHeader.js";
+
+
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class ParseHeader {
+    static getFITSItemValue(header, key) {
+        const item = header.findById(key);
+        let VALUE = null;
+        if (item) {
+            VALUE = Number(item.value);
+        }
+        return VALUE;
+    }
+    static parse(rawdata) {
+        // only one header block (2880) allowed atm.
+        // TODO handle multiple header blocks
+        // let headerByteData = new Uint8Array(rawdata, 0, 2880);
+        const textDecoder = new TextDecoder('ascii');
+        const headerSize = 2880; // FITS headers are in 2880-byte blocks
+        const headerText = textDecoder.decode(rawdata.slice(0, headerSize));
+        const header = new _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager();
+        const lines = headerText.match(/.{1,80}/g) || [];
+        for (const line of lines) {
+            const key = line.slice(0, 8).trim();
+            let value;
+            let comment = "";
+            if (key && key !== 'END') {
+                const rawValue = line.slice(10).trim().split('/')[0].trim();
+                if (isNaN(Number(rawValue))) {
+                    value = rawValue;
+                }
+                else {
+                    value = Number(rawValue);
+                }
+                if (line.includes('/')) {
+                    comment = line.slice(10).trim().split('/')[1].trim();
+                }
+                const item = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(key, value, comment);
+                header.insert(item);
+            }
+        }
+        return header;
+    }
+}
+//# sourceMappingURL=ParseHeader.js.map
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/ParsePayload.js":
+/*!*********************************************!*\
+  !*** ../FITSParser/lib-esm/ParsePayload.js ***!
+  \*********************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ParsePayload: () => (/* binding */ ParsePayload)
+/* harmony export */ });
+/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
+/* harmony import */ var _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeaderManager.js */ "../FITSParser/lib-esm/model/FITSHeaderManager.js");
+/* harmony import */ var _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ParseHeader.js */ "../FITSParser/lib-esm/ParseHeader.js");
+/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ParseUtils.js */ "../FITSParser/lib-esm/ParseUtils.js");
+// "use strict";
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+// import { FITSHeader } from "./model/FITSHeader.js";
+
+
+
+
+class ParsePayload {
+    static computePhysicalMinAndMax(header, rawData) {
+        const BITPIX = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.BITPIX);
+        if (BITPIX === null) {
+            return null;
+        }
+        const NAXIS1 = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.NAXIS1);
+        if (NAXIS1 === null) {
+            return null;
+        }
+        const NAXIS2 = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.NAXIS2);
+        if (NAXIS2 === null) {
+            return null;
+        }
+        const DATAMIN = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.DATAMIN);
+        const DATAMAX = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.DATAMAX);
+        if (!BITPIX || !NAXIS1 || !NAXIS2) {
+            return null; // return early if invalid data.
+        }
+        if (!DATAMAX || !DATAMIN) {
+            const [min, max] = ParsePayload.computePhysicalValues(rawData, header);
+            if (min && max) {
+                const maxitem = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMAX", min, "computed by jsfitsio");
+                const minitem = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem("DATAMIN", max, "computed by jsfitsio");
+                header.insert(maxitem);
+                header.insert(minitem);
+            }
+        }
+        const endItem = new _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem('END', "", "");
+        header.insert(endItem);
+        return header;
+        // TODO: END tag shall be added here
+    }
+    static computePhysicalValues(rawData, header) {
+        const BITPIX = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.BITPIX);
+        if (BITPIX === null || isNaN(BITPIX)) {
+            return [null, null];
+        }
+        const BLANK = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.BLANK);
+        if (BLANK === null || isNaN(BITPIX)) {
+            return [null, null];
+        }
+        let BZERO = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.BZERO);
+        if (BZERO === null) {
+            BZERO = 0;
+        }
+        let BSCALE = _ParseHeader_js__WEBPACK_IMPORTED_MODULE_2__.ParseHeader.getFITSItemValue(header, _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager.BSCALE);
+        if (BSCALE === null) {
+            BSCALE = 1;
+        }
+        let i = 0;
+        const bytesXelem = Math.abs(BITPIX / 8);
+        const pxLength = rawData.byteLength / bytesXelem;
+        let min = null;
+        let max = null;
+        let physicalblank = null;
+        if (BLANK) {
+            physicalblank = ParsePayload.pixel2physicalValue(BLANK, BSCALE, BZERO);
+        }
+        while (i < pxLength) {
+            let px_val = ParsePayload.extractPixelValue(rawData, bytesXelem * i, BITPIX);
+            if (px_val === null) {
+                i++;
+                continue;
+            }
+            let ph_val = ParsePayload.pixel2physicalValue(px_val, BSCALE, BZERO);
+            if (!min) {
+                min = ph_val;
+            }
+            if (!max) {
+                max = ph_val;
+            }
+            // check this block if it is still applicable
+            if (physicalblank === null || physicalblank !== ph_val) {
+                if (ph_val !== null && (ph_val < min || min === null)) {
+                    min = ph_val;
+                }
+                if (ph_val !== null && (ph_val > max || max === null)) {
+                    max = ph_val;
+                }
+            }
+            i++;
+        }
+        return [min, max];
+    }
+    static pixel2physicalValue(pxval, BSCALE, BZERO) {
+        if (BZERO === null || BSCALE === null) {
+            throw new Error("Either BZERO or BSCALE is null");
+        }
+        return BZERO + BSCALE * pxval;
+    }
+    static extractPixelValue(rawData, offset, BITPIX) {
+        let px_val = null; // pixel value
+        if (BITPIX == 16) {
+            // 16-bit 2's complement binary integer
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_3__.ParseUtils.parse16bit2sComplement(rawData[offset], rawData[offset + 1]);
+        }
+        else if (BITPIX == 32) {
+            // IEEE 754 half precision (float16) ??
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_3__.ParseUtils.parse32bit2sComplement(rawData[offset], rawData[offset + 1], rawData[offset + 2], rawData[offset + 3]);
+        }
+        else if (BITPIX == -32) {
+            // 32-bit IEEE single-precision floating point
+            // px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]);
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_3__.ParseUtils.parseFloatingPointFormat(rawData.slice(offset, offset + 4), 8, 23);
+        }
+        else if (BITPIX == 64) {
+            // 64-bit 2's complement binary integer
+            throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
+        }
+        else if (BITPIX == -64) {
+            // 64-bit IEEE double-precision floating point
+            //https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
+            px_val = _ParseUtils_js__WEBPACK_IMPORTED_MODULE_3__.ParseUtils.parseFloatingPointFormat(rawData.slice(offset, offset + 8), 11, 52);
+        }
+        return px_val;
+    }
+}
+//# sourceMappingURL=ParsePayload.js.map
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/ParseUtils.js":
+/*!*******************************************!*\
+  !*** ../FITSParser/lib-esm/ParseUtils.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ParseUtils: () => (/* binding */ ParseUtils)
+/* harmony export */ });
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class ParseUtils {
+    static getStringAt(data, offset, length) {
+        const chars = [];
+        for (let i = offset, j = 0; i < offset + length; i++, j++) {
+            chars[j] = String.fromCharCode(data.charCodeAt(i) & 0xff);
+        }
+        return chars.join("");
+    }
+    static byteString(n) {
+        if (n < 0 || n > 255 || n % 1 !== 0) {
+            throw new Error(n + " does not fit in a byte");
+        }
+        return ("000000000" + n.toString(2)).substr(-8);
+    }
+    static parse32bitSinglePrecisionFloatingPoint(byte1, byte2, byte3, byte4) {
+        let long = (((((byte1 << 8) + byte2) << 8) + byte3) << 8) + byte4;
+        if (long < 0)
+            long += 4294967296;
+        const float = (1.0 + (long & 0x007fffff) / 0x0800000) *
+            Math.pow(2, ((long & 0x7f800000) >> 23) - 127);
+        return float;
+    }
+    static convertBlankToBytes(blank, nbytes) {
+        let str = Math.abs(blank).toString(2);
+        while (str.length / 8 < nbytes) {
+            str += "0";
+        }
+        const buffer = new ArrayBuffer(nbytes);
+        const uint8 = new Uint8Array(buffer);
+        for (let i = 0; i < nbytes; i++) {
+            uint8[i] = parseInt(str.substr(8 * i, 8 * (i + 1)), 2);
+        }
+        return uint8;
+    }
+    /** https://gist.github.com/Manouchehri/f4b41c8272db2d6423fa987e844dd9ac */
+    static parseFloatingPointFormat(bytes, ebits, fbits) {
+        // Bytes to bits
+        const bits = [];
+        for (let i = bytes.length; i; i -= 1) {
+            let byte = bytes[i - 1];
+            for (let j = 8; j; j -= 1) {
+                bits.push(byte % 2 ? 1 : 0);
+                byte = byte >> 1;
+            }
+        }
+        bits.reverse();
+        const str = bits.join("");
+        // Unpack sign, exponent, fraction
+        const bias = (1 << (ebits - 1)) - 1;
+        const s = parseInt(str.substring(0, 1), 2) ? -1 : 1;
+        const e = parseInt(str.substring(1, 1 + ebits), 2);
+        const f = parseInt(str.substring(1 + ebits), 2);
+        // Produce number
+        if (e === (1 << ebits) - 1) {
+            return f !== 0 ? null : s * Infinity;
+        }
+        else if (e > 0) {
+            return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, fbits));
+        }
+        else if (f !== 0) {
+            return s * Math.pow(2, -(bias - 1)) * (f / Math.pow(2, fbits));
+        }
+        else {
+            return s * 0;
+        }
+    }
+    static generate16bit2sComplement(val) {
+        throw new TypeError("not implemented yet" + val);
+    }
+    static parse16bit2sComplement(byte1, byte2) {
+        const unsigned = (byte1 << 8) | byte2;
+        if (unsigned & 0x8000) {
+            return unsigned | 0xffff0000;
+        }
+        else {
+            return unsigned;
+        }
+    }
+    static parse32bit2sComplement(byte1, byte2, byte3, byte4) {
+        const unsigned = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+        const s = (unsigned & 0x80000000) >> 31;
+        let res = unsigned & 0xffffffff;
+        if (s) {
+            res = (~unsigned & 0xffffffff) + 1;
+            return -1 * res;
+        }
+        return res;
+    }
+    /**
+     *
+     * @param {*} data string?
+     * @param {*} offset offset in the data
+     * @returns returns an integer between 0 and 65535 representing the UTF-16 code unit at the given index.
+     */
+    static getByteAt(data, offset) {
+        const dataOffset = 0;
+        return data.charCodeAt(offset + dataOffset) & 0xff;
+    }
+    static extractPixelValue(offset, bytes, bitpix) {
+        let px_val = null; // pixel value
+        // let px_val1, px_val2, px_val3, px_val4;
+        if (bitpix == 8) {
+            px_val = bytes[0];
+        }
+        else if (bitpix == 16) {
+            // 16-bit 2's complement binary integer
+            px_val = ParseUtils.parse16bit2sComplement(bytes[offset], bytes[offset + 1]);
+        }
+        else if (bitpix == 32) {
+            // IEEE 754 half precision (float16) ??
+            px_val = ParseUtils.parse32bit2sComplement(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
+        }
+        else if (bitpix == -32) {
+            // 32-bit IEEE single-precision floating point
+            // px_val = ParseUtils.parse32bitSinglePrecisionFloatingPoint (this._u8data[offset], this._u8data[offset+1], this._u8data[offset+2], this._u8data[offset+3]);
+            px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 8, 23);
+        }
+        else if (bitpix == 64) {
+            // 64-bit 2's complement binary integer
+            throw new Error("BITPIX=64 -> 64-bit 2's complement binary integer NOT supported yet.");
+        }
+        else if (bitpix == -64) {
+            // 64-bit IEEE double-precision floating point
+            //https://babbage.cs.qc.cuny.edu/ieee-754.old/Decimal.html
+            px_val = ParseUtils.parseFloatingPointFormat(bytes.slice(offset, offset + 8), 11, 52);
+        }
+        return px_val;
+    }
+}
+// export default ParseUtils;
+//# sourceMappingURL=ParseUtils.js.map
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/index.js":
+/*!**************************************!*\
+  !*** ../FITSParser/lib-esm/index.js ***!
+  \**************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FITSHeaderItem: () => (/* reexport safe */ _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem),
+/* harmony export */   FITSHeaderManager: () => (/* reexport safe */ _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__.FITSHeaderManager),
+/* harmony export */   FITSParser: () => (/* reexport safe */ _FITSParser_js__WEBPACK_IMPORTED_MODULE_2__.FITSParser),
+/* harmony export */   FITSWriter: () => (/* reexport safe */ _FITSWriter_js__WEBPACK_IMPORTED_MODULE_3__.FITSWriter),
+/* harmony export */   ParseHeader: () => (/* reexport safe */ _ParseHeader_js__WEBPACK_IMPORTED_MODULE_4__.ParseHeader),
+/* harmony export */   ParsePayload: () => (/* reexport safe */ _ParsePayload_js__WEBPACK_IMPORTED_MODULE_5__.ParsePayload),
+/* harmony export */   ParseUtils: () => (/* reexport safe */ _ParseUtils_js__WEBPACK_IMPORTED_MODULE_6__.ParseUtils)
+/* harmony export */ });
+/* harmony import */ var _model_FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./model/FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
+/* harmony import */ var _model_FITSHeaderManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/FITSHeaderManager.js */ "../FITSParser/lib-esm/model/FITSHeaderManager.js");
+/* harmony import */ var _FITSParser_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FITSParser.js */ "../FITSParser/lib-esm/FITSParser.js");
+/* harmony import */ var _FITSWriter_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FITSWriter.js */ "../FITSParser/lib-esm/FITSWriter.js");
+/* harmony import */ var _ParseHeader_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ParseHeader.js */ "../FITSParser/lib-esm/ParseHeader.js");
+/* harmony import */ var _ParsePayload_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ParsePayload.js */ "../FITSParser/lib-esm/ParsePayload.js");
+/* harmony import */ var _ParseUtils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ParseUtils.js */ "../FITSParser/lib-esm/ParseUtils.js");
+
+// export { FITSHeader } from "./model/FITSHeader.js";
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/model/FITSHeaderItem.js":
+/*!*****************************************************!*\
+  !*** ../FITSParser/lib-esm/model/FITSHeaderItem.js ***!
+  \*****************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FITSHeaderItem: () => (/* binding */ FITSHeaderItem)
+/* harmony export */ });
+/**
+ * Summary. (bla bla bla)
+ *
+ * Description. (bla bla bla)
+ *
+ * @link   github https://github.com/fab77/FITSParser
+ * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
+ */
+class FITSHeaderItem {
+    constructor(key, value, comment) {
+        this._key = "";
+        this._value = "";
+        this._comment = "";
+        this._key = key;
+        this._value = value;
+        this._comment = comment;
+    }
+    get key() {
+        return this._key;
+    }
+    get comment() {
+        return this._comment;
+    }
+    get value() {
+        return this._value;
+    }
+}
+//# sourceMappingURL=FITSHeaderItem.js.map
+
+/***/ }),
+
+/***/ "../FITSParser/lib-esm/model/FITSHeaderManager.js":
+/*!********************************************************!*\
+  !*** ../FITSParser/lib-esm/model/FITSHeaderManager.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FITSHeaderManager: () => (/* binding */ FITSHeaderManager)
+/* harmony export */ });
+/* harmony import */ var _FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./FITSHeaderItem.js */ "../FITSParser/lib-esm/model/FITSHeaderItem.js");
+
+class FITSHeaderManager {
+    constructor() {
+        this.items = [];
+        this.items[0] = new _FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(FITSHeaderManager.SIMPLE, 'T', '');
+        this.items[1] = new _FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(FITSHeaderManager.BITPIX, '', '');
+        this.items[2] = new _FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(FITSHeaderManager.NAXIS, 2, '');
+        this.items[3] = new _FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(FITSHeaderManager.NAXIS1, '', '');
+        this.items[4] = new _FITSHeaderItem_js__WEBPACK_IMPORTED_MODULE_0__.FITSHeaderItem(FITSHeaderManager.NAXIS2, '', '');
+    }
+    // insert(item: FITSHeaderItem, position?: number): void {
+    insert(item) {
+        if (item.key === FITSHeaderManager.SIMPLE) {
+            // this.items.splice(0, 0, item);
+            this.items[0] = item;
+        }
+        else if (item.key === FITSHeaderManager.BITPIX) {
+            // this.items.splice(1, 0, item);
+            this.items[1] = item;
+        }
+        else if (item.key === FITSHeaderManager.NAXIS) {
+            // this.items.splice(2, 0, item);
+            this.items[2] = item;
+        }
+        else if (item.key === FITSHeaderManager.NAXIS1) {
+            // this.items.splice(3, 0, item);
+            this.items[3] = item;
+        }
+        else if (item.key === FITSHeaderManager.NAXIS2) {
+            // this.items.splice(4, 0, item);
+            this.items[4] = item;
+        }
+        else {
+            this.items.push(item);
+        }
+        // if (position !== undefined && position >= 0 && position <= this.items.length) {
+        //     this.items.splice(position, 0, item);
+        // } else {
+        //     this.items.push(item);
+        // }
+    }
+    getItems() {
+        return this.items;
+    }
+    remove(key) {
+        this.items = this.items.filter(item => item.key !== key);
+    }
+    findById(key) {
+        const item = this.items.find(item => item.key === key);
+        if (!item) {
+            return null;
+        }
+        return item;
+    }
+}
+FITSHeaderManager.SIMPLE = "SIMPLE";
+FITSHeaderManager.BITPIX = "BITPIX";
+FITSHeaderManager.BZERO = "BZERO";
+FITSHeaderManager.BSCALE = "BSCALE";
+FITSHeaderManager.BLANK = "BLANK";
+FITSHeaderManager.NAXIS = "NAXIS";
+FITSHeaderManager.NAXIS1 = "NAXIS1";
+FITSHeaderManager.NAXIS2 = "NAXIS2";
+FITSHeaderManager.DATAMIN = "DATAMIN";
+FITSHeaderManager.DATAMAX = "DATAMAX";
+FITSHeaderManager.CRVAL1 = "CRVAL1";
+FITSHeaderManager.CRVAL2 = "CRVAL2";
+FITSHeaderManager.CTYPE1 = "CTYPE1";
+FITSHeaderManager.CTYPE2 = "CTYPE2";
+FITSHeaderManager.CRPIX1 = "CRPIX1";
+FITSHeaderManager.CRPIX2 = "CRPIX2";
+FITSHeaderManager.ORIGIN = "ORIGIN";
+FITSHeaderManager.COMMENT = "COMMENT";
+//# sourceMappingURL=FITSHeaderManager.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/CircleFinder.js":
+/*!********************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/CircleFinder.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CircleFinder: () => (/* binding */ CircleFinder)
+/* harmony export */ });
+/* harmony import */ var _Vec3_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vec3.js */ "./node_modules/healpixjs/lib-esm/Vec3.js");
+
+class CircleFinder {
+    /**
+     * @param point: Vec3
+     */
+    constructor(point) {
+        let np = point.length;
+        //HealpixUtils.check(np>=2,"too few points");
+        if (!(np >= 2)) {
+            console.log("too few points");
+            return;
+        }
+        this.center = point[0].add(point[1]);
+        this.center.normalize();
+        this.cosrad = point[0].dot(this.center);
+        for (let i = 2; i < np; ++i) {
+            if (point[i].dot(this.center) < this.cosrad) { // point outside the current circle
+                this.getCircle(point, i);
+            }
+        }
+    }
+    ;
+    /**
+     * @parm point: Vec3
+     * @param q: int
+     */
+    getCircle(point, q) {
+        this.center = point[0].add(point[q]);
+        this.center.normalize();
+        this.cosrad = point[0].dot(this.center);
+        for (let i = 1; i < q; ++i) {
+            if (point[i].dot(this.center) < this.cosrad) { // point outside the current circle
+                this.getCircle2(point, i, q);
+            }
+        }
+    }
+    ;
+    /**
+     * @parm point: Vec3
+     * @param q1: int
+     * @param q2: int
+     */
+    getCircle2(point, q1, q2) {
+        this.center = point[q1].add(point[q2]);
+        this.center.normalize();
+        this.cosrad = point[q1].dot(this.center);
+        for (let i = 0; i < q1; ++i) {
+            if (point[i].dot(this.center) < this.cosrad) { // point outside the current circle
+                this.center = (point[q1].sub(point[i])).cross(point[q2].sub(point[i]));
+                this.center.normalize();
+                this.cosrad = point[i].dot(this.center);
+                if (this.cosrad < 0) {
+                    this.center.flip();
+                    this.cosrad = -this.cosrad;
+                }
+            }
+        }
+    }
+    ;
+    getCenter() {
+        return new _Vec3_js__WEBPACK_IMPORTED_MODULE_0__.Vec3(this.center.x, this.center.y, this.center.z);
+    }
+    getCosrad() {
+        return this.cosrad;
+    }
+    ;
+}
+//# sourceMappingURL=CircleFinder.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Constants.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Constants.js ***!
+  \*****************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Constants: () => (/* binding */ Constants)
+/* harmony export */ });
+class Constants {
+}
+//	static halfpi = Math.PI/2.;
+Constants.halfpi = 1.5707963267948966;
+Constants.inv_halfpi = 2. / Math.PI;
+/** The Constant twopi. */
+Constants.twopi = 2 * Math.PI;
+Constants.inv_twopi = 1. / (2 * Math.PI);
+//# sourceMappingURL=Constants.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Fxyf.js":
+/*!************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Fxyf.js ***!
+  \************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Fxyf: () => (/* binding */ Fxyf)
+/* harmony export */ });
+/* harmony import */ var _Hploc_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Hploc.js */ "./node_modules/healpixjs/lib-esm/Hploc.js");
+/**
+ * Partial porting to Javascript of Fxyf.java from Healpix3.30
+ */
+
+class Fxyf {
+    constructor(x, y, f) {
+        this.fx = x;
+        this.fy = y;
+        this.face = f;
+        // coordinate of the lowest corner of each face
+        this.jrll = new Uint8Array([2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]);
+        this.jpll = new Uint8Array([1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7]);
+        this.halfpi = Math.PI / 2.;
+    }
+    toHploc() {
+        let loc = new _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc();
+        let jr = this.jrll[this.face] - this.fx - this.fy;
+        let nr;
+        if (jr < 1) {
+            nr = jr;
+            let tmp = nr * nr / 3.;
+            loc.z = 1 - tmp;
+            if (loc.z > 0.99) {
+                loc.sth = Math.sqrt(tmp * (2.0 - tmp));
+                loc.have_sth = true;
+            }
+        }
+        else if (jr > 3) {
+            nr = 4 - jr;
+            let tmp = nr * nr / 3.;
+            loc.z = tmp - 1;
+            if (loc.z < -0.99) {
+                loc.sth = Math.sqrt(tmp * (2.0 - tmp));
+                loc.have_sth = true;
+            }
+        }
+        else {
+            nr = 1;
+            loc.z = (2 - jr) * 2.0 / 3.;
+        }
+        let tmp = this.jpll[this.face] * nr + this.fx - this.fy;
+        if (tmp < 0) {
+            tmp += 8;
+        }
+        if (tmp >= 8) {
+            tmp -= 8;
+        }
+        loc.phi = (nr < 1e-15) ? 0 : (0.5 * this.halfpi * tmp) / nr;
+        return loc;
+    }
+    ;
+    toVec3() {
+        return this.toHploc().toVec3();
+    }
+    ;
+}
+//# sourceMappingURL=Fxyf.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Healpix.js":
+/*!***************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Healpix.js ***!
+  \***************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Healpix: () => (/* binding */ Healpix)
+/* harmony export */ });
+/* harmony import */ var _CircleFinder_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./CircleFinder.js */ "./node_modules/healpixjs/lib-esm/CircleFinder.js");
+/* harmony import */ var _Constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Constants.js */ "./node_modules/healpixjs/lib-esm/Constants.js");
+/* harmony import */ var _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Fxyf.js */ "./node_modules/healpixjs/lib-esm/Fxyf.js");
+/* harmony import */ var _Hploc_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Hploc.js */ "./node_modules/healpixjs/lib-esm/Hploc.js");
+/* harmony import */ var _Pointing_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Pointing.js */ "./node_modules/healpixjs/lib-esm/Pointing.js");
+/* harmony import */ var _pstack_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./pstack.js */ "./node_modules/healpixjs/lib-esm/pstack.js");
+/* harmony import */ var _RangeSet_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./RangeSet.js */ "./node_modules/healpixjs/lib-esm/RangeSet.js");
+/* harmony import */ var _Vec3_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Vec3.js */ "./node_modules/healpixjs/lib-esm/Vec3.js");
+/* harmony import */ var _Xyf_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Xyf.js */ "./node_modules/healpixjs/lib-esm/Xyf.js");
+/* harmony import */ var _Zphi_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Zphi.js */ "./node_modules/healpixjs/lib-esm/Zphi.js");
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Partial porting to Javascript of HealpixBase.java from Healpix3.30
+ */
+// import Fxyf from './Fxyf.js';
+// import Hploc from './Hploc.js';
+// import Xyf from './Xyf.js';
+// import Vec3 from './Vec3.js';
+// import Pointing from './Pointing.js';
+// import CircleFinder from './CircleFinder.js';
+// import Zphi from './Zphi.js';
+// import pstack from './pstack.js';
+// import Constants from './Constants.js';
+// import RangeSet from './RangeSet.js';
+class Healpix {
+    constructor(nside_in) {
+        this.order_max = 29;
+        this.inv_halfpi = 2.0 / Math.PI;
+        this.twothird = 2.0 / 3.;
+        // console.log("twothird "+this.twothird);
+        // this.ns_max=1L<<order_max;
+        this.ns_max = Math.pow(2, this.order_max);
+        this.ctab = new Uint16Array([
+            0, 1, 256, 257, 2, 3, 258, 259, 512, 513, 768, 769, 514, 515, 770, 771, 4, 5, 260, 261, 6, 7, 262,
+            263, 516, 517, 772, 773, 518, 519, 774, 775, 1024, 1025, 1280, 1281, 1026, 1027, 1282, 1283,
+            1536, 1537, 1792, 1793, 1538, 1539, 1794, 1795, 1028, 1029, 1284, 1285, 1030, 1031, 1286,
+            1287, 1540, 1541, 1796, 1797, 1542, 1543, 1798, 1799, 8, 9, 264, 265, 10, 11, 266, 267, 520,
+            521, 776, 777, 522, 523, 778, 779, 12, 13, 268, 269, 14, 15, 270, 271, 524, 525, 780, 781, 526,
+            527, 782, 783, 1032, 1033, 1288, 1289, 1034, 1035, 1290, 1291, 1544, 1545, 1800, 1801, 1546,
+            1547, 1802, 1803, 1036, 1037, 1292, 1293, 1038, 1039, 1294, 1295, 1548, 1549, 1804, 1805,
+            1550, 1551, 1806, 1807, 2048, 2049, 2304, 2305, 2050, 2051, 2306, 2307, 2560, 2561, 2816,
+            2817, 2562, 2563, 2818, 2819, 2052, 2053, 2308, 2309, 2054, 2055, 2310, 2311, 2564, 2565,
+            2820, 2821, 2566, 2567, 2822, 2823, 3072, 3073, 3328, 3329, 3074, 3075, 3330, 3331, 3584,
+            3585, 3840, 3841, 3586, 3587, 3842, 3843, 3076, 3077, 3332, 3333, 3078, 3079, 3334, 3335,
+            3588, 3589, 3844, 3845, 3590, 3591, 3846, 3847, 2056, 2057, 2312, 2313, 2058, 2059, 2314,
+            2315, 2568, 2569, 2824, 2825, 2570, 2571, 2826, 2827, 2060, 2061, 2316, 2317, 2062, 2063,
+            2318, 2319, 2572, 2573, 2828, 2829, 2574, 2575, 2830, 2831, 3080, 3081, 3336, 3337, 3082,
+            3083, 3338, 3339, 3592, 3593, 3848, 3849, 3594, 3595, 3850, 3851, 3084, 3085, 3340, 3341,
+            3086, 3087, 3342, 3343, 3596, 3597, 3852, 3853, 3598, 3599, 3854, 3855
+        ]);
+        this.utab = new Uint16Array([0, 1, 4, 5, 16, 17, 20, 21, 64, 65, 68, 69, 80, 81, 84, 85, 256, 257, 260, 261, 272, 273, 276, 277,
+            320, 321, 324, 325, 336, 337, 340, 341, 1024, 1025, 1028, 1029, 1040, 1041, 1044, 1045, 1088,
+            1089, 1092, 1093, 1104, 1105, 1108, 1109, 1280, 1281, 1284, 1285, 1296, 1297, 1300, 1301,
+            1344, 1345, 1348, 1349, 1360, 1361, 1364, 1365, 4096, 4097, 4100, 4101, 4112, 4113, 4116,
+            4117, 4160, 4161, 4164, 4165, 4176, 4177, 4180, 4181, 4352, 4353, 4356, 4357, 4368, 4369,
+            4372, 4373, 4416, 4417, 4420, 4421, 4432, 4433, 4436, 4437, 5120, 5121, 5124, 5125, 5136,
+            5137, 5140, 5141, 5184, 5185, 5188, 5189, 5200, 5201, 5204, 5205, 5376, 5377, 5380, 5381,
+            5392, 5393, 5396, 5397, 5440, 5441, 5444, 5445, 5456, 5457, 5460, 5461, 16384, 16385, 16388,
+            16389, 16400, 16401, 16404, 16405, 16448, 16449, 16452, 16453, 16464, 16465, 16468, 16469,
+            16640, 16641, 16644, 16645, 16656, 16657, 16660, 16661, 16704, 16705, 16708, 16709, 16720,
+            16721, 16724, 16725, 17408, 17409, 17412, 17413, 17424, 17425, 17428, 17429, 17472, 17473,
+            17476, 17477, 17488, 17489, 17492, 17493, 17664, 17665, 17668, 17669, 17680, 17681, 17684,
+            17685, 17728, 17729, 17732, 17733, 17744, 17745, 17748, 17749, 20480, 20481, 20484, 20485,
+            20496, 20497, 20500, 20501, 20544, 20545, 20548, 20549, 20560, 20561, 20564, 20565, 20736,
+            20737, 20740, 20741, 20752, 20753, 20756, 20757, 20800, 20801, 20804, 20805, 20816, 20817,
+            20820, 20821, 21504, 21505, 21508, 21509, 21520, 21521, 21524, 21525, 21568, 21569, 21572,
+            21573, 21584, 21585, 21588, 21589, 21760, 21761, 21764, 21765, 21776, 21777, 21780, 21781,
+            21824, 21825, 21828, 21829, 21840, 21841, 21844, 21845]);
+        this.jrll = new Int16Array([2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]);
+        this.jpll = new Int16Array([1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7]);
+        this.xoffset = new Int16Array([-1, -1, 0, 1, 1, 1, 0, -1]);
+        this.yoffset = new Int16Array([0, 1, 1, 1, 0, -1, -1, -1]);
+        this.facearray = [
+            new Int16Array([8, 9, 10, 11, -1, -1, -1, -1, 10, 11, 8, 9]),
+            new Int16Array([5, 6, 7, 4, 8, 9, 10, 11, 9, 10, 11, 8]),
+            new Int16Array([-1, -1, -1, -1, 5, 6, 7, 4, -1, -1, -1, -1]),
+            new Int16Array([4, 5, 6, 7, 11, 8, 9, 10, 11, 8, 9, 10]),
+            new Int16Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+            new Int16Array([1, 2, 3, 0, 0, 1, 2, 3, 5, 6, 7, 4]),
+            new Int16Array([-1, -1, -1, -1, 7, 4, 5, 6, -1, -1, -1, -1]),
+            new Int16Array([3, 0, 1, 2, 3, 0, 1, 2, 4, 5, 6, 7]),
+            new Int16Array([2, 3, 0, 1, -1, -1, -1, -1, 0, 1, 2, 3]) // N
+        ];
+        // questo forse deve essere un UInt8Array. Viene usato da neighbours
+        this.swaparray = [
+            new Int16Array([0, 0, 3]),
+            new Int16Array([0, 0, 6]),
+            new Int16Array([0, 0, 0]),
+            new Int16Array([0, 0, 5]),
+            new Int16Array([0, 0, 0]),
+            new Int16Array([5, 0, 0]),
+            new Int16Array([0, 0, 0]),
+            new Int16Array([6, 0, 0]),
+            new Int16Array([3, 0, 0]) // N
+        ];
+        if (nside_in <= this.ns_max && nside_in > 0) {
+            this.nside = nside_in;
+            this.npface = this.nside * this.nside;
+            this.npix = 12 * this.npface;
+            this.order = this.nside2order(this.nside);
+            this.nl2 = 2 * this.nside;
+            this.nl3 = 3 * this.nside;
+            this.nl4 = 4 * this.nside;
+            this.fact2 = 4.0 / this.npix;
+            this.fact1 = (this.nside << 1) * this.fact2;
+            this.ncap = 2 * this.nside * (this.nside - 1); // pixels in each polar cap
+            // console.log("order: "+this.order);
+            // console.log("nside: "+this.nside);
+        }
+        this.bn = [];
+        this.mpr = [];
+        this.cmpr = [];
+        this.smpr = [];
+        // TODO INFINITE LOOP!!!!!! FIX ITTTTTTTTTT
+        // TODO INFINITE LOOP!!!!!! FIX ITTTTTTTTTT
+        // TODO INFINITE LOOP!!!!!! FIX ITTTTTTTTTT
+        // TODO INFINITE LOOP!!!!!! FIX ITTTTTTTTTT
+        // TODO INFINITE LOOP!!!!!! FIX ITTTTTTTTTT
+        // TODO INFINITE LOOP!!!!!! FIX ITTTTTTTTTT
+        // TODO INFINITE LOOP!!!!!! FIX ITTTTTTTTTT
+        // Uncaught RangeError: Maximum call stack size exceeded
+        // MOVED TO computeBn()
+        //        for (let i=0; i <= this.order_max; ++i) {
+        //        	this.bn[i]=new Healpix(1<<i);
+        //        	this.mpr[i]=bn[i].maxPixrad();
+        //        	this.cmpr[i]=Math.cos(mpr[i]);
+        //        	this.smpr[i]=Math.sin(mpr[i]);
+        //        }
+    }
+    computeBn() {
+        for (let i = 0; i <= this.order_max; ++i) {
+            this.bn[i] = new Healpix(1 << i);
+            this.mpr[i] = this.bn[i].maxPixrad();
+            this.cmpr[i] = _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.cos(this.mpr[i]);
+            this.smpr[i] = _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.sin(this.mpr[i]);
+        }
+    }
+    getNPix() {
+        return this.npix;
+    }
+    ;
+    getBoundaries(pix) {
+        let points = new Array();
+        let xyf = this.nest2xyf(pix);
+        // console.log("PIXEL: "+pix);
+        // console.log("XYF "+xyf.ix+" "+xyf.iy+" "+xyf.face);
+        let dc = 0.5 / this.nside;
+        let xc = (xyf.ix + 0.5) / this.nside;
+        let yc = (xyf.iy + 0.5) / this.nside;
+        // let d = 1.0/(this.nside);
+        // console.log("------------------------");
+        // console.log("xc, yc, dc "+xc+","+ yc+","+ dc);
+        // console.log("xc+dc-d, yc+dc, xyf.face, d "+(xc+dc) +","+ (yc+dc)+","+
+        // xyf.face+","+ d);
+        points[0] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc + dc, xyf.face).toVec3();
+        points[1] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc + dc, xyf.face).toVec3();
+        points[2] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc - dc, xyf.face).toVec3();
+        points[3] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc - dc, xyf.face).toVec3();
+        // console.log("Points for npix: "+pix);
+        // console.log(points);
+        // if (pix > 750){
+        // console.log("pix: "+pix);
+        // console.log("dc: "+dc);
+        // console.log("xyf.ix: "+xyf.ix);
+        // console.log("xyf.iy: "+xyf.iy);
+        // console.log("xc: "+xc);
+        // console.log("yc: "+yc);
+        // console.log("d: "+d);
+        // }
+        return points;
+    }
+    ;
+    /** Returns a set of points along the boundary of the given pixel.
+     * Step 1 gives 4 points on the corners. The first point corresponds
+     * to the northernmost corner, the subsequent points follow the pixel
+     * boundary through west, south and east corners.
+     *
+     * @param pix pixel index number
+     * @param step the number of returned points is 4*step
+     * @return {@link Vec3} for each point
+     */
+    getBoundariesWithStep(pix, step) {
+        // var points = new Array(); 
+        let points = new Array();
+        let xyf = this.nest2xyf(pix);
+        let dc = 0.5 / this.nside;
+        let xc = (xyf.ix + 0.5) / this.nside;
+        let yc = (xyf.iy + 0.5) / this.nside;
+        let d = 1.0 / (this.nside * step);
+        for (let i = 0; i < step; i++) {
+            points[i] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc - i * d, yc + dc, xyf.face).toVec3();
+            points[i + step] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc + dc - i * d, xyf.face).toVec3();
+            points[i + 2 * step] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc + i * d, yc - dc, xyf.face).toVec3();
+            points[i + 3 * step] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc - dc + i * d, xyf.face).toVec3();
+        }
+        return points;
+    }
+    ;
+    getPointsForXyfNoStep(x, y, face) {
+        let nside = Math.pow(2, this.order);
+        let points = new Array();
+        let xyf = new _Xyf_js__WEBPACK_IMPORTED_MODULE_8__.Xyf(x, y, face);
+        let dc = 0.5 / nside;
+        let xc = (xyf.ix + 0.5) / nside;
+        let yc = (xyf.iy + 0.5) / nside;
+        points[0] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc + dc, xyf.face).toVec3();
+        points[1] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc + dc, xyf.face).toVec3();
+        points[2] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc - dc, xyf.face).toVec3();
+        points[3] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc - dc, xyf.face).toVec3();
+        return points;
+    }
+    getPointsForXyf(x, y, step, face) {
+        let nside = step * Math.pow(2, this.order);
+        let points = new Array();
+        let xyf = new _Xyf_js__WEBPACK_IMPORTED_MODULE_8__.Xyf(x, y, face);
+        let dc = 0.5 / nside;
+        let xc = (xyf.ix + 0.5) / nside;
+        let yc = (xyf.iy + 0.5) / nside;
+        points[0] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc + dc, xyf.face).toVec3();
+        points[1] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc + dc, xyf.face).toVec3();
+        points[2] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc - dc, yc - dc, xyf.face).toVec3();
+        points[3] = new _Fxyf_js__WEBPACK_IMPORTED_MODULE_2__.Fxyf(xc + dc, yc - dc, xyf.face).toVec3();
+        return points;
+    }
+    /** Returns the neighboring pixels of ipix.
+    This method works in both RING and NEST schemes, but is
+    considerably faster in the NEST scheme.
+    @param ipix the requested pixel number.
+    @return array with indices of the neighboring pixels.
+      The returned array contains (in this order)
+      the pixel numbers of the SW, W, NW, N, NE, E, SE and S neighbor
+      of ipix. If a neighbor does not exist (this can only happen
+      for the W, N, E and S neighbors), its entry is set to -1. */
+    neighbours(ipix) {
+        let result = new Int32Array(8);
+        let xyf = this.nest2xyf(ipix);
+        let ix = xyf.ix;
+        let iy = xyf.iy;
+        let face_num = xyf.face;
+        var nsm1 = this.nside - 1;
+        if ((ix > 0) && (ix < nsm1) && (iy > 0) && (iy < nsm1)) {
+            let fpix = Math.floor(face_num << (2 * this.order));
+            let px0 = this.spread_bits(ix);
+            let py0 = this.spread_bits(iy) << 1;
+            let pxp = this.spread_bits(ix + 1);
+            let pyp = this.spread_bits(iy + 1) << 1;
+            let pxm = this.spread_bits(ix - 1);
+            let pym = this.spread_bits(iy - 1) << 1;
+            result[0] = fpix + pxm + py0;
+            result[1] = fpix + pxm + pyp;
+            result[2] = fpix + px0 + pyp;
+            result[3] = fpix + pxp + pyp;
+            result[4] = fpix + pxp + py0;
+            result[5] = fpix + pxp + pym;
+            result[6] = fpix + px0 + pym;
+            result[7] = fpix + pxm + pym;
+        }
+        else {
+            for (let i = 0; i < 8; ++i) {
+                let x = ix + this.xoffset[i];
+                let y = iy + this.yoffset[i];
+                let nbnum = 4;
+                if (x < 0) {
+                    x += this.nside;
+                    nbnum -= 1;
+                }
+                else if (x >= this.nside) {
+                    x -= this.nside;
+                    nbnum += 1;
+                }
+                if (y < 0) {
+                    y += this.nside;
+                    nbnum -= 3;
+                }
+                else if (y >= this.nside) {
+                    y -= this.nside;
+                    nbnum += 3;
+                }
+                let f = this.facearray[nbnum][face_num];
+                if (f >= 0) {
+                    let bits = this.swaparray[nbnum][face_num >>> 2];
+                    if ((bits & 1) > 0) {
+                        x = Math.floor(this.nside - x - 1);
+                    }
+                    if ((bits & 2) > 0) {
+                        y = Math.floor(this.nside - y - 1);
+                    }
+                    if ((bits & 4) > 0) {
+                        let tint = x;
+                        x = y;
+                        y = tint;
+                    }
+                    result[i] = this.xyf2nest(x, y, f);
+                }
+                else {
+                    result[i] = -1;
+                }
+            }
+        }
+        return result;
+    }
+    ;
+    nside2order(nside) {
+        return ((nside & (nside - 1)) != 0) ? -1 : Math.log2(nside);
+    }
+    ;
+    nest2xyf(ipix) {
+        let pix = Math.floor(ipix & (this.npface - 1));
+        let xyf = new _Xyf_js__WEBPACK_IMPORTED_MODULE_8__.Xyf(this.compress_bits(pix), this.compress_bits(pix >> 1), Math.floor((ipix >> (2 * this.order))));
+        return xyf;
+    }
+    ;
+    xyf2nest(ix, iy, face_num) {
+        return Math.floor(face_num << (2 * this.order))
+            + this.spread_bits(ix) + (this.spread_bits(iy) << 1);
+    }
+    ;
+    loc2pix(hploc) {
+        let z = hploc.z;
+        let phi = hploc.phi;
+        let za = Math.abs(z);
+        let tt = this.fmodulo((phi * this.inv_halfpi), 4.0); // in [0,4)
+        let pixNo;
+        if (za <= this.twothird) { // Equatorial region
+            let temp1 = this.nside * (0.5 + tt);
+            let temp2 = this.nside * (z * 0.75);
+            let jp = Math.floor(temp1 - temp2); // index of ascending edge line
+            let jm = Math.floor(temp1 + temp2); // index of descending edge line
+            let ifp = Math.floor(jp >>> this.order); // in {0,4}
+            let ifm = Math.floor(jm >>> this.order);
+            let face_num = Math.floor((ifp == ifm) ? (ifp | 4) : ((ifp < ifm) ? ifp : (ifm + 8)));
+            let ix = Math.floor(jm & (this.nside - 1));
+            let iy = Math.floor(this.nside - (jp & (this.nside - 1)) - 1);
+            pixNo = this.xyf2nest(ix, iy, face_num);
+        }
+        else { // polar region, za > 2/3
+            let ntt = Math.min(3, Math.floor(tt));
+            let tp = tt - ntt;
+            let tmp = ((za < 0.99) || (!hploc.have_sth)) ?
+                this.nside * Math.sqrt(3 * (1 - za)) :
+                this.nside * hploc.sth / Math.sqrt((1.0 + za) / 3.);
+            let jp = Math.floor(tp * tmp); // increasing edge line index
+            let jm = Math.floor((1.0 - tp) * tmp); // decreasing edge line index
+            if (jp >= this.nside) {
+                jp = this.nside - 1; // for points too close to the boundary
+            }
+            if (jm >= this.nside) {
+                jm = this.nside - 1;
+            }
+            if (z >= 0) {
+                pixNo = this.xyf2nest(Math.floor(this.nside - jm - 1), Math.floor(this.nside - jp - 1), ntt);
+            }
+            else {
+                pixNo = this.xyf2nest(Math.floor(jp), Math.floor(jm), ntt + 8);
+            }
+        }
+        return pixNo;
+    }
+    ;
+    /** Returns the normalized 3-vector corresponding to the center of the
+    supplied pixel.
+    @param pix long the requested pixel number.
+    @return the pixel's center coordinates. */
+    pix2vec(pix) {
+        return this.pix2loc(pix).toVec3();
+    }
+    ;
+    /** Returns the Zphi corresponding to the center of the supplied pixel.
+     @param pix the requested pixel number.
+     @return the pixel's center coordinates. */
+    pix2zphi(pix) {
+        return this.pix2loc(pix).toZphi();
+    }
+    /**
+     * @param pix long
+     * @return Hploc
+     */
+    pix2loc(pix) {
+        let loc = new _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc(undefined);
+        let xyf = this.nest2xyf(pix);
+        let jr = ((this.jrll[xyf.face]) << this.order) - xyf.ix - xyf.iy - 1;
+        let nr;
+        if (jr < this.nside) {
+            nr = jr;
+            let tmp = (nr * nr) * this.fact2;
+            loc.z = 1 - tmp;
+            if (loc.z > 0.99) {
+                loc.sth = Math.sqrt(tmp * (2. - tmp));
+                loc.have_sth = true;
+            }
+        }
+        else if (jr > this.nl3) {
+            nr = this.nl4 - jr;
+            let tmp = (nr * nr) * this.fact2;
+            loc.z = tmp - 1;
+            if (loc.z < -0.99) {
+                loc.sth = Math.sqrt(tmp * (2. - tmp));
+                loc.have_sth = true;
+            }
+        }
+        else {
+            nr = this.nside;
+            loc.z = (this.nl2 - jr) * this.fact1;
+        }
+        let tmp = (this.jpll[xyf.face]) * nr + xyf.ix - xyf.iy;
+        //      	assert(tmp<8*nr); // must not happen
+        if (tmp < 0) {
+            tmp += 8 * nr;
+        }
+        loc.phi = (nr == this.nside) ? 0.75 * _Constants_js__WEBPACK_IMPORTED_MODULE_1__.Constants.halfpi * tmp * this.fact1 : (0.5 * _Constants_js__WEBPACK_IMPORTED_MODULE_1__.Constants.halfpi * tmp) / nr;
+        // loc.setPhi((nr == this.nside) ? 0.75 * Constants.halfpi * tmp * this.fact1 : (0.5 * Constants.halfpi * tmp)/nr);
+        return loc;
+    }
+    ;
+    ang2pix(ptg, mirror) {
+        return this.loc2pix(new _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc(ptg));
+    }
+    ;
+    fmodulo(v1, v2) {
+        if (v1 >= 0) {
+            return (v1 < v2) ? v1 : v1 % v2;
+        }
+        var tmp = v1 % v2 + v2;
+        return (tmp === v2) ? 0.0 : tmp;
+    }
+    ;
+    compress_bits(v) {
+        var raw = Math.floor((v & 0x5555)) | Math.floor(((v & 0x55550000) >>> 15));
+        var compressed = this.ctab[raw & 0xff] | (this.ctab[raw >>> 8] << 4);
+        return compressed;
+    }
+    ;
+    spread_bits(v) {
+        return Math.floor(this.utab[v & 0xff]) | Math.floor((this.utab[(v >>> 8) & 0xff] << 16))
+            | Math.floor((this.utab[(v >>> 16) & 0xff] << 32)) | Math.floor((this.utab[(v >>> 24) & 0xff] << 48));
+    }
+    ;
+    /**
+     * Returns a range set of pixels that overlap with the convex polygon
+     * defined by the {@code vertex} array.
+     * <p>
+     * This method is more efficient in the RING scheme.
+     * <p>
+     * This method may return some pixels which don't overlap with the polygon
+     * at all. The higher {@code fact} is chosen, the fewer false positives are
+     * returned, at the cost of increased run time.
+     *
+     * @param vertex
+     *            an array containing the vertices of the requested convex
+     *            polygon.
+     * @param fact
+     *            The overlapping test will be done at the resolution
+     *            {@code fact*nside}. For NESTED ordering, {@code fact} must be
+     *            a power of 2, else it can be any positive integer. A typical
+     *            choice would be 4.
+     * @return the requested set of pixel number ranges
+     */
+    queryPolygonInclusive(vertex, fact) {
+        let inclusive = (fact != 0);
+        let nv = vertex.length;
+        //        let ncirc = inclusive ? nv+1 : nv;
+        if (!(nv >= 3)) {
+            console.log("not enough vertices in polygon");
+            return;
+        }
+        let vv = new Array();
+        for (let i = 0; i < nv; ++i) {
+            vv[i] = _Vec3_js__WEBPACK_IMPORTED_MODULE_7__.Vec3.pointing2Vec3(vertex[i]);
+        }
+        let normal = new Array();
+        let flip = 0;
+        let index = 0;
+        let back = false;
+        while (index < vv.length) {
+            let first = vv[index];
+            let medium = null;
+            let last = null;
+            if (index == vv.length - 1) {
+                last = vv[1];
+                medium = vv[0];
+            }
+            else if (index == vv.length - 2) {
+                last = vv[0];
+                medium = vv[index + 1];
+            }
+            else {
+                medium = vv[index + 1];
+                last = vv[index + 2];
+            }
+            normal[index] = first.cross(medium).norm();
+            let hnd = normal[index].dot(last);
+            if (index == 0) {
+                flip = (hnd < 0.) ? -1 : 1;
+                let tmp = new _Pointing_js__WEBPACK_IMPORTED_MODULE_4__.Pointing(first); // TODO not used
+                back = false;
+            }
+            else {
+                let flipThnd = flip * hnd;
+                if (flipThnd < 0) {
+                    let tmp = new _Pointing_js__WEBPACK_IMPORTED_MODULE_4__.Pointing(medium);
+                    vv.splice(index + 1, 1);
+                    normal.splice(index, 1);
+                    back = true;
+                    index -= 1;
+                    continue;
+                }
+                else {
+                    let tmp = new _Pointing_js__WEBPACK_IMPORTED_MODULE_4__.Pointing(first);
+                    back = false;
+                }
+            }
+            normal[index].scale(flip);
+            index += 1;
+        }
+        nv = vv.length;
+        let ncirc = inclusive ? nv + 1 : nv;
+        let rad = new Array(ncirc);
+        rad = rad.fill(_Constants_js__WEBPACK_IMPORTED_MODULE_1__.Constants.halfpi);
+        //        rad = rad.fill(1.5707963267948966);
+        //        let p = "1.5707963267948966";
+        //        rad = rad.fill(parseFloat(p));
+        if (inclusive) {
+            let cf = new _CircleFinder_js__WEBPACK_IMPORTED_MODULE_0__.CircleFinder(vv);
+            normal[nv] = cf.getCenter();
+            rad[nv] = _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.acos(cf.getCosrad());
+        }
+        return this.queryMultiDisc(normal, rad, fact);
+    }
+    ;
+    /**
+     * For NEST schema only
+     *
+     * @param normal:
+     *            Vec3[]
+     * @param rad:
+     *            Float32Array
+     * @param fact:
+     *            The overlapping test will be done at the resolution
+     *            {@code fact*nside}. For NESTED ordering, {@code fact} must be
+     *            a power of 2, else it can be any positive integer. A typical
+     *            choice would be 4.
+     * @return RangeSet the requested set of pixel number ranges
+     */
+    queryMultiDisc(norm, rad, fact) {
+        this.computeBn();
+        let inclusive = (fact != 0);
+        let nv = norm.length;
+        // HealpixUtils.check(nv==rad.lengt0,"inconsistent input arrays");
+        if (!(nv == rad.length)) {
+            console.error("inconsistent input arrays");
+            return;
+        }
+        let res = new _RangeSet_js__WEBPACK_IMPORTED_MODULE_6__.RangeSet(4 << 1);
+        // Removed code for Scheme.RING
+        let oplus = 0;
+        if (inclusive) {
+            if (!(Math.pow(2, this.order_max - this.order) >= fact)) {
+                console.error("invalid oversampling factor");
+            }
+            if (!((fact & (fact - 1)) == 0)) {
+                console.error("oversampling factor must be a power of 2");
+            }
+            oplus = this.ilog2(fact);
+        }
+        let omax = this.order + oplus; // the order up to which we test
+        // TODO: ignore all disks with radius>=pi
+        //        let crlimit = new Float32Array[omax+1][nv][3];
+        let crlimit = new Array(omax + 1);
+        let o;
+        let i;
+        for (o = 0; o <= omax; ++o) { // prepare data at the required orders
+            crlimit[o] = new Array(nv);
+            let dr = this.bn[o].maxPixrad(); // safety distance
+            for (i = 0; i < nv; ++i) {
+                crlimit[o][i] = new Float64Array(3);
+                crlimit[o][i][0] = (rad[i] + dr > Math.PI) ? -1 : _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.cos(rad[i] + dr);
+                crlimit[o][i][1] = (o == 0) ? _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.cos(rad[i]) : crlimit[0][i][1];
+                crlimit[o][i][2] = (rad[i] - dr < 0.) ? 1. : _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.cos(rad[i] - dr);
+            }
+        }
+        let stk = new _pstack_js__WEBPACK_IMPORTED_MODULE_5__.pstack(12 + 3 * omax);
+        for (let i = 0; i < 12; i++) { // insert the 12 base pixels in reverse
+            // order
+            stk.push(11 - i, 0);
+        }
+        while (stk.size() > 0) { // as long as there are pixels on the stack
+            // pop current pixel number and order from the stack
+            let pix = stk.ptop();
+            let o = stk.otop();
+            stk.pop();
+            let pv = this.bn[o].pix2vec(pix);
+            let zone = 3;
+            for (let i = 0; (i < nv) && (zone > 0); ++i) {
+                let crad = pv.dot(norm[i]);
+                for (let iz = 0; iz < zone; ++iz) {
+                    if (crad < crlimit[o][i][iz]) {
+                        zone = iz;
+                    }
+                }
+            }
+            if (zone > 0) {
+                this.check_pixel(o, omax, zone, res, pix, stk, inclusive);
+            }
+        }
+        return res;
+    }
+    ;
+    /** Integer base 2 logarithm.
+    @param arg
+    @return the largest integer {@code n} that fulfills {@code 2^n<=arg}.
+    For negative arguments and zero, 0 is returned. */
+    ilog2(arg) {
+        let max = Math.max(arg, 1);
+        return 31 - Math.clz32(max);
+    }
+    ;
+    /** Computes the cosine of the angular distance between two z, phi positions
+      on the unit sphere. */
+    cosdist_zphi(z1, phi1, z2, phi2) {
+        return z1 * z2 + _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.cos(phi1 - phi2) * Math.sqrt((1.0 - z1 * z1) * (1.0 - z2 * z2));
+    }
+    /**
+     * @param int o
+     * @param int omax
+     * @param int zone
+     * @param RangeSet pixset
+     * @param long pix
+     * @param pstack stk
+     * @param boolean inclusive
+     */
+    check_pixel(o, omax, zone, pixset, pix, stk, inclusive) {
+        if (zone == 0)
+            return;
+        if (o < this.order) {
+            if (zone >= 3) { // output all subpixels
+                let sdist = 2 * (this.order - o); // the "bit-shift distance" between map orders
+                pixset.append1(pix << sdist, ((pix + 1) << sdist));
+            }
+            else { // (zone>=1)
+                for (let i = 0; i < 4; ++i) {
+                    stk.push(4 * pix + 3 - i, o + 1); // add children
+                }
+            }
+        }
+        else if (o > this.order) { // this implies that inclusive==true
+            if (zone >= 2) { // pixel center in shape
+                pixset.append(pix >>> (2 * (o - this.order))); // output the parent pixel at order
+                stk.popToMark(); // unwind the stack
+            }
+            else { // (zone>=1): pixel center in safety range
+                if (o < omax) { // check sublevels
+                    for (let i = 0; i < 4; ++i) { // add children in reverse order
+                        stk.push(4 * pix + 3 - i, o + 1); // add children
+                    }
+                }
+                else { // at resolution limit
+                    pixset.append(pix >>> (2 * (o - this.order))); // output the parent pixel at order
+                    stk.popToMark(); // unwind the stack
+                }
+            }
+        }
+        else { // o==order
+            if (zone >= 2) {
+                pixset.append(pix);
+            }
+            else if (inclusive) { // and (zone>=1)
+                if (this.order < omax) { // check sublevels
+                    stk.mark(); // remember current stack position
+                    for (let i = 0; i < 4; ++i) { // add children in reverse order
+                        stk.push(4 * pix + 3 - i, o + 1); // add children
+                    }
+                }
+                else { // at resolution limit
+                    pixset.append(pix); // output the pixel
+                }
+            }
+        }
+    }
+    /** Returns the maximum angular distance between a pixel center and its
+    corners.
+    @return maximum angular distance between a pixel center and its
+      corners. */
+    maxPixrad() {
+        let zphia = new _Zphi_js__WEBPACK_IMPORTED_MODULE_9__.Zphi(2. / 3., Math.PI / this.nl4);
+        let xyz1 = this.convertZphi2xyz(zphia);
+        let va = new _Vec3_js__WEBPACK_IMPORTED_MODULE_7__.Vec3(xyz1[0], xyz1[1], xyz1[2]);
+        let t1 = 1. - 1. / this.nside;
+        t1 *= t1;
+        let zphib = new _Zphi_js__WEBPACK_IMPORTED_MODULE_9__.Zphi(1 - t1 / 3, 0);
+        let xyz2 = this.convertZphi2xyz(zphib);
+        let vb = new _Vec3_js__WEBPACK_IMPORTED_MODULE_7__.Vec3(xyz2[0], xyz2[1], xyz2[2]);
+        return va.angle(vb);
+    }
+    ;
+    /**
+     * this is a workaround replacing the Vec3(Zphi) constructor.
+     */
+    convertZphi2xyz(zphi) {
+        let sth = Math.sqrt((1.0 - zphi.z) * (1.0 + zphi.z));
+        let x = sth * _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.cos(zphi.phi);
+        let y = sth * _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.sin(zphi.phi);
+        let z = zphi.z;
+        return [x, y, z];
+    }
+    ;
+    /** Returns a range set of pixels which overlap with a given disk. <p>
+      This method is more efficient in the RING scheme. <p>
+      This method may return some pixels which don't overlap with
+      the polygon at all. The higher {@code fact} is chosen, the fewer false
+      positives are returned, at the cost of increased run time.
+      @param ptg the angular coordinates of the disk center
+      @param radius the radius (in radians) of the disk
+      @param fact The overlapping test will be done at the resolution
+        {@code fact*nside}. For NESTED ordering, {@code fact} must be a power
+        of 2, else it can be any positive integer. A typical choice would be 4.
+      @return the requested set of pixel number ranges  */
+    queryDiscInclusive(ptg, radius, fact) {
+        this.computeBn();
+        let inclusive = (fact != 0);
+        let pixset = new _RangeSet_js__WEBPACK_IMPORTED_MODULE_6__.RangeSet();
+        if (radius >= Math.PI) { // disk covers the whole sphere
+            pixset.append1(0, this.npix);
+            return pixset;
+        }
+        let oplus = 0;
+        if (inclusive) {
+            // HealpixUtils.check ((1L<<order_max)>=fact,"invalid oversampling factor");
+            if (!((fact & (fact - 1)) == 0)) {
+                console.error("oversampling factor must be a power of 2");
+            }
+            oplus = this.ilog2(fact);
+        }
+        let omax = Math.min(this.order_max, this.order + oplus); // the order up to which we test
+        let vptg = _Vec3_js__WEBPACK_IMPORTED_MODULE_7__.Vec3.pointing2Vec3(ptg);
+        let crpdr = new Array(omax + 1);
+        let crmdr = new Array(omax + 1);
+        let cosrad = _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.cos(radius);
+        let sinrad = _Hploc_js__WEBPACK_IMPORTED_MODULE_3__.Hploc.sin(radius);
+        for (let o = 0; o <= omax; o++) { // prepare data at the required orders
+            let dr = this.mpr[o]; // safety distance
+            let cdr = this.cmpr[o];
+            let sdr = this.smpr[o];
+            crpdr[o] = (radius + dr > Math.PI) ? -1. : cosrad * cdr - sinrad * sdr;
+            crmdr[o] = (radius - dr < 0.) ? 1. : cosrad * cdr + sinrad * sdr;
+        }
+        let stk = new _pstack_js__WEBPACK_IMPORTED_MODULE_5__.pstack(12 + 3 * omax);
+        for (let i = 0; i < 12; i++) { // insert the 12 base pixels in reverse order
+            stk.push(11 - i, 0);
+        }
+        while (stk.size() > 0) { // as long as there are pixels on the stack
+            // pop current pixel number and order from the stack
+            let pix = stk.ptop();
+            let curro = stk.otop();
+            stk.pop();
+            let pos = this.bn[curro].pix2zphi(pix);
+            // cosine of angular distance between pixel center and disk center
+            let cangdist = this.cosdist_zphi(vptg.z, ptg.phi, pos.z, pos.phi);
+            if (cangdist > crpdr[curro]) {
+                let zone = (cangdist < cosrad) ? 1 : ((cangdist <= crmdr[curro]) ? 2 : 3);
+                this.check_pixel(curro, omax, zone, pixset, pix, stk, inclusive);
+            }
+        }
+        return pixset;
+    }
+}
+//# sourceMappingURL=Healpix.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Hploc.js":
+/*!*************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Hploc.js ***!
+  \*************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Hploc: () => (/* binding */ Hploc)
+/* harmony export */ });
+/* harmony import */ var _Vec3_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Vec3.js */ "./node_modules/healpixjs/lib-esm/Vec3.js");
+/* harmony import */ var _Zphi_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Zphi.js */ "./node_modules/healpixjs/lib-esm/Zphi.js");
+
+
+class Hploc {
+    constructor(ptg) {
+        Hploc.PI4_A = 0.7853981554508209228515625;
+        Hploc.PI4_B = 0.794662735614792836713604629039764404296875e-8;
+        Hploc.PI4_C = 0.306161699786838294306516483068750264552437361480769e-16;
+        Hploc.M_1_PI = 0.3183098861837906715377675267450287;
+        if (ptg) {
+            this.sth = 0.0;
+            this.have_sth = false;
+            this.z = Hploc.cos(ptg.theta);
+            this._phi = ptg.phi;
+            if (Math.abs(this.z) > 0.99) {
+                this.sth = Hploc.sin(ptg.theta);
+                this.have_sth = true;
+            }
+        }
+    }
+    setZ(z) {
+        this.z = z;
+    }
+    ;
+    get phi() {
+        return this._phi;
+    }
+    ;
+    set phi(phi) {
+        this._phi = phi;
+    }
+    ;
+    setSth(sth) {
+        this.sth = sth;
+    }
+    ;
+    toVec3() {
+        var st = this.have_sth ? this.sth : Math.sqrt((1.0 - this.z) * (1.0 + this.z));
+        // var vector = new Vec3(st*Hploc.cos(this.phi),st*Hploc.sin(this.phi),this.z);
+        var vector = new _Vec3_js__WEBPACK_IMPORTED_MODULE_0__.Vec3(st * Math.cos(this.phi), st * Math.sin(this.phi), this.z);
+        return vector;
+    }
+    ;
+    toZphi() {
+        return new _Zphi_js__WEBPACK_IMPORTED_MODULE_1__.Zphi(this.z, this.phi);
+    }
+    static sin(d) {
+        let u = d * Hploc.M_1_PI;
+        let q = Math.floor(u < 0 ? u - 0.5 : u + 0.5);
+        let x = 4.0 * q;
+        d -= x * Hploc.PI4_A;
+        d -= x * Hploc.PI4_B;
+        d -= x * Hploc.PI4_C;
+        if ((q & 1) != 0) {
+            d = -d;
+        }
+        return this.sincoshelper(d);
+    }
+    ;
+    static cos(d) {
+        //		let u = d * Hploc.M_1_PI - 0.5;
+        let u = d * Hploc.M_1_PI - 0.5;
+        //		u -= 0.5;
+        let q = 1 + 2 * Math.floor(u < 0 ? u - 0.5 : u + 0.5);
+        let x = 2.0 * q;
+        let t = x * Hploc.PI4_A;
+        d = d - t;
+        d -= x * Hploc.PI4_B;
+        d -= x * Hploc.PI4_C;
+        if ((q & 2) == 0) {
+            d = -d;
+        }
+        return Hploc.sincoshelper(d);
+    }
+    ;
+    static sincoshelper(d) {
+        let s = d * d;
+        let u = -7.97255955009037868891952e-18;
+        u = u * s + 2.81009972710863200091251e-15;
+        u = u * s - 7.64712219118158833288484e-13;
+        u = u * s + 1.60590430605664501629054e-10;
+        u = u * s - 2.50521083763502045810755e-08;
+        u = u * s + 2.75573192239198747630416e-06;
+        u = u * s - 0.000198412698412696162806809;
+        u = u * s + 0.00833333333333332974823815;
+        u = u * s - 0.166666666666666657414808;
+        return s * u * d + d;
+    }
+    ;
+    /** This method calculates the arc sine of x in radians. The return
+    value is in the range [-pi/2, pi/2]. The results may have
+    maximum error of 3 ulps. */
+    static asin(d) {
+        return Hploc.mulsign(Hploc.atan2k(Math.abs(d), Math.sqrt((1 + d) * (1 - d))), d);
+    }
+    ;
+    /** This method calculates the arc cosine of x in radians. The
+        return value is in the range [0, pi]. The results may have
+        maximum error of 3 ulps. */
+    static acos(d) {
+        return Hploc.mulsign(Hploc.atan2k(Math.sqrt((1 + d) * (1 - d)), Math.abs(d)), d) + (d < 0 ? Math.PI : 0);
+    }
+    ;
+    static mulsign(x, y) {
+        let sign = Hploc.copySign(1, y);
+        return sign * x;
+    }
+    ;
+    static copySign(magnitude, sign) {
+        return sign < 0 ? -Math.abs(magnitude) : Math.abs(magnitude);
+        // let finalsign = 1;
+        // if (Object.is(finalsign , -0)){
+        // 	sign = -1;
+        // }else if (Object.is(finalsign , 0)){
+        // 	sign = 1;
+        // }else {
+        // 	sign = Math.sign(finalsign);
+        // }
+        // return finalsign * magnitude;
+    }
+    static atanhelper(s) {
+        let t = s * s;
+        let u = -1.88796008463073496563746e-05;
+        u = u * t + (0.000209850076645816976906797);
+        u = u * t + (-0.00110611831486672482563471);
+        u = u * t + (0.00370026744188713119232403);
+        u = u * t + (-0.00889896195887655491740809);
+        u = u * t + (0.016599329773529201970117);
+        u = u * t + (-0.0254517624932312641616861);
+        u = u * t + (0.0337852580001353069993897);
+        u = u * t + (-0.0407629191276836500001934);
+        u = u * t + (0.0466667150077840625632675);
+        u = u * t + (-0.0523674852303482457616113);
+        u = u * t + (0.0587666392926673580854313);
+        u = u * t + (-0.0666573579361080525984562);
+        u = u * t + (0.0769219538311769618355029);
+        u = u * t + (-0.090908995008245008229153);
+        u = u * t + (0.111111105648261418443745);
+        u = u * t + (-0.14285714266771329383765);
+        u = u * t + (0.199999999996591265594148);
+        u = u * t + (-0.333333333333311110369124);
+        return u * t * s + s;
+    }
+    ;
+    static atan2k(y, x) {
+        let q = 0.;
+        if (x < 0) {
+            x = -x;
+            q = -2.;
+        }
+        if (y > x) {
+            let t = x;
+            x = y;
+            y = -t;
+            q += 1.;
+        }
+        return Hploc.atanhelper(y / x) + q * (Math.PI / 2);
+    }
+    ;
+    /** This method calculates the arc tangent of y/x in radians, using
+    the signs of the two arguments to determine the quadrant of the
+    result. The results may have maximum error of 2 ulps. */
+    static atan2(y, x) {
+        let r = Hploc.atan2k(Math.abs(y), x);
+        r = Hploc.mulsign(r, x);
+        if (Hploc.isinf(x) || x == 0) {
+            r = Math.PI / 2 - (Hploc.isinf(x) ? (Hploc.copySign(1, x) * (Math.PI / 2)) : 0);
+        }
+        if (Hploc.isinf(y)) {
+            r = Math.PI / 2 - (Hploc.isinf(x) ? (Hploc.copySign(1, x) * (Math.PI * 1 / 4)) : 0);
+        }
+        if (y == 0) {
+            r = (Hploc.copySign(1, x) == -1 ? Math.PI : 0);
+        }
+        return Hploc.isnan(x) || Hploc.isnan(y) ? NaN : Hploc.mulsign(r, y);
+    }
+    ;
+    /** Checks if the argument is a NaN or not. */
+    static isnan(d) {
+        return d != d;
+    }
+    ;
+    /** Checks if the argument is either positive or negative infinity. */
+    static isinf(d) {
+        return Math.abs(d) === +Infinity;
+    }
+    ;
+}
+Hploc.PI4_A = 0.7853981554508209228515625;
+Hploc.PI4_B = 0.794662735614792836713604629039764404296875e-8;
+Hploc.PI4_C = 0.306161699786838294306516483068750264552437361480769e-16;
+Hploc.M_1_PI = 0.3183098861837906715377675267450287;
+//# sourceMappingURL=Hploc.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Pointing.js":
+/*!****************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Pointing.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Pointing: () => (/* binding */ Pointing)
+/* harmony export */ });
+/* harmony import */ var _Hploc_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Hploc.js */ "./node_modules/healpixjs/lib-esm/Hploc.js");
+
+class Pointing {
+    /**
+     *
+     * @param {*} vec3 Vec3.js
+     * @param {*} mirror
+     * @param {*} in_theta radians
+     * @param {*} in_phi radians
+     */
+    constructor(vec3, mirror, in_theta, in_phi) {
+        if (vec3 != null) {
+            this.theta = _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.atan2(Math.sqrt(vec3.x * vec3.x + vec3.y * vec3.y), vec3.z);
+            if (mirror) {
+                this.phi = -_Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.atan2(vec3.y, vec3.x);
+            }
+            else {
+                this.phi = _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.atan2(vec3.y, vec3.x);
+            }
+            if (this.phi < 0.0) {
+                this.phi = this.phi + 2 * Math.PI;
+            }
+            if (this.phi >= 2 * Math.PI) {
+                this.phi = this.phi - 2 * Math.PI;
+            }
+        }
+        else {
+            this.theta = in_theta;
+            this.phi = in_phi;
+        }
+    }
+}
+//# sourceMappingURL=Pointing.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/RangeSet.js":
+/*!****************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/RangeSet.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   RangeSet: () => (/* binding */ RangeSet)
+/* harmony export */ });
+class RangeSet {
+    /**
+     * @param int cap: initial capacity
+     */
+    constructor(cap) {
+        if (cap < 0)
+            console.error("capacity must be positive");
+        this.r = new Int32Array(cap << 1);
+        this.sz = 0;
+    }
+    ;
+    /** Append a single-value range to the object.
+    @param val value to append */
+    append(val) {
+        this.append1(val, val + 1);
+    }
+    ;
+    /** Append a range to the object.
+   @param a first long in range
+   @param b one-after-last long in range */
+    append1(a, b) {
+        if (a >= b)
+            return;
+        if ((this.sz > 0) && (a <= this.r[this.sz - 1])) {
+            if (a < this.r[this.sz - 2])
+                console.error("bad append operation");
+            if (b > this.r[this.sz - 1])
+                this.r[this.sz - 1] = b;
+            return;
+        }
+        // this.ensureCapacity(this.sz+2);
+        let cap = this.sz + 2;
+        if (this.r.length < cap) {
+            let newsize = Math.max(2 * this.r.length, cap);
+            let rnew = new Int32Array(newsize);
+            rnew.set(this.r);
+            this.r = rnew;
+        }
+        this.r[this.sz] = a;
+        this.r[this.sz + 1] = b;
+        this.sz += 2;
+    }
+    ;
+    /** Make sure the object can hold at least the given number of entries.
+     * @param cap int
+     * */
+    ensureCapacity(cap) {
+        if (this.r.length < cap)
+            this.resize(Math.max(2 * this.r.length, cap));
+    }
+    ;
+    /**
+     * @param newsize int
+     */
+    resize(newsize) {
+        if (newsize < this.sz)
+            console.error("requested array size too small");
+        if (newsize == this.r.length)
+            return;
+        let rnew = new Int32Array(newsize);
+        let sliced = this.r.slice(0, this.sz + 1);
+        //		this.arrayCopy(this.r, 0, rnew, 0, this.sz);
+        this.r = sliced;
+    }
+    ;
+}
+//# sourceMappingURL=RangeSet.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Vec3.js":
+/*!************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Vec3.js ***!
+  \************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Vec3: () => (/* binding */ Vec3)
+/* harmony export */ });
+/* harmony import */ var _Hploc_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Hploc.js */ "./node_modules/healpixjs/lib-esm/Hploc.js");
+/* harmony import */ var _Pointing_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Pointing.js */ "./node_modules/healpixjs/lib-esm/Pointing.js");
+/**
+ * Partial porting to Javascript of Vec3.java from Healpix3.30
+ */
+
+
+class Vec3 {
+    constructor(in_x, in_y, in_z) {
+        if (in_x instanceof _Pointing_js__WEBPACK_IMPORTED_MODULE_1__.Pointing) {
+            let ptg = in_x;
+            let sth = _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.sin(ptg.theta);
+            this.x = sth * _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.cos(ptg.phi);
+            this.y = sth * _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.sin(ptg.phi);
+            this.z = _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.cos(ptg.theta);
+        }
+        else {
+            this.x = in_x;
+            this.y = in_y;
+            this.z = in_z;
+        }
+    }
+    getX() {
+        return this.x;
+    }
+    ;
+    getY() {
+        return this.y;
+    }
+    ;
+    getZ() {
+        return this.z;
+    }
+    ;
+    /** Scale the vector by a given factor
+    @param n the scale factor */
+    scale(n) {
+        this.x *= n;
+        this.y *= n;
+        this.z *= n;
+    }
+    ;
+    /** Vector cross product.
+    @param v another vector
+    @return the vector cross product between this vector and {@code v} */
+    cross(v) {
+        return new Vec3(this.y * v.z - v.y * this.z, this.z * v.x - v.z * this.x, this.x * v.y - v.x * this.y);
+    }
+    ;
+    /** Vector addition
+        * @param v the vector to be added
+        * @return addition result */
+    add(v) {
+        return new Vec3(this.x + v.x, this.y + v.y, this.z + v.z);
+    }
+    ;
+    /** Normalize the vector */
+    normalize() {
+        let d = 1. / this.length();
+        this.x *= d;
+        this.y *= d;
+        this.z *= d;
+    }
+    ;
+    /** Return normalized vector */
+    norm() {
+        let d = 1. / this.length();
+        return new Vec3(this.x * d, this.y * d, this.z * d);
+    }
+    ;
+    /** Vector length
+    @return the length of the vector. */
+    length() {
+        return Math.sqrt(this.lengthSquared());
+    }
+    ;
+    /** Squared vector length
+        @return the squared length of the vector. */
+    lengthSquared() {
+        return this.x * this.x + this.y * this.y + this.z * this.z;
+    }
+    ;
+    /** Computes the dot product of the this vector and {@code v1}.
+     * @param v1 another vector
+     * @return dot product */
+    dot(v1) {
+        return this.x * v1.x + this.y * v1.y + this.z * v1.z;
+    }
+    ;
+    /** Vector subtraction
+     * @param v the vector to be subtracted
+     * @return subtraction result */
+    sub(v) {
+        return new Vec3(this.x - v.x, this.y - v.y, this.z - v.z);
+    }
+    ;
+    /** Angle between two vectors.
+    @param v1 another vector
+    @return the angle in radians between this vector and {@code v1};
+      constrained to the range [0,PI]. */
+    angle(v1) {
+        return _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.atan2(this.cross(v1).length(), this.dot(v1));
+    }
+    /** Invert the signs of all components */
+    flip() {
+        this.x *= -1.0;
+        this.y *= -1.0;
+        this.z *= -1.0;
+    }
+    static pointing2Vec3(pointing) {
+        let sth = _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.sin(pointing.theta);
+        let x = sth * _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.cos(pointing.phi);
+        let y = sth * _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.sin(pointing.phi);
+        let z = _Hploc_js__WEBPACK_IMPORTED_MODULE_0__.Hploc.cos(pointing.theta);
+        return new Vec3(x, y, z);
+    }
+    ;
+}
+//# sourceMappingURL=Vec3.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Xyf.js":
+/*!***********************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Xyf.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Xyf: () => (/* binding */ Xyf)
+/* harmony export */ });
+/**
+ * Partial porting to Javascript of Xyf.java from Healpix3.30
+ */
+class Xyf {
+    constructor(x, y, f) {
+        this.ix = x;
+        this.iy = y;
+        this.face = f;
+    }
+}
+//# sourceMappingURL=Xyf.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/Zphi.js":
+/*!************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/Zphi.js ***!
+  \************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Zphi: () => (/* binding */ Zphi)
+/* harmony export */ });
+class Zphi {
+    /** Creation from individual components */
+    constructor(z_, phi_) {
+        this.z = z_;
+        this.phi = phi_;
+    }
+    ;
+}
+//# sourceMappingURL=Zphi.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/index.js":
+/*!*************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/index.js ***!
+  \*************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CircleFinder: () => (/* reexport safe */ _CircleFinder_js__WEBPACK_IMPORTED_MODULE_2__.CircleFinder),
+/* harmony export */   Constants: () => (/* reexport safe */ _Constants_js__WEBPACK_IMPORTED_MODULE_0__.Constants),
+/* harmony export */   Fxyf: () => (/* reexport safe */ _Fxyf_js__WEBPACK_IMPORTED_MODULE_3__.Fxyf),
+/* harmony export */   Healpix: () => (/* reexport safe */ _Healpix_js__WEBPACK_IMPORTED_MODULE_4__.Healpix),
+/* harmony export */   Hploc: () => (/* reexport safe */ _Hploc_js__WEBPACK_IMPORTED_MODULE_10__.Hploc),
+/* harmony export */   Pointing: () => (/* reexport safe */ _Pointing_js__WEBPACK_IMPORTED_MODULE_5__.Pointing),
+/* harmony export */   RangeSet: () => (/* reexport safe */ _RangeSet_js__WEBPACK_IMPORTED_MODULE_6__.RangeSet),
+/* harmony export */   Vec3: () => (/* reexport safe */ _Vec3_js__WEBPACK_IMPORTED_MODULE_7__.Vec3),
+/* harmony export */   Xyf: () => (/* reexport safe */ _Xyf_js__WEBPACK_IMPORTED_MODULE_8__.Xyf),
+/* harmony export */   Zphi: () => (/* reexport safe */ _Zphi_js__WEBPACK_IMPORTED_MODULE_9__.Zphi),
+/* harmony export */   pstack: () => (/* reexport safe */ _pstack_js__WEBPACK_IMPORTED_MODULE_1__.pstack)
+/* harmony export */ });
+/* harmony import */ var _Constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Constants.js */ "./node_modules/healpixjs/lib-esm/Constants.js");
+/* harmony import */ var _pstack_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./pstack.js */ "./node_modules/healpixjs/lib-esm/pstack.js");
+/* harmony import */ var _CircleFinder_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CircleFinder.js */ "./node_modules/healpixjs/lib-esm/CircleFinder.js");
+/* harmony import */ var _Fxyf_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Fxyf.js */ "./node_modules/healpixjs/lib-esm/Fxyf.js");
+/* harmony import */ var _Healpix_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Healpix.js */ "./node_modules/healpixjs/lib-esm/Healpix.js");
+/* harmony import */ var _Pointing_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Pointing.js */ "./node_modules/healpixjs/lib-esm/Pointing.js");
+/* harmony import */ var _RangeSet_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./RangeSet.js */ "./node_modules/healpixjs/lib-esm/RangeSet.js");
+/* harmony import */ var _Vec3_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Vec3.js */ "./node_modules/healpixjs/lib-esm/Vec3.js");
+/* harmony import */ var _Xyf_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Xyf.js */ "./node_modules/healpixjs/lib-esm/Xyf.js");
+/* harmony import */ var _Zphi_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Zphi.js */ "./node_modules/healpixjs/lib-esm/Zphi.js");
+/* harmony import */ var _Hploc_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Hploc.js */ "./node_modules/healpixjs/lib-esm/Hploc.js");
+
+
+
+
+
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "./node_modules/healpixjs/lib-esm/pstack.js":
+/*!**************************************************!*\
+  !*** ./node_modules/healpixjs/lib-esm/pstack.js ***!
+  \**************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   pstack: () => (/* binding */ pstack)
+/* harmony export */ });
+class pstack {
+    /** Creation from individual components */
+    constructor(sz) {
+        this.p = new Array(sz);
+        this.o = new Int32Array(sz);
+        this.s = 0;
+        this.m = 0;
+    }
+    ;
+    /**
+     * @param p long
+     * @param o int
+     */
+    push(p_, o_) {
+        this.p[this.s] = p_;
+        this.o[this.s] = o_;
+        ++this.s;
+    }
+    ;
+    pop() {
+        --this.s;
+    }
+    ;
+    popToMark() {
+        this.s = this.m;
+    }
+    ;
+    size() {
+        return this.s;
+    }
+    ;
+    mark() {
+        this.m = this.s;
+    }
+    ;
+    otop() {
+        return this.o[this.s - 1];
+    }
+    ;
+    ptop() {
+        return this.p[this.s - 1];
+    }
+    ;
+}
+//# sourceMappingURL=pstack.js.map
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/ensure chunk */
+/******/ 	(() => {
+/******/ 		__webpack_require__.f = {};
+/******/ 		// This file contains only the entry chunk.
+/******/ 		// The chunk loading function for additional chunks
+/******/ 		__webpack_require__.e = (chunkId) => {
+/******/ 			return Promise.all(Object.keys(__webpack_require__.f).reduce((promises, key) => {
+/******/ 				__webpack_require__.f[key](chunkId, promises);
+/******/ 				return promises;
+/******/ 			}, []));
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/get javascript chunk filename */
+/******/ 	(() => {
+/******/ 		// This function allow to reference async chunks
+/******/ 		__webpack_require__.u = (chunkId) => {
+/******/ 			// return url for filenames based on template
+/******/ 			return "" + chunkId + ".js";
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/global */
+/******/ 	(() => {
+/******/ 		__webpack_require__.g = (function() {
+/******/ 			if (typeof globalThis === 'object') return globalThis;
+/******/ 			try {
+/******/ 				return this || new Function('return this')();
+/******/ 			} catch (e) {
+/******/ 				if (typeof window === 'object') return window;
+/******/ 			}
+/******/ 		})();
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/load script */
+/******/ 	(() => {
+/******/ 		var inProgress = {};
+/******/ 		var dataWebpackPrefix = "wcslight:";
+/******/ 		// loadScript function to load a script via script tag
+/******/ 		__webpack_require__.l = (url, done, key, chunkId) => {
+/******/ 			if(inProgress[url]) { inProgress[url].push(done); return; }
+/******/ 			var script, needAttach;
+/******/ 			if(key !== undefined) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				for(var i = 0; i < scripts.length; i++) {
+/******/ 					var s = scripts[i];
+/******/ 					if(s.getAttribute("src") == url || s.getAttribute("data-webpack") == dataWebpackPrefix + key) { script = s; break; }
+/******/ 				}
+/******/ 			}
+/******/ 			if(!script) {
+/******/ 				needAttach = true;
+/******/ 				script = document.createElement('script');
+/******/ 		
+/******/ 				script.charset = 'utf-8';
+/******/ 				script.timeout = 120;
+/******/ 				if (__webpack_require__.nc) {
+/******/ 					script.setAttribute("nonce", __webpack_require__.nc);
+/******/ 				}
+/******/ 				script.setAttribute("data-webpack", dataWebpackPrefix + key);
+/******/ 		
+/******/ 				script.src = url;
+/******/ 			}
+/******/ 			inProgress[url] = [done];
+/******/ 			var onScriptComplete = (prev, event) => {
+/******/ 				// avoid mem leaks in IE.
+/******/ 				script.onerror = script.onload = null;
+/******/ 				clearTimeout(timeout);
+/******/ 				var doneFns = inProgress[url];
+/******/ 				delete inProgress[url];
+/******/ 				script.parentNode && script.parentNode.removeChild(script);
+/******/ 				doneFns && doneFns.forEach((fn) => (fn(event)));
+/******/ 				if(prev) return prev(event);
+/******/ 			}
+/******/ 			var timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
+/******/ 			script.onerror = onScriptComplete.bind(null, script.onerror);
+/******/ 			script.onload = onScriptComplete.bind(null, script.onload);
+/******/ 			needAttach && document.head.appendChild(script);
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/publicPath */
+/******/ 	(() => {
+/******/ 		var scriptUrl;
+/******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+/******/ 		var document = __webpack_require__.g.document;
+/******/ 		if (!scriptUrl && document) {
+/******/ 			if (document.currentScript)
+/******/ 				scriptUrl = document.currentScript.src;
+/******/ 			if (!scriptUrl) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				if(scripts.length) {
+/******/ 					var i = scripts.length - 1;
+/******/ 					while (i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl))) scriptUrl = scripts[i--].src;
+/******/ 				}
+/******/ 			}
+/******/ 		}
+/******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
+/******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
+/******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		__webpack_require__.p = scriptUrl;
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"wcslight": 0
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.j = (chunkId, promises) => {
+/******/ 				// JSONP chunk loading for javascript
+/******/ 				var installedChunkData = __webpack_require__.o(installedChunks, chunkId) ? installedChunks[chunkId] : undefined;
+/******/ 				if(installedChunkData !== 0) { // 0 means "already installed".
+/******/ 		
+/******/ 					// a Promise means "currently loading".
+/******/ 					if(installedChunkData) {
+/******/ 						promises.push(installedChunkData[2]);
+/******/ 					} else {
+/******/ 						if(true) { // all chunks have JS
+/******/ 							// setup Promise in chunk cache
+/******/ 							var promise = new Promise((resolve, reject) => (installedChunkData = installedChunks[chunkId] = [resolve, reject]));
+/******/ 							promises.push(installedChunkData[2] = promise);
+/******/ 		
+/******/ 							// start chunk loading
+/******/ 							var url = __webpack_require__.p + __webpack_require__.u(chunkId);
+/******/ 							// create error before stack unwound to get useful stacktrace later
+/******/ 							var error = new Error();
+/******/ 							var loadingEnded = (event) => {
+/******/ 								if(__webpack_require__.o(installedChunks, chunkId)) {
+/******/ 									installedChunkData = installedChunks[chunkId];
+/******/ 									if(installedChunkData !== 0) installedChunks[chunkId] = undefined;
+/******/ 									if(installedChunkData) {
+/******/ 										var errorType = event && (event.type === 'load' ? 'missing' : event.type);
+/******/ 										var realSrc = event && event.target && event.target.src;
+/******/ 										error.message = 'Loading chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
+/******/ 										error.name = 'ChunkLoadError';
+/******/ 										error.type = errorType;
+/******/ 										error.request = realSrc;
+/******/ 										installedChunkData[1](error);
+/******/ 									}
+/******/ 								}
+/******/ 							};
+/******/ 							__webpack_require__.l(url, loadingEnded, "chunk-" + chunkId, chunkId);
+/******/ 						}
+/******/ 					}
+/******/ 				}
+/******/ 		};
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		// no on chunks loaded
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			if(chunkIds.some((id) => (installedChunks[id] !== 0))) {
+/******/ 				for(moduleId in moreModules) {
+/******/ 					if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 						__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 					}
+/******/ 				}
+/******/ 				if(runtime) var result = runtime(__webpack_require__);
+/******/ 			}
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkId] = 0;
+/******/ 			}
+/******/ 		
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunkwcslight"] = self["webpackChunkwcslight"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+/*!**********************!*\
+  !*** ./src/index.ts ***!
+  \**********************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AbstractProjection: () => (/* reexport safe */ _projections_AbstractProjection_js__WEBPACK_IMPORTED_MODULE_6__.AbstractProjection),
+/* harmony export */   CoordsType: () => (/* reexport safe */ _model_CoordsType_js__WEBPACK_IMPORTED_MODULE_1__.CoordsType),
+/* harmony export */   HiPSFITS: () => (/* reexport safe */ _projections_hips_HiPSFITS_js__WEBPACK_IMPORTED_MODULE_10__.HiPSFITS),
+/* harmony export */   HiPSHelper: () => (/* reexport safe */ _projections_HiPSHelper_js__WEBPACK_IMPORTED_MODULE_7__.HiPSHelper),
+/* harmony export */   HiPSProj: () => (/* reexport safe */ _projections_hips_HiPSProj_js__WEBPACK_IMPORTED_MODULE_8__.HiPSProj),
+/* harmony export */   ImagePixel: () => (/* reexport safe */ _model_ImagePixel_js__WEBPACK_IMPORTED_MODULE_2__.ImagePixel),
+/* harmony export */   MercatorProjection: () => (/* reexport safe */ _projections_mercator_MercatorProjection_js__WEBPACK_IMPORTED_MODULE_9__.MercatorProjection),
+/* harmony export */   NumberType: () => (/* reexport safe */ _model_NumberType_js__WEBPACK_IMPORTED_MODULE_3__.NumberType),
+/* harmony export */   Point: () => (/* reexport safe */ _model_Point_js__WEBPACK_IMPORTED_MODULE_4__.Point),
+/* harmony export */   WCSLight: () => (/* reexport safe */ _WCSLight_js__WEBPACK_IMPORTED_MODULE_0__.WCSLight),
+/* harmony export */   astroToSpherical: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.astroToSpherical),
+/* harmony export */   cartesianToSpherical: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.cartesianToSpherical),
+/* harmony export */   degToRad: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.degToRad),
+/* harmony export */   fillAstro: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.fillAstro),
+/* harmony export */   fillSpherical: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.fillSpherical),
+/* harmony export */   radToDeg: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.radToDeg),
+/* harmony export */   sphericalToAstro: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.sphericalToAstro),
+/* harmony export */   sphericalToCartesian: () => (/* reexport safe */ _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__.sphericalToCartesian)
+/* harmony export */ });
+/* harmony import */ var _WCSLight_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WCSLight.js */ "./src/WCSLight.ts");
+/* harmony import */ var _model_CoordsType_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./model/CoordsType.js */ "./src/model/CoordsType.ts");
+/* harmony import */ var _model_ImagePixel_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./model/ImagePixel.js */ "./src/model/ImagePixel.ts");
+/* harmony import */ var _model_NumberType_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./model/NumberType.js */ "./src/model/NumberType.ts");
+/* harmony import */ var _model_Point_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./model/Point.js */ "./src/model/Point.ts");
+/* harmony import */ var _model_Utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./model/Utils.js */ "./src/model/Utils.ts");
+/* harmony import */ var _projections_AbstractProjection_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./projections/AbstractProjection.js */ "./src/projections/AbstractProjection.ts");
+/* harmony import */ var _projections_HiPSHelper_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./projections/HiPSHelper.js */ "./src/projections/HiPSHelper.ts");
+/* harmony import */ var _projections_hips_HiPSProj_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./projections/hips/HiPSProj.js */ "./src/projections/hips/HiPSProj.ts");
+/* harmony import */ var _projections_mercator_MercatorProjection_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./projections/mercator/MercatorProjection.js */ "./src/projections/mercator/MercatorProjection.ts");
+/* harmony import */ var _projections_hips_HiPSFITS_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./projections/hips/HiPSFITS.js */ "./src/projections/hips/HiPSFITS.ts");
+
+
+
+
+
+
+
+
+
+
+
+
+})();
+
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});
 //# sourceMappingURL=wcslight.js.map

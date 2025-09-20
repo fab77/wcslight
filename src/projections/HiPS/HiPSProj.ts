@@ -1,5 +1,5 @@
 import { FITSList } from "./FITSList.js";
-import { HiPSProp } from "./HiPSProp.js"
+import { HiPSProperties } from "./HiPSProperties.js"
 import { HiPSPropManager } from "./HiPSPropManager.js";
 import { Point } from "../../model/Point.js";
 import { Healpix, Pointing, RangeSet } from "healpixjs";
@@ -22,7 +22,7 @@ export class HiPSProj {
 
     private baseURL: string
     private healpix: Healpix | null = null
-    private hipsProp: HiPSProp | null = null
+    private hipsProp: HiPSProperties | null = null
 
     constructor(baseHiPSPath: string) {
         this.baseURL = baseHiPSPath
@@ -39,7 +39,7 @@ export class HiPSProj {
 
     async init() {
         const hipsProp = await this.parsePropertyFile()
-        const order = hipsProp.getItem(HiPSProp.ORDER)
+        const order = hipsProp.getItem(HiPSProperties.ORDER)
         this.healpix = HiPSHelper.getHelpixByOrder(order)
     }
 
@@ -151,9 +151,9 @@ export class HiPSProj {
         let fitsList = new FITSList()
 
         tilesRaDecList.getTilesList().forEach((tileno: number) => {
-            let hipsProp = new HiPSProp()
-            hipsProp.addItem(HiPSProp.ORDER, healpix.order)
-            hipsProp.addItem(HiPSProp.TILE_WIDTH, TILE_WIDTH)
+            let hipsProp = new HiPSProperties()
+            hipsProp.addItem(HiPSProperties.ORDER, healpix.order)
+            hipsProp.addItem(HiPSProperties.TILE_WIDTH, TILE_WIDTH)
             const hipsFits = new HiPSFITS(null, tileno, hipsProp)
 
             const imagePixelsByTilesNo = tilesRaDecList.getImagePixelsByTile(tileno)

@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { readFile } from "node:fs/promises";
-import { HiPSProp } from "./HiPSProp.js";
+import { HiPSProperties } from "./HiPSProperties.js";
 export class HiPSPropManager {
     static parsePropertyFile(baseURL) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -54,7 +54,7 @@ export class HiPSPropManager {
         });
     }
     static parseHiPSPropertiesBody(hipsPropText) {
-        let hipsProp = new HiPSProp();
+        let hipsProp = new HiPSProperties();
         const txtArr = hipsPropText.split('\n');
         for (let line of txtArr) {
             if (!line.includes("=")) {
@@ -67,7 +67,7 @@ export class HiPSPropManager {
             const key = tokens[0].trim();
             const val = tokens[1].trim();
             let value = val;
-            if (key == HiPSProp.ORDER || key == HiPSProp.TILE_WIDTH || key == HiPSProp.SCALE || key == HiPSProp.BITPIX) {
+            if (key == HiPSProperties.ORDER || key == HiPSProperties.TILE_WIDTH || key == HiPSProperties.SCALE || key == HiPSProperties.BITPIX) {
                 value = parseInt(val);
             }
             hipsProp.addItem(key, value);

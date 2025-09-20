@@ -4,14 +4,16 @@ export declare class ImagePixel {
     ra: number;
     dec: number;
     tileno: number | undefined;
-    value: Uint8Array | undefined;
+    uint8value: Uint8Array | null;
+    value: number | null;
     constructor(i: number, j: number, tileno: number | undefined);
     constructor(ra: number, dec: number, tileno: number | undefined);
     geti(): number;
     getj(): number;
     getRADeg(): number;
     getDecDeg(): number;
-    getValue(): Uint8Array<ArrayBufferLike> | undefined;
+    getUint8Value(): Uint8Array<ArrayBufferLike> | null;
+    getValue(): number | null;
     setValue(value: Uint8Array, bitpix: number): void;
     setTileNumber(tileno: number): void;
     setij(i: number, j: number): void;

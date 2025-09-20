@@ -6,7 +6,7 @@ import { HEALPixXYSpace } from "../../model/HEALPixXYSpace.js"
 import { astroToSpherical, fillAstro, radToDeg } from "../../model/Utils.js"
 import { NumberType } from "../../model/NumberType.js"
 import { HiPSHelper } from "../HiPSHelper.js"
-import { HiPSProp } from "./HiPSProp.js"
+import { HiPSProperties } from "./HiPSProperties.js"
 import { ImagePixel } from "./ImagePixel.js"
 
 export class HiPSFITS {
@@ -25,7 +25,7 @@ export class HiPSFITS {
     private static NPIX: string = "NPIX"
 
 
-    constructor(fitsParsed: FITSParsed | null, tileno: number | null, hipsProp: HiPSProp | null) {
+    constructor(fitsParsed: FITSParsed | null, tileno: number | null, hipsProp: HiPSProperties | null) {
 
         if (fitsParsed) {
             this.initFromFITSParsed(fitsParsed)
@@ -33,9 +33,9 @@ export class HiPSFITS {
             console.error("tileno or hipsProp are not defined")
             throw new Error("tileno or hipsProp are not defined")
         } else {
-            this.order = hipsProp.getItem(HiPSProp.ORDER)
-            const naxis1 = hipsProp.getItem(HiPSProp.TILE_WIDTH)
-            const naxis2 = hipsProp.getItem(HiPSProp.TILE_WIDTH)
+            this.order = hipsProp.getItem(HiPSProperties.ORDER)
+            const naxis1 = hipsProp.getItem(HiPSProperties.TILE_WIDTH)
+            const naxis2 = hipsProp.getItem(HiPSProperties.TILE_WIDTH)
             this.tileno = tileno
             if (naxis1 != naxis2) {
                 console.error("NAXIS1 and NAXIS2 do not match.")
@@ -71,7 +71,7 @@ export class HiPSFITS {
 
         this.payload = fitsParsed.data
 
-        this.order = Number(fitsParsed.header.findById(HiPSProp.ORDER)?.value)
+        this.order = Number(fitsParsed.header.findById(HiPSProperties.ORDER)?.value)
         const naxis1 = Number(fitsParsed.header.findById(FITSHeaderManager.NAXIS1)?.value)
         const naxis2 = Number(fitsParsed.header.findById(FITSHeaderManager.NAXIS2)?.value)
         this.tileno = Number(fitsParsed.header.findById(HiPSFITS.NPIX)?.value)
@@ -296,7 +296,7 @@ export class HiPSFITS {
 
         this.header.insert(new FITSHeaderItem(FITSHeaderManager.DATAMAX, this.min, ""))
 
-        this.header.insert(new FITSHeaderItem(HiPSProp.ORDER, Number(this.order), ""))
+        this.header.insert(new FITSHeaderItem(HiPSProperties.ORDER, Number(this.order), ""))
 
         this.header.insert(new FITSHeaderItem(HiPSFITS.NPIX, Number(this.tileno), ""))
 

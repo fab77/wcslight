@@ -13,7 +13,7 @@ import { Pointing } from "healpixjs";
 import { fillAstro, radToDeg } from "../../model/Utils.js";
 import { NumberType } from "../../model/NumberType.js";
 import { HiPSHelper } from "../HiPSHelper.js";
-import { HiPSProp } from "./HiPSProp.js";
+import { HiPSProperties } from "./HiPSProperties.js";
 export class HiPSFITS {
     constructor(fitsParsed, tileno, hipsProp) {
         this.payload = [];
@@ -27,9 +27,9 @@ export class HiPSFITS {
             throw new Error("tileno or hipsProp are not defined");
         }
         else {
-            this.order = hipsProp.getItem(HiPSProp.ORDER);
-            const naxis1 = hipsProp.getItem(HiPSProp.TILE_WIDTH);
-            const naxis2 = hipsProp.getItem(HiPSProp.TILE_WIDTH);
+            this.order = hipsProp.getItem(HiPSProperties.ORDER);
+            const naxis1 = hipsProp.getItem(HiPSProperties.TILE_WIDTH);
+            const naxis2 = hipsProp.getItem(HiPSProperties.TILE_WIDTH);
             this.tileno = tileno;
             if (naxis1 != naxis2) {
                 console.error("NAXIS1 and NAXIS2 do not match.");
@@ -58,7 +58,7 @@ export class HiPSFITS {
     initFromFITSParsed(fitsParsed) {
         var _a, _b, _c, _d;
         this.payload = fitsParsed.data;
-        this.order = Number((_a = fitsParsed.header.findById(HiPSProp.ORDER)) === null || _a === void 0 ? void 0 : _a.value);
+        this.order = Number((_a = fitsParsed.header.findById(HiPSProperties.ORDER)) === null || _a === void 0 ? void 0 : _a.value);
         const naxis1 = Number((_b = fitsParsed.header.findById(FITSHeaderManager.NAXIS1)) === null || _b === void 0 ? void 0 : _b.value);
         const naxis2 = Number((_c = fitsParsed.header.findById(FITSHeaderManager.NAXIS2)) === null || _c === void 0 ? void 0 : _c.value);
         this.tileno = Number((_d = fitsParsed.header.findById(HiPSFITS.NPIX)) === null || _d === void 0 ? void 0 : _d.value);
@@ -139,7 +139,7 @@ export class HiPSFITS {
             const [col, row] = HiPSIntermediateProj.intermediate2pix(xy[0], xy[1], this.intermediateXYGrid, tileWidth);
             if (row < 0 || row >= tileWidth || col < 0 || col >= tileWidth)
                 return;
-            const valueBytes = imgpx.getValue();
+            const valueBytes = imgpx.getUint8Value();
             if (!valueBytes)
                 return; // or continue, depending on context
             for (let b = 0; b < bytesXelem; b++) {
@@ -239,7 +239,7 @@ export class HiPSFITS {
         this.header.insert(new FITSHeaderItem(FITSHeaderManager.CTYPE2, HiPSFITS.CTYPE2, ""));
         this.header.insert(new FITSHeaderItem(FITSHeaderManager.DATAMIN, this.min, ""));
         this.header.insert(new FITSHeaderItem(FITSHeaderManager.DATAMAX, this.min, ""));
-        this.header.insert(new FITSHeaderItem(HiPSProp.ORDER, Number(this.order), ""));
+        this.header.insert(new FITSHeaderItem(HiPSProperties.ORDER, Number(this.order), ""));
         this.header.insert(new FITSHeaderItem(HiPSFITS.NPIX, Number(this.tileno), ""));
         const crpix = this.tileno / 2;
         this.header.insert(new FITSHeaderItem(FITSHeaderManager.CRPIX1, crpix, ""));

@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { FITSList } from "./FITSList.js";
-import { HiPSProp } from "./HiPSProp.js";
+import { HiPSProperties } from "./HiPSProperties.js";
 import { HiPSPropManager } from "./HiPSPropManager.js";
 import { Point } from "../../model/Point.js";
 import { Pointing } from "healpixjs";
@@ -40,7 +40,7 @@ export class HiPSProj {
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             const hipsProp = yield this.parsePropertyFile();
-            const order = hipsProp.getItem(HiPSProp.ORDER);
+            const order = hipsProp.getItem(HiPSProperties.ORDER);
             this.healpix = HiPSHelper.getHelpixByOrder(order);
         });
     }
@@ -129,9 +129,9 @@ export class HiPSProj {
         const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH);
         let fitsList = new FITSList();
         tilesRaDecList.getTilesList().forEach((tileno) => {
-            let hipsProp = new HiPSProp();
-            hipsProp.addItem(HiPSProp.ORDER, healpix.order);
-            hipsProp.addItem(HiPSProp.TILE_WIDTH, TILE_WIDTH);
+            let hipsProp = new HiPSProperties();
+            hipsProp.addItem(HiPSProperties.ORDER, healpix.order);
+            hipsProp.addItem(HiPSProperties.TILE_WIDTH, TILE_WIDTH);
             const hipsFits = new HiPSFITS(null, tileno, hipsProp);
             const imagePixelsByTilesNo = tilesRaDecList.getImagePixelsByTile(tileno);
             hipsFits.initFromUint8Array(imagePixelsByTilesNo, fitsHeaderParams, TILE_WIDTH);
@@ -225,6 +225,7 @@ export class HiPSProj {
                                 valueBytes[b] = fitsParsed.data[imgpx.getj()][imgpx.geti() * bytesXelem + b];
                             }
                             imgpx.setValue(valueBytes, bitpix);
+                            raDecList.setMinMaxValue(imgpx.getValue());
                         });
                     }
                 }));

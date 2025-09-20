@@ -1,5 +1,8 @@
+import { ParseUtils } from "jsfitsio";
 export class ImagePixel {
     constructor(a, b, tileno) {
+        this.uint8value = null;
+        this.value = null;
         this.tileno = tileno;
         // Heuristic: if `a` and `b` are integers, treat them as `i` and `j`
         if (Number.isInteger(a) && Number.isInteger(b)) {
@@ -14,7 +17,6 @@ export class ImagePixel {
             this.i = -1;
             this.j = -1;
         }
-        this.value = undefined;
     }
     geti() {
         return this.i;
@@ -28,15 +30,19 @@ export class ImagePixel {
     getDecDeg() {
         return this.dec;
     }
+    getUint8Value() {
+        return this.uint8value;
+    }
     getValue() {
         return this.value;
     }
     setValue(value, bitpix) {
-        if (this.value == undefined) {
+        if (this.uint8value == undefined) {
             const bytesXelem = Math.abs(bitpix / 8);
-            this.value = new Uint8Array(bytesXelem);
+            this.uint8value = new Uint8Array(bytesXelem);
         }
-        this.value = value;
+        this.uint8value = value;
+        this.value = ParseUtils.extractPixelValue(0, value, bitpix);
     }
     setTileNumber(tileno) {
         this.tileno = tileno;

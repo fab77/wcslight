@@ -191,7 +191,7 @@ function testOrderComputation() {
 // from Mercator to HiPS
 function testRefactoring(){
     const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.015, 18.35);
-    WCSLight.cutoutToHips(center, 0.06, 0.0005, "./wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
+    WCSLight.fitsCutoutToHiPS(center, 0.06, 0.0005, "./wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
         console.log(res)
     })
 }
@@ -208,7 +208,7 @@ function testRefactoring2(){
     const pxSize_deg = 0.001
     const radius_deg = 0.5
     let mercatorOutProj = new MercatorProjection()
-    WCSLight.hipsCutout(center, radius_deg, pxSize_deg, hipsUrl, mercatorOutProj).then(res => {
+    WCSLight.hipsCutoutToFITS(center, radius_deg, pxSize_deg, hipsUrl, mercatorOutProj).then(res => {
         console.log(res)
     })
 }

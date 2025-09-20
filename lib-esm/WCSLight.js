@@ -18,9 +18,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { FITSParser } from 'jsfitsio';
 import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
 import { HiPSProj } from './projections/hips/HiPSProj.js';
+import { Point } from './model/Point.js';
 import { HiPSPropManager } from './projections/hips/HiPSPropManager.js';
-import { HiPSProp } from './projections/hips/HiPSProp.js';
+import { HiPSProperties } from './projections/hips/HiPSProperties.js';
 import { HiPSHelper } from './projections/HiPSHelper.js';
+import { CoordsType } from './model/CoordsType.js';
+import { NumberType } from './model/NumberType.js';
 export class WCSLight {
     /**
      * This function receives a FITS and generate a cutout on HiPS FITS.
@@ -30,7 +33,7 @@ export class WCSLight {
      * @param filePath of the input FITS file
      * @returns fitsList of FITS in HiPS format
      */
-    static cutoutToHips(center, radius, pxsize, filePath) {
+    static fitsCutoutToHiPS(center, radius, pxsize, filePath) {
         return __awaiter(this, void 0, void 0, function* () {
             const HiPS_TILE_WIDTH = 512;
             // 0. here is missing the validation/check that the input file used to get the value, contains the center ...
@@ -81,12 +84,13 @@ export class WCSLight {
         });
     }
     // TODO: instead of using AbstractProjection, use a constant file with supported projection names
-    static hipsCutout(center_1, radius_1, pixelAngSize_1, baseHiPSURL_1, outproj_1) {
+    static hipsCutoutToFITS(center_1, radius_1, pixelAngSize_1, baseHiPSURL_1, outproj_1) {
         return __awaiter(this, arguments, void 0, function* (center, radius, pixelAngSize, baseHiPSURL, outproj, hipsOrder = null) {
+            var _a, _b;
             const hipsProp = yield HiPSPropManager.parsePropertyFile(baseHiPSURL);
-            const hipsMaxOrder = hipsProp.getItem(HiPSProp.ORDER);
-            const hipsFrame = hipsProp.getItem(HiPSProp.FRAME);
-            const TILE_WIDTH = hipsProp.getItem(HiPSProp.TILE_WIDTH);
+            const hipsMaxOrder = hipsProp.getItem(HiPSProperties.ORDER);
+            const hipsFrame = hipsProp.getItem(HiPSProperties.FRAME);
+            const TILE_WIDTH = hipsProp.getItem(HiPSProperties.TILE_WIDTH);
             let isGalactic = false;
             if (hipsFrame.toLowerCase() == 'galactic') {
                 isGalactic = true;
@@ -102,32 +106,56 @@ export class WCSLight {
             below how naxis are computed
             outproj.getImageRADecList -> computeSquaredNaxes -> set naxis1 and naxis2
             */
-            const outRADecList = outproj.getImageRADecList(center, radius, pixelAngSize);
+            const naxisWidth = outproj.computeNaxisWidth(radius, pixelAngSize);
+            const outRADecList = outproj.getImageRADecList(center, radius, pixelAngSize, naxisWidth);
             if (!outRADecList)
                 return null;
-            // TODO check if the 2 methods  below can be merged
-            const result = yield HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL);
-            console.log(result);
-            // const invalues = await HiPSProj.getPixelValues(inputPixelsList, baseHiPSURL, hipsOrder, TILE_WIDTH);
-            // if (invalues == null) {
-            //     throw new Error("No HiPS data found.")
-            // }
-            // // TODO GET HEADER 
-            // computeSquaredNaxes to get naxis1 naxis2 in get header
-            // const header = outproj.prepareHeader(
-            //     radius, pixelAngSize, 
-            //     hipsProp.getItem(HiPSProp.BITPIX), 
-            //     hipsProp.getItem(HiPSProp.SCALE), 
-            //     hipsProp.getItem(HiPSProp.TILE_WIDTH), 
-            //     hipsProp.getItem(HiPSProp.ZERO))
-            // TODO set values in outproj
-            // const fitsdata = outproj.setPxsValue(outRADecList, header);
-            // const header = outproj.computeHeader(pixelAngSize, 
-            //     hipsProp.getItem(HiPSProp.BITPIX), 
-            //     hipsProp.getItem(HiPSProp.SCALE
-            //     ))
-            // TODO set outproj header
-            return null;
+            const raDecMinMaxCentral = outRADecList.computeRADecMinMaxCentral();
+            const cRA = raDecMinMaxCentral === null || raDecMinMaxCentral === void 0 ? void 0 : raDecMinMaxCentral.getCentralRA();
+            const cDec = raDecMinMaxCentral === null || raDecMinMaxCentral === void 0 ? void 0 : raDecMinMaxCentral.getCentralDec();
+            if (cRA === undefined || cDec === undefined)
+                return null;
+            // TODO check if possible to compute in the word2pix, when iterating onver ImagePixels, the min and max value.
+            const raDecWithValues = yield HiPSProj.world2pix(outRADecList, hipsOrder, isGalactic, TILE_WIDTH, baseHiPSURL);
+            if (!raDecWithValues)
+                return null;
+            const minValue = (_a = raDecWithValues.getMinMaxValues()) === null || _a === void 0 ? void 0 : _a.getMinValue();
+            const maxValue = (_b = raDecWithValues.getMinMaxValues()) === null || _b === void 0 ? void 0 : _b.getMaxValue();
+            if (minValue === undefined || maxValue === undefined)
+                return null;
+            /** info required:
+             * SIMPLE  = T
+                BITPIX  = -64
+                NAXIS   = 2
+                NAXIS1  = 512
+                NAXIS2  = 512
+                BSCALE  = 1
+                BZERO   = 0
+                CTYPE1  = RA---HPX
+                CTYPE2  = DEC--HPX
+                DATAMIN = 0
+                DATAMAX = 0
+                hips_order= 7
+                NPIX    = 113056
+                CRPIX1  = 56528
+                CRPIX2  = 56528
+                ORIGIN  = WCSLight v.0.x
+                COMMENT =  / WCSLight v0.x developed by F.Giordano and Y.Ascasibar
+                CRVAL1  = 170.15625
+                CRVAL2  = 18.5243910738658
+                END
+             */
+            // TODO BLANK, BZERO, BSCALE must be taken from the FITS tiles and not from the HiPS metadata.
+            const BLANK = 0.0;
+            const BZERO = 0.0;
+            const BSCALE = 1.0;
+            const BITPIX = parseInt(hipsProp.getItem(HiPSProperties.BITPIX));
+            if (BITPIX != 8 && BITPIX != 16 && BITPIX != 32 && BITPIX != -32 && BITPIX != -64) {
+                throw new Error("unsupported BITPIX value");
+            }
+            const fits = outproj.generateFITSFile(pixelAngSize, hipsProp.getItem(HiPSProperties.BITPIX), naxisWidth, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues);
+            console.log(fits);
+            return fits;
         });
     }
     static hipsFITSChangeProjection() {
@@ -215,8 +243,8 @@ export class WCSLight {
         return ["Mercator", "HiPS", "HEALPix"];
     }
 }
-// const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.015, 18.35);
-// WCSLight.cutoutToHips(center, 0.06, 0.0005, "/Users/fgiordano/Desktop/REORG/PhD/code/github/wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
-//     console.log(res)
-// })
+const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 170.015, 18.35);
+WCSLight.fitsCutoutToHiPS(center, 0.06, 0.0005, "/Users/fgiordano/Desktop/REORG/PhD/code/github/wcslight/test/output/UC3/3_0/Mercator46.fits").then(res => {
+    console.log(res);
+});
 //# sourceMappingURL=WCSLight.js.map

@@ -1,4 +1,4 @@
-export declare class HiPSProp {
+export declare class HiPSProperties {
     static TILE_WIDTH: string;
     static FRAME: string;
     static ORDER: string;
@@ -11,4 +11,4 @@ export declare class HiPSProp {
     getItem(key: string): any;
     isGalactic(): boolean;
 }
-//# sourceMappingURL=HiPSProp.d.ts.map
+//# sourceMappingURL=HiPSProperties.d.ts.map

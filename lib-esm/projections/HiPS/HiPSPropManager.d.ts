@@ -1,6 +1,6 @@
-import { HiPSProp } from "./HiPSProp.js";
+import { HiPSProperties } from "./HiPSProperties.js";
 export declare class HiPSPropManager {
-    static parsePropertyFile(baseURL: string): Promise<HiPSProp>;
+    static parsePropertyFile(baseURL: string): Promise<HiPSProperties>;
     private static getPorpertyFromWeb;
     private static getPorpertyFromFS;
     private static parseHiPSPropertiesBody;

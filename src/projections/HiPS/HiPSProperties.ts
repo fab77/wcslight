@@ -1,4 +1,4 @@
-export class HiPSProp {
+export class HiPSProperties {
 
     static TILE_WIDTH:string = "hips_tile_width"
     static FRAME:string = "hips_frame"
@@ -21,7 +21,7 @@ export class HiPSProp {
     }
 
     isGalactic(){
-        return this.itemMap.get(HiPSProp.FRAME) == HiPSProp.GALACTIC
+        return this.itemMap.get(HiPSProperties.FRAME) == HiPSProperties.GALACTIC
     }
 
 }

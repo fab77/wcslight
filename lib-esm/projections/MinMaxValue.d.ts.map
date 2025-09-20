@@ -1,0 +1,1 @@
+{"version":3,"file":"MinMaxValue.d.ts","sourceRoot":"","sources":["../../src/projections/MinMaxValue.ts"],"names":[],"mappings":"AAAA,qBAAa,WAAW;IACpB,GAAG,EAAE,MAAM,CAAA;IACX,GAAG,EAAE,MAAM,CAAA;gBAEC,GAAG,EAAE,MAAM,EAAE,GAAG,EAAE,MAAM;IAKpC,WAAW;IAIX,WAAW;CAId"}

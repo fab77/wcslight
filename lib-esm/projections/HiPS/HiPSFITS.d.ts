@@ -1,5 +1,5 @@
 import { FITSHeaderManager, FITSParsed } from "jsfitsio";
-import { HiPSProp } from "./HiPSProp.js";
+import { HiPSProperties } from "./HiPSProperties.js";
 import { ImagePixel } from "./ImagePixel.js";
 export declare class HiPSFITS {
     private payload;
@@ -14,7 +14,7 @@ export declare class HiPSFITS {
     private static CTYPE1;
     private static CTYPE2;
     private static NPIX;
-    constructor(fitsParsed: FITSParsed | null, tileno: number | null, hipsProp: HiPSProp | null);
+    constructor(fitsParsed: FITSParsed | null, tileno: number | null, hipsProp: HiPSProperties | null);
     initFromUint8Array(imagePixelList: ImagePixel[], fitsHeaderParams: FITSHeaderManager, tileWidth: number): void;
     getHeader(): FITSHeaderManager;
     getPayload(): Uint8Array<ArrayBufferLike>[];

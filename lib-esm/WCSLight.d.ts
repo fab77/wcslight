@@ -9,7 +9,7 @@
 import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
 import { Point } from './model/Point.js';
 import { AbstractProjection } from './projections/AbstractProjection.js';
-import { CutoutResult } from './model/CutoutResult.js';
+import { FITS } from './model/FITS.js';
 import { FITSList } from './projections/hips/FITSList.js';
 import { HiPSFITS } from './projections/hips/HiPSFITS.js';
 export declare class WCSLight {
@@ -21,9 +21,9 @@ export declare class WCSLight {
      * @param filePath of the input FITS file
      * @returns fitsList of FITS in HiPS format
      */
-    static cutoutToHips(center: Point, radius: number, pxsize: number, filePath: string): Promise<FITSList | null>;
+    static fitsCutoutToHiPS(center: Point, radius: number, pxsize: number, filePath: string): Promise<FITSList | null>;
     static extractProjectionType(filePath: string): Promise<AbstractProjection | null>;
-    static hipsCutout(center: Point, radius: number, pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder?: number | null): Promise<CutoutResult | null>;
+    static hipsCutoutToFITS(center: Point, radius: number, pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder?: number | null): Promise<FITS | null>;
     static hipsFITSChangeProjection(): HiPSFITS | null;
     /**
      *

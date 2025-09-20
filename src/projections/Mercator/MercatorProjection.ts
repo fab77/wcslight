@@ -18,6 +18,7 @@ import { CoordsType } from '../../model/CoordsType.js';
 import { NumberType } from '../../model/NumberType.js';
 import { TilesRaDecList2 } from '../hips/TilesRaDecList2.js';
 import { ImagePixel } from '../hips/ImagePixel.js';
+import { FITS } from '../../model/FITS.js';
 // import { HiPSProp } from '../hips/HiPSProp.js';
 
 
@@ -126,9 +127,9 @@ export class MercatorProjection extends AbstractProjection {
     //     header.insert(new FITSHeaderItem("NAXIS", 2, ""));
     //     header.insert(new FITSHeaderItem("NAXIS1", this.naxis1, ""));
     //     header.insert(new FITSHeaderItem("NAXIS2", this.naxis2, ""));
-        
+
     //     header.insert(new FITSHeaderItem("BLANK", blank, ""));
-        
+
     //     header.insert(new FITSHeaderItem("BSCALE", scale, ""));
 
     //     header.insert(new FITSHeaderItem("BZERO", zero, ""));
@@ -171,14 +172,14 @@ export class MercatorProjection extends AbstractProjection {
     //     }
     // }
 
-    
-    prepareHeader(pixelAngSize: number, 
-                BITPIX: number, 
-                TILE_WIDTH: number, 
-                BLANK: number, BZERO: number, BSCALE: number,
-                cRA: number, cDec: number,
-                minValue: number, maxValue: number): FITSHeaderManager{
-        
+
+    prepareHeader(pixelAngSize: number,
+        BITPIX: number,
+        TILE_WIDTH: number,
+        BLANK: number, BZERO: number, BSCALE: number,
+        cRA: number, cDec: number,
+        minValue: number, maxValue: number): FITSHeaderManager {
+
         const fitsheader = new FITSHeaderManager();
 
         fitsheader.insert(new FITSHeaderItem("SIMPLE", "T", ""));
@@ -197,7 +198,7 @@ export class MercatorProjection extends AbstractProjection {
         fitsheader.insert(new FITSHeaderItem("CDELT2", pixelAngSize, "")); // ??? Pixel spacing along axis 2 ???
         fitsheader.insert(new FITSHeaderItem("CRPIX1", TILE_WIDTH / 2, "")); // central/reference pixel i along naxis1
         fitsheader.insert(new FITSHeaderItem("CRPIX2", TILE_WIDTH / 2, "")); // central/reference pixel j along naxis2
-        
+
         fitsheader.insert(new FITSHeaderItem("CRVAL1", cRA, "")); // central/reference pixel RA
         fitsheader.insert(new FITSHeaderItem("CRVAL2", cDec, "")); // central/reference pixel Dec
 
@@ -289,64 +290,7 @@ export class MercatorProjection extends AbstractProjection {
     }
 
 
-    // setPxsValue(raDecList: TilesRaDecList2, bitpix: number, scale: number = 1, zero: number = 0): TilesRaDecList2 {
-    //     return new TilesRaDecList2()
-    // }
-    setPxsValue(raDecList: TilesRaDecList2, bitpix: number, scale: number = 1, zero: number = 0): TilesRaDecList2 {
 
-        let bytesXelem = Math.abs(bitpix / 8);
-
-        
-        this._pxvalues.set(0, new Array<Uint8Array>(this.naxis2));
-        let pv = this._pxvalues.get(0);
-        if (pv !== undefined) {
-            for (let r = 0; r < this.naxis2; r++) {
-                pv[r] = new Uint8Array(this.naxis1 * bytesXelem);
-            }
-
-            let r!: number;
-            let c!: number;
-            let b!: number;
-            for (let p = 0; (p * bytesXelem) < values.length; p++) {
-                // console.log("processing "+p + " of "+ (values.length / bytesXelem));
-
-                try {
-                    r = Math.floor(p / this.naxis1);
-                    c = (p - r * this.naxis1) * bytesXelem;
-
-                    for (b = 0; b < bytesXelem; b++) {
-                        pv[r][c + b] = values[p * bytesXelem + b];
-                    }
-
-
-                    const valpixb = ParseUtils.extractPixelValue(0, values.slice(p * bytesXelem, (p * bytesXelem) + bytesXelem), bitpix);
-                    if (!valpixb) {
-                        console.error("valpixb is null")
-                        throw new Error("valpixb is null")
-                    }
-
-                    // let valphysical = zero + scale * valpixb;
-
-                    // if (valphysical < this._minphysicalval || isNaN(this._minphysicalval)) {
-                    //     this._minphysicalval = valphysical;
-                    // } else if (valphysical > this._maxphysicalval || isNaN(this._maxphysicalval)) {
-                    //     this._maxphysicalval = valphysical;
-                    // }
-                } catch (err) {
-                    console.log(err)
-                    console.log("p " + p)
-                    console.log("r %, c %, b %" + r, c, b)
-                    console.log("this._pxvalues[r][c + b] " + pv[r][c + b])
-                    console.log("values[p * bytesXelem + b] " + values[p * bytesXelem + b])
-                }
-
-            }
-        }
-
-        // this.prepareFITSHeader(fitsHeaderParams);
-        return this._pxvalues;
-
-    }
 
 
     // computeSquaredNaxes(d: number, ps: number): void {
@@ -355,10 +299,14 @@ export class MercatorProjection extends AbstractProjection {
     //     this._pxsize = ps;
     // }
 
-    getImageRADecList(center: Point, radius: number, pxsize: number): TilesRaDecList2 {
+    computeNaxisWidth(radius: number, pxsize: number): number {
+        return Math.ceil(2 * radius / pxsize);
+    }
+
+    getImageRADecList(center: Point, radius: number, pxsize: number, naxisWidth: number): TilesRaDecList2 {
 
 
-        const naxis1 = Math.ceil(2 * radius / pxsize);
+        const naxis1 = naxisWidth
         const naxis2 = naxis1;
 
         let minra = center.getAstro().raDeg - radius;
@@ -378,8 +326,8 @@ export class MercatorProjection extends AbstractProjection {
                 // radeclist.push([minra + (r * pxsize), mindec + (d * pxsize)]);
             }
         }
-        
-        const centralImgpx = tilesRaDecList.getImagePixelList().length/2 - 1
+
+        const centralImgpx = tilesRaDecList.getImagePixelList().length / 2 - 1
         // let cidx = (naxis2 / 2) * naxis1 + naxis1 / 2;
         // if (naxis1 % 2 != 0) {
         //     cidx = Math.floor(radeclist.length / 2);
@@ -407,6 +355,79 @@ export class MercatorProjection extends AbstractProjection {
         return p;
         // return [ra, dec];
 
+    }
+
+    setPixelValues(raDecList: TilesRaDecList2, header: FITSHeaderManager): FITS {
+
+        const BITPIX = header.findById("BITPIX")?.value as number;
+        if (!Number.isFinite(BITPIX)) {
+            throw new Error("BITPIX not found or invalid in header");
+        }
+        const bytesPerElem = Math.abs(BITPIX) / 8;
+
+        const width = header.findById("NAXIS1")?.value as number;
+        const height = (header.findById("NAXIS2")?.value as number) ?? width; // fallback if square
+        if (!Number.isFinite(width) || width <= 0) throw new Error("NAXIS1 not found or invalid");
+        if (!Number.isFinite(height) || height <= 0) throw new Error("NAXIS2 not found or invalid");
+
+        const pixels = raDecList.getImagePixelList();
+        if (pixels.length !== width * height) {
+            throw new Error(`Pixel count mismatch: got ${pixels.length}, expected ${width * height}`);
+        }
+
+        // Map<rowIndex, Uint8Array[]>, each row has length = width
+        const pxvalues = new Map<number, Uint8Array[]>();
+        for (let r = 0; r < height; r++) {
+            pxvalues.set(r, new Array<Uint8Array>(width));
+        }
+
+        // Fill in row-major order: for each linear index, compute (row, col)
+        for (let idx = 0; idx < pixels.length; idx++) {
+            const row = Math.floor(idx / width);
+            const col = idx % width;
+
+            const rowArr = pxvalues.get(row)!;
+
+            let u8 = pixels[idx].getUint8Value();
+            if (u8 == null) {
+                // Your pipeline’s ImagePixel.setValue() should have set this already.
+                // Throwing is safer than inventing packing (FITS expects specific endian/precision).
+                throw new Error(`Pixel (${row},${col}) missing Uint8Array for BITPIX=${BITPIX}`);
+            }
+            if (u8.byteLength !== bytesPerElem) {
+                throw new Error(
+                    `Pixel (${row},${col}) byteLength=${u8.byteLength} != expected ${bytesPerElem} (BITPIX=${BITPIX})`
+                );
+            }
+
+            rowArr[col] = u8;
+            // no need to pxvalues.set(row, rowArr); reference already updated
+        }
+
+        return new FITS([header], pxvalues);
+    }
+
+
+
+
+
+    generateFITSFile(pixelAngSize: number,
+        BITPIX: number,
+        TILE_WIDTH: number,
+        BLANK: number, BZERO: number, BSCALE: number,
+        cRA: number, cDec: number,
+        minValue: number, maxValue: number,
+        raDecWithValues: TilesRaDecList2): FITS {
+            
+        const header: FITSHeaderManager = this.prepareHeader(
+            pixelAngSize,
+            BITPIX,
+            TILE_WIDTH,
+            BLANK, BZERO, BSCALE,
+            cRA, cDec,
+            minValue, maxValue)
+        const fits: FITS = this.setPixelValues(raDecWithValues, header)
+        return fits;
     }
 
 

@@ -1,17 +1,17 @@
 import { readFile } from "node:fs/promises";
-import { HiPSProp } from "./HiPSProp.js";
+import { HiPSProperties } from "./HiPSProperties.js";
 
 
 export class HiPSPropManager {
 
-    static async parsePropertyFile(baseURL:string) {
+    static async parsePropertyFile(baseURL:string): Promise<HiPSProperties> {
         let hipsPropText = ""
         if (baseURL.includes("http")) { // HiPS from web
             hipsPropText = await HiPSPropManager.getPorpertyFromWeb(baseURL)
         } else { // local HiPS
             hipsPropText = await HiPSPropManager.getPorpertyFromFS(baseURL)
         }
-        const hipsProp = HiPSPropManager.parseHiPSPropertiesBody(hipsPropText)
+        const hipsProp:HiPSProperties = HiPSPropManager.parseHiPSPropertiesBody(hipsPropText)
         return hipsProp
     }
 
@@ -44,8 +44,8 @@ export class HiPSPropManager {
         return propFile
     }
 
-    private static parseHiPSPropertiesBody(hipsPropText: string): HiPSProp {
-        let hipsProp = new HiPSProp()
+    private static parseHiPSPropertiesBody(hipsPropText: string): HiPSProperties {
+        let hipsProp = new HiPSProperties()
         const txtArr = hipsPropText.split('\n');
 
         for (let line of txtArr) {
@@ -60,7 +60,7 @@ export class HiPSPropManager {
             const key = tokens[0].trim()
             const val = tokens[1].trim()
             let value: string|number = val
-            if (key == HiPSProp.ORDER || key == HiPSProp.TILE_WIDTH || key == HiPSProp.SCALE || key == HiPSProp.BITPIX) {
+            if (key == HiPSProperties.ORDER || key == HiPSProperties.TILE_WIDTH || key == HiPSProperties.SCALE || key == HiPSProperties.BITPIX) {
                 value = parseInt(val)
             }
             hipsProp.addItem(key, value)
