@@ -296,7 +296,7 @@ export class MercatorProjection extends AbstractProjection {
             rowArr[col] = u8;
             // no need to pxvalues.set(row, rowArr); reference already updated
         }
-        return new FITS([header], pxvalues);
+        return new FITS(header, pxvalues);
     }
     generateFITSFile(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues) {
         const header = this.prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue);

@@ -155,6 +155,9 @@ export class WCSLight {
             }
             const fits = outproj.generateFITSFile(pixelAngSize, hipsProp.getItem(HiPSProperties.BITPIX), naxisWidth, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues);
             console.log(fits);
+            const FITS_FILE_PATH = `./cartesian.fits`;
+            const fitsParsed = { header: fits.getHeader(), data: fits.getData() };
+            FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH);
             return fits;
         });
     }

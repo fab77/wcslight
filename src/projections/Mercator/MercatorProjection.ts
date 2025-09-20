@@ -404,7 +404,7 @@ export class MercatorProjection extends AbstractProjection {
             // no need to pxvalues.set(row, rowArr); reference already updated
         }
 
-        return new FITS([header], pxvalues);
+        return new FITS(header, pxvalues);
     }
 
 
@@ -418,7 +418,7 @@ export class MercatorProjection extends AbstractProjection {
         cRA: number, cDec: number,
         minValue: number, maxValue: number,
         raDecWithValues: TilesRaDecList2): FITS {
-            
+
         const header: FITSHeaderManager = this.prepareHeader(
             pixelAngSize,
             BITPIX,

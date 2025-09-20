@@ -2,20 +2,27 @@
 import { FITSHeaderManager } from 'jsfitsio';
 
 export class FITS {
-    _header: FITSHeaderManager[]
-    _data: Map<number, Array<Uint8Array>>
 
-    constructor(header: FITSHeaderManager[], data: Map<number, Array<Uint8Array>>) {
-        this._header = header
-        this._data = data
+    private header!: FITSHeaderManager
+    private payload: Uint8Array<ArrayBufferLike>[] = []
+
+    constructor(header: FITSHeaderManager, data: Map<number, Array<Uint8Array>>) {
+        this.header = header
+        this.setData(data)
     }
 
-    get header() {
-        return this._header
+    setData(data: Map<number, Array<Uint8Array>>){
+        this.payload = Array.from(data.values()).flatMap(row => row);
+    }
+
+    getHeader() {
+        return this.header
     }
     
-    get data() {
-        return this._data
+    getData() {
+        return this.payload
     }
+
+
 
 }

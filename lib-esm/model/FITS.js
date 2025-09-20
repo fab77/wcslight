@@ -1,13 +1,17 @@
 export class FITS {
     constructor(header, data) {
-        this._header = header;
-        this._data = data;
+        this.payload = [];
+        this.header = header;
+        this.setData(data);
     }
-    get header() {
-        return this._header;
+    setData(data) {
+        this.payload = Array.from(data.values()).flatMap(row => row);
     }
-    get data() {
-        return this._data;
+    getHeader() {
+        return this.header;
+    }
+    getData() {
+        return this.payload;
     }
 }
 //# sourceMappingURL=FITS.js.map

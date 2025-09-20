@@ -178,6 +178,10 @@ export class WCSLight {
             minValue, maxValue, raDecWithValues)
         
         console.log(fits)
+
+        const FITS_FILE_PATH = `./cartesian.fits`
+        const fitsParsed:FITSParsed = {header: fits.getHeader(), data: fits.getData()}
+        FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH)
         return fits
     }
 

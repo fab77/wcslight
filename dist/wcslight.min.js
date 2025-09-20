@@ -206,6 +206,9 @@ class WCSLight {
             }
             const fits = outproj.generateFITSFile(pixelAngSize, hipsProp.getItem(_projections_hips_HiPSProperties_js__WEBPACK_IMPORTED_MODULE_5__.HiPSProperties.BITPIX), naxisWidth, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues);
             console.log(fits);
+            const FITS_FILE_PATH = `./cartesian.fits`;
+            const fitsParsed = { header: fits.getHeader(), data: fits.getData() };
+            jsfitsio__WEBPACK_IMPORTED_MODULE_0__.FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH);
             return fits;
         });
     }
@@ -342,14 +345,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class FITS {
     constructor(header, data) {
-        this._header = header;
-        this._data = data;
+        this.payload = [];
+        this.header = header;
+        this.setData(data);
     }
-    get header() {
-        return this._header;
+    setData(data) {
+        this.payload = Array.from(data.values()).flatMap(row => row);
     }
-    get data() {
-        return this._data;
+    getHeader() {
+        return this.header;
+    }
+    getData() {
+        return this.payload;
     }
 }
 
@@ -2439,7 +2446,7 @@ class MercatorProjection extends _AbstractProjection_js__WEBPACK_IMPORTED_MODULE
             rowArr[col] = u8;
             // no need to pxvalues.set(row, rowArr); reference already updated
         }
-        return new _model_FITS_js__WEBPACK_IMPORTED_MODULE_7__.FITS([header], pxvalues);
+        return new _model_FITS_js__WEBPACK_IMPORTED_MODULE_7__.FITS(header, pxvalues);
     }
     generateFITSFile(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues) {
         const header = this.prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue);
