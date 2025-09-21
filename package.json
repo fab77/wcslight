@@ -22,20 +22,22 @@
     "exports": {
         ".": {
             "types": "./lib-esm/index.d.ts",
-            "import": "./lib-esm/index.js",
-            "require": "./dist/wcslight.js"
+            "import": "./dist/wcslight.esm.js",
+            "require": "./dist/wcslight.cjs"
         }
     },
-    "main": "./lib-esm/index.js",
+    "module": "./dist/wcslight.esm.js",
+    "main": "./dist/wcslight.cjs",
     "types": "./lib-esm/index.d.ts",
+    
     "files": [
         "lib-esm/",
         "dist"
     ],
     "scripts": {
         "clean": "shx rm -rf dist lib-esm",
-        "start:dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
-        "build:prod": "npm run clean && tsc && webpack --mode=production",
+        "dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
+        "prod": "npm run clean && tsc && webpack --mode=production",
         "webtest": "cp dist/* webtest/; node server.cjs",
         "test:esm": "tsc -m es6 test.ts; node test.js"
     },

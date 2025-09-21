@@ -8,9 +8,9 @@
  */
 import { Point } from './model/Point.js';
 import { AbstractProjection } from './projections/AbstractProjection.js';
-import { FITS } from './model/FITS.js';
 import { FITSList } from './projections/hips/FITSList.js';
 import { HiPSFITS } from './projections/hips/HiPSFITS.js';
+import { CutoutResult } from './projections/hips/CutoutResult.js';
 export declare class WCSLight {
     /**
      * This function receives a FITS and generate a cutout on HiPS FITS.
@@ -22,7 +22,7 @@ export declare class WCSLight {
      */
     static fitsCutoutToHiPS(center: Point, radius: number, pxsize: number, filePath: string): Promise<FITSList | null>;
     static extractProjectionType(filePath: string): Promise<AbstractProjection | null>;
-    static hipsCutoutToFITS(center: Point, radius: number, pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder?: number | null): Promise<FITS | null>;
+    static hipsCutoutToFITS(center: Point, radius: number, pixelAngSize: number, baseHiPSURL: string, outproj: AbstractProjection, hipsOrder?: number | null): Promise<CutoutResult | null>;
     static hipsFITSChangeProjection(): HiPSFITS | null;
     /**
      *

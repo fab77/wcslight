@@ -88,8 +88,13 @@ export class HiPSHelper {
         const healpix = new Healpix(nside);
         return healpix;
     }
-    static getHelpixBypxAngSize(pixelAngulaSize, TILE_WIDTH) {
-        const healpixOrder = HiPSHelper.computeOrder(pixelAngulaSize, TILE_WIDTH);
+    static getHelpixBypxAngSize(pixelAngulaSize, TILE_WIDTH, hipsMaxOrder = null) {
+        let healpixOrder = HiPSHelper.computeOrder(pixelAngulaSize, TILE_WIDTH);
+        if (hipsMaxOrder && hipsMaxOrder > 0) {
+            if (healpixOrder > hipsMaxOrder) {
+                healpixOrder = hipsMaxOrder;
+            }
+        }
         const nside = 2 ** healpixOrder;
         const healpix = new Healpix(nside);
         return healpix;

@@ -1,0 +1,1 @@
+{"version":3,"file":"CutoutResult.d.ts","sourceRoot":"","sources":["../../../src/projections/hips/CutoutResult.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,qBAAqB,CAAA;AAE1C,qBAAa,YAAY;IACrB,IAAI,EAAE,IAAI,CAAA;IACV,QAAQ,EAAE,MAAM,EAAE,CAAA;gBAEN,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,EAAE;IAK1C,IAAI,GAAG,IAAI,IAAI,CAEd;IAED,IAAI,QAAQ,IAAI,MAAM,EAAE,CAEvB;CACJ"}

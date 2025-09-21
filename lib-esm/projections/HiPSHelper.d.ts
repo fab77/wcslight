@@ -28,7 +28,7 @@ export declare class HiPSHelper {
      */
     static computeOrder(pxAngSizeDeg: number, pxTileWidth: number): number;
     static getHelpixByOrder(order: number): Healpix;
-    static getHelpixBypxAngSize(pixelAngulaSize: number, TILE_WIDTH: number): Healpix;
+    static getHelpixBypxAngSize(pixelAngulaSize: number, TILE_WIDTH: number, hipsMaxOrder?: number | null): Healpix;
     static computePxAngularSize(pxTileWidth: number, order: number): {
         rad: number;
         deg: number;

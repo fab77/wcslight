@@ -12,6 +12,7 @@ import { HiPSProjection } from './projections/hips/HiPSProjection.js';
 import { HiPSPropManager } from './projections/hips/HiPSPropManager.js';
 import { HiPSProperties } from './projections/hips/HiPSProperties.js';
 import { HiPSHelper } from './projections/HiPSHelper.js';
+import { CutoutResult } from './projections/hips/CutoutResult.js';
 export class WCSLight {
     /**
      * This function receives a FITS and generate a cutout on HiPS FITS.
@@ -77,11 +78,8 @@ export class WCSLight {
             isGalactic = true;
         }
         if (!hipsOrder) {
-            const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH);
+            const healpix = HiPSHelper.getHelpixBypxAngSize(pixelAngSize, TILE_WIDTH, hipsMaxOrder);
             hipsOrder = Number(healpix.order);
-        }
-        if (hipsOrder > hipsMaxOrder) {
-            throw new Error("requested HiPS order exceeds the maximum HiPS order ");
         }
         /*
         below how naxis are computed
@@ -143,7 +141,14 @@ export class WCSLight {
         const FITS_FILE_PATH = `./cartesian2.fits`;
         const fitsParsed = { header: fits.getHeader(), data: fits.getData() };
         FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH);
-        return fits;
+        let hipsUsed = Array();
+        raDecWithValues.getTilesList().forEach((hipstileno) => {
+            const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
+            const fitsurl = baseHiPSURL + "/Norder" + hipsOrder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
+            hipsUsed.push(fitsurl);
+        });
+        const result = new CutoutResult(fits, hipsUsed);
+        return result;
     }
     static hipsFITSChangeProjection() {
         return null;

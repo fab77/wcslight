@@ -112,8 +112,13 @@ export class HiPSHelper {
 		return healpix
 	}
 
-	static getHelpixBypxAngSize(pixelAngulaSize: number, TILE_WIDTH: number): Healpix {
-		const healpixOrder = HiPSHelper.computeOrder(pixelAngulaSize, TILE_WIDTH)
+	static getHelpixBypxAngSize(pixelAngulaSize: number, TILE_WIDTH: number, hipsMaxOrder: number | null = null): Healpix {
+		let healpixOrder = HiPSHelper.computeOrder(pixelAngulaSize, TILE_WIDTH)
+		if (hipsMaxOrder && hipsMaxOrder > 0) {
+			if (healpixOrder > hipsMaxOrder) {
+				healpixOrder = hipsMaxOrder
+			}
+		}
         const nside = 2 ** healpixOrder
         const healpix = new Healpix(nside)
 		return healpix
