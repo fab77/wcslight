@@ -2,6 +2,10 @@ import path from 'path';
 import {fileURLToPath} from 'url';
 import webpack from 'webpack'
 
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');   
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -40,6 +44,9 @@ var browserConfig = {
         resource.request = resource.request.replace(/^node:/, '');
       },
     ),
+    new webpack.DefinePlugin({
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    }),
   ],
   module: {  
     rules: [

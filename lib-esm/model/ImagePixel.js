@@ -7,6 +7,9 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 export class ImagePixel {
+    _i; // int i of input projection
+    _j; // int j of input projection
+    _tileno; // int
     constructor(i, j, tileno = NaN) {
         this._i = i;
         this._j = j;

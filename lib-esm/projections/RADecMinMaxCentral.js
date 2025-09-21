@@ -1,4 +1,10 @@
 export class RADecMinMaxCentral {
+    centralRA;
+    centralDec;
+    minRA;
+    minDec;
+    maxRA;
+    maxDec;
     constructor(centralRA, centralDec, minRA, minDec, maxRA, maxDec) {
         this.centralDec = centralDec;
         this.centralRA = centralRA;

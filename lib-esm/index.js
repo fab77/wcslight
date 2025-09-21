@@ -6,7 +6,7 @@ export { Point } from './model/Point.js';
 export { sphericalToCartesian, cartesianToSpherical, sphericalToAstro, fillSpherical, astroToSpherical, degToRad, fillAstro, radToDeg } from './model/Utils.js';
 export { AbstractProjection } from './projections/AbstractProjection.js';
 export { HiPSHelper } from './projections/HiPSHelper.js';
-export { HiPSProj } from './projections/hips/HiPSProj.js';
+export { HiPSProjection } from './projections/hips/HiPSProjection.js';
 export { MercatorProjection } from './projections/mercator/MercatorProjection.js';
 export { HiPSFITS } from './projections/hips/HiPSFITS.js';
 //# sourceMappingURL=index.js.map

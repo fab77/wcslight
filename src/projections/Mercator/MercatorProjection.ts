@@ -19,6 +19,10 @@ import { NumberType } from '../../model/NumberType.js';
 import { TilesRaDecList2 } from '../hips/TilesRaDecList2.js';
 import { ImagePixel } from '../hips/ImagePixel.js';
 import { FITS } from '../../model/FITS.js';
+
+import { APP_VERSION } from '../../Version.js'; // adjust path as needed
+
+
 // import { HiPSProp } from '../hips/HiPSProp.js';
 
 
@@ -119,59 +123,6 @@ export class MercatorProjection extends AbstractProjection {
         return physicalvalues;
     }
 
-    // computeHeader(pxsize: number, bitpix: number, scale: number = 1, zero: number = 0, blank: number = 0): FITSHeaderManager{
-    //     const header = new FITSHeaderManager()
-
-    //     header.insert(new FITSHeaderItem("SIMPLE", "'T'", ""));
-    //     header.insert(new FITSHeaderItem("BITPIX", bitpix, ""));
-    //     header.insert(new FITSHeaderItem("NAXIS", 2, ""));
-    //     header.insert(new FITSHeaderItem("NAXIS1", this.naxis1, ""));
-    //     header.insert(new FITSHeaderItem("NAXIS2", this.naxis2, ""));
-
-    //     header.insert(new FITSHeaderItem("BLANK", blank, ""));
-
-    //     header.insert(new FITSHeaderItem("BSCALE", scale, ""));
-
-    //     header.insert(new FITSHeaderItem("BZERO", zero, ""));
-
-    //     header.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
-    //     header.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
-
-    //     header.insert(new FITSHeaderItem("CDELT1", pxsize, "")); // ??? Pixel spacing along axis 1 ???
-    //     header.insert(new FITSHeaderItem("CDELT2", pxsize, "")); // ??? Pixel spacing along axis 2 ???
-    //     header.insert(new FITSHeaderItem("CRPIX1", this.naxis1 / 2, "")); // central/reference pixel i along naxis1
-    //     header.insert(new FITSHeaderItem("CRPIX2", this.naxis2 / 2, "")); // central/reference pixel j along naxis2
-    //     header.insert(new FITSHeaderItem("CRVAL1", this.craDeg, "")); // central/reference pixel RA
-    //     header.insert(new FITSHeaderItem("CRVAL2", this.cdecDeg, "")); // central/reference pixel Dec
-
-    //     let min = zero + scale * this._minphysicalval;
-    //     let max = zero + scale * this._maxphysicalval;
-    //     header.insert(new FITSHeaderItem("DATAMIN", min, "")); // min data value
-    //     header.insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
-
-
-    //     header.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
-    //     header.insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
-    //     header.insert(new FITSHeaderItem("END", "", ""));
-
-    //     return this.fitsheader;
-
-
-    // }
-
-    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
-    // static prepareHeader(radius: number, pixelAngSize: number,
-    //     bitpix: number, bscale?: number, bzero?: number
-    // ) {
-    //     if (!bscale) bscale = 1
-    //     if (!bzero) bzero = 0
-    //     const naxis1 = Math.ceil(2 * radius / pixelAngSize);
-    //     const naxis2 = naxis1
-    //     if (!bitpix) {
-    //         throw new Error("Bitpix not defined")
-    //     }
-    // }
-
 
     prepareHeader(pixelAngSize: number,
         BITPIX: number,
@@ -208,8 +159,8 @@ export class MercatorProjection extends AbstractProjection {
         fitsheader.insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
 
 
-        fitsheader.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
-        fitsheader.insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
+        fitsheader.insert(new FITSHeaderItem("ORIGIN", `WCSLight v.${APP_VERSION}`, ""));
+        fitsheader.insert(new FITSHeaderItem("COMMENT", "WCSLight developed by F.Giordano and Y.Ascasibar", ""));
         fitsheader.insert(new FITSHeaderItem("END", "", ""));
 
         return fitsheader;
@@ -217,61 +168,6 @@ export class MercatorProjection extends AbstractProjection {
     }
 
 
-    // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
-    // prepareFITSHeader(fitsHeaderParams: FITSHeaderManager): FITSHeaderManager {
-
-    //     this.fitsheader = new FITSHeaderManager();
-
-    //     this.fitsheader.insert(new FITSHeaderItem("NAXIS1", this.naxis1, ""));
-    //     this.fitsheader.insert(new FITSHeaderItem("NAXIS2", this.naxis2, ""));
-    //     this.fitsheader.insert(new FITSHeaderItem("NAXIS", 2, ""));
-
-    //     const bitpix = Number(fitsHeaderParams.findById("BITPIX")?.value)
-    //     this.fitsheader.insert(new FITSHeaderItem("BITPIX", bitpix, ""));
-
-    //     const simple = Number(fitsHeaderParams.findById("SIMPLE")?.value)
-    //     this.fitsheader.insert(new FITSHeaderItem("SIMPLE", simple, ""));
-
-    //     const blank = Number(fitsHeaderParams.findById("BLANK")?.value)
-    //     if (blank) {
-    //         this.fitsheader.insert(new FITSHeaderItem("BLANK", blank, ""));
-    //     }
-
-    //     let bscale = Number(fitsHeaderParams.findById("BSCALE")?.value)
-    //     if (!bscale) {
-    //         bscale = 1.0;
-    //     }
-    //     this.fitsheader.insert(new FITSHeaderItem("BSCALE", bscale, ""));
-
-    //     let bzero = Number(fitsHeaderParams.findById("BZERO")?.value)
-    //     if (!bzero) {
-    //         bzero = 0.0;
-    //     }
-    //     this.fitsheader.insert(new FITSHeaderItem("BZERO", bzero, ""));
-
-    //     this.fitsheader.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
-    //     this.fitsheader.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
-
-    //     this.fitsheader.insert(new FITSHeaderItem("CDELT1", this.pxsize, "")); // ??? Pixel spacing along axis 1 ???
-    //     this.fitsheader.insert(new FITSHeaderItem("CDELT2", this.pxsize, "")); // ??? Pixel spacing along axis 2 ???
-    //     this.fitsheader.insert(new FITSHeaderItem("CRPIX1", this.naxis1 / 2, "")); // central/reference pixel i along naxis1
-    //     this.fitsheader.insert(new FITSHeaderItem("CRPIX2", this.naxis2 / 2, "")); // central/reference pixel j along naxis2
-    //     this.fitsheader.insert(new FITSHeaderItem("CRVAL1", this.craDeg, "")); // central/reference pixel RA
-    //     this.fitsheader.insert(new FITSHeaderItem("CRVAL2", this.cdecDeg, "")); // central/reference pixel Dec
-
-    //     let min = bzero + bscale * this._minphysicalval;
-    //     let max = bzero + bscale * this._maxphysicalval;
-    //     this.fitsheader.insert(new FITSHeaderItem("DATAMIN", min, "")); // min data value
-    //     this.fitsheader.insert(new FITSHeaderItem("DATAMAX", max, "")); // max data value
-
-
-    //     this.fitsheader.insert(new FITSHeaderItem("ORIGIN", "'WCSLight v.0.x'", ""));
-    //     this.fitsheader.insert(new FITSHeaderItem("COMMENT", "", "'WCSLight v0.x developed by F.Giordano and Y.Ascasibar'"));
-    //     this.fitsheader.insert(new FITSHeaderItem("END", "", ""));
-
-    //     return this.fitsheader;
-
-    // }
     // TODO CHECK: there are 4 header related methods!!! prepareHeader, prepareFITSHeader, getCommonFitsHeaderParams and getFITSHeader
     getFITSHeader(): FITSHeaderManager {
         return this.fitsheader;
@@ -288,16 +184,6 @@ export class MercatorProjection extends AbstractProjection {
         }
         return header;
     }
-
-
-
-
-
-    // computeSquaredNaxes(d: number, ps: number): void {
-    //     this._naxis1 = Math.ceil(d / ps);
-    //     this._naxis2 = this._naxis1;
-    //     this._pxsize = ps;
-    // }
 
     computeNaxisWidth(radius: number, pxsize: number): number {
         return Math.ceil(2 * radius / pxsize);

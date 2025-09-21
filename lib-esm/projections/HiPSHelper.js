@@ -10,6 +10,13 @@ import { Healpix } from 'healpixjs';
 import { Pointing } from "healpixjs";
 import { Hploc } from "healpixjs";
 export class HiPSHelper {
+    // static pxXtile: number = 512; // TODO in some cases it is different
+    static DEFAULT_Naxis1_2 = 512;
+    // static RES_ORDER_0: number = 58.6 / HiPSHelper.pxXtile;
+    static RES_ORDER_0 = 58.6;
+    static H = 4;
+    static K = 3;
+    static THETAX = Hploc.asin((HiPSHelper.K - 1) / HiPSHelper.K);
     /**
      * Table 1 - ref paper HEALPix — a Framework for High Resolution Discretization,
      * and Fast Analysis of Data Distributed on the Sphere
@@ -77,19 +84,19 @@ export class HiPSHelper {
         return Math.floor(computedOrder);
     }
     static getHelpixByOrder(order) {
-        const nside = Math.pow(2, order);
+        const nside = 2 ** order;
         const healpix = new Healpix(nside);
         return healpix;
     }
     static getHelpixBypxAngSize(pixelAngulaSize, TILE_WIDTH) {
         const healpixOrder = HiPSHelper.computeOrder(pixelAngulaSize, TILE_WIDTH);
-        const nside = Math.pow(2, healpixOrder);
+        const nside = 2 ** healpixOrder;
         const healpix = new Healpix(nside);
         return healpix;
     }
     // based on "HiPS – Hierarchical Progressive Survey" IVOA recomandation (formula on table 5)
     static computePxAngularSize(pxTileWidth, order) {
-        const computedPxAngSizeRadiant = Math.sqrt(4 * Math.PI / (12 * Math.pow((pxTileWidth * (Math.pow(2, order))), 2)));
+        const computedPxAngSizeRadiant = Math.sqrt(4 * Math.PI / (12 * (pxTileWidth * (2 ** order)) ** 2));
         console.log(`Computing Pixel size with tile of ${pxTileWidth} pixels and order ${order}`);
         const rad2deg = 180 / Math.PI;
         const deg = computedPxAngSizeRadiant * rad2deg;
@@ -114,7 +121,7 @@ export class HiPSHelper {
     static computePxSize(order, pxXtile) {
         // TODO CHECK IT
         // let pxsize = 1 / (512 * 2 ** order) * Math.sqrt(Math.PI / 3);
-        let pxsize = 1 / (pxXtile * Math.pow(2, order)) * Math.sqrt(Math.PI / 3);
+        let pxsize = 1 / (pxXtile * 2 ** order) * Math.sqrt(Math.PI / 3);
         return pxsize;
     }
     // /**
@@ -171,11 +178,4 @@ export class HiPSHelper {
         return bbox;
     }
 }
-// static pxXtile: number = 512; // TODO in some cases it is different
-HiPSHelper.DEFAULT_Naxis1_2 = 512;
-// static RES_ORDER_0: number = 58.6 / HiPSHelper.pxXtile;
-HiPSHelper.RES_ORDER_0 = 58.6;
-HiPSHelper.H = 4;
-HiPSHelper.K = 3;
-HiPSHelper.THETAX = Hploc.asin((HiPSHelper.K - 1) / HiPSHelper.K);
 //# sourceMappingURL=HiPSHelper.js.map

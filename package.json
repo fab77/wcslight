@@ -52,7 +52,6 @@
         "shx": "^0.3.4"
     },
     "dependencies": {
-        "fs": "^0.0.1-security",
         "healpixjs": "^1.0.3",
         "jsfitsio": "file:../FITSParser"
     },

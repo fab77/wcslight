@@ -5,6 +5,11 @@ import { sphericalToCartesian, cartesianToSpherical, sphericalToAstro, astroToSp
 import { CoordsType } from './CoordsType.js';
 import { Config } from '../Config.js';
 export class Point {
+    astro;
+    // equatorial: EquatorialCoords;
+    // galactic: GalacticCoords;
+    spherical;
+    cartesian;
     constructor(in_type, unit, ...coords) {
         if (in_type == CoordsType.CARTESIAN) {
             this.cartesian.x = parseFloat(coords[0].toFixed(Config.MAX_DECIMALS));

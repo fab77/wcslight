@@ -3,7 +3,7 @@ import { Point } from "../../model/Point.js";
 import { Healpix } from "healpixjs";
 import { FITSHeaderManager } from "jsfitsio";
 import { TilesRaDecList2 } from "./TilesRaDecList2.js";
-export declare class HiPSProj {
+export declare class HiPSProjection {
     private baseURL;
     private healpix;
     private hipsProp;
@@ -17,4 +17,4 @@ export declare class HiPSProj {
     static convertToGalactic(radeclist: TilesRaDecList2): void;
     static getPixelValues(raDecList: TilesRaDecList2, baseHiPSURL: string, hipsOrder: number): Promise<TilesRaDecList2 | null>;
 }
-//# sourceMappingURL=HiPSProj.d.ts.map
+//# sourceMappingURL=HiPSProjection.d.ts.map

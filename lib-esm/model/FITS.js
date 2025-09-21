@@ -1,6 +1,7 @@
 export class FITS {
+    header;
+    payload = [];
     constructor(header, data) {
-        this.payload = [];
         this.header = header;
         this.setData(data);
     }

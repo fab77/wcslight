@@ -6,7 +6,6 @@
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
 import { Point } from './model/Point.js';
 import { AbstractProjection } from './projections/AbstractProjection.js';
 import { FITS } from './model/FITS.js';
@@ -32,7 +31,6 @@ export declare class WCSLight {
      * @returns {URL}
      */
     static generateFITS(fitsheader: any, fitsdata: any): string;
-    static getProjection(projectionName: string): MercatorProjection | null;
     static getAvaillableProjections(): string[];
 }
 //# sourceMappingURL=WCSLight.d.ts.map

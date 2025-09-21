@@ -1,8 +1,13 @@
 import { ParseUtils } from "jsfitsio";
 export class ImagePixel {
+    i;
+    j;
+    ra;
+    dec;
+    tileno;
+    uint8value = null;
+    value = null;
     constructor(a, b, tileno) {
-        this.uint8value = null;
-        this.value = null;
         this.tileno = tileno;
         // Heuristic: if `a` and `b` are integers, treat them as `i` and `j`
         if (Number.isInteger(a) && Number.isInteger(b)) {

@@ -1,14 +1,17 @@
 import { MinMaxValue } from "../MinMaxValue.js";
 import { RADecMinMaxCentral } from "../RADecMinMaxCentral.js";
 export class TilesRaDecList2 {
+    // hipsOrder: number
+    tileList;
+    imagePixelList;
+    minPixelValue = null;
+    maxPixelValue = null;
+    BZERO = null;
+    BSCALE = null;
+    BLANK = null;
     // constructor(hipsOrder: number) {
     //     this.hipsOrder = hipsOrder
     constructor() {
-        this.minPixelValue = null;
-        this.maxPixelValue = null;
-        this.BZERO = null;
-        this.BSCALE = null;
-        this.BLANK = null;
         this.tileList = [];
         this.imagePixelList = new Array();
     }

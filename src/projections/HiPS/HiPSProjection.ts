@@ -6,9 +6,7 @@ import { Healpix, Pointing, RangeSet } from "healpixjs";
 import { degToRad } from "../../model/Utils.js";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
 import { FITSHeaderManager, FITSParser } from "jsfitsio";
-import { TilesRaDecList } from "./TilesRaDecList.js";
 import { HiPSFITS } from "./HiPSFITS.js";
-// import { ImagePixel } from "../../model/ImagePixel.js";
 import { ImagePixel } from "./ImagePixel.js";
 import { HiPSHelper } from "../HiPSHelper.js";
 import { CoordsType } from "../../model/CoordsType.js";
@@ -18,7 +16,7 @@ import { TilesRaDecList2 } from "./TilesRaDecList2.js";
 
 
 
-export class HiPSProj {
+export class HiPSProjection {
 
     private baseURL: string
     private healpix: Healpix | null = null
@@ -99,7 +97,7 @@ export class HiPSProj {
             for (let j = 0; j < TILE_WIDTH; j++) {
                 for (let i = 0; i < TILE_WIDTH; i++) {
 
-                    const point: Point | null = HiPSProj.pix2world(i, j, tileno, healpix, TILE_WIDTH);
+                    const point: Point | null = HiPSProjection.pix2world(i, j, tileno, healpix, TILE_WIDTH);
 
                     if (point == null) continue
                     if (point.getAstro().raDeg < minra || point.getAstro().raDeg > maxra ||
@@ -173,7 +171,7 @@ export class HiPSProj {
         let prevTileno: number | null = null;
         /* if HiPS in galactic => convert the full list of (RA, Dec) to Galactic  (l, b) */
         if (isGalactic) {
-            HiPSProj.convertToGalactic(radeclist);
+            HiPSProjection.convertToGalactic(radeclist);
         }
         let xyGridProj: HEALPixXYSpace | null = null
 
@@ -200,7 +198,7 @@ export class HiPSProj {
             }
             radeclist.addTileNumber(tileno)
         });
-        let result = await HiPSProj.getPixelValues(radeclist, baseHiPSURL, hipsOrder)
+        let result = await HiPSProjection.getPixelValues(radeclist, baseHiPSURL, hipsOrder)
         return result
     }
 

@@ -4,6 +4,10 @@ import { NumberType } from "../../model/NumberType.js";
 import { Point } from "../../model/Point.js";
 import { radToDeg } from "../../model/Utils.js";
 export class HiPSIntermediateProj {
+    static RES_ORDER_0 = 58.6;
+    static H = 4;
+    static K = 3;
+    static THETAX = Hploc.asin((HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.K);
     static setupByTile(tileno, hp) {
         let xyGridProj = {
             "min_y": NaN,
@@ -162,8 +166,4 @@ export class HiPSIntermediateProj {
         return p;
     }
 }
-HiPSIntermediateProj.RES_ORDER_0 = 58.6;
-HiPSIntermediateProj.H = 4;
-HiPSIntermediateProj.K = 3;
-HiPSIntermediateProj.THETAX = Hploc.asin((HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.K);
 //# sourceMappingURL=HiPSIntermediateProj.js.map

@@ -1,4 +1,4 @@
 export class Config {
+    static MAX_DECIMALS = 6;
 }
-Config.MAX_DECIMALS = 6;
 //# sourceMappingURL=Config.js.map

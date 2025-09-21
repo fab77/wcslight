@@ -1,7 +1,12 @@
 export class HiPSProperties {
-    constructor() {
-        this.itemMap = new Map();
-    }
+    static TILE_WIDTH = "hips_tile_width";
+    static FRAME = "hips_frame";
+    static ORDER = "hips_order";
+    static GALACTIC = "galactic";
+    static SCALE = "hips_pixel_scale";
+    static BITPIX = "hips_pixel_bitpix";
+    itemMap = new Map();
+    constructor() { }
     addItem(key, value) {
         this.itemMap.set(key, value);
     }
@@ -12,10 +17,4 @@ export class HiPSProperties {
         return this.itemMap.get(HiPSProperties.FRAME) == HiPSProperties.GALACTIC;
     }
 }
-HiPSProperties.TILE_WIDTH = "hips_tile_width";
-HiPSProperties.FRAME = "hips_frame";
-HiPSProperties.ORDER = "hips_order";
-HiPSProperties.GALACTIC = "galactic";
-HiPSProperties.SCALE = "hips_pixel_scale";
-HiPSProperties.BITPIX = "hips_pixel_bitpix";
 //# sourceMappingURL=HiPSProperties.js.map

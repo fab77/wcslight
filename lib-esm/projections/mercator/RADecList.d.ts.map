@@ -1,1 +1,0 @@
-{"version":3,"file":"RADecList.d.ts","sourceRoot":"","sources":["../../../src/projections/mercator/RADecList.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,iBAAiB,CAAA;AAE5C,qBAAa,SAAS;IAElB,cAAc,EAAE,UAAU,EAAE,CAAA;;IAM5B,cAAc,CAAC,CAAC,EAAE,MAAM,EAAE,CAAC,EAAE,MAAM;IAInC,iBAAiB;IAIjB,aAAa,CAAC,KAAK,EAAE,UAAU;CAGhC"}
