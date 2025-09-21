@@ -1,0 +1,2 @@
+(self.webpackChunkwcslight=self.webpackChunkwcslight||[]).push([[64],{410:()=>{},64:(r,e,l)=>{"use strict";l.r(e),l.d(e,{getLocalFile:()=>a});var t=l(410);async function a(r){try{return await(0,t.readFile)(r)||null}catch(e){return console.error("Failed to read path:",r,"\nError:",e),null}}}}]);
+//# sourceMappingURL=64.js.map

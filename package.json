@@ -40,7 +40,7 @@
         "test:esm": "tsc -m es6 test.ts; node test.js"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=22.0.0"
     },
     "devDependencies": {
         "@types/node": "^18.19.76",
