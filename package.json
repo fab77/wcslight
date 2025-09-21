@@ -8,7 +8,7 @@
         "lightweight WCS for browser"
     ],
     "author": "Fabrizio Giordano (fab77)",
-    "license": "MIT",
+    "license": "GPL-3.0-only",
     "homepage": "https://github.com/fab77/wcslight#readme",
     "repository": {
         "type": "git",
@@ -53,7 +53,7 @@
     },
     "dependencies": {
         "healpixjs": "^1.0.3",
-        "jsfitsio": "file:../FITSParser"
+        "jsfitsio": "^1.2.2"
     },
     "browser": {
         "fs": false,
