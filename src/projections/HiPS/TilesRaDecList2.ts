@@ -9,6 +9,9 @@ export class TilesRaDecList2 {
     imagePixelList: ImagePixel[]
     minPixelValue: number | null = null
     maxPixelValue: number | null = null
+    BZERO: number | null = null
+    BSCALE: number | null = null
+    BLANK: number | null = null
 
 
     // constructor(hipsOrder: number) {
@@ -16,7 +19,30 @@ export class TilesRaDecList2 {
     constructor() {
         this.tileList = []
         this.imagePixelList = new Array<ImagePixel>()
+    }
 
+    setBZERO(BZERO: number) {
+        this.BZERO = BZERO
+    }
+
+    setBSCALE(BSCALE: number) {
+        this.BSCALE = BSCALE
+    }
+
+    setBLANK(BLANK: number) {
+        this.BLANK = BLANK
+    }
+
+    getBZERO() {
+        return this.BZERO
+    }
+
+    getBSCALE() {
+        return this.BSCALE
+    }
+
+    getBLANK() {
+        return this.BLANK
     }
 
     findImagePixel(i: number, j: number) {

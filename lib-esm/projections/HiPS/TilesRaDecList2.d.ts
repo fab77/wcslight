@@ -6,7 +6,16 @@ export declare class TilesRaDecList2 {
     imagePixelList: ImagePixel[];
     minPixelValue: number | null;
     maxPixelValue: number | null;
+    BZERO: number | null;
+    BSCALE: number | null;
+    BLANK: number | null;
     constructor();
+    setBZERO(BZERO: number): void;
+    setBSCALE(BSCALE: number): void;
+    setBLANK(BLANK: number): void;
+    getBZERO(): number | null;
+    getBSCALE(): number | null;
+    getBLANK(): number | null;
     findImagePixel(i: number, j: number): ImagePixel | null;
     getImagePixelsByTile(tileno: number): ImagePixel[];
     getImagePixelList(): ImagePixel[];

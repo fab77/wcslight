@@ -204,7 +204,8 @@ function testRefactoring2(){
     // radius = 0.5
     // pxsize = 0.001
     const hipsUrl = "https://alasky.cds.unistra.fr/DECaPS/DR1/g/"
-    const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 161.182571, -59.6974797)
+    // const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 161.182571, -59.6974797)
+    const center = new Point(CoordsType.ASTRO, NumberType.DEGREES, 160.752615, -64.4051202)
     const pxSize_deg = 0.001
     const radius_deg = 0.5
     let mercatorOutProj = new MercatorProjection()

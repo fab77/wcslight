@@ -209,7 +209,7 @@ export class HiPSProj {
                 console.log(`Identified source file ${fitsurl}`);
                 // TODO change the code below to used HiPSFITS and FITSList instead!
                 promises.push(FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
-                    var _a, _b, _c;
+                    var _a, _b, _c, _d, _e, _f;
                     if (fitsParsed) {
                         const bitpix = Number((_a = fitsParsed.header.findById("BITPIX")) === null || _a === void 0 ? void 0 : _a.value);
                         const naxis1 = Number((_b = fitsParsed.header.findById("NAXIS1")) === null || _b === void 0 ? void 0 : _b.value);
@@ -218,6 +218,37 @@ export class HiPSProj {
                             console.error(`bitpix: ${bitpix}, naxis1: ${naxis1}, naxis2: ${naxis2} for fits file ${fitsurl}`);
                             return;
                         }
+                        if (raDecList.getBLANK() == null) {
+                            const blankStr = (_d = fitsParsed.header.findById("BLANK")) === null || _d === void 0 ? void 0 : _d.value;
+                            if (blankStr) {
+                                const blank = Number(blankStr);
+                                if (!isNaN(blank)) {
+                                    raDecList.setBLANK(blank);
+                                }
+                            }
+                        }
+                        if (raDecList.getBSCALE() == null) {
+                            const bscaleStr = (_e = fitsParsed.header.findById("BSCALE")) === null || _e === void 0 ? void 0 : _e.value;
+                            if (bscaleStr) {
+                                const bscale = Number(bscaleStr);
+                                if (!isNaN(bscale)) {
+                                    raDecList.setBSCALE(bscale);
+                                }
+                            }
+                        }
+                        if (raDecList.getBZERO() == null) {
+                            const bzeroStr = (_f = fitsParsed.header.findById("BZERO")) === null || _f === void 0 ? void 0 : _f.value;
+                            if (bzeroStr) {
+                                const bzero = Number(bzeroStr);
+                                if (!isNaN(bzero)) {
+                                    raDecList.setBZERO(bzero);
+                                }
+                            }
+                        }
+                        // if (naxis1 * naxis2 * Math.abs(bitpix / 8) != fitsParsed.data.length) {
+                        //     console.error(`fits data length ${fitsParsed.data.length} does not match expected size ${naxis1 * naxis2 * Math.abs(bitpix / 8)} for fits file ${fitsurl}`)
+                        //     return
+                        // }
                         const bytesXelem = Math.abs(bitpix / 8);
                         raDecList.getImagePixelsByTile(hipstileno).forEach((imgpx) => {
                             const valueBytes = new Uint8Array(bytesXelem);
@@ -231,6 +262,15 @@ export class HiPSProj {
                 }));
             }
             yield Promise.all(promises);
+            if (raDecList.getBSCALE() == null) {
+                raDecList.setBSCALE(1);
+            }
+            if (raDecList.getBZERO() == null) {
+                raDecList.setBZERO(0);
+            }
+            if (raDecList.getBLANK() == null) {
+                raDecList.setBLANK(0);
+            }
             return raDecList;
         });
     }

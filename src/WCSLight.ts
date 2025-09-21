@@ -101,7 +101,7 @@ export class WCSLight {
         const hipsMaxOrder: number = hipsProp.getItem(HiPSProperties.ORDER)
         const hipsFrame = hipsProp.getItem(HiPSProperties.FRAME)
         const TILE_WIDTH = hipsProp.getItem(HiPSProperties.TILE_WIDTH)
-
+        
 
         let isGalactic: boolean = false
         if (hipsFrame.toLowerCase() == 'galactic') {
@@ -160,10 +160,13 @@ export class WCSLight {
             END                                                                             
          */
         // TODO BLANK, BZERO, BSCALE must be taken from the FITS tiles and not from the HiPS metadata.
-        const BLANK = 0.0
-        const BZERO = 0.0
-        const BSCALE = 1.0
+        const BLANK = raDecWithValues.getBLANK()
+        const BZERO = raDecWithValues.getBZERO()
+        const BSCALE = raDecWithValues.getBSCALE()
+        if (BLANK === null || BZERO === null || BSCALE === null) return null
+        console.log(`BLANK: ${BLANK}, BZERO: ${BZERO}, BSCALE: ${BSCALE}`)
 
+        // validate BITPIX
         const BITPIX: number = parseInt(hipsProp.getItem(HiPSProperties.BITPIX))
         if (BITPIX != 8 && BITPIX != 16 && BITPIX != 32 && BITPIX != -32 && BITPIX != -64) {
             throw new Error("unsupported BITPIX value")
@@ -179,7 +182,7 @@ export class WCSLight {
         
         console.log(fits)
 
-        const FITS_FILE_PATH = `./cartesian.fits`
+        const FITS_FILE_PATH = `./cartesian2.fits`
         const fitsParsed:FITSParsed = {header: fits.getHeader(), data: fits.getData()}
         FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH)
         return fits

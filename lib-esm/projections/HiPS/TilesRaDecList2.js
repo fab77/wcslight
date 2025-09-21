@@ -6,8 +6,29 @@ export class TilesRaDecList2 {
     constructor() {
         this.minPixelValue = null;
         this.maxPixelValue = null;
+        this.BZERO = null;
+        this.BSCALE = null;
+        this.BLANK = null;
         this.tileList = [];
         this.imagePixelList = new Array();
+    }
+    setBZERO(BZERO) {
+        this.BZERO = BZERO;
+    }
+    setBSCALE(BSCALE) {
+        this.BSCALE = BSCALE;
+    }
+    setBLANK(BLANK) {
+        this.BLANK = BLANK;
+    }
+    getBZERO() {
+        return this.BZERO;
+    }
+    getBSCALE() {
+        return this.BSCALE;
+    }
+    getBLANK() {
+        return this.BLANK;
     }
     findImagePixel(i, j) {
         return this.imagePixelList.find(p => p.i === i && p.j === j) || null;

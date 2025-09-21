@@ -165,7 +165,7 @@ export class HiPSProj {
 
     }
 
-    static async world2pix(radeclist: TilesRaDecList2, hipsOrder: number, isGalactic: boolean, TILE_WIDTH: number, baseHiPSURL: string): Promise<TilesRaDecList2 | null> {
+    static async world2pix(radeclist:  TilesRaDecList2, hipsOrder: number, isGalactic: boolean, TILE_WIDTH: number, baseHiPSURL: string): Promise<TilesRaDecList2 | null> {
 
         const healpix = HiPSHelper.getHelpixByOrder(hipsOrder)
 
@@ -257,6 +257,38 @@ export class HiPSProj {
                         console.error(`bitpix: ${bitpix}, naxis1: ${naxis1}, naxis2: ${naxis2} for fits file ${fitsurl}`)
                         return
                     }
+                    if (raDecList.getBLANK() == null) {
+                        const blankStr = fitsParsed.header.findById("BLANK")?.value
+                        if (blankStr) {
+                            const blank = Number(blankStr)
+                            if (!isNaN(blank)) {
+                                raDecList.setBLANK(blank)
+                            }
+                        }
+                    }
+                    if (raDecList.getBSCALE() == null) {
+                        const bscaleStr = fitsParsed.header.findById("BSCALE")?.value
+                        if (bscaleStr) {
+                            const bscale = Number(bscaleStr)
+                            if (!isNaN(bscale)) {
+                                raDecList.setBSCALE(bscale)
+                            }
+                        }
+                    }
+                    if (raDecList.getBZERO() == null) {
+                        const bzeroStr = fitsParsed.header.findById("BZERO")?.value
+                        if (bzeroStr) {
+                            const bzero = Number(bzeroStr)
+                            if (!isNaN(bzero)) {
+                                raDecList.setBZERO(bzero)
+                            }
+                        }
+                    }
+
+                    // if (naxis1 * naxis2 * Math.abs(bitpix / 8) != fitsParsed.data.length) {
+                    //     console.error(`fits data length ${fitsParsed.data.length} does not match expected size ${naxis1 * naxis2 * Math.abs(bitpix / 8)} for fits file ${fitsurl}`)
+                    //     return
+                    // }
 
                     const bytesXelem = Math.abs(bitpix / 8);
 
@@ -272,6 +304,15 @@ export class HiPSProj {
             }));
         }
         await Promise.all(promises);
+        if (raDecList.getBSCALE() == null) {
+            raDecList.setBSCALE(1)
+        }
+        if (raDecList.getBZERO() == null) {
+            raDecList.setBZERO(0)
+        }
+        if (raDecList.getBLANK() == null) {
+            raDecList.setBLANK(0)
+        }
         return raDecList
     }
 
