@@ -8101,6 +8101,14 @@ class HiPSProjection {
                     const bytesXelem = Math.abs(bitpix / 8);
                     raDecList.getImagePixelsByTile(hipstileno).forEach((imgpx) => {
                         const valueBytes = new Uint8Array(bytesXelem);
+                        if (fitsParsed.data[imgpx.getj()] == undefined) {
+                            console.warn(`j index ${imgpx.getj()} is outside the image range 0-${naxis2 - 1} for fits file ${fitsurl}`);
+                            return;
+                        }
+                        if ((imgpx.geti() * bytesXelem + bytesXelem) > fitsParsed.data[imgpx.getj()].length) {
+                            console.warn(`i index ${imgpx.geti()} is outside the image range 0-${(fitsParsed.data[imgpx.getj()].length / bytesXelem) - 1} for fits file ${fitsurl}`);
+                            return;
+                        }
                         for (let b = 0; b < bytesXelem; b++) {
                             valueBytes[b] = fitsParsed.data[imgpx.getj()][imgpx.geti() * bytesXelem + b];
                         }
