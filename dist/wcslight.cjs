@@ -4357,17 +4357,14 @@ class FITSWriter {
         }
         return dataBytes;
     }
-    static typedArrayToURL(fitsParsed) {
-        const fitsFile = this.createFITS(fitsParsed);
-        const blob = new Blob([fitsFile], { type: "application/fits" });
-        // console.log(`<html><body><img src='${URL.createObjectURL(b)}'</body></html>`);
-        const url = URL.createObjectURL(blob);
-        console.log(`Generated FITS file URL: ${url}`);
-        const revokeTimeout_sec = 10;
-        setTimeout(() => url, revokeTimeout_sec * 1000);
-        console.log(`Generated FITS will be available for ${revokeTimeout_sec} seconds: ${url}`);
-        return url;
-    }
+    // static typedArrayToURL(fitsParsed: FITSParsed): string {
+    //   const fitsFile = FITSWriter.createFITS(fitsParsed) as Uint8Array;
+    //   const blob = new Blob([fitsFile], { type: "application/fits" });
+    //   // console.log(`<html><body><img src='${URL.createObjectURL(b)}'</body></html>`);
+    //   const url = URL.createObjectURL(blob);
+    //   console.log(`Generated FITS file URL: ${url}`);
+    //   return url;
+    // }
     static writeFITSFile(fitsParsed, filePath) {
         const fitsFile = this.createFITS(fitsParsed);
         try {
@@ -4826,10 +4823,15 @@ class ParsePayload {
 
 class FITSParser {
     static async loadFITS(url) {
-        const uint8data = await FITSParser.getFile(url);
-        if (uint8data?.byteLength) {
-            const fits = FITSParser.processFits(uint8data);
-            return fits;
+        try {
+            const uint8data = await FITSParser.getFile(url);
+            if (uint8data?.byteLength) {
+                const fits = FITSParser.processFits(uint8data);
+                return fits;
+            }
+        }
+        catch (error) {
+            console.error("Error loading FITS file:", error);
         }
         return null;
     }
@@ -4839,13 +4841,26 @@ class FITSParser {
         if (headerFinalised == null) {
             return null;
         }
-        const dataOffset = 2880; // Assuming no additional header blocks
+        // Assuming no additional header blocks
+        const dataOffset = 2880;
         const payloadBuffer = new Uint8Array(rawdata.slice(dataOffset));
-        const payloadMatrix = FITSParser.createMatrix(payloadBuffer, header);
+        // --- pad payload to multiple of 2880 ---
+        const paddedPayload = padTo2880(payloadBuffer);
+        const payloadMatrix = FITSParser.createMatrix(paddedPayload, header);
         return {
             header: headerFinalised,
             data: payloadMatrix
         };
+        // helper
+        function padTo2880(buf) {
+            const remainder = buf.length % 2880;
+            if (remainder === 0)
+                return buf;
+            const padded = new Uint8Array(buf.length + (2880 - remainder));
+            padded.set(buf);
+            // the extra bytes are left as 0 (valid FITS padding)
+            return padded;
+        }
     }
     static createMatrix(payload, header) {
         const NAXIS1 = ParseHeader.getFITSItemValue(header, FITSHeaderManager.NAXIS1);
@@ -4861,9 +4876,9 @@ class FITSParser {
             throw new Error("BITPIX not defined.");
         }
         const bytesXelem = Math.abs(BITPIX / 8);
-        if (payload.length !== NAXIS1 * NAXIS2 * bytesXelem) {
-            throw new Error("Payload size does not match the expected matrix dimensions.");
-        }
+        // if (payload.length !== NAXIS1 * NAXIS2 * bytesXelem) {
+        //   throw new Error("Payload size does not match the expected matrix dimensions.");
+        // }
         // const matrix: Array<Uint8Array> = [];
         const matrix = [];
         for (let i = 0; i < NAXIS2; i++) {
@@ -4871,9 +4886,9 @@ class FITSParser {
         }
         return matrix;
     }
-    static generateFITSForWeb(fitsParsed) {
-        return FITSWriter.typedArrayToURL(fitsParsed);
-    }
+    // static generateFITSForWeb(fitsParsed: FITSParsed) {
+    //   return FITSWriter.typedArrayToURL(fitsParsed)
+    // }
     static saveFITSLocally(fitsParsed, path) {
         return FITSWriter.writeFITSFile(fitsParsed, path);
     }
@@ -5665,13 +5680,13 @@ class MercatorProjection extends AbstractProjection {
         return tilesRaDecList;
     }
     /** TODO !!! check and handle RA passing through 360-0 */
-    pix2world(i, j) {
+    pix2world(i, j, pxsize, minra, mindec) {
         let ra;
         let dec;
         // ra = i * this._stepra + this._minra;
         // dec = j * this._stepdec + this._mindec;
-        ra = i * this.pxsize + this.minra;
-        dec = j * this.pxsize + this.mindec;
+        ra = i * pxsize + minra;
+        dec = j * pxsize + mindec;
         let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
         return p;
         // return [ra, dec];
@@ -8136,15 +8151,15 @@ class HiPSProjection {
 class CutoutResult {
     fits;
     fitsused;
-    constructor(fits, fitsused) {
+    projection;
+    raDecMinMaxCentral;
+    pxsize;
+    constructor(fits, fitsused, projection, raDecMinMaxCentral, pxsize) {
         this.fits = fits;
         this.fitsused = fitsused;
-    }
-    get fit() {
-        return this.fits;
-    }
-    get fitsUsed() {
-        return this.fitsUsed;
+        this.projection = projection;
+        this.raDecMinMaxCentral = raDecMinMaxCentral;
+        this.pxsize = pxsize;
     }
 }
 
@@ -8241,6 +8256,8 @@ class WCSLight {
         if (!outRADecList)
             return null;
         const raDecMinMaxCentral = outRADecList.computeRADecMinMaxCentral();
+        if (raDecMinMaxCentral == null)
+            return null;
         const cRA = raDecMinMaxCentral?.getCentralRA();
         const cDec = raDecMinMaxCentral?.getCentralDec();
         if (cRA === undefined || cDec === undefined)
@@ -8298,7 +8315,7 @@ class WCSLight {
             const fitsurl = baseHiPSURL + "/Norder" + hipsOrder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
             hipsUsed.push(fitsurl);
         });
-        const result = new CutoutResult(fits, hipsUsed);
+        const result = new CutoutResult(fits, hipsUsed, outproj, raDecMinMaxCentral, pixelAngSize);
         return result;
     }
     static hipsFITSChangeProjection() {
@@ -8310,15 +8327,15 @@ class WCSLight {
      * @param {*} fitsdata
      * @returns {URL}
      */
-    static generateFITS(fitsheader, fitsdata) {
-        const fitsParsed = {
-            header: fitsheader,
-            data: fitsdata
-        };
-        // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
-        const blobUrl = FITSParser.generateFITSForWeb(fitsParsed);
-        return blobUrl;
-    }
+    // static generateFITS(fitsheader: any, fitsdata: any): string {
+    //     const fitsParsed = {
+    //         header: fitsheader,
+    //         data: fitsdata
+    //     }
+    //     // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
+    //     const blobUrl = FITSParser.generateFITSForWeb(fitsParsed);
+    //     return blobUrl;
+    // }
     static getAvaillableProjections() {
         return ["Mercator", "HiPS", "HEALPix"];
     }

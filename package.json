@@ -1,7 +1,7 @@
 {
     "name": "wcslight",
     "description": "WCS Javascript library.",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "keywords": [
         "WCS",
         "WCS light",
@@ -55,7 +55,7 @@
     },
     "dependencies": {
         "healpixjs": "^1.0.3",
-        "jsfitsio": "^1.2.2"
+        "jsfitsio": "^1.2.3"
     },
     "browser": {
         "fs": false,

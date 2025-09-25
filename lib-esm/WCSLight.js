@@ -90,6 +90,8 @@ export class WCSLight {
         if (!outRADecList)
             return null;
         const raDecMinMaxCentral = outRADecList.computeRADecMinMaxCentral();
+        if (raDecMinMaxCentral == null)
+            return null;
         const cRA = raDecMinMaxCentral?.getCentralRA();
         const cDec = raDecMinMaxCentral?.getCentralDec();
         if (cRA === undefined || cDec === undefined)
@@ -147,7 +149,7 @@ export class WCSLight {
             const fitsurl = baseHiPSURL + "/Norder" + hipsOrder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
             hipsUsed.push(fitsurl);
         });
-        const result = new CutoutResult(fits, hipsUsed);
+        const result = new CutoutResult(fits, hipsUsed, outproj, raDecMinMaxCentral, pixelAngSize);
         return result;
     }
     static hipsFITSChangeProjection() {
@@ -159,15 +161,15 @@ export class WCSLight {
      * @param {*} fitsdata
      * @returns {URL}
      */
-    static generateFITS(fitsheader, fitsdata) {
-        const fitsParsed = {
-            header: fitsheader,
-            data: fitsdata
-        };
-        // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
-        const blobUrl = FITSParser.generateFITSForWeb(fitsParsed);
-        return blobUrl;
-    }
+    // static generateFITS(fitsheader: any, fitsdata: any): string {
+    //     const fitsParsed = {
+    //         header: fitsheader,
+    //         data: fitsdata
+    //     }
+    //     // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
+    //     const blobUrl = FITSParser.generateFITSForWeb(fitsParsed);
+    //     return blobUrl;
+    // }
     static getAvaillableProjections() {
         return ["Mercator", "HiPS", "HEALPix"];
     }

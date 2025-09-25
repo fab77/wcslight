@@ -33,7 +33,7 @@ export abstract class AbstractProjection {
     pxsize: number, naxisWidth: number
   ): TilesRaDecList2;
 
-  public abstract pix2world(i: number, j: number): Point;
+  public abstract pix2world(i: number, j: number, pxsize: number, minra: number, mindec: number): Point;
 
   public abstract world2pix(radeclist: TilesRaDecList2): TilesRaDecList2;
 

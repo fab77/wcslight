@@ -1,15 +1,15 @@
 export class CutoutResult {
     fits;
     fitsused;
-    constructor(fits, fitsused) {
+    projection;
+    raDecMinMaxCentral;
+    pxsize;
+    constructor(fits, fitsused, projection, raDecMinMaxCentral, pxsize) {
         this.fits = fits;
         this.fitsused = fitsused;
-    }
-    get fit() {
-        return this.fits;
-    }
-    get fitsUsed() {
-        return this.fitsUsed;
+        this.projection = projection;
+        this.raDecMinMaxCentral = raDecMinMaxCentral;
+        this.pxsize = pxsize;
     }
 }
 //# sourceMappingURL=CutoutResult.js.map

@@ -30,7 +30,6 @@ export declare class WCSLight {
      * @param {*} fitsdata
      * @returns {URL}
      */
-    static generateFITS(fitsheader: any, fitsdata: any): string;
     static getAvaillableProjections(): string[];
 }
 //# sourceMappingURL=WCSLight.d.ts.map

@@ -229,14 +229,14 @@ export class MercatorProjection extends AbstractProjection {
 
 
     /** TODO !!! check and handle RA passing through 360-0 */
-    pix2world(i: number, j: number): Point {
+    pix2world(i: number, j: number, pxsize: number, minra: number, mindec: number): Point {
 
         let ra: number;
         let dec: number;
         // ra = i * this._stepra + this._minra;
         // dec = j * this._stepdec + this._mindec;
-        ra = i * this.pxsize + this.minra;
-        dec = j * this.pxsize + this.mindec;
+        ra = i * pxsize + minra;
+        dec = j * pxsize + mindec;
         let p = new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
         return p;
         // return [ra, dec];

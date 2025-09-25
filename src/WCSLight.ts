@@ -119,6 +119,7 @@ export class WCSLight {
 
 
         const raDecMinMaxCentral = outRADecList.computeRADecMinMaxCentral()
+        if (raDecMinMaxCentral == null) return null
         const cRA = raDecMinMaxCentral?.getCentralRA()
         const cDec = raDecMinMaxCentral?.getCentralDec()
         if (cRA === undefined || cDec === undefined) return null
@@ -186,7 +187,7 @@ export class WCSLight {
             hipsUsed.push(fitsurl)
         })
 
-        const result = new CutoutResult(fits, hipsUsed)
+        const result = new CutoutResult(fits, hipsUsed, outproj, raDecMinMaxCentral, pixelAngSize)
 
         return result
     }
@@ -203,15 +204,15 @@ export class WCSLight {
      * @param {*} fitsdata 
      * @returns {URL}
      */
-    static generateFITS(fitsheader: any, fitsdata: any): string {
-        const fitsParsed = {
-            header: fitsheader,
-            data: fitsdata
-        }
-        // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
-        const blobUrl = FITSParser.generateFITSForWeb(fitsParsed);
-        return blobUrl;
-    }
+    // static generateFITS(fitsheader: any, fitsdata: any): string {
+    //     const fitsParsed = {
+    //         header: fitsheader,
+    //         data: fitsdata
+    //     }
+    //     // const blobUrl = FITSParser.generateFITSForWeb(fitsheader, fitsdata);
+    //     const blobUrl = FITSParser.generateFITSForWeb(fitsParsed);
+    //     return blobUrl;
+    // }
 
 
     static getAvaillableProjections() {

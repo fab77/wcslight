@@ -15,7 +15,7 @@ export declare abstract class AbstractProjection {
     abstract getCommonFitsHeaderParams(): FITSHeaderManager;
     abstract setPixelValues(values: TilesRaDecList2, header: FITSHeaderManager): FITS;
     abstract getImageRADecList(center: Point, radius: number, pxsize: number, naxisWidth: number): TilesRaDecList2;
-    abstract pix2world(i: number, j: number): Point;
+    abstract pix2world(i: number, j: number, pxsize: number, minra: number, mindec: number): Point;
     abstract world2pix(radeclist: TilesRaDecList2): TilesRaDecList2;
     abstract computeNaxisWidth(radius: number, pxsize: number): number;
     abstract generateFITSFile(pixelAngSize: number, BITPIX: number, TILE_WIDTH: number, BLANK: number, BZERO: number, BSCALE: number, cRA: number, cDec: number, minValue: number, maxValue: number, raDecWithValues: TilesRaDecList2): FITS;

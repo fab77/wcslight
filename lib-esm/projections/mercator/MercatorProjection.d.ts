@@ -37,7 +37,7 @@ export declare class MercatorProjection extends AbstractProjection {
     computeNaxisWidth(radius: number, pxsize: number): number;
     getImageRADecList(center: Point, radius: number, pxsize: number, naxisWidth: number): TilesRaDecList2;
     /** TODO !!! check and handle RA passing through 360-0 */
-    pix2world(i: number, j: number): Point;
+    pix2world(i: number, j: number, pxsize: number, minra: number, mindec: number): Point;
     setPixelValues(raDecList: TilesRaDecList2, header: FITSHeaderManager): FITS;
     generateFITSFile(pixelAngSize: number, BITPIX: number, TILE_WIDTH: number, BLANK: number, BZERO: number, BSCALE: number, cRA: number, cDec: number, minValue: number, maxValue: number, raDecWithValues: TilesRaDecList2): FITS;
     world2pix(raDecList: TilesRaDecList2): TilesRaDecList2;
