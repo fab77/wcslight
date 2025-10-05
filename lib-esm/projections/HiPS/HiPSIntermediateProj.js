@@ -145,23 +145,6 @@ export class HiPSIntermediateProj {
         }
         return xy;
     }
-    // private static unwrapProjectedX(xs: number[], thresholdDeg = 120): number[] {
-    //     if (xs.length === 0) return xs;
-    //     const out = [xs[0]];
-    //     for (let k = 1; k < xs.length; k++) {
-    //         let curr = xs[k];
-    //         const prev = out[k - 1];
-    //         while (curr - prev > thresholdDeg) curr -= 360;
-    //         while (curr - prev < -thresholdDeg) curr += 360;
-    //         out.push(curr);
-    //     }
-    //     // close polygon consistency (last vs first)
-    //     const first = out[0], last = out[out.length - 1];
-    //     if (Math.abs(last - first) > thresholdDeg) {
-    //         out[out.length - 1] += (last > first) ? -360 : 360;
-    //     }
-    //     return out;
-    // }
     static world2intermediate(ac) {
         let x_grid = NaN;
         let y_grid = NaN;
