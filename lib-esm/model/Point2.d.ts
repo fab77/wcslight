@@ -10,9 +10,9 @@ export declare class Point {
     private astro;
     private spherical;
     private cartesian;
-    constructor(in_type: CoordsType, unit: NumberType, ...coords: number[]);
+    constructor(in_type: CoordsType, unit: NumberType, ...coords: Array<number>);
     getSpherical(): SphericalCoords;
     getAstro(): AstroCoords;
     getCartesian(): CartesianCoords;
 }
-//# sourceMappingURL=Point.d.ts.map
+//# sourceMappingURL=Point2.d.ts.map

@@ -88,27 +88,29 @@ export class HiPSProjection {
         // return tilesRaDecList
         return tilesRaDecList2;
     }
+    static _xyGridCache = new Map();
     static pix2world(i, j, tileno, healpix, TILE_WIDTH) {
-        let p = null;
-        if (healpix) {
-            const xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
-            let xy = HiPSIntermediateProj.pix2intermediate(i, j, xyGridProj, TILE_WIDTH, TILE_WIDTH);
-            // TODO CHECK BELOW before it was only which is supposed to be wrong since intermediate2world returns SphericalCoords, not AstroCoords
-            /**
-            let raDecDeg = HiPSHelper.intermediate2world(xy[0], xy[1]);
-            if (raDecDeg[0] > 360){
-                raDecDeg[0] -= 360;
-            }
-            return raDecDeg;
-            */
-            p = HiPSIntermediateProj.intermediate2world(xy[0], xy[1]);
-            // if (p.spherical.phiDeg > 360){
-            // 	sc.phiDeg -= 360;
-            // }
+        const order = healpix.order ?? Math.log2(healpix.nside); // adapt to your healpixjs
+        const cacheKey = `${order}:${tileno}`;
+        let xyGridProj = HiPSProjection._xyGridCache.get(cacheKey);
+        if (!xyGridProj) {
+            xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
+            const Dx = xyGridProj.max_x - xyGridProj.min_x;
+            const Dy = xyGridProj.max_y - xyGridProj.min_y;
+            console.log(`deltaX: ${Dx}, deltaY ${Dy} order ${order} tileno ${tileno}`);
+            HiPSProjection._xyGridCache.set(cacheKey, xyGridProj);
         }
-        else {
-            throw new Error("Healpix not set."); // or handle the issue as per your use case
-        }
+        if (!healpix)
+            return null;
+        // const xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
+        const [x, y] = HiPSIntermediateProj.pix2intermediate(i, j, xyGridProj, TILE_WIDTH, TILE_WIDTH);
+        if (!Number.isFinite(x) || !Number.isFinite(y))
+            return null;
+        const p = HiPSIntermediateProj.intermediate2world(x, y);
+        const ra = p.getAstro().raDeg;
+        const dec = p.getAstro().decDeg;
+        if (!Number.isFinite(ra) || !Number.isFinite(dec))
+            return null;
         return p;
     }
     // static getFITSFiles(inputValues: Uint8Array, tilesRaDecList: TilesRaDecList, fitsHeaderParams: FITSHeaderManager, pixelAngSize: number, TILE_WIDTH?: number): FITSList {

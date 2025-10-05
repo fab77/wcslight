@@ -1847,7 +1847,7 @@ var CoordsType;
 
 ;// CONCATENATED MODULE: ./src/Config.ts
 class Config {
-    static MAX_DECIMALS = 6;
+    static MAX_DECIMALS = 12;
 }
 
 ;// CONCATENATED MODULE: ./src/model/Point.ts
@@ -1857,79 +1857,67 @@ class Config {
 
 
 
+const wrap360 = (deg) => ((deg % 360) + 360) % 360;
+const clampDec = (deg) => Math.max(-90, Math.min(90, deg));
 class Point {
     astro;
-    // equatorial: EquatorialCoords;
-    // galactic: GalacticCoords;
     spherical;
     cartesian;
     constructor(in_type, unit, ...coords) {
-        if (in_type == CoordsType.CARTESIAN) {
-            this.cartesian.x = parseFloat(coords[0].toFixed(Config.MAX_DECIMALS));
-            this.cartesian.y = parseFloat(coords[1].toFixed(Config.MAX_DECIMALS));
-            this.cartesian.z = parseFloat(coords[2].toFixed(Config.MAX_DECIMALS));
+        if (in_type === CoordsType.CARTESIAN) {
+            // Initialise cartesian first (avoid writing into undefined)
+            this.cartesian = {
+                x: parseFloat(coords[0].toFixed(Config.MAX_DECIMALS)),
+                y: parseFloat(coords[1].toFixed(Config.MAX_DECIMALS)),
+                z: parseFloat(coords[2].toFixed(Config.MAX_DECIMALS))
+            };
             this.spherical = cartesianToSpherical(this.cartesian);
             this.astro = sphericalToAstro(this.spherical);
         }
-        else if (in_type == CoordsType.ASTRO) {
+        else if (in_type === CoordsType.ASTRO) {
             const c = fillAstro(coords[0], coords[1], unit);
-            if (c !== null) {
-                this.astro = c;
-                this.spherical = astroToSpherical(this.astro);
-                this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
-            }
+            if (!c)
+                throw new Error('Invalid Astro coordinates');
+            this.astro = c;
+            this.spherical = astroToSpherical(this.astro);
+            this.cartesian = sphericalToCartesian(this.spherical, 1.0);
         }
-        else if (in_type == CoordsType.SPHERICAL) {
+        else if (in_type === CoordsType.SPHERICAL) {
             const s = fillSpherical(coords[0], coords[1], unit);
-            if (s !== null) {
-                this.spherical = s;
-                this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
-                this.astro = sphericalToAstro(this.spherical);
-            }
+            if (!s)
+                throw new Error('Invalid Spherical coordinates');
+            this.spherical = s;
+            this.cartesian = sphericalToCartesian(this.spherical, 1.0);
+            this.astro = sphericalToAstro(this.spherical);
         }
         else {
-            console.error("CoordsType " + in_type + " not recognised.");
+            throw new Error(`CoordsType ${in_type} not recognised.`);
         }
-        if (this.spherical.phiDeg > 360) {
-            this.spherical.phiDeg -= 360;
+        // --- Normalise & keep systems consistent ---
+        // Robust wrap for RA/phi
+        const raWrapped = wrap360(this.astro.raDeg);
+        const phiWrapped = wrap360(this.spherical.phiDeg);
+        // Only reassign if changed (avoids unnecessary recompute)
+        if (raWrapped !== this.astro.raDeg) {
+            this.astro.raDeg = raWrapped;
+            // keep spherical/cartesian aligned with astro
+            this.spherical = astroToSpherical(this.astro);
+            this.cartesian = sphericalToCartesian(this.spherical, 1.0);
         }
-        if (this.astro.raDeg > 360) {
-            this.astro.raDeg -= 360;
+        if (phiWrapped !== this.spherical.phiDeg) {
+            this.spherical.phiDeg = phiWrapped;
+            // keep astro/cartesian aligned with spherical
+            this.cartesian = sphericalToCartesian(this.spherical, 1.0);
+            this.astro = sphericalToAstro(this.spherical);
+        }
+        // Clamp Dec defensively and re-sync if it changed
+        const decClamped = clampDec(this.astro.decDeg);
+        if (decClamped !== this.astro.decDeg) {
+            this.astro.decDeg = decClamped;
+            this.spherical = astroToSpherical(this.astro);
+            this.cartesian = sphericalToCartesian(this.spherical, 1.0);
         }
     }
-    // constructor(in_options: ICoordsFormat, in_type: CoordsType){
-    // 	if (in_type == CoordsType.CARTESIAN){
-    // 		this.cartesian.x = parseFloat((in_options as CartesianCoords).x.toFixed(global.MAX_DECIMALS));
-    // 		this.cartesian.y = parseFloat((in_options as CartesianCoords).y.toFixed(global.MAX_DECIMALS));
-    // 		this.cartesian.z = parseFloat((in_options as CartesianCoords).z.toFixed(global.MAX_DECIMALS));
-    // 		this.spherical = cartesianToSpherical(this.cartesian);
-    // 		this.astro = sphericalToAstro(this.spherical);
-    // 	}else if (in_type == CoordsType.ASTRO){
-    // 		if ((in_options as AstroCoords).raDeg && (in_options as AstroCoords).decDeg) {
-    // 			this.astro = radegDecdegToAstro((in_options as AstroCoords).raDeg,  (in_options as AstroCoords).decDeg );
-    // 		} else if ((in_options as AstroCoords).raRad && (in_options as AstroCoords).decRad) {
-    // 			this.astro = raradDecradToAstro((in_options as AstroCoords).raRad,  (in_options as AstroCoords).decRad );
-    // 		} else {
-    // 			console.error("AstroCoords incomplete "+ in_options );
-    // 			return null;
-    // 		}
-    // 		this.spherical = astroToSpherical(this.astro);
-    // 		this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
-    // 	}else if (in_type == CoordsType.SPHERICAL){
-    // 		if ((in_options as SphericalCoords).phiDeg && (in_options as SphericalCoords).thetaDeg) {
-    // 			this.spherical = phidegThetadegToSpherical((in_options as SphericalCoords).phiDeg,  (in_options as SphericalCoords).thetaDeg );
-    // 		} else if ((in_options as SphericalCoords).phiRad && (in_options as SphericalCoords).thetaRad) {
-    // 			this.spherical = phiradThetaradToSpherical((in_options as SphericalCoords).phiRad,  (in_options as SphericalCoords).thetaRad );
-    // 		} else {
-    // 			console.error("SphericalCoords incomplete "+ in_options );
-    // 			return null;
-    // 		}
-    // 		this.cartesian = sphericalToCartesian(this.spherical, 1.0); // TODO radius shall be taken from global (e.g. HiPS radius in case of HiPS)
-    // 		this.astro = sphericalToAstro(this.spherical);
-    // 	}else{
-    // 		console.error("CoordsType "+in_type+" not recognised.");
-    // 	}
-    // }
     getSpherical() {
         return this.spherical;
     }
@@ -2207,7 +2195,7 @@ class FITS {
 ;// CONCATENATED MODULE: ./src/Version.ts
 // // src/version.ts
 // let ver = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : undefined;
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.2.1";
 
 ;// CONCATENATED MODULE: ./src/projections/mercator/MercatorProjection.ts
 /**
@@ -3855,6 +3843,7 @@ class Healpix {
 
 //# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ./src/projections/hips/HiPSIntermediateProj.ts
+//HiPSIntermediateProj.ts
 
 
 
@@ -3865,58 +3854,159 @@ class HiPSIntermediateProj {
     static H = 4;
     static K = 3;
     static THETAX = Hploc.asin((HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.K);
+    // static setupByTile(tileno: number, hp: Healpix): HEALPixXYSpace {
+    //     let xyGridProj: HEALPixXYSpace = {
+    //         "min_y": NaN,
+    //         "max_y": NaN,
+    //         "min_x": NaN,
+    //         "max_x": NaN,
+    //         "gridPointsDeg": []
+    //     }
+    //     let cornersVec3 = hp.getBoundariesWithStep(tileno, 1);
+    //     let pointings = [];
+    //     for (let i = 0; i < cornersVec3.length; i++) {
+    //         pointings[i] = new Pointing(cornersVec3[i]);
+    //         if (i >= 1) {
+    //             let a = pointings[i - 1].phi;
+    //             let b = pointings[i].phi;
+    //             // case when RA is just crossing the origin (e.g. 357deg - 3deg)
+    //             if (Math.abs(a - b) > Math.PI) {
+    //                 if (pointings[i - 1].phi < pointings[i].phi) {
+    //                     pointings[i - 1].phi += 2 * Math.PI;
+    //                 } else {
+    //                     pointings[i].phi += 2 * Math.PI;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     for (let j = 0; j < pointings.length; j++) {
+    //         let coThetaRad = pointings[j].theta;
+    //         // HEALPix works with colatitude (0 North Pole, 180 South Pole)
+    //         // converting the colatitude in latitude (dec)
+    //         let decRad = Math.PI / 2 - coThetaRad;
+    //         let raRad = pointings[j].phi;
+    //         // projection on healpix grid
+    //         // let p = new Point(CoordsType.ASTRO, NumberType.RADIANS, raRad, decRad);
+    //         // let xyDeg = HiPSIntermediateProj.world2intermediate(p.getAstro());
+    //         // Build a tiny AstroCoords inline to avoid Point’s RA wrap:
+    //         const ac: AstroCoords = {
+    //             raDeg: radToDeg(raRad), raRad,
+    //             decDeg: radToDeg(decRad), decRad
+    //         } as AstroCoords;
+    //         const [xDeg, yDeg] = HiPSIntermediateProj.world2intermediate(ac);  // ✅ no RA re-wrap
+    //         xyGridProj.gridPointsDeg[j * 2] = xDeg;
+    //         xyGridProj.gridPointsDeg[j * 2 + 1] = yDeg;
+    //         if (isNaN(xyGridProj.max_y) || yDeg > xyGridProj.max_y) {
+    //             xyGridProj.max_y = yDeg;
+    //         }
+    //         if (isNaN(xyGridProj.min_y) || yDeg < xyGridProj.min_y) {
+    //             xyGridProj.min_y = yDeg;
+    //         }
+    //         if (isNaN(xyGridProj.max_x) || xDeg > xyGridProj.max_x) {
+    //             xyGridProj.max_x = xDeg;
+    //         }
+    //         if (isNaN(xyGridProj.min_x) || xDeg < xyGridProj.min_x) {
+    //             xyGridProj.min_x = xDeg;
+    //         }
+    //     }
+    //     return xyGridProj;
+    // }
     static setupByTile(tileno, hp) {
-        let xyGridProj = {
-            "min_y": NaN,
-            "max_y": NaN,
-            "min_x": NaN,
-            "max_x": NaN,
-            "gridPointsDeg": []
-        };
-        let cornersVec3 = hp.getBoundariesWithStep(tileno, 1);
-        let pointings = [];
-        for (let i = 0; i < cornersVec3.length; i++) {
-            pointings[i] = new Pointing(cornersVec3[i]);
+        const xy = { min_y: NaN, max_y: NaN, min_x: NaN, max_x: NaN, gridPointsDeg: [] };
+        const corners = hp.getBoundariesWithStep(tileno, 1);
+        const pts = [];
+        // 1) enforce φ continuity in radians
+        for (let i = 0; i < corners.length; i++) {
+            pts[i] = new Pointing(corners[i]);
             if (i >= 1) {
-                let a = pointings[i - 1].phi;
-                let b = pointings[i].phi;
-                // case when RA is just crossing the origin (e.g. 357deg - 3deg)
+                const a = pts[i - 1].phi, b = pts[i].phi;
                 if (Math.abs(a - b) > Math.PI) {
-                    if (pointings[i - 1].phi < pointings[i].phi) {
-                        pointings[i - 1].phi += 2 * Math.PI;
-                    }
-                    else {
-                        pointings[i].phi += 2 * Math.PI;
-                    }
+                    if (a < b)
+                        pts[i - 1].phi += 2 * Math.PI;
+                    else
+                        pts[i].phi += 2 * Math.PI;
                 }
             }
         }
-        for (let j = 0; j < pointings.length; j++) {
-            let coThetaRad = pointings[j].theta;
-            // HEALPix works with colatitude (0 North Pole, 180 South Pole)
-            // converting the colatitude in latitude (dec)
-            let decRad = Math.PI / 2 - coThetaRad;
-            let raRad = pointings[j].phi;
-            // projection on healpix grid
-            let p = new Point(CoordsType.ASTRO, NumberType.RADIANS, raRad, decRad);
-            let xyDeg = HiPSIntermediateProj.world2intermediate(p.getAstro());
-            xyGridProj.gridPointsDeg[j * 2] = xyDeg[0];
-            xyGridProj.gridPointsDeg[j * 2 + 1] = xyDeg[1];
-            if (isNaN(xyGridProj.max_y) || xyDeg[1] > xyGridProj.max_y) {
-                xyGridProj.max_y = xyDeg[1];
-            }
-            if (isNaN(xyGridProj.min_y) || xyDeg[1] < xyGridProj.min_y) {
-                xyGridProj.min_y = xyDeg[1];
-            }
-            if (isNaN(xyGridProj.max_x) || xyDeg[0] > xyGridProj.max_x) {
-                xyGridProj.max_x = xyDeg[0];
-            }
-            if (isNaN(xyGridProj.min_x) || xyDeg[0] < xyGridProj.min_x) {
-                xyGridProj.min_x = xyDeg[0];
+        // 2) project all boundary samples (WITHOUT Point to avoid RA wrap)
+        const xs = [];
+        const ys = [];
+        for (let j = 0; j < pts.length; j++) {
+            const coTheta = pts[j].theta;
+            const decRad = Math.PI / 2 - coTheta;
+            const raRad = pts[j].phi;
+            const ac = {
+                raDeg: radToDeg(raRad), raRad,
+                decDeg: radToDeg(decRad), decRad
+            };
+            const [xDeg, yDeg] = HiPSIntermediateProj.world2intermediate(ac);
+            xs.push(xDeg);
+            ys.push(yDeg);
+        }
+        // 3) Y-extrema are reliable: set min_y / max_y from them
+        let minY = +Infinity, maxY = -Infinity;
+        for (const y of ys) {
+            if (y < minY)
+                minY = y;
+            if (y > maxY)
+                maxY = y;
+        }
+        const yMid = 0.5 * (minY + maxY);
+        // 4) pick ONLY boundary samples near the mid-Y line to find left/right X
+        //    (this avoids sector-hop outliers in X)
+        const tol = Math.max(1e-6, 0.02 * (maxY - minY)); // 2% of Y span
+        let minX = +Infinity, maxX = -Infinity;
+        for (let k = 0; k < xs.length; k++) {
+            if (Math.abs(ys[k] - yMid) <= tol) {
+                if (xs[k] < minX)
+                    minX = xs[k];
+                if (xs[k] > maxX)
+                    maxX = xs[k];
             }
         }
-        return xyGridProj;
+        // Fallback: if the midline filter caught nothing (rare), use a filtered percentile
+        if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
+            const pairs = xs.map((x, i) => ({ x, y: ys[i] }))
+                .sort((a, b) => Math.abs(a.y - yMid) - Math.abs(b.y - yMid));
+            const take = Math.max(4, Math.floor(pairs.length * 0.1)); // closest 10%
+            minX = +Infinity;
+            maxX = -Infinity;
+            for (let i = 0; i < take; i++) {
+                const x = pairs[i].x;
+                if (x < minX)
+                    minX = x;
+                if (x > maxX)
+                    maxX = x;
+            }
+        }
+        // 5) Save the unmodified projected samples and envelope
+        xy.min_y = minY;
+        xy.max_y = maxY;
+        xy.min_x = minX;
+        xy.max_x = maxX;
+        for (let i = 0; i < xs.length; i++) {
+            xy.gridPointsDeg[2 * i] = xs[i];
+            xy.gridPointsDeg[2 * i + 1] = ys[i];
+        }
+        return xy;
     }
+    // private static unwrapProjectedX(xs: number[], thresholdDeg = 120): number[] {
+    //     if (xs.length === 0) return xs;
+    //     const out = [xs[0]];
+    //     for (let k = 1; k < xs.length; k++) {
+    //         let curr = xs[k];
+    //         const prev = out[k - 1];
+    //         while (curr - prev > thresholdDeg) curr -= 360;
+    //         while (curr - prev < -thresholdDeg) curr += 360;
+    //         out.push(curr);
+    //     }
+    //     // close polygon consistency (last vs first)
+    //     const first = out[0], last = out[out.length - 1];
+    //     if (Math.abs(last - first) > thresholdDeg) {
+    //         out[out.length - 1] += (last > first) ? -360 : 360;
+    //     }
+    //     return out;
+    // }
     static world2intermediate(ac) {
         let x_grid = NaN;
         let y_grid = NaN;
@@ -3941,24 +4031,42 @@ class HiPSIntermediateProj {
         return [x_grid, y_grid];
     }
     static intermediate2pix(x, y, xyGridProj, pxXtile) {
-        let xInterval = Math.abs(xyGridProj.max_x - xyGridProj.min_x);
-        let yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y);
-        let i_norm;
-        let j_norm;
-        if ((xyGridProj.min_x > 360 || xyGridProj.max_x > 360) && x < xyGridProj.min_x) {
-            i_norm = (x + 360 - xyGridProj.min_x) / xInterval;
+        const xInterval = Math.abs(xyGridProj.max_x - xyGridProj.min_x);
+        const yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y);
+        // let i_norm: number;
+        // let j_norm: number;
+        // if ((xyGridProj.min_x > 360 || xyGridProj.max_x > 360) && x < xyGridProj.min_x) {
+        //     i_norm = (x + 360 - xyGridProj.min_x) / xInterval;
+        // } else {
+        //     i_norm = (x - xyGridProj.min_x) / xInterval;
+        // }
+        // j_norm = (y - xyGridProj.min_y) / yInterval;
+        // let i = 0.5 - (i_norm - j_norm);
+        // let j = (i_norm + j_norm) - 0.5;
+        // // TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
+        // // pxXtile
+        // // i = Math.floor(i * HiPSHelper.DEFAULT_Naxis1_2);
+        // // j = Math.floor(j * HiPSHelper.DEFAULT_Naxis1_2);
+        // // return [i, HiPSHelper.DEFAULT_Naxis1_2 - j - 1];
+        // i = Math.floor(i * pxXtile);
+        // j = Math.floor(j * pxXtile);
+        // return [i, pxXtile - j - 1];
+        // Bring x into [min_x, max_x) considering 360° wrap
+        let xAdj = x;
+        if (xInterval < 360) {
+            if (xyGridProj.min_x < 0 && xAdj > xyGridProj.max_x)
+                xAdj -= 360;
+            if (xyGridProj.max_x > 360 && xAdj < xyGridProj.min_x)
+                xAdj += 360;
+            if (xAdj < xyGridProj.min_x)
+                xAdj += 360;
+            if (xAdj >= xyGridProj.max_x)
+                xAdj -= 360;
         }
-        else {
-            i_norm = (x - xyGridProj.min_x) / xInterval;
-        }
-        j_norm = (y - xyGridProj.min_y) / yInterval;
+        const i_norm = (xAdj - xyGridProj.min_x) / xInterval;
+        const j_norm = (y - xyGridProj.min_y) / yInterval;
         let i = 0.5 - (i_norm - j_norm);
         let j = (i_norm + j_norm) - 0.5;
-        // TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
-        // pxXtile
-        // i = Math.floor(i * HiPSHelper.DEFAULT_Naxis1_2);
-        // j = Math.floor(j * HiPSHelper.DEFAULT_Naxis1_2);
-        // return [i, HiPSHelper.DEFAULT_Naxis1_2 - j - 1];
         i = Math.floor(i * pxXtile);
         j = Math.floor(j * pxXtile);
         return [i, pxXtile - j - 1];
@@ -3990,36 +4098,56 @@ class HiPSIntermediateProj {
         const yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y) / 2.0;
         const yMean = (xyGridProj.max_y + xyGridProj.min_y) / 2.0;
         // bi-linear interpolation
-        const x = xyGridProj.max_x - xInterval * (i_norm + j_norm);
+        // const x = xyGridProj.max_x - xInterval * (i_norm + j_norm);
+        const x = xyGridProj.min_x + xInterval * (i_norm + j_norm);
         const y = yMean - yInterval * (j_norm - i_norm);
         return [x, y];
     }
+    // Ithink here I am passing RA and Dec becasue probably in the xyGridProj I am storing RA and Dec
     static intermediate2world(x, y) {
-        let phiDeg = NaN;
-        let thetaDeg = NaN;
-        const Yx = 90 * (HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.H;
+        let raDeg = NaN;
+        let decDeg = NaN;
+        const Yx = 90 * (HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.H; // = 45° for H=4,K=3
         if (Math.abs(y) <= Yx) { // equatorial belts
-            phiDeg = x;
-            thetaDeg = radToDeg(Math.asin((y * HiPSIntermediateProj.H) / (90 * HiPSIntermediateProj.K)));
+            // === Equatorial inverse ===
+            // φ = x ;  sin(Dec) = y * H / (90 K)
+            // raDeg = x
+            // decDeg = radToDeg(Math.asin((y * HiPSIntermediateProj.H) / (90 * HiPSIntermediateProj.K)))
+            raDeg = x;
+            const s = (y * HiPSIntermediateProj.H) / (90 * HiPSIntermediateProj.K);
+            const sClamped = Math.max(-1, Math.min(1, s));
+            decDeg = radToDeg(Math.asin(sClamped));
         }
-        else if (Math.abs(y) > Yx) { // polar regions
-            const sigma = (HiPSIntermediateProj.K + 1) / 2 - Math.abs(y * HiPSIntermediateProj.H) / 180;
-            const thetaRad = Hploc.asin(1 - (sigma * sigma) / HiPSIntermediateProj.K);
-            let w = 0; // omega
-            if (HiPSIntermediateProj.K % 2 !== 0 || thetaRad > 0) { // K odd or thetax > 0
-                w = 1;
-            }
+        else { // polar regions
+            // === Polar inverse ===
+            // σ = (K+1)/2 − |y| H / 180
+            const sigma = (HiPSIntermediateProj.K + 1) / 2 - (Math.abs(y) * HiPSIntermediateProj.H) / 180;
+            // Recover z = sin(Dec) with hemisphere from y
+            const zAbs = 1 - (sigma * sigma) / HiPSIntermediateProj.K; // |sin(Dec)|
+            const z = (y >= 0 ? 1 : -1) * zAbs;
+            const zClamped = Math.max(-1, Math.min(1, z));
+            decDeg = radToDeg(Math.asin(zClamped));
+            // const thetaRad = Hploc.asin(1 - (sigma * sigma) / HiPSIntermediateProj.K)
+            // let w = 0 // omega
+            // if (HiPSIntermediateProj.K % 2 !== 0 || thetaRad > 0) { // K odd or thetax > 0
+            //     w = 1
+            // }
+            // ω from hemisphere (use y), or K odd
+            const w = (HiPSIntermediateProj.K % 2 !== 0 || y > 0) ? 1 : 0; // ✅ use hemisphere from y
+            // Sector centre and RA
             const x_c = -180 + (2 * Math.floor((x + 180) * HiPSIntermediateProj.H / 360 + (1 - w) / 2) + w) * (180 / HiPSIntermediateProj.H);
-            phiDeg = x_c + (x - x_c) / sigma;
-            thetaDeg = radToDeg(thetaRad);
-            if (y <= 0) {
-                thetaDeg *= -1;
-            }
+            raDeg = x_c + (x - x_c) / (sigma || 1); // guard σ=0 at the pole
+            // Optional: wrap RA to [0,360)
+            raDeg = ((raDeg % 360) + 360) % 360;
+            // decDeg = radToDeg(thetaRad)
+            // if (y <= 0) {
+            //     decDeg *= -1
+            // }
         }
         // return [phiDeg, thetaDeg];
         // TODO CHECK THIS!
         // let p = new Point(CoordsType.SPHERICAL, NumberType.DEGREES, phiDeg, thetaDeg);
-        const p = new Point(CoordsType.ASTRO, NumberType.DEGREES, phiDeg, thetaDeg);
+        const p = new Point(CoordsType.ASTRO, NumberType.DEGREES, raDeg, decDeg);
         return p;
     }
 }
@@ -4665,27 +4793,29 @@ class HiPSProjection {
         // return tilesRaDecList
         return tilesRaDecList2;
     }
+    static _xyGridCache = new Map();
     static pix2world(i, j, tileno, healpix, TILE_WIDTH) {
-        let p = null;
-        if (healpix) {
-            const xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
-            let xy = HiPSIntermediateProj.pix2intermediate(i, j, xyGridProj, TILE_WIDTH, TILE_WIDTH);
-            // TODO CHECK BELOW before it was only which is supposed to be wrong since intermediate2world returns SphericalCoords, not AstroCoords
-            /**
-            let raDecDeg = HiPSHelper.intermediate2world(xy[0], xy[1]);
-            if (raDecDeg[0] > 360){
-                raDecDeg[0] -= 360;
-            }
-            return raDecDeg;
-            */
-            p = HiPSIntermediateProj.intermediate2world(xy[0], xy[1]);
-            // if (p.spherical.phiDeg > 360){
-            // 	sc.phiDeg -= 360;
-            // }
+        const order = healpix.order ?? Math.log2(healpix.nside); // adapt to your healpixjs
+        const cacheKey = `${order}:${tileno}`;
+        let xyGridProj = HiPSProjection._xyGridCache.get(cacheKey);
+        if (!xyGridProj) {
+            xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
+            const Dx = xyGridProj.max_x - xyGridProj.min_x;
+            const Dy = xyGridProj.max_y - xyGridProj.min_y;
+            console.log(`deltaX: ${Dx}, deltaY ${Dy} order ${order} tileno ${tileno}`);
+            HiPSProjection._xyGridCache.set(cacheKey, xyGridProj);
         }
-        else {
-            throw new Error("Healpix not set."); // or handle the issue as per your use case
-        }
+        if (!healpix)
+            return null;
+        // const xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
+        const [x, y] = HiPSIntermediateProj.pix2intermediate(i, j, xyGridProj, TILE_WIDTH, TILE_WIDTH);
+        if (!Number.isFinite(x) || !Number.isFinite(y))
+            return null;
+        const p = HiPSIntermediateProj.intermediate2world(x, y);
+        const ra = p.getAstro().raDeg;
+        const dec = p.getAstro().decDeg;
+        if (!Number.isFinite(ra) || !Number.isFinite(dec))
+            return null;
         return p;
     }
     // static getFITSFiles(inputValues: Uint8Array, tilesRaDecList: TilesRaDecList, fitsHeaderParams: FITSHeaderManager, pixelAngSize: number, TILE_WIDTH?: number): FITSList {

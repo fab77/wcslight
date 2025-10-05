@@ -11,6 +11,7 @@ export declare class HiPSProjection {
     init(): Promise<void>;
     private parsePropertyFile;
     static getImageRADecList(center: Point, radiusDeg: number, pixelAngSize: number, TILE_WIDTH: number): TilesRaDecList2 | null;
+    private static _xyGridCache;
     static pix2world(i: number, j: number, tileno: number, healpix: Healpix, TILE_WIDTH: number): Point | null;
     static getFITSFiles(tilesRaDecList: TilesRaDecList2, fitsHeaderParams: FITSHeaderManager, pixelAngSize: number, TILE_WIDTH: number): FITSList;
     static world2pix(radeclist: TilesRaDecList2, hipsOrder: number, isGalactic: boolean, TILE_WIDTH: number, baseHiPSURL: string): Promise<TilesRaDecList2 | null>;

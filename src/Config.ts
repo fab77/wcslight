@@ -1,3 +1,3 @@
 export class Config {
-    static MAX_DECIMALS:number = 6
+    static MAX_DECIMALS:number = 12
 }

@@ -115,30 +115,33 @@ export class HiPSProjection {
         return tilesRaDecList2
     }
 
-    static pix2world(i: number, j: number, tileno: number, healpix: Healpix, TILE_WIDTH: number): Point | null {
+    private static _xyGridCache: Map<string, HEALPixXYSpace> = new Map();
 
-        let p = null
-        if (healpix) {
-            const xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
-            let xy = HiPSIntermediateProj.pix2intermediate(i, j, xyGridProj, TILE_WIDTH, TILE_WIDTH);
-            // TODO CHECK BELOW before it was only which is supposed to be wrong since intermediate2world returns SphericalCoords, not AstroCoords
-            /**  
-            let raDecDeg = HiPSHelper.intermediate2world(xy[0], xy[1]);
-            if (raDecDeg[0] > 360){
-                raDecDeg[0] -= 360;
-            }
-            return raDecDeg;
-            */
-            p = HiPSIntermediateProj.intermediate2world(xy[0], xy[1]);
-            // if (p.spherical.phiDeg > 360){
-            // 	sc.phiDeg -= 360;
-            // }
-        } else {
-            throw new Error("Healpix not set."); // or handle the issue as per your use case
+
+    static pix2world(i: number, j: number, tileno: number, healpix: Healpix, TILE_WIDTH: number): Point | null {
+        const order = (healpix as any).order ?? Math.log2((healpix as any).nside); // adapt to your healpixjs
+        const cacheKey = `${order}:${tileno}`;
+
+        let xyGridProj = HiPSProjection._xyGridCache.get(cacheKey);
+        if (!xyGridProj) {
+            xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
+            const Dx = xyGridProj.max_x - xyGridProj.min_x
+            const Dy = xyGridProj.max_y - xyGridProj.min_y
+            console.log(`deltaX: ${Dx}, deltaY ${Dy} order ${order} tileno ${tileno}`)
+            HiPSProjection._xyGridCache.set(cacheKey, xyGridProj);
         }
 
+        if (!healpix) return null;
+        // const xyGridProj = HiPSIntermediateProj.setupByTile(tileno, healpix);
+        const [x, y] = HiPSIntermediateProj.pix2intermediate(i, j, xyGridProj, TILE_WIDTH, TILE_WIDTH);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+        const p = HiPSIntermediateProj.intermediate2world(x, y);
+        const ra = p.getAstro().raDeg;
+        const dec = p.getAstro().decDeg;
 
+        if (!Number.isFinite(ra) || !Number.isFinite(dec)) return null;
         return p;
+
     }
 
     // static getFITSFiles(inputValues: Uint8Array, tilesRaDecList: TilesRaDecList, fitsHeaderParams: FITSHeaderManager, pixelAngSize: number, TILE_WIDTH?: number): FITSList {
@@ -163,7 +166,7 @@ export class HiPSProjection {
 
     }
 
-    static async world2pix(radeclist:  TilesRaDecList2, hipsOrder: number, isGalactic: boolean, TILE_WIDTH: number, baseHiPSURL: string): Promise<TilesRaDecList2 | null> {
+    static async world2pix(radeclist: TilesRaDecList2, hipsOrder: number, isGalactic: boolean, TILE_WIDTH: number, baseHiPSURL: string): Promise<TilesRaDecList2 | null> {
 
         const healpix = HiPSHelper.getHelpixByOrder(hipsOrder)
 
@@ -210,7 +213,7 @@ export class HiPSProjection {
         const l_NCP = deg2rad * 122.930
         const d_NGP = deg2rad * 27.1284
         const a_NGP = deg2rad * 192.8595
-        radeclist.getImagePixelList().forEach( (imgpx) => {
+        radeclist.getImagePixelList().forEach((imgpx) => {
             const ra = imgpx.getRADeg()
             const dec = imgpx.getDecDeg()
             const ra_rad = deg2rad * ra
@@ -236,7 +239,7 @@ export class HiPSProjection {
 
         const tilesset = raDecList.getTilesList()
         let promises = [];
-        
+
         for (let hipstileno of tilesset) {
 
             const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
