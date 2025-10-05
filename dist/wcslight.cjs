@@ -4170,7 +4170,7 @@ __webpack_require__.d(__webpack_exports__, {
   HiPSHelper: () => (/* reexport */ HiPSHelper),
   HiPSProjection: () => (/* reexport */ HiPSProjection),
   ImagePixel: () => (/* reexport */ ImagePixel_ImagePixel),
-  MercatorProjection: () => (/* reexport */ MercatorProjection),
+  MercatorProjection: () => (/* reexport */ CartesianProjection),
   NumberType: () => (/* reexport */ NumberType),
   Point: () => (/* reexport */ Point),
   WCSLight: () => (/* reexport */ WCSLight),
@@ -5499,9 +5499,9 @@ class FITS {
 ;// CONCATENATED MODULE: ./src/Version.ts
 // // src/version.ts
 // let ver = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : undefined;
-const APP_VERSION = "1.2.1";
+const APP_VERSION = "1.2.0";
 
-;// CONCATENATED MODULE: ./src/projections/mercator/MercatorProjection.ts
+;// CONCATENATED MODULE: ./src/projections/cartesian/CartesianProjection.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -5520,7 +5520,7 @@ const APP_VERSION = "1.2.1";
 
  // adjust path as needed
 // import { HiPSProp } from '../hips/HiPSProp.js';
-class MercatorProjection extends AbstractProjection {
+class CartesianProjection extends AbstractProjection {
     minra;
     mindec;
     naxis1;
@@ -5535,8 +5535,6 @@ class MercatorProjection extends AbstractProjection {
     pxsize;
     pxsize1;
     pxsize2;
-    // _minphysicalval!: number;
-    // _maxphysicalval!: number;
     _wcsname;
     constructor() {
         super();
@@ -7294,23 +7292,6 @@ class HiPSIntermediateProj {
         }
         return xy;
     }
-    // private static unwrapProjectedX(xs: number[], thresholdDeg = 120): number[] {
-    //     if (xs.length === 0) return xs;
-    //     const out = [xs[0]];
-    //     for (let k = 1; k < xs.length; k++) {
-    //         let curr = xs[k];
-    //         const prev = out[k - 1];
-    //         while (curr - prev > thresholdDeg) curr -= 360;
-    //         while (curr - prev < -thresholdDeg) curr += 360;
-    //         out.push(curr);
-    //     }
-    //     // close polygon consistency (last vs first)
-    //     const first = out[0], last = out[out.length - 1];
-    //     if (Math.abs(last - first) > thresholdDeg) {
-    //         out[out.length - 1] += (last > first) ? -360 : 360;
-    //     }
-    //     return out;
-    // }
     static world2intermediate(ac) {
         let x_grid = NaN;
         let y_grid = NaN;
@@ -8293,6 +8274,806 @@ class CutoutResult {
     }
 }
 
+;// CONCATENATED MODULE: ./src/projections/mercator/MercatorPojection.ts
+/**
+ * Mercator projection (RA---MER / DEC--MER)
+ *
+ * Implements AbstractProjection with Mercator forward/inverse transforms.
+ * Vertical coordinate is Mercator-projected Y in degrees.
+ *
+ * @author Fabrizio
+ */
+
+
+
+
+
+
+
+
+
+const DEG2RAD = Math.PI / 180;
+const RAD2DEG = 180 / Math.PI;
+const MAX_MERC_LAT = 85.0;
+/** Forward Mercator: y(deg) from latitude φ(deg) */
+function mercatorYdegFromLatDeg(phiDeg) {
+    const clamped = Math.max(-MAX_MERC_LAT, Math.min(MAX_MERC_LAT, phiDeg));
+    const phi = clamped * DEG2RAD;
+    const y = Math.log(Math.tan(Math.PI / 4 + phi / 2));
+    return y * RAD2DEG;
+}
+/** Inverse Mercator: latitude φ(deg) from y(deg) */
+function latDegFromMercatorYdeg(yDeg) {
+    const y = yDeg * DEG2RAD;
+    const phi = 2 * Math.atan(Math.exp(y)) - Math.PI / 2;
+    const phiDeg = phi * RAD2DEG;
+    return Math.max(-MAX_MERC_LAT, Math.min(MAX_MERC_LAT, phiDeg));
+}
+class MercatorProjection extends AbstractProjection {
+    minra;
+    mindec; // actually stores minYdeg
+    naxis1;
+    naxis2;
+    bitpix;
+    fitsheader;
+    pxvalues;
+    CTYPE1 = "'RA---MER'";
+    CTYPE2 = "'DEC--MER'";
+    craDeg;
+    cdecDeg;
+    pxsize;
+    _wcsname;
+    constructor() {
+        super();
+        this._wcsname = "MER";
+        this.pxvalues = [];
+        this.fitsheader = new FITSHeaderManager();
+    }
+    /** ----------------------------------------------------------------------
+     * Required implementations of AbstractProjection
+     * ---------------------------------------------------------------------- */
+    async initFromFile(infile) {
+        const fits = await FITSParser.loadFITS(infile);
+        if (!fits)
+            throw new Error("FITS is null");
+        this.pxvalues = fits.data;
+        this.fitsheader = fits.header;
+        this.naxis1 = Number(fits.header.findById("NAXIS1")?.value);
+        this.naxis2 = Number(fits.header.findById("NAXIS2")?.value);
+        this.bitpix = Number(fits.header.findById("BITPIX")?.value);
+        this.craDeg = Number(fits.header.findById("CRVAL1")?.value);
+        this.cdecDeg = Number(fits.header.findById("CRVAL2")?.value);
+        const pxsize1 = Number(fits.header.findById("CDELT1")?.value);
+        const pxsize2 = Number(fits.header.findById("CDELT2")?.value);
+        if (pxsize1 !== pxsize2 || isNaN(pxsize1) || isNaN(pxsize2)) {
+            throw new Error("Invalid or inconsistent CDELT1/CDELT2");
+        }
+        this.pxsize = pxsize1;
+        this.minra = this.craDeg - this.pxsize * this.naxis1 / 2;
+        if (this.minra < 0)
+            this.minra += 360;
+        const cYdeg = mercatorYdegFromLatDeg(this.cdecDeg);
+        this.mindec = cYdeg - this.pxsize * this.naxis2 / 2;
+        return fits;
+    }
+    getBytePerValue() {
+        return Math.abs(this.bitpix / 8);
+    }
+    getFITSHeader() {
+        return this.fitsheader;
+    }
+    getCommonFitsHeaderParams() {
+        const header = new FITSHeaderManager();
+        for (const item of this.fitsheader.getItems()) {
+            const key = item.key;
+            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(key)) {
+                header.insert(new FITSHeaderItem(key, item.value, ""));
+            }
+        }
+        return header;
+    }
+    getImageRADecList(center, radius, pxsize, naxisWidth) {
+        const naxis1 = naxisWidth;
+        const naxis2 = naxisWidth;
+        let minra = center.getAstro().raDeg - radius;
+        if (minra < 0)
+            minra += 360;
+        const cYdeg = mercatorYdegFromLatDeg(center.getAstro().decDeg);
+        const minYdeg = cYdeg - radius;
+        const tilesRaDecList = new TilesRaDecList2();
+        for (let j = 0; j < naxis2; j++) {
+            const yDeg = minYdeg + j * pxsize;
+            const dec = latDegFromMercatorYdeg(yDeg);
+            for (let i = 0; i < naxis1; i++) {
+                let ra = minra + i * pxsize;
+                if (ra >= 360)
+                    ra -= 360;
+                tilesRaDecList.addImagePixel(new ImagePixel(ra, dec, undefined));
+            }
+        }
+        return tilesRaDecList;
+    }
+    computeNaxisWidth(radius, pxsize) {
+        return Math.ceil(2 * radius / pxsize);
+    }
+    pix2world(i, j, pxsize, minra, mindec) {
+        const ra = i * pxsize + minra;
+        const yDeg = j * pxsize + mindec;
+        const dec = latDegFromMercatorYdeg(yDeg);
+        return new Point(CoordsType.ASTRO, NumberType.DEGREES, ra, dec);
+    }
+    world2pix(raDecList) {
+        const bytesXvalue = this.getBytePerValue();
+        const blank = Number(this.fitsheader.findById("BLANK")?.value);
+        const blankBytes = ParseUtils.convertBlankToBytes(blank, bytesXvalue);
+        for (const imgPx of raDecList.getImagePixelList()) {
+            const ra = imgPx.getRADeg();
+            const dec = imgPx.getDecDeg();
+            const yDeg = mercatorYdegFromLatDeg(dec);
+            const i = Math.floor((ra - this.minra) / this.pxsize);
+            const j = Math.floor((yDeg - this.mindec) / this.pxsize);
+            imgPx.setij(i, j);
+            if (j < 0 || j >= this.naxis2 || i < 0 || i >= this.naxis1) {
+                imgPx.setValue(blankBytes, this.bitpix);
+            }
+            else {
+                const currentValue = this.pxvalues[j].slice(i * bytesXvalue, (i + 1) * bytesXvalue);
+                imgPx.setValue(currentValue, this.bitpix);
+            }
+            raDecList.setMinMaxValue(imgPx.getValue());
+        }
+        return raDecList;
+    }
+    // And keep generateFITSFile(...) returning a FITS instance (not an object literal)
+    generateFITSFile(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues) {
+        const header = this.prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue);
+        return this.setPixelValues(raDecWithValues, header);
+    }
+    /** ----------------------------------------------------------------------
+     * FITS header & data handling
+     * ---------------------------------------------------------------------- */
+    prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue) {
+        const fitsheader = new FITSHeaderManager();
+        fitsheader.insert(new FITSHeaderItem("SIMPLE", "T", ""));
+        fitsheader.insert(new FITSHeaderItem("NAXIS", 2, ""));
+        fitsheader.insert(new FITSHeaderItem("NAXIS1", TILE_WIDTH, ""));
+        fitsheader.insert(new FITSHeaderItem("NAXIS2", TILE_WIDTH, ""));
+        fitsheader.insert(new FITSHeaderItem("BITPIX", BITPIX, ""));
+        fitsheader.insert(new FITSHeaderItem("BLANK", BLANK, ""));
+        fitsheader.insert(new FITSHeaderItem("BSCALE", BSCALE, ""));
+        fitsheader.insert(new FITSHeaderItem("BZERO", BZERO, ""));
+        fitsheader.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+        fitsheader.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+        fitsheader.insert(new FITSHeaderItem("CDELT1", pixelAngSize, ""));
+        fitsheader.insert(new FITSHeaderItem("CDELT2", pixelAngSize, ""));
+        fitsheader.insert(new FITSHeaderItem("CRPIX1", TILE_WIDTH / 2, ""));
+        fitsheader.insert(new FITSHeaderItem("CRPIX2", TILE_WIDTH / 2, ""));
+        fitsheader.insert(new FITSHeaderItem("CRVAL1", cRA, ""));
+        fitsheader.insert(new FITSHeaderItem("CRVAL2", cDec, ""));
+        fitsheader.insert(new FITSHeaderItem("DATAMIN", BZERO + BSCALE * minValue, ""));
+        fitsheader.insert(new FITSHeaderItem("DATAMAX", BZERO + BSCALE * maxValue, ""));
+        fitsheader.insert(new FITSHeaderItem("ORIGIN", `WCSLight v.${APP_VERSION}`, ""));
+        fitsheader.insert(new FITSHeaderItem("COMMENT", "WCSLight developed by F.Giordano and Y.Ascasibar", ""));
+        fitsheader.insert(new FITSHeaderItem("END", "", ""));
+        return fitsheader;
+    }
+    setPixelValues(raDecList, header) {
+        const BITPIX = Number(header.findById("BITPIX")?.value);
+        if (!Number.isFinite(BITPIX))
+            throw new Error("BITPIX not found or invalid in header");
+        const bytesPerElem = Math.abs(BITPIX) / 8;
+        const width = Number(header.findById("NAXIS1")?.value);
+        const height = Number(header.findById("NAXIS2")?.value);
+        if (!Number.isFinite(width) || width <= 0)
+            throw new Error("NAXIS1 not found or invalid");
+        if (!Number.isFinite(height) || height <= 0)
+            throw new Error("NAXIS2 not found or invalid");
+        const BLANK = Number(header.findById("BLANK")?.value);
+        const blankBytes = ParseUtils.convertBlankToBytes(BLANK, bytesPerElem);
+        const pixels = raDecList.getImagePixelList();
+        if (pixels.length !== width * height) {
+            throw new Error(`Pixel count mismatch: got ${pixels.length}, expected ${width * height}`);
+        }
+        // Build Map<rowIndex, Array<Uint8Array>> where each inner array contains per-pixel byte arrays
+        const rowsMap = new Map();
+        for (let j = 0; j < height; j++) {
+            rowsMap.set(j, new Array(width));
+        }
+        for (let k = 0; k < pixels.length; k++) {
+            const row = Math.floor(k / width);
+            const col = k % width;
+            const u8 = pixels[k].getUint8Value();
+            // Ensure each cell gets its own buffer (avoid sharing the same BLANK buffer)
+            rowsMap.get(row)[col] = u8 ? u8 : new Uint8Array(blankBytes);
+        }
+        // Return your FITS class instance
+        return new FITS(header, rowsMap);
+    }
+}
+
+;// CONCATENATED MODULE: ./src/projections/sin/SinProjection.ts
+/**
+ * SIN (Slant/Orthographic) projection for FITS WCS ('SIN')
+ * CTYPE1='RA---SIN', CTYPE2='DEC--SIN'
+ *
+ * Piano in "gradi proiettivi": convertiamo (x_rad,y_rad) -> (x_deg,y_deg) con RAD2DEG
+ * così che CDELT resti in deg/pixel come nelle altre proiezioni.
+ */
+
+
+
+
+
+
+
+
+
+const SinProjection_DEG2RAD = Math.PI / 180;
+const SinProjection_RAD2DEG = 180 / Math.PI;
+const EPS = 1e-12;
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function normalize2pi(a) { a %= 2 * Math.PI; return a < 0 ? a + 2 * Math.PI : a; }
+function normalizePi(a) { a = (a + Math.PI) % (2 * Math.PI); return a < 0 ? a + 2 * Math.PI - Math.PI : a - Math.PI; }
+// —————————————————————————————————————————————————————————————
+// Rotazioni sfera: coord. centrate rispetto a (ra0,dec0)
+function toCenteredLonLat(ra, dec, ra0, dec0) {
+    const dlam = normalizePi(ra - ra0); // [-pi,pi)
+    const sinφ = Math.sin(dec), cosφ = Math.cos(dec);
+    const sinφ0 = Math.sin(dec0), cosφ0 = Math.cos(dec0);
+    const sinφp = clamp(sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(dlam), -1, 1);
+    const φp = Math.asin(sinφp);
+    const y = cosφ * Math.sin(dlam);
+    const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(dlam);
+    const λp = Math.atan2(y, x);
+    return { lam: λp, phi: φp };
+}
+function fromCenteredLonLat(lam, phi, ra0, dec0) {
+    const sinφ = Math.sin(phi), cosφ = Math.cos(phi);
+    const sinφ0 = Math.sin(dec0), cosφ0 = Math.cos(dec0);
+    const dec = Math.asin(clamp(sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(lam), -1, 1));
+    const y = Math.sin(lam) * cosφ;
+    const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(lam);
+    let ra = ra0 + Math.atan2(y, x);
+    ra = normalize2pi(ra);
+    return { ra, dec };
+}
+// —————————————————————————————————————————————————————————————
+// SIN (orthographic) forward/inverse su sfera unitaria (in radianti)
+// Forward: x = cosφ * sinΔλ;  y = cosφ0 * sinφ - sinφ0 * cosφ * cosΔλ
+function sinForward(lam, phi, phi0) {
+    const cφ = Math.cos(phi), sφ = Math.sin(phi);
+    const sφ0 = Math.sin(phi0), cφ0 = Math.cos(phi0);
+    const sΔ = Math.sin(lam), cΔ = Math.cos(lam);
+    const x = cφ * sΔ;
+    const y = cφ0 * sφ - sφ0 * cφ * cΔ;
+    // visibile se fronte emisfero: sinφ0 sinφ + cosφ0 cosφ cosΔλ >= 0
+    const cos_c = sφ0 * sφ + cφ0 * cφ * cΔ;
+    return { x, y, visible: cos_c >= -1e-14 }; // tolleranza numerica
+}
+// Inverse (azimuthal family con ρ = sin c -> c = asin ρ)
+function sinInverse(x, y, phi0) {
+    const ρ = Math.sqrt(x * x + y * y);
+    if (ρ > 1 + 1e-12)
+        return null; // fuori dal disco
+    const c = Math.asin(Math.min(1, ρ));
+    if (ρ < EPS) {
+        // centro proiezione
+        return { lam: 0, phi: phi0 };
+    }
+    const sc = Math.sin(c), cc = Math.cos(c);
+    const sφ0 = Math.sin(phi0), cφ0 = Math.cos(phi0);
+    const phi = Math.asin(clamp(cc * sφ0 + (y * sc * cφ0) / ρ, -1, 1));
+    const lam = Math.atan2(x * sc, ρ * cφ0 * cc - y * sφ0 * sc);
+    if (!Number.isFinite(lam) || !Number.isFinite(phi))
+        return null;
+    return { lam, phi };
+}
+// Conversioni piano <-> radianti (unità piano in gradi)
+function planeDegToRad(xdeg, ydeg) {
+    return { xr: xdeg * SinProjection_DEG2RAD, yr: ydeg * SinProjection_DEG2RAD };
+}
+function planeRadToDeg(xr, yr) {
+    return { xd: xr * SinProjection_RAD2DEG, yd: yr * SinProjection_RAD2DEG };
+}
+// —————————————————————————————————————————————————————————————
+class SinProjection extends AbstractProjection {
+    // minra/mindec = minXdeg/minYdeg del piano
+    minra;
+    mindec;
+    naxis1;
+    naxis2;
+    bitpix;
+    fitsheader;
+    pxvalues;
+    CTYPE1 = "'RA---SIN'";
+    CTYPE2 = "'DEC--SIN'";
+    craDeg; // CRVAL1
+    cdecDeg; // CRVAL2
+    pxsize; // CDELT (deg/pixel)
+    _wcsname;
+    constructor() {
+        super();
+        this._wcsname = "SIN";
+        this.pxvalues = [];
+        this.fitsheader = new FITSHeaderManager();
+    }
+    // ——— AbstractProjection: init ———
+    async initFromFile(infile) {
+        const fits = await FITSParser.loadFITS(infile);
+        if (!fits)
+            throw new Error("FITS is null");
+        this.pxvalues = fits.data;
+        this.fitsheader = fits.header;
+        this.naxis1 = Number(fits.header.findById("NAXIS1")?.value);
+        this.naxis2 = Number(fits.header.findById("NAXIS2")?.value);
+        this.bitpix = Number(fits.header.findById("BITPIX")?.value);
+        this.craDeg = Number(fits.header.findById("CRVAL1")?.value);
+        this.cdecDeg = Number(fits.header.findById("CRVAL2")?.value);
+        const pxsize1 = Number(fits.header.findById("CDELT1")?.value);
+        const pxsize2 = Number(fits.header.findById("CDELT2")?.value);
+        if (pxsize1 !== pxsize2 || isNaN(pxsize1) || isNaN(pxsize2)) {
+            throw new Error("Invalid or inconsistent CDELT1/CDELT2");
+        }
+        this.pxsize = pxsize1;
+        // Il centro proiezione (CRVAL1/2) mappa nell'origine (0,0) del piano SIN:
+        // impostiamo minX/minY simmetrici rispetto al centro.
+        this.minra = -this.pxsize * this.naxis1 / 2; // minXdeg
+        this.mindec = -this.pxsize * this.naxis2 / 2; // minYdeg
+        return fits;
+    }
+    getBytePerValue() {
+        return Math.abs(this.bitpix / 8);
+    }
+    // ——— AbstractProjection: header accessors ———
+    getFITSHeader() {
+        return this.fitsheader;
+    }
+    getCommonFitsHeaderParams() {
+        const header = new FITSHeaderManager();
+        for (const item of this.fitsheader.getItems()) {
+            const key = item.key;
+            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(key)) {
+                header.insert(new FITSHeaderItem(key, item.value, ""));
+            }
+        }
+        return header;
+    }
+    // ——— AbstractProjection: grid builder ———
+    getImageRADecList(center, radius, pxsize, naxisWidth) {
+        const naxis1 = naxisWidth;
+        const naxis2 = naxisWidth;
+        const ra0 = center.getAstro().raDeg * SinProjection_DEG2RAD;
+        const dec0 = center.getAstro().decDeg * SinProjection_DEG2RAD;
+        const minXdeg = -radius;
+        const minYdeg = -radius;
+        const list = new TilesRaDecList2();
+        for (let j = 0; j < naxis2; j++) {
+            const yDeg = minYdeg + j * pxsize;
+            const { yr } = planeDegToRad(0, yDeg);
+            for (let i = 0; i < naxis1; i++) {
+                const xDeg = minXdeg + i * pxsize;
+                const { xr } = planeDegToRad(xDeg, 0);
+                const inv = sinInverse(xr, yr, dec0);
+                if (!inv) {
+                    list.addImagePixel(new ImagePixel(Number.NaN, Number.NaN, undefined));
+                    continue;
+                }
+                const { lam, phi } = inv; // coord. centrate
+                const { ra, dec } = fromCenteredLonLat(lam, phi, ra0, dec0);
+                list.addImagePixel(new ImagePixel(ra * SinProjection_RAD2DEG, dec * SinProjection_RAD2DEG, undefined));
+            }
+        }
+        return list;
+    }
+    computeNaxisWidth(radius, pxsize) {
+        return Math.ceil(2 * radius / pxsize);
+    }
+    // ——— AbstractProjection: pixel <-> world ———
+    pix2world(i, j, pxsize, minPlaneXdeg, minPlaneYdeg) {
+        const xDeg = i * pxsize + minPlaneXdeg;
+        const yDeg = j * pxsize + minPlaneYdeg;
+        const { xr, yr } = planeDegToRad(xDeg, yDeg);
+        const ra0 = this.craDeg * SinProjection_DEG2RAD;
+        const dec0 = this.cdecDeg * SinProjection_DEG2RAD;
+        const inv = sinInverse(xr, yr, dec0);
+        if (!inv)
+            return new Point(CoordsType.ASTRO, NumberType.DEGREES, Number.NaN, Number.NaN);
+        const { lam, phi } = inv;
+        const { ra, dec } = fromCenteredLonLat(lam, phi, ra0, dec0);
+        return new Point(CoordsType.ASTRO, NumberType.DEGREES, ra * SinProjection_RAD2DEG, dec * SinProjection_RAD2DEG);
+    }
+    world2pix(raDecList) {
+        const bytesXvalue = this.getBytePerValue();
+        const blank = Number(this.fitsheader.findById("BLANK")?.value);
+        const blankBytes = ParseUtils.convertBlankToBytes(blank, bytesXvalue);
+        const ra0 = this.craDeg * SinProjection_DEG2RAD;
+        const dec0 = this.cdecDeg * SinProjection_DEG2RAD;
+        for (const px of raDecList.getImagePixelList()) {
+            const raDeg = px.getRADeg();
+            const decDeg = px.getDecDeg();
+            if (!Number.isFinite(raDeg) || !Number.isFinite(decDeg)) {
+                px.setij(-1, -1);
+                px.setValue(blankBytes, this.bitpix);
+                continue;
+            }
+            const { lam, phi } = toCenteredLonLat(raDeg * SinProjection_DEG2RAD, decDeg * SinProjection_DEG2RAD, ra0, dec0);
+            const fwd = sinForward(lam, phi, dec0);
+            if (!fwd.visible) {
+                px.setij(-1, -1);
+                px.setValue(blankBytes, this.bitpix);
+                continue;
+            }
+            const { xd, yd } = planeRadToDeg(fwd.x, fwd.y);
+            const i = Math.floor((xd - this.minra) / this.pxsize);
+            const j = Math.floor((yd - this.mindec) / this.pxsize);
+            px.setij(i, j);
+            if (j < 0 || j >= this.naxis2 || i < 0 || i >= this.naxis1) {
+                px.setValue(blankBytes, this.bitpix);
+            }
+            else {
+                const row = this.pxvalues[j];
+                const slice = row.slice(i * bytesXvalue, (i + 1) * bytesXvalue);
+                px.setValue(slice, this.bitpix);
+            }
+            raDecList.setMinMaxValue(px.getValue());
+        }
+        return raDecList;
+    }
+    // ——— FITS writer ———
+    generateFITSFile(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues) {
+        const header = this.prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue);
+        return this.setPixelValues(raDecWithValues, header);
+    }
+    prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue) {
+        const h = new FITSHeaderManager();
+        h.insert(new FITSHeaderItem("SIMPLE", "T", ""));
+        h.insert(new FITSHeaderItem("NAXIS", 2, ""));
+        h.insert(new FITSHeaderItem("NAXIS1", TILE_WIDTH, ""));
+        h.insert(new FITSHeaderItem("NAXIS2", TILE_WIDTH, ""));
+        h.insert(new FITSHeaderItem("BITPIX", BITPIX, ""));
+        h.insert(new FITSHeaderItem("BLANK", BLANK, ""));
+        h.insert(new FITSHeaderItem("BSCALE", BSCALE, ""));
+        h.insert(new FITSHeaderItem("BZERO", BZERO, ""));
+        h.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+        h.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+        h.insert(new FITSHeaderItem("CDELT1", pixelAngSize, ""));
+        h.insert(new FITSHeaderItem("CDELT2", pixelAngSize, ""));
+        h.insert(new FITSHeaderItem("CRPIX1", TILE_WIDTH / 2, ""));
+        h.insert(new FITSHeaderItem("CRPIX2", TILE_WIDTH / 2, ""));
+        h.insert(new FITSHeaderItem("CRVAL1", cRA, ""));
+        h.insert(new FITSHeaderItem("CRVAL2", cDec, ""));
+        h.insert(new FITSHeaderItem("DATAMIN", BZERO + BSCALE * minValue, ""));
+        h.insert(new FITSHeaderItem("DATAMAX", BZERO + BSCALE * maxValue, ""));
+        h.insert(new FITSHeaderItem("ORIGIN", `WCSLight v.${APP_VERSION}`, ""));
+        h.insert(new FITSHeaderItem("COMMENT", "WCSLight developed by F.Giordano and Y.Ascasibar", ""));
+        h.insert(new FITSHeaderItem("END", "", ""));
+        return h;
+    }
+    setPixelValues(raDecList, header) {
+        const BITPIX = Number(header.findById("BITPIX")?.value);
+        if (!Number.isFinite(BITPIX))
+            throw new Error("BITPIX not found or invalid");
+        const bytesPerElem = Math.abs(BITPIX) / 8;
+        const width = Number(header.findById("NAXIS1")?.value);
+        const height = Number(header.findById("NAXIS2")?.value);
+        if (!Number.isFinite(width) || width <= 0)
+            throw new Error("NAXIS1 not found or invalid");
+        if (!Number.isFinite(height) || height <= 0)
+            throw new Error("NAXIS2 not found or invalid");
+        const BLANK = Number(header.findById("BLANK")?.value);
+        const blankBytes = ParseUtils.convertBlankToBytes(BLANK, bytesPerElem);
+        const pixels = raDecList.getImagePixelList();
+        if (pixels.length !== width * height) {
+            throw new Error(`Pixel count mismatch: got ${pixels.length}, expected ${width * height}`);
+        }
+        const rows = new Map();
+        for (let j = 0; j < height; j++)
+            rows.set(j, new Array(width));
+        for (let k = 0; k < pixels.length; k++) {
+            const row = Math.floor(k / width);
+            const col = k % width;
+            const u8 = pixels[k].getUint8Value();
+            rows.get(row)[col] = u8 ? u8 : new Uint8Array(blankBytes);
+        }
+        return new FITS(header, rows);
+    }
+}
+
+;// CONCATENATED MODULE: ./src/projections/aitoff/AitoffProjection.ts
+/**
+ * Aitoff (Hammer–Aitoff) projection for FITS WCS ('AIT')
+ * CTYPE1='RA---AIT', CTYPE2='DEC--AIT'
+ *
+ * The pixel plane is in "projected degrees": we convert between
+ * (RA,Dec) <-> (x_deg,y_deg) where x_deg,y_deg are the Hammer–Aitoff
+ * projected coordinates scaled to degrees so that CDELT remains deg/pixel.
+ */
+
+
+
+
+
+
+
+
+
+const AitoffProjection_DEG2RAD = Math.PI / 180;
+const AitoffProjection_RAD2DEG = 180 / Math.PI;
+// ───────────────────────────────────────────────────────────────────────────────
+// Spherical helpers (all angles in *radians* here)
+// Center-relative long/lat (λ', φ') from absolute (α, δ) and center (α0, δ0)
+function AitoffProjection_toCenteredLonLat(ra, dec, ra0, dec0) {
+    const dlam = AitoffProjection_normalizePi(ra - ra0); // [-pi, pi)
+    const sinφ = Math.sin(dec), cosφ = Math.cos(dec);
+    const sinφ0 = Math.sin(dec0), cosφ0 = Math.cos(dec0);
+    const sinφp = sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(dlam);
+    const φp = Math.asin(AitoffProjection_clamp(sinφp, -1, 1));
+    const y = cosφ * Math.sin(dlam);
+    const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(dlam);
+    const λp = Math.atan2(y, x); // centered longitude
+    return { lam: λp, phi: φp };
+}
+// Absolute (α, δ) from centered (λ', φ') and center (α0, δ0)
+function AitoffProjection_fromCenteredLonLat(lam, phi, ra0, dec0) {
+    const sinφ = Math.sin(phi), cosφ = Math.cos(phi);
+    const sinφ0 = Math.sin(dec0), cosφ0 = Math.cos(dec0);
+    const dec = Math.asin(AitoffProjection_clamp(sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(lam), -1, 1));
+    const y = Math.sin(lam) * cosφ;
+    const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(lam);
+    let ra = ra0 + Math.atan2(y, x);
+    ra = AitoffProjection_normalize2pi(ra);
+    return { ra, dec };
+}
+function AitoffProjection_clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function AitoffProjection_normalize2pi(a) { a %= 2 * Math.PI; return a < 0 ? a + 2 * Math.PI : a; }
+function AitoffProjection_normalizePi(a) { a = (a + Math.PI) % (2 * Math.PI); return a < 0 ? a + 2 * Math.PI - Math.PI : a - Math.PI; }
+// ───────────────────────────────────────────────────────────────────────────────
+// Hammer–Aitoff forward/inverse (λ', φ') <-> (x, y)
+// Uses the canonical √2 scaling. x,y returned in *radians-of-radius*.
+function aitForward(lam, phi) {
+    // D = sqrt(1 + cosφ cos(λ/2))
+    const cφ = Math.cos(phi), sφ = Math.sin(phi);
+    const half = lam / 2;
+    const D = Math.sqrt(1 + cφ * Math.cos(half));
+    if (D === 0)
+        return { x: 0, y: 0 };
+    const x = (2 * Math.SQRT2 * cφ * Math.sin(half)) / D;
+    const y = (Math.SQRT2 * sφ) / D;
+    return { x, y };
+}
+function aitInverse(x, y) {
+    // Inverse per Snyder/WCS:
+    // z = sqrt(1 - (x^2 + y^2)/8)
+    const r2 = x * x + y * y;
+    const z = Math.sqrt(Math.max(0, 1 - r2 / 8));
+    // φ' = arcsin( y * z * sqrt(2) )
+    const sinφ = AitoffProjection_clamp(y * z * Math.SQRT2, -1, 1);
+    const phi = Math.asin(sinφ);
+    // λ' = 2 * atan2( z * x, 2 z^2 - 1 )
+    const lam = 2 * Math.atan2(z * x, 2 * z * z - 1);
+    if (!Number.isFinite(lam) || !Number.isFinite(phi))
+        return null;
+    return { lam, phi };
+}
+// Convert AIT plane (x_deg,y_deg) <-> radians for the math above
+function AitoffProjection_planeDegToRad(xdeg, ydeg) {
+    return { xr: xdeg * AitoffProjection_DEG2RAD, yr: ydeg * AitoffProjection_DEG2RAD };
+}
+function AitoffProjection_planeRadToDeg(xr, yr) {
+    return { xd: xr * AitoffProjection_RAD2DEG, yd: yr * AitoffProjection_RAD2DEG };
+}
+// ───────────────────────────────────────────────────────────────────────────────
+class AitoffProjection extends AbstractProjection {
+    // Note: minra/mindec store minXdeg/minYdeg of the projected plane
+    minra;
+    mindec;
+    naxis1;
+    naxis2;
+    bitpix;
+    fitsheader;
+    pxvalues;
+    CTYPE1 = "'RA---AIT'";
+    CTYPE2 = "'DEC--AIT'";
+    craDeg; // CRVAL1 center RA (deg)
+    cdecDeg; // CRVAL2 center Dec (deg)
+    pxsize; // CDELT (deg/pixel)
+    _wcsname;
+    constructor() {
+        super();
+        this._wcsname = "AIT";
+        this.pxvalues = [];
+        this.fitsheader = new FITSHeaderManager();
+    }
+    // ── AbstractProjection: init ────────────────────────────────────────────────
+    async initFromFile(infile) {
+        const fits = await FITSParser.loadFITS(infile);
+        if (!fits)
+            throw new Error("FITS is null");
+        this.pxvalues = fits.data;
+        this.fitsheader = fits.header;
+        this.naxis1 = Number(fits.header.findById("NAXIS1")?.value);
+        this.naxis2 = Number(fits.header.findById("NAXIS2")?.value);
+        this.bitpix = Number(fits.header.findById("BITPIX")?.value);
+        this.craDeg = Number(fits.header.findById("CRVAL1")?.value);
+        this.cdecDeg = Number(fits.header.findById("CRVAL2")?.value);
+        const pxsize1 = Number(fits.header.findById("CDELT1")?.value);
+        const pxsize2 = Number(fits.header.findById("CDELT2")?.value);
+        if (pxsize1 !== pxsize2 || isNaN(pxsize1) || isNaN(pxsize2)) {
+            throw new Error("Invalid or inconsistent CDELT1/CDELT2");
+        }
+        this.pxsize = pxsize1;
+        // Compute projective center (x0,y0) for (cra,cdec), then set min plane coords.
+        const { x: xr0, y: yr0 } = aitForward(0, // centered lon=0
+        0 // after we rotate sphere, the center maps to (0,0) in AIT
+        );
+        // The above is always (0,0) by definition; but we keep the pattern for clarity.
+        // So min plane coordinates are just (-width/2 * pxsize, -height/2 * pxsize) around center.
+        this.minra = -this.pxsize * this.naxis1 / 2; // minXdeg
+        this.mindec = -this.pxsize * this.naxis2 / 2; // minYdeg
+        return fits;
+    }
+    getBytePerValue() {
+        return Math.abs(this.bitpix / 8);
+    }
+    // ── AbstractProjection: WCS header accessors ───────────────────────────────
+    getFITSHeader() {
+        return this.fitsheader;
+    }
+    getCommonFitsHeaderParams() {
+        const header = new FITSHeaderManager();
+        for (const item of this.fitsheader.getItems()) {
+            const key = item.key;
+            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(key)) {
+                header.insert(new FITSHeaderItem(key, item.value, ""));
+            }
+        }
+        return header;
+    }
+    // ── AbstractProjection: grid builder ───────────────────────────────────────
+    getImageRADecList(center, radius, pxsize, naxisWidth) {
+        const naxis1 = naxisWidth;
+        const naxis2 = naxisWidth;
+        const ra0 = center.getAstro().raDeg * AitoffProjection_DEG2RAD;
+        const dec0 = center.getAstro().decDeg * AitoffProjection_DEG2RAD;
+        const minXdeg = -radius;
+        const minYdeg = -radius;
+        const list = new TilesRaDecList2();
+        for (let j = 0; j < naxis2; j++) {
+            const yDeg = minYdeg + j * pxsize;
+            const { yr } = AitoffProjection_planeDegToRad(0, yDeg);
+            for (let i = 0; i < naxis1; i++) {
+                const xDeg = minXdeg + i * pxsize;
+                const { xr } = AitoffProjection_planeDegToRad(xDeg, 0);
+                const inv = aitInverse(xr, yr);
+                if (!inv) {
+                    // Outside valid ellipse; set BLANK later during sampling
+                    list.addImagePixel(new ImagePixel(Number.NaN, Number.NaN, undefined));
+                    continue;
+                }
+                const { lam, phi } = inv; // centered lon/lat
+                const { ra, dec } = AitoffProjection_fromCenteredLonLat(lam, phi, ra0, dec0);
+                const raDeg = ra * AitoffProjection_RAD2DEG;
+                const decDeg = dec * AitoffProjection_RAD2DEG;
+                list.addImagePixel(new ImagePixel(raDeg, decDeg, undefined));
+            }
+        }
+        return list;
+    }
+    computeNaxisWidth(radius, pxsize) {
+        return Math.ceil(2 * radius / pxsize);
+    }
+    // ── AbstractProjection: pixel<->world ──────────────────────────────────────
+    pix2world(i, j, pxsize, minPlaneXdeg, minPlaneYdeg) {
+        // plane coords (degrees) relative to the projection center
+        const xDeg = i * pxsize + minPlaneXdeg;
+        const yDeg = j * pxsize + minPlaneYdeg;
+        const { xr, yr } = AitoffProjection_planeDegToRad(xDeg, yDeg);
+        const inv = aitInverse(xr, yr);
+        // Use the class center (CRVAL1/2)
+        const ra0 = this.craDeg * AitoffProjection_DEG2RAD;
+        const dec0 = this.cdecDeg * AitoffProjection_DEG2RAD;
+        if (!inv) {
+            return new Point(CoordsType.ASTRO, NumberType.DEGREES, Number.NaN, Number.NaN);
+        }
+        const { lam, phi } = inv;
+        const { ra, dec } = AitoffProjection_fromCenteredLonLat(lam, phi, ra0, dec0);
+        return new Point(CoordsType.ASTRO, NumberType.DEGREES, ra * AitoffProjection_RAD2DEG, dec * AitoffProjection_RAD2DEG);
+    }
+    world2pix(raDecList) {
+        const bytesXvalue = this.getBytePerValue();
+        const blank = Number(this.fitsheader.findById("BLANK")?.value);
+        const blankBytes = ParseUtils.convertBlankToBytes(blank, bytesXvalue);
+        const ra0 = this.craDeg * AitoffProjection_DEG2RAD;
+        const dec0 = this.cdecDeg * AitoffProjection_DEG2RAD;
+        for (const px of raDecList.getImagePixelList()) {
+            const raDeg = px.getRADeg();
+            const decDeg = px.getDecDeg();
+            if (!Number.isFinite(raDeg) || !Number.isFinite(decDeg)) {
+                px.setij(-1, -1);
+                px.setValue(blankBytes, this.bitpix);
+                continue;
+            }
+            // Center-relative spherical coords
+            const { lam, phi } = AitoffProjection_toCenteredLonLat(raDeg * AitoffProjection_DEG2RAD, decDeg * AitoffProjection_DEG2RAD, ra0, dec0);
+            const { x, y } = aitForward(lam, phi);
+            // plane x/y in degrees
+            const { xd, yd } = AitoffProjection_planeRadToDeg(x, y);
+            const i = Math.floor((xd - this.minra) / this.pxsize);
+            const j = Math.floor((yd - this.mindec) / this.pxsize);
+            px.setij(i, j);
+            if (j < 0 || j >= this.naxis2 || i < 0 || i >= this.naxis1) {
+                px.setValue(blankBytes, this.bitpix);
+            }
+            else {
+                const row = this.pxvalues[j];
+                const slice = row.slice(i * bytesXvalue, (i + 1) * bytesXvalue);
+                px.setValue(slice, this.bitpix);
+            }
+            raDecList.setMinMaxValue(px.getValue());
+        }
+        return raDecList;
+    }
+    // ── FITS write path ────────────────────────────────────────────────────────
+    generateFITSFile(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue, raDecWithValues) {
+        const header = this.prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue);
+        return this.setPixelValues(raDecWithValues, header);
+    }
+    prepareHeader(pixelAngSize, BITPIX, TILE_WIDTH, BLANK, BZERO, BSCALE, cRA, cDec, minValue, maxValue) {
+        const h = new FITSHeaderManager();
+        h.insert(new FITSHeaderItem("SIMPLE", "T", ""));
+        h.insert(new FITSHeaderItem("NAXIS", 2, ""));
+        h.insert(new FITSHeaderItem("NAXIS1", TILE_WIDTH, ""));
+        h.insert(new FITSHeaderItem("NAXIS2", TILE_WIDTH, ""));
+        h.insert(new FITSHeaderItem("BITPIX", BITPIX, ""));
+        h.insert(new FITSHeaderItem("BLANK", BLANK, ""));
+        h.insert(new FITSHeaderItem("BSCALE", BSCALE, ""));
+        h.insert(new FITSHeaderItem("BZERO", BZERO, ""));
+        h.insert(new FITSHeaderItem("CTYPE1", this.CTYPE1, ""));
+        h.insert(new FITSHeaderItem("CTYPE2", this.CTYPE2, ""));
+        h.insert(new FITSHeaderItem("CDELT1", pixelAngSize, ""));
+        h.insert(new FITSHeaderItem("CDELT2", pixelAngSize, ""));
+        h.insert(new FITSHeaderItem("CRPIX1", TILE_WIDTH / 2, ""));
+        h.insert(new FITSHeaderItem("CRPIX2", TILE_WIDTH / 2, ""));
+        h.insert(new FITSHeaderItem("CRVAL1", cRA, ""));
+        h.insert(new FITSHeaderItem("CRVAL2", cDec, ""));
+        h.insert(new FITSHeaderItem("DATAMIN", BZERO + BSCALE * minValue, ""));
+        h.insert(new FITSHeaderItem("DATAMAX", BZERO + BSCALE * maxValue, ""));
+        h.insert(new FITSHeaderItem("ORIGIN", `WCSLight v.${APP_VERSION}`, ""));
+        h.insert(new FITSHeaderItem("COMMENT", "WCSLight developed by F.Giordano and Y.Ascasibar", ""));
+        h.insert(new FITSHeaderItem("END", "", ""));
+        return h;
+    }
+    setPixelValues(raDecList, header) {
+        const BITPIX = Number(header.findById("BITPIX")?.value);
+        if (!Number.isFinite(BITPIX))
+            throw new Error("BITPIX not found or invalid");
+        const bytesPerElem = Math.abs(BITPIX) / 8;
+        const width = Number(header.findById("NAXIS1")?.value);
+        const height = Number(header.findById("NAXIS2")?.value);
+        if (!Number.isFinite(width) || width <= 0)
+            throw new Error("NAXIS1 not found or invalid");
+        if (!Number.isFinite(height) || height <= 0)
+            throw new Error("NAXIS2 not found or invalid");
+        const BLANK = Number(header.findById("BLANK")?.value);
+        const blankBytes = ParseUtils.convertBlankToBytes(BLANK, bytesPerElem);
+        const pixels = raDecList.getImagePixelList();
+        if (pixels.length !== width * height) {
+            throw new Error(`Pixel count mismatch: got ${pixels.length}, expected ${width * height}`);
+        }
+        // Build Map<row, Array<Uint8Array>> per your FITS class constructor
+        const rows = new Map();
+        for (let j = 0; j < height; j++)
+            rows.set(j, new Array(width));
+        for (let k = 0; k < pixels.length; k++) {
+            const row = Math.floor(k / width);
+            const col = k % width;
+            const u8 = pixels[k].getUint8Value();
+            rows.get(row)[col] = u8 ? u8 : new Uint8Array(blankBytes);
+        }
+        return new FITS(header, rows);
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/WCSLight.ts
 /**
  * Summary. (bla bla bla)
@@ -8302,6 +9083,9 @@ class CutoutResult {
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
+
+
+
 
 
 
@@ -8358,6 +9142,21 @@ class WCSLight {
         const ctype = String(fits.header.findById("CTYPE1")?.value);
         if (ctype.includes("MER")) {
             let projection = new MercatorProjection();
+            await projection.initFromFile(filePath);
+            return projection;
+        }
+        if (ctype.includes("CAR")) {
+            let projection = new CartesianProjection();
+            await projection.initFromFile(filePath);
+            return projection;
+        }
+        if (ctype.includes("SIN")) {
+            let projection = new SinProjection();
+            await projection.initFromFile(filePath);
+            return projection;
+        }
+        if (ctype.includes("AIT")) {
+            let projection = new AitoffProjection();
             await projection.initFromFile(filePath);
             return projection;
         }

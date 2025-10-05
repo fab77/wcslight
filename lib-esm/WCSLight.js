@@ -7,12 +7,15 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 import { FITSParser } from 'jsfitsio';
-import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
+import { CartesianProjection } from './projections/cartesian/CartesianProjection.js';
 import { HiPSProjection } from './projections/hips/HiPSProjection.js';
 import { HiPSPropManager } from './projections/hips/HiPSPropManager.js';
 import { HiPSProperties } from './projections/hips/HiPSProperties.js';
 import { HiPSHelper } from './projections/HiPSHelper.js';
 import { CutoutResult } from './projections/hips/CutoutResult.js';
+import { MercatorProjection } from './projections/mercator/MercatorPojection.js';
+import { SinProjection } from './projections/sin/SinProjection.js';
+import { AitoffProjection } from './projections/aitoff/AitoffProjection.js';
 export class WCSLight {
     /**
      * This function receives a FITS and generate a cutout on HiPS FITS.
@@ -62,6 +65,21 @@ export class WCSLight {
         const ctype = String(fits.header.findById("CTYPE1")?.value);
         if (ctype.includes("MER")) {
             let projection = new MercatorProjection();
+            await projection.initFromFile(filePath);
+            return projection;
+        }
+        if (ctype.includes("CAR")) {
+            let projection = new CartesianProjection();
+            await projection.initFromFile(filePath);
+            return projection;
+        }
+        if (ctype.includes("SIN")) {
+            let projection = new SinProjection();
+            await projection.initFromFile(filePath);
+            return projection;
+        }
+        if (ctype.includes("AIT")) {
+            let projection = new AitoffProjection();
             await projection.initFromFile(filePath);
             return projection;
         }
