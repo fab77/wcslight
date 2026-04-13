@@ -1622,7 +1622,7 @@ class FITS {
 ;// CONCATENATED MODULE: ./src/Version.ts
 // // src/version.ts
 // let ver = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : undefined;
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.3.0";
 
 ;// CONCATENATED MODULE: ./src/projections/cartesian/CartesianProjection.ts
 /**
