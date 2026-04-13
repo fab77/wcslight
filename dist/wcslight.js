@@ -1812,6 +1812,8 @@ class CartesianProjection extends AbstractProjection {
             throw new Error("NAXIS1 not found or invalid");
         if (!Number.isFinite(height) || height <= 0)
             throw new Error("NAXIS2 not found or invalid");
+        const BLANK = Number(header.findById("BLANK")?.value ?? 0);
+        const blankBytes = ParseUtils.convertBlankToBytes(BLANK, bytesPerElem);
         const pixels = raDecList.getImagePixelList();
         if (pixels.length !== width * height) {
             throw new Error(`Pixel count mismatch: got ${pixels.length}, expected ${width * height}`);
@@ -1828,9 +1830,8 @@ class CartesianProjection extends AbstractProjection {
             const rowArr = pxvalues.get(row);
             let u8 = pixels[idx].getUint8Value();
             if (u8 == null) {
-                // Your pipeline’s ImagePixel.setValue() should have set this already.
-                // Throwing is safer than inventing packing (FITS expects specific endian/precision).
-                throw new Error(`Pixel (${row},${col}) missing Uint8Array for BITPIX=${BITPIX}`);
+                u8 = blankBytes.slice(0);
+                pixels[idx].setValue(u8, BITPIX);
             }
             if (u8.byteLength !== bytesPerElem) {
                 throw new Error(`Pixel (${row},${col}) byteLength=${u8.byteLength} != expected ${bytesPerElem} (BITPIX=${BITPIX})`);
@@ -4301,6 +4302,7 @@ class HiPSProjection {
     }
     static async getPixelValues(raDecList, baseHiPSURL, hipsOrder) {
         const tilesset = raDecList.getTilesList();
+        let resolvedBitpix = null;
         let promises = [];
         for (let hipstileno of tilesset) {
             const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
@@ -4310,6 +4312,9 @@ class HiPSProjection {
             promises.push(FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
                 if (fitsParsed) {
                     const bitpix = Number(fitsParsed.header.findById("BITPIX")?.value);
+                    if (resolvedBitpix == null && Number.isFinite(bitpix)) {
+                        resolvedBitpix = bitpix;
+                    }
                     const naxis1 = Number(fitsParsed.header.findById("NAXIS1")?.value);
                     const naxis2 = Number(fitsParsed.header.findById("NAXIS2")?.value);
                     if (!bitpix || !naxis1 || !naxis2) {
@@ -4376,6 +4381,16 @@ class HiPSProjection {
         }
         if (raDecList.getBLANK() == null) {
             raDecList.setBLANK(0);
+        }
+        if (resolvedBitpix != null) {
+            const bytesXelem = Math.abs(resolvedBitpix / 8);
+            const blankValue = raDecList.getBLANK() ?? 0;
+            const blankBytes = ParseUtils.convertBlankToBytes(blankValue, bytesXelem);
+            raDecList.getImagePixelList().forEach((imgpx) => {
+                if (imgpx.getUint8Value() == null) {
+                    imgpx.setValue(blankBytes.slice(0), resolvedBitpix);
+                }
+            });
         }
         return raDecList;
     }

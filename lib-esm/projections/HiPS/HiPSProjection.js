@@ -5,7 +5,7 @@ import { Point } from "../../model/Point.js";
 import { Pointing } from "healpixjs";
 import { degToRad } from "../../model/Utils.js";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
-import { FITSParser } from "jsfitsio";
+import { FITSParser, ParseUtils } from "jsfitsio";
 import { HiPSFITS } from "./HiPSFITS.js";
 import { ImagePixel } from "./ImagePixel.js";
 import { HiPSHelper } from "../HiPSHelper.js";
@@ -188,6 +188,7 @@ export class HiPSProjection {
     }
     static async getPixelValues(raDecList, baseHiPSURL, hipsOrder) {
         const tilesset = raDecList.getTilesList();
+        let resolvedBitpix = null;
         let promises = [];
         for (let hipstileno of tilesset) {
             const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
@@ -197,6 +198,9 @@ export class HiPSProjection {
             promises.push(FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
                 if (fitsParsed) {
                     const bitpix = Number(fitsParsed.header.findById("BITPIX")?.value);
+                    if (resolvedBitpix == null && Number.isFinite(bitpix)) {
+                        resolvedBitpix = bitpix;
+                    }
                     const naxis1 = Number(fitsParsed.header.findById("NAXIS1")?.value);
                     const naxis2 = Number(fitsParsed.header.findById("NAXIS2")?.value);
                     if (!bitpix || !naxis1 || !naxis2) {
@@ -263,6 +267,16 @@ export class HiPSProjection {
         }
         if (raDecList.getBLANK() == null) {
             raDecList.setBLANK(0);
+        }
+        if (resolvedBitpix != null) {
+            const bytesXelem = Math.abs(resolvedBitpix / 8);
+            const blankValue = raDecList.getBLANK() ?? 0;
+            const blankBytes = ParseUtils.convertBlankToBytes(blankValue, bytesXelem);
+            raDecList.getImagePixelList().forEach((imgpx) => {
+                if (imgpx.getUint8Value() == null) {
+                    imgpx.setValue(blankBytes.slice(0), resolvedBitpix);
+                }
+            });
         }
         return raDecList;
     }
