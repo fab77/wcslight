@@ -5,7 +5,7 @@ import { Point } from "../../model/Point.js";
 import { Healpix, Pointing, RangeSet } from "healpixjs";
 import { degToRad } from "../../model/Utils.js";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
-import { FITSHeaderManager, FITSParser } from "jsfitsio";
+import { FITSHeaderManager, FITSParser, ParseUtils } from "jsfitsio";
 import { HiPSFITS } from "./HiPSFITS.js";
 import { ImagePixel } from "./ImagePixel.js";
 import { HiPSHelper } from "../HiPSHelper.js";
@@ -238,6 +238,7 @@ export class HiPSProjection {
     static async getPixelValues(raDecList: TilesRaDecList2, baseHiPSURL: string, hipsOrder: number): Promise<TilesRaDecList2 | null> {
 
         const tilesset = raDecList.getTilesList()
+        let resolvedBitpix: number | null = null
         let promises = [];
 
         for (let hipstileno of tilesset) {
@@ -252,6 +253,9 @@ export class HiPSProjection {
                 if (fitsParsed) {
 
                     const bitpix = Number(fitsParsed.header.findById("BITPIX")?.value)
+                    if (resolvedBitpix == null && Number.isFinite(bitpix)) {
+                        resolvedBitpix = bitpix
+                    }
                     const naxis1 = Number(fitsParsed.header.findById("NAXIS1")?.value)
                     const naxis2 = Number(fitsParsed.header.findById("NAXIS2")?.value)
                     if (!bitpix || !naxis1 || !naxis2) {
@@ -321,6 +325,19 @@ export class HiPSProjection {
         }
         if (raDecList.getBLANK() == null) {
             raDecList.setBLANK(0)
+        }
+        if (resolvedBitpix != null) {
+            const bytesXelem = Math.abs(resolvedBitpix / 8)
+            const blankValue = raDecList.getBLANK() ?? 0
+            const blankBytes = ParseUtils.convertBlankToBytes(
+                blankValue,
+                bytesXelem,
+            )
+            raDecList.getImagePixelList().forEach((imgpx) => {
+                if (imgpx.getUint8Value() == null) {
+                    imgpx.setValue(blankBytes.slice(0), resolvedBitpix!)
+                }
+            })
         }
         return raDecList
     }

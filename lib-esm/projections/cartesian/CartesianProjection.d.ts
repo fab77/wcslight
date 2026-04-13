@@ -11,7 +11,7 @@ import { AbstractProjection } from '../AbstractProjection.js';
 import { Point } from '../../model/Point.js';
 import { TilesRaDecList2 } from '../hips/TilesRaDecList2.js';
 import { FITS } from '../../model/FITS.js';
-export declare class MercatorProjection extends AbstractProjection {
+export declare class CartesianProjection extends AbstractProjection {
     minra: number;
     mindec: number;
     naxis1: number;
@@ -42,4 +42,4 @@ export declare class MercatorProjection extends AbstractProjection {
     generateFITSFile(pixelAngSize: number, BITPIX: number, TILE_WIDTH: number, BLANK: number, BZERO: number, BSCALE: number, cRA: number, cDec: number, minValue: number, maxValue: number, raDecWithValues: TilesRaDecList2): FITS;
     world2pix(raDecList: TilesRaDecList2): TilesRaDecList2;
 }
-//# sourceMappingURL=MercatorProjection.d.ts.map
+//# sourceMappingURL=CartesianProjection.d.ts.map

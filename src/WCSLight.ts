@@ -8,7 +8,7 @@
  */
 
 import { FITSParsed, FITSParser } from 'jsfitsio';
-import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
+import { CartesianProjection } from './projections/cartesian/CartesianProjection.js';
 import { HiPSProjection } from './projections/hips/HiPSProjection.js';
 import { Point } from './model/Point.js';
 import { AbstractProjection } from './projections/AbstractProjection.js';
@@ -20,6 +20,9 @@ import { HiPSProperties } from './projections/hips/HiPSProperties.js';
 import { HiPSHelper } from './projections/HiPSHelper.js';
 import { TilesRaDecList2 } from './projections/hips/TilesRaDecList2.js';
 import { CutoutResult } from './projections/hips/CutoutResult.js';
+import { MercatorProjection } from './projections/mercator/MercatorPojection.js';
+import { SinProjection } from './projections/sin/SinProjection.js';
+import { AitoffProjection } from './projections/aitoff/AitoffProjection.js';
 
 export class WCSLight {
 
@@ -82,6 +85,21 @@ export class WCSLight {
         
         if (ctype.includes("MER")){
             let projection = new MercatorProjection()
+            await projection.initFromFile(filePath)
+            return projection
+        }
+        if (ctype.includes("CAR")){
+            let projection = new CartesianProjection()
+            await projection.initFromFile(filePath)
+            return projection
+        }
+        if (ctype.includes("SIN")){
+            let projection = new SinProjection()
+            await projection.initFromFile(filePath)
+            return projection
+        }
+        if (ctype.includes("AIT")){
+            let projection = new AitoffProjection()
             await projection.initFromFile(filePath)
             return projection
         }

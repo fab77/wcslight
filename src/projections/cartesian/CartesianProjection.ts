@@ -26,7 +26,7 @@ import { APP_VERSION } from '../../Version.js'; // adjust path as needed
 // import { HiPSProp } from '../hips/HiPSProp.js';
 
 
-export class MercatorProjection extends AbstractProjection {
+export class CartesianProjection extends AbstractProjection {
 
     minra!: number;
     mindec!: number;
@@ -46,8 +46,6 @@ export class MercatorProjection extends AbstractProjection {
     pxsize1!: number;
     pxsize2!: number;
 
-    // _minphysicalval!: number;
-    // _maxphysicalval!: number;
     _wcsname: string;
 
     constructor() {
@@ -255,6 +253,8 @@ export class MercatorProjection extends AbstractProjection {
         const height = (header.findById("NAXIS2")?.value as number) ?? width; // fallback if square
         if (!Number.isFinite(width) || width <= 0) throw new Error("NAXIS1 not found or invalid");
         if (!Number.isFinite(height) || height <= 0) throw new Error("NAXIS2 not found or invalid");
+        const BLANK = Number(header.findById("BLANK")?.value ?? 0);
+        const blankBytes = ParseUtils.convertBlankToBytes(BLANK, bytesPerElem);
 
         const pixels = raDecList.getImagePixelList();
         if (pixels.length !== width * height) {
@@ -276,9 +276,8 @@ export class MercatorProjection extends AbstractProjection {
 
             let u8 = pixels[idx].getUint8Value();
             if (u8 == null) {
-                // Your pipeline’s ImagePixel.setValue() should have set this already.
-                // Throwing is safer than inventing packing (FITS expects specific endian/precision).
-                throw new Error(`Pixel (${row},${col}) missing Uint8Array for BITPIX=${BITPIX}`);
+                u8 = blankBytes.slice(0);
+                pixels[idx].setValue(u8, BITPIX);
             }
             if (u8.byteLength !== bytesPerElem) {
                 throw new Error(
