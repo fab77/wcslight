@@ -189,76 +189,69 @@ export class HiPSProjection {
     static async getPixelValues(raDecList, baseHiPSURL, hipsOrder) {
         const tilesset = raDecList.getTilesList();
         let resolvedBitpix = null;
-        let promises = [];
         for (let hipstileno of tilesset) {
             const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
             const fitsurl = baseHiPSURL + "/Norder" + hipsOrder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
             console.log(`Identified source file ${fitsurl}`);
             // TODO change the code below to used HiPSFITS and FITSList instead!
-            promises.push(FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
-                if (fitsParsed) {
-                    const bitpix = Number(fitsParsed.header.findById("BITPIX")?.value);
-                    if (resolvedBitpix == null && Number.isFinite(bitpix)) {
-                        resolvedBitpix = bitpix;
+            const fitsParsed = await FITSParser.loadFITS(fitsurl);
+            if (fitsParsed) {
+                const bitpix = Number(fitsParsed.header.findById("BITPIX")?.value);
+                if (resolvedBitpix == null && Number.isFinite(bitpix)) {
+                    resolvedBitpix = bitpix;
+                }
+                const naxis1 = Number(fitsParsed.header.findById("NAXIS1")?.value);
+                const naxis2 = Number(fitsParsed.header.findById("NAXIS2")?.value);
+                if (!bitpix || !naxis1 || !naxis2) {
+                    console.error(`bitpix: ${bitpix}, naxis1: ${naxis1}, naxis2: ${naxis2} for fits file ${fitsurl}`);
+                    continue;
+                }
+                if (raDecList.getBLANK() == null) {
+                    const blankStr = fitsParsed.header.findById("BLANK")?.value;
+                    if (blankStr) {
+                        const blank = Number(blankStr);
+                        if (!isNaN(blank)) {
+                            raDecList.setBLANK(blank);
+                        }
                     }
-                    const naxis1 = Number(fitsParsed.header.findById("NAXIS1")?.value);
-                    const naxis2 = Number(fitsParsed.header.findById("NAXIS2")?.value);
-                    if (!bitpix || !naxis1 || !naxis2) {
-                        console.error(`bitpix: ${bitpix}, naxis1: ${naxis1}, naxis2: ${naxis2} for fits file ${fitsurl}`);
+                }
+                if (raDecList.getBSCALE() == null) {
+                    const bscaleStr = fitsParsed.header.findById("BSCALE")?.value;
+                    if (bscaleStr) {
+                        const bscale = Number(bscaleStr);
+                        if (!isNaN(bscale)) {
+                            raDecList.setBSCALE(bscale);
+                        }
+                    }
+                }
+                if (raDecList.getBZERO() == null) {
+                    const bzeroStr = fitsParsed.header.findById("BZERO")?.value;
+                    if (bzeroStr) {
+                        const bzero = Number(bzeroStr);
+                        if (!isNaN(bzero)) {
+                            raDecList.setBZERO(bzero);
+                        }
+                    }
+                }
+                const bytesXelem = Math.abs(bitpix / 8);
+                raDecList.getImagePixelsByTile(hipstileno).forEach((imgpx) => {
+                    const valueBytes = new Uint8Array(bytesXelem);
+                    if (fitsParsed.data[imgpx.getj()] == undefined) {
+                        console.warn(`j index ${imgpx.getj()} is outside the image range 0-${naxis2 - 1} for fits file ${fitsurl}`);
                         return;
                     }
-                    if (raDecList.getBLANK() == null) {
-                        const blankStr = fitsParsed.header.findById("BLANK")?.value;
-                        if (blankStr) {
-                            const blank = Number(blankStr);
-                            if (!isNaN(blank)) {
-                                raDecList.setBLANK(blank);
-                            }
-                        }
+                    if ((imgpx.geti() * bytesXelem + bytesXelem) > fitsParsed.data[imgpx.getj()].length) {
+                        console.warn(`i index ${imgpx.geti()} is outside the image range 0-${(fitsParsed.data[imgpx.getj()].length / bytesXelem) - 1} for fits file ${fitsurl}`);
+                        return;
                     }
-                    if (raDecList.getBSCALE() == null) {
-                        const bscaleStr = fitsParsed.header.findById("BSCALE")?.value;
-                        if (bscaleStr) {
-                            const bscale = Number(bscaleStr);
-                            if (!isNaN(bscale)) {
-                                raDecList.setBSCALE(bscale);
-                            }
-                        }
+                    for (let b = 0; b < bytesXelem; b++) {
+                        valueBytes[b] = fitsParsed.data[imgpx.getj()][imgpx.geti() * bytesXelem + b];
                     }
-                    if (raDecList.getBZERO() == null) {
-                        const bzeroStr = fitsParsed.header.findById("BZERO")?.value;
-                        if (bzeroStr) {
-                            const bzero = Number(bzeroStr);
-                            if (!isNaN(bzero)) {
-                                raDecList.setBZERO(bzero);
-                            }
-                        }
-                    }
-                    // if (naxis1 * naxis2 * Math.abs(bitpix / 8) != fitsParsed.data.length) {
-                    //     console.error(`fits data length ${fitsParsed.data.length} does not match expected size ${naxis1 * naxis2 * Math.abs(bitpix / 8)} for fits file ${fitsurl}`)
-                    //     return
-                    // }
-                    const bytesXelem = Math.abs(bitpix / 8);
-                    raDecList.getImagePixelsByTile(hipstileno).forEach((imgpx) => {
-                        const valueBytes = new Uint8Array(bytesXelem);
-                        if (fitsParsed.data[imgpx.getj()] == undefined) {
-                            console.warn(`j index ${imgpx.getj()} is outside the image range 0-${naxis2 - 1} for fits file ${fitsurl}`);
-                            return;
-                        }
-                        if ((imgpx.geti() * bytesXelem + bytesXelem) > fitsParsed.data[imgpx.getj()].length) {
-                            console.warn(`i index ${imgpx.geti()} is outside the image range 0-${(fitsParsed.data[imgpx.getj()].length / bytesXelem) - 1} for fits file ${fitsurl}`);
-                            return;
-                        }
-                        for (let b = 0; b < bytesXelem; b++) {
-                            valueBytes[b] = fitsParsed.data[imgpx.getj()][imgpx.geti() * bytesXelem + b];
-                        }
-                        imgpx.setValue(valueBytes, bitpix);
-                        raDecList.setMinMaxValue(imgpx.getValue());
-                    });
-                }
-            }));
+                    imgpx.setValue(valueBytes, bitpix);
+                    raDecList.setMinMaxValue(imgpx.getValue());
+                });
+            }
         }
-        await Promise.all(promises);
         if (raDecList.getBSCALE() == null) {
             raDecList.setBSCALE(1);
         }

@@ -34,7 +34,7 @@ export class CartesianProjection extends AbstractProjection {
     _wcsname;
     constructor() {
         super();
-        this._wcsname = "MER"; // TODO check WCS standard and create ENUM
+        this._wcsname = "CAR"; // TODO check WCS standard and create ENUM
         this.pxvalues = new Array();
         this.fitsheader = new FITSHeaderManager();
     }
