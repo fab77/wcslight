@@ -107,7 +107,7 @@ export class MercatorProjection extends AbstractProjection {
         const header = new FITSHeaderManager();
         for (const item of this.fitsheader.getItems()) {
             const key = item.key;
-            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK", "ORDER"].includes(key)) {
+            if (["SIMPLE", "BITPIX", "BSCALE", "BZERO", "BLANK"].includes(key)) {
                 header.insert(new FITSHeaderItem(key, item.value, ""));
             }
         }
