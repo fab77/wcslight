@@ -4876,14 +4876,12 @@ class HiPSProjection {
     static async getPixelValues(raDecList, baseHiPSURL, hipsOrder) {
         const tilesset = raDecList.getTilesList();
         let resolvedBitpix = null;
-        let promises = [];
         for (let hipstileno of tilesset) {
             const dir = Math.floor(hipstileno / 10000) * 10000; // as per HiPS recomendation REC-HIPS-1.0-20170519 
             const fitsurl = baseHiPSURL + "/Norder" + hipsOrder + "/Dir" + dir + "/Npix" + hipstileno + ".fits";
             console.log(`Identified source file ${fitsurl}`);
-            // TODO change the code below to used HiPSFITS and FITSList instead!
-            promises.push(FITSParser.loadFITS(fitsurl).then((fitsParsed) => {
-                if (fitsParsed) {
+            const fitsParsed = await FITSParser.loadFITS(fitsurl);
+            if (fitsParsed) {
                     const bitpix = Number(fitsParsed.header.findById("BITPIX")?.value);
                     if (resolvedBitpix == null && Number.isFinite(bitpix)) {
                         resolvedBitpix = bitpix;
@@ -4892,7 +4890,7 @@ class HiPSProjection {
                     const naxis2 = Number(fitsParsed.header.findById("NAXIS2")?.value);
                     if (!bitpix || !naxis1 || !naxis2) {
                         console.error(`bitpix: ${bitpix}, naxis1: ${naxis1}, naxis2: ${naxis2} for fits file ${fitsurl}`);
-                        return;
+                        continue;
                     }
                     if (raDecList.getBLANK() == null) {
                         const blankStr = fitsParsed.header.findById("BLANK")?.value;
@@ -4943,9 +4941,7 @@ class HiPSProjection {
                         raDecList.setMinMaxValue(imgpx.getValue());
                     });
                 }
-            }));
         }
-        await Promise.all(promises);
         if (raDecList.getBSCALE() == null) {
             raDecList.setBSCALE(1);
         }
