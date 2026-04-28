@@ -2195,7 +2195,7 @@ class FITS {
 ;// CONCATENATED MODULE: ./src/Version.ts
 // // src/version.ts
 // let ver = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : undefined;
-const APP_VERSION = "2.0.0";
+const APP_VERSION = "3.0.0";
 
 ;// CONCATENATED MODULE: ./src/projections/cartesian/CartesianProjection.ts
 /**
@@ -2454,6 +2454,39 @@ Constants.inv_halfpi = 2. / Math.PI;
 Constants.twopi = 2 * Math.PI;
 Constants.inv_twopi = 1. / (2 * Math.PI);
 //# sourceMappingURL=Constants.js.map
+;// CONCATENATED MODULE: ./node_modules/healpixjs/lib-esm/Pointing.js
+
+class Pointing {
+    /**
+     *
+     * @param {*} vec3 Vec3.js
+     * @param {*} mirror
+     * @param {*} in_theta radians
+     * @param {*} in_phi radians
+     */
+    constructor(vec3, mirror, in_theta, in_phi) {
+        if (vec3 != null) {
+            this.theta = Hploc.atan2(Math.sqrt(vec3.x * vec3.x + vec3.y * vec3.y), vec3.z);
+            if (mirror) {
+                this.phi = -Hploc.atan2(vec3.y, vec3.x);
+            }
+            else {
+                this.phi = Hploc.atan2(vec3.y, vec3.x);
+            }
+            if (this.phi < 0.0) {
+                this.phi = this.phi + 2 * Math.PI;
+            }
+            if (this.phi >= 2 * Math.PI) {
+                this.phi = this.phi - 2 * Math.PI;
+            }
+        }
+        else {
+            this.theta = in_theta;
+            this.phi = in_phi;
+        }
+    }
+}
+//# sourceMappingURL=Pointing.js.map
 ;// CONCATENATED MODULE: ./node_modules/healpixjs/lib-esm/Zphi.js
 class Zphi {
     /** Creation from individual components */
@@ -2465,6 +2498,7 @@ class Zphi {
 }
 //# sourceMappingURL=Zphi.js.map
 ;// CONCATENATED MODULE: ./node_modules/healpixjs/lib-esm/Hploc.js
+
 
 
 class Hploc {
@@ -2500,10 +2534,14 @@ class Hploc {
         this.sth = sth;
     }
     ;
+    toPointing(mirror) {
+        const st = this.have_sth ? this.sth : Math.sqrt((1.0 - this.z) * (1.0 + this.z));
+        return new Pointing(null, false, Hploc.atan2(st, this.z), this._phi);
+    }
     toVec3() {
         var st = this.have_sth ? this.sth : Math.sqrt((1.0 - this.z) * (1.0 + this.z));
-        // var vector = new Vec3(st*Hploc.cos(this.phi),st*Hploc.sin(this.phi),this.z);
-        var vector = new Vec3(st * Math.cos(this.phi), st * Math.sin(this.phi), this.z);
+        var vector = new Vec3(st * Hploc.cos(this.phi), st * Hploc.sin(this.phi), this.z);
+        // var vector = new Vec3(st*Math.cos(this.phi),st*Math.sin(this.phi),this.z);
         return vector;
     }
     ;
@@ -2657,39 +2695,6 @@ Hploc.PI4_B = 0.794662735614792836713604629039764404296875e-8;
 Hploc.PI4_C = 0.306161699786838294306516483068750264552437361480769e-16;
 Hploc.M_1_PI = 0.3183098861837906715377675267450287;
 //# sourceMappingURL=Hploc.js.map
-;// CONCATENATED MODULE: ./node_modules/healpixjs/lib-esm/Pointing.js
-
-class Pointing {
-    /**
-     *
-     * @param {*} vec3 Vec3.js
-     * @param {*} mirror
-     * @param {*} in_theta radians
-     * @param {*} in_phi radians
-     */
-    constructor(vec3, mirror, in_theta, in_phi) {
-        if (vec3 != null) {
-            this.theta = Hploc.atan2(Math.sqrt(vec3.x * vec3.x + vec3.y * vec3.y), vec3.z);
-            if (mirror) {
-                this.phi = -Hploc.atan2(vec3.y, vec3.x);
-            }
-            else {
-                this.phi = Hploc.atan2(vec3.y, vec3.x);
-            }
-            if (this.phi < 0.0) {
-                this.phi = this.phi + 2 * Math.PI;
-            }
-            if (this.phi >= 2 * Math.PI) {
-                this.phi = this.phi - 2 * Math.PI;
-            }
-        }
-        else {
-            this.theta = in_theta;
-            this.phi = in_phi;
-        }
-    }
-}
-//# sourceMappingURL=Pointing.js.map
 ;// CONCATENATED MODULE: ./node_modules/healpixjs/lib-esm/Vec3.js
 /**
  * Partial porting to Javascript of Vec3.java from Healpix3.30
@@ -3206,31 +3211,13 @@ class Healpix {
     getBoundaries(pix) {
         let points = new Array();
         let xyf = this.nest2xyf(pix);
-        // console.log("PIXEL: "+pix);
-        // console.log("XYF "+xyf.ix+" "+xyf.iy+" "+xyf.face);
         let dc = 0.5 / this.nside;
         let xc = (xyf.ix + 0.5) / this.nside;
         let yc = (xyf.iy + 0.5) / this.nside;
-        // let d = 1.0/(this.nside);
-        // console.log("------------------------");
-        // console.log("xc, yc, dc "+xc+","+ yc+","+ dc);
-        // console.log("xc+dc-d, yc+dc, xyf.face, d "+(xc+dc) +","+ (yc+dc)+","+
-        // xyf.face+","+ d);
         points[0] = new Fxyf(xc + dc, yc + dc, xyf.face).toVec3();
         points[1] = new Fxyf(xc - dc, yc + dc, xyf.face).toVec3();
         points[2] = new Fxyf(xc - dc, yc - dc, xyf.face).toVec3();
         points[3] = new Fxyf(xc + dc, yc - dc, xyf.face).toVec3();
-        // console.log("Points for npix: "+pix);
-        // console.log(points);
-        // if (pix > 750){
-        // console.log("pix: "+pix);
-        // console.log("dc: "+dc);
-        // console.log("xyf.ix: "+xyf.ix);
-        // console.log("xyf.iy: "+xyf.iy);
-        // console.log("xc: "+xc);
-        // console.log("yc: "+yc);
-        // console.log("d: "+d);
-        // }
         return points;
     }
     ;
@@ -3261,12 +3248,12 @@ class Healpix {
     }
     ;
     getPointsForXyfNoStep(x, y, face) {
-        let nside = Math.pow(2, this.order);
+        // let nside = Math.pow(2, this.order);
         let points = new Array();
         let xyf = new Xyf(x, y, face);
-        let dc = 0.5 / nside;
-        let xc = (xyf.ix + 0.5) / nside;
-        let yc = (xyf.iy + 0.5) / nside;
+        let dc = 0.5 / this.nside;
+        let xc = (xyf.ix + 0.5) / this.nside;
+        let yc = (xyf.iy + 0.5) / this.nside;
         points[0] = new Fxyf(xc + dc, yc + dc, xyf.face).toVec3();
         points[1] = new Fxyf(xc - dc, yc + dc, xyf.face).toVec3();
         points[2] = new Fxyf(xc - dc, yc - dc, xyf.face).toVec3();
@@ -3435,6 +3422,9 @@ class Healpix {
     pix2zphi(pix) {
         return this.pix2loc(pix).toZphi();
     }
+    pix2ang(pix, mirror) {
+        return this.pix2loc(pix).toPointing(mirror);
+    }
     /**
      * @param pix long
      * @return Hploc
@@ -3476,6 +3466,31 @@ class Healpix {
         return loc;
     }
     ;
+    za2vec(z, a) {
+        const sin_theta = Math.sqrt(1 - z * z);
+        const X = sin_theta * Math.cos(a);
+        const Y = sin_theta * Math.sin(a);
+        return new Vec3(X, Y, z);
+    }
+    ang2vec(theta, phi) {
+        const z = Math.cos(theta);
+        return this.za2vec(z, phi);
+    }
+    vec2ang(v) {
+        const { z, a } = this.vec2za(v.getX(), v.getY(), v.getZ());
+        return { theta: Math.acos(z), phi: a };
+    }
+    vec2za(X, Y, z) {
+        const r2 = X * X + Y * Y;
+        if (r2 == 0)
+            return { z: z < 0 ? -1 : 1, a: 0 };
+        else {
+            const PI2 = Math.PI / 2;
+            const a = (Math.atan2(Y, X) + PI2) % PI2;
+            z /= Math.sqrt(z * z + r2);
+            return { z, a };
+        }
+    }
     ang2pix(ptg, mirror) {
         return this.loc2pix(new Hploc(ptg));
     }
