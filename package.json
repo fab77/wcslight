@@ -1,14 +1,14 @@
 {
     "name": "wcslight",
     "description": "WCS Javascript library.",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "keywords": [
         "WCS",
         "WCS light",
         "lightweight WCS for browser"
     ],
     "author": "Fabrizio Giordano (fab77)",
-    "license": "GPL-3.0-only",
+    "license": "SEE LICENSE IN LICENSE.md",
     "homepage": "https://github.com/fab77/wcslight#readme",
     "repository": {
         "type": "git",
@@ -53,8 +53,8 @@
         "shx": "^0.3.4"
     },
     "dependencies": {
-        "healpixjs": "^1.0.3",
-        "jsfitsio": "^1.2.3"
+        "healpixjs": "^2.0.0",
+        "jsfitsio": "^2.0.0"
     },
     "browser": {
         "fs": false,
