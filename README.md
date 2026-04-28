@@ -1,6 +1,17 @@
 # wcslight
 WCSLight is a TypeScript library designed to manipulate data projections in standard FITS format and implements the standard WCS functions pix2world and world2pix. It offers a cutout functionality on single FITS files and entire HiPS, using parameters in input such as central Right Ascension (RA) and Declination (Dec), pixel size, radius, and the desired output projection (Cartesian or HiPS). Future updates will include additional projections.
 
+## Licensing
+
+wcslight is distributed under a dual-license model:
+
+- a commercial license for proprietary or revenue-generating use
+- a separate non-commercial, source-available license for personal, academic,
+  research, evaluation, or other non-commercial use
+
+The non-commercial option is not an OSI open source license. See
+`LICENSE.md`, `LICENSE-COMMERCIAL.md`, and `LICENSE-NONCOMMERCIAL.md`.
+
 At the moment it supports only HiPS and Cartesian projections.
 
 ## Known limitations:
