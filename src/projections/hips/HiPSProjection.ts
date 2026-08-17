@@ -2,7 +2,7 @@ import { FITSList } from "./FITSList.js";
 import { HiPSProperties } from "./HiPSProperties.js"
 import { HiPSPropManager } from "./HiPSPropManager.js";
 import { Point } from "../../model/Point.js";
-import { Healpix, Pointing, RangeSet } from "healpixjs";
+import { Healpix, Pointing, RangeSet } from "@fab77/astrospatial-core/healpix";
 import { degToRad } from "../../model/Utils.js";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
 import { FITSHeaderManager, FITSParser, ParseUtils } from "jsfitsio";
@@ -119,7 +119,7 @@ export class HiPSProjection {
 
 
     static pix2world(i: number, j: number, tileno: number, healpix: Healpix, TILE_WIDTH: number): Point | null {
-        const order = (healpix as any).order ?? Math.log2((healpix as any).nside); // adapt to your healpixjs
+        const order = (healpix as any).order ?? Math.log2((healpix as any).nside); // keep compatibility with Healpix implementations exposing order or nside
         const cacheKey = `${order}:${tileno}`;
 
         let xyGridProj = HiPSProjection._xyGridCache.get(cacheKey);

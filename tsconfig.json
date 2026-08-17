@@ -1,24 +1,14 @@
 {
   "compilerOptions": {
-    // "moduleResolution": "nodenext", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
-    // "module": "NodeNext",
-    // "target": "es6",  // Modern browsers support all ES6 features, so ES6 is a good choice. 
-    // "esModuleInterop": true,
     
     "moduleResolution": "NodeNext", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
     "module": "NodeNext",
     "target": "ES2022",  // Modern browsers support all ES6 features, so ES6 is a good choice. 
     "esModuleInterop": true,
-    // "verbatimModuleSyntax": true,    
-    // "resolveJsonModule": true, 
-    
-    // "moduleResolution": "node", // 'node16' or 'nodenext' for Node.js’ ECMAScript Module Support
-    // "resolveJsonModule": true, 
-    // "esModuleInterop": true,
-    // "module": "ESNext",
-    // "target": "ESNext",  // Modern browsers support all ES6 features, so ES6 is a good choice. 
-    
-    "lib": ["es6", "dom"],
+
+    // "lib": ["es6", "dom"],
+    "lib": ["ES2022", "DOM"],
+    "rootDir": "src",
     "outDir": "lib-esm",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -30,8 +20,7 @@
     
   },
   "include": [
-    "src/**/**/*",
-    "test/USE_CASE_1.integration.spec.ts",
+    "src/**/**/*"
   ],
   "exclude": [
     "node_modules",

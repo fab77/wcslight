@@ -1,9 +1,9 @@
 import { FITSHeaderItem, FITSHeaderManager, FITSParsed, FITSParser, ParseUtils } from "jsfitsio"
 
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js"
-import { Healpix, Pointing } from "healpixjs"
+import { Healpix, Pointing } from "@fab77/astrospatial-core/healpix";
 import { HEALPixXYSpace } from "../../model/HEALPixXYSpace.js"
-import { astroToSpherical, fillAstro, radToDeg } from "../../model/Utils.js"
+import { fillAstro, radToDeg } from "../../model/Utils.js"
 import { NumberType } from "../../model/NumberType.js"
 import { HiPSHelper } from "../HiPSHelper.js"
 import { HiPSProperties } from "./HiPSProperties.js"

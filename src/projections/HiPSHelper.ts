@@ -9,16 +9,9 @@
  */
 
 
-import { Healpix } from 'healpixjs';
-import { Pointing } from "healpixjs";
-import { Hploc } from "healpixjs";
+import { Healpix, Pointing, Hploc } from "@fab77/astrospatial-core/healpix";
 
-import { radToDeg } from '../model/Utils.js'; // TODO change package
-import { CoordsType } from "../model/CoordsType.js";
-import { HEALPixXYSpace } from "../model/HEALPixXYSpace.js";
 import { Point } from "../model/Point.js";
-import { NumberType } from '../model/NumberType.js';
-import { AstroCoords } from "../model/AstroCoords.js";
 
 export class HiPSHelper {
 

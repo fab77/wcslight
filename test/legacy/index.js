@@ -1,7 +1,7 @@
-import HiPSProjection from '../src/projections/HiPSProjection.js';
+import HiPSProjection from '../src/projections/hips/HiPSProjection.js';
 import MercatorProjection from '../src/projections/MercatorProjection.js';
 import GnomonicProjection from '../src/projections/GnomonicProjection.js';
-import WCSLight from '../src/WCSLight.js';
+import WCSLight from '../../src/WCSLight.js';
 
 
 

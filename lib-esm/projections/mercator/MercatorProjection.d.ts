@@ -44,4 +44,4 @@ export declare class MercatorProjection extends AbstractProjection {
     prepareHeader(pixelAngSize: number, BITPIX: number, TILE_WIDTH: number, BLANK: number, BZERO: number, BSCALE: number, cRA: number, cDec: number, minValue: number, maxValue: number): FITSHeaderManager;
     setPixelValues(raDecList: TilesRaDecList2, header: FITSHeaderManager): FITS;
 }
-//# sourceMappingURL=MercatorPojection.d.ts.map
+//# sourceMappingURL=MercatorProjection.d.ts.map

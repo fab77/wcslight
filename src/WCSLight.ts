@@ -20,7 +20,7 @@ import { HiPSProperties } from './projections/hips/HiPSProperties.js';
 import { HiPSHelper } from './projections/HiPSHelper.js';
 import { TilesRaDecList2 } from './projections/hips/TilesRaDecList2.js';
 import { CutoutResult } from './projections/hips/CutoutResult.js';
-import { MercatorProjection } from './projections/mercator/MercatorPojection.js';
+import { MercatorProjection } from './projections/mercator/MercatorProjection.js';
 import { SinProjection } from './projections/sin/SinProjection.js';
 import { AitoffProjection } from './projections/aitoff/AitoffProjection.js';
 

@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-const pkg = require('../package.json');   // no assert needed
+const pkg = require('../../package.json');   // no assert needed
 
 // Make the macro available before loading your library
 globalThis.__APP_VERSION__ = pkg.version;
@@ -9,11 +9,11 @@ import { FITSWriter } from "jsfitsio";
 
 
 // Now import your ESM build AFTER the macro is set
-const { WCSLight } = await import('../lib-esm/WCSLight.js');
-const { MercatorProjection } = await import('../lib-esm/projections/mercator/MercatorProjection.js');
-const { CoordsType } = await import('../lib-esm/model/CoordsType.js');
-const { NumberType } = await import('../lib-esm/model/NumberType.js');
-const { Point } = await import('../lib-esm/model/Point.js');
+const { WCSLight } = await import('../../lib-esm/WCSLight.js');
+const { MercatorProjection } = await import('../../lib-esm/projections/mercator/MercatorProjection.js');
+const { CoordsType } = await import('../../lib-esm/model/CoordsType.js');
+const { NumberType } = await import('../../lib-esm/model/NumberType.js');
+const { Point } = await import('../../lib-esm/model/Point.js');
 
 // import { WCSLight } from '../lib-esm/WCSLight.js';
 // import { MercatorProjection } from "../lib-esm/projections/mercator/MercatorProjection.js";

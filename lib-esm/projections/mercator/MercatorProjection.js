@@ -213,4 +213,4 @@ export class MercatorProjection extends AbstractProjection {
         return new FITS(header, rowsMap);
     }
 }
-//# sourceMappingURL=MercatorPojection.js.map
+//# sourceMappingURL=MercatorProjection.js.map
