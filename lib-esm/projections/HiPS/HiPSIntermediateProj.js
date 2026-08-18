@@ -1,5 +1,5 @@
 //HiPSIntermediateProj.ts
-import { Hploc, Pointing } from "healpixjs";
+import { Hploc, Pointing } from "astrospatial-core/healpix";
 import { CoordsType } from "../../model/CoordsType.js";
 import { NumberType } from "../../model/NumberType.js";
 import { Point } from "../../model/Point.js";
@@ -67,19 +67,27 @@ export class HiPSIntermediateProj {
     //     return xyGridProj;
     // }
     static setupByTile(tileno, hp) {
-        const xy = { min_y: NaN, max_y: NaN, min_x: NaN, max_x: NaN, gridPointsDeg: [] };
+        const xy = {
+            min_y: NaN,
+            max_y: NaN,
+            min_x: NaN,
+            max_x: NaN,
+            gridPointsDeg: [],
+        };
         const corners = hp.getBoundariesWithStep(tileno, 1);
         const pts = [];
-        // 1) enforce φ continuity in radians
+        const phis = [];
         for (let i = 0; i < corners.length; i++) {
             pts[i] = new Pointing(corners[i]);
+            phis[i] = pts[i].phi;
             if (i >= 1) {
-                const a = pts[i - 1].phi, b = pts[i].phi;
+                const a = phis[i - 1];
+                const b = phis[i];
                 if (Math.abs(a - b) > Math.PI) {
                     if (a < b)
-                        pts[i - 1].phi += 2 * Math.PI;
+                        phis[i - 1] = a + 2 * Math.PI;
                     else
-                        pts[i].phi += 2 * Math.PI;
+                        phis[i] = b + 2 * Math.PI;
                 }
             }
         }
@@ -89,10 +97,13 @@ export class HiPSIntermediateProj {
         for (let j = 0; j < pts.length; j++) {
             const coTheta = pts[j].theta;
             const decRad = Math.PI / 2 - coTheta;
-            const raRad = pts[j].phi;
+            //   const raRad = pts[j].phi;
+            const raRad = phis[j];
             const ac = {
-                raDeg: radToDeg(raRad), raRad,
-                decDeg: radToDeg(decRad), decRad
+                raDeg: radToDeg(raRad),
+                raRad,
+                decDeg: radToDeg(decRad),
+                decRad,
             };
             const [xDeg, yDeg] = HiPSIntermediateProj.world2intermediate(ac);
             xs.push(xDeg);
@@ -121,7 +132,8 @@ export class HiPSIntermediateProj {
         }
         // Fallback: if the midline filter caught nothing (rare), use a filtered percentile
         if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
-            const pairs = xs.map((x, i) => ({ x, y: ys[i] }))
+            const pairs = xs
+                .map((x, i) => ({ x, y: ys[i] }))
                 .sort((a, b) => Math.abs(a.y - yMid) - Math.abs(b.y - yMid));
             const take = Math.max(4, Math.floor(pairs.length * 0.1)); // closest 10%
             minX = +Infinity;
@@ -148,20 +160,31 @@ export class HiPSIntermediateProj {
     static world2intermediate(ac) {
         let x_grid = NaN;
         let y_grid = NaN;
-        if (Math.abs(ac.decRad) <= HiPSIntermediateProj.THETAX) { // equatorial belts
+        if (Math.abs(ac.decRad) <= HiPSIntermediateProj.THETAX) {
+            // equatorial belts
             x_grid = ac.raDeg;
-            y_grid = Hploc.sin(ac.decRad) * HiPSIntermediateProj.K * 90 / HiPSIntermediateProj.H;
+            y_grid =
+                (Hploc.sin(ac.decRad) * HiPSIntermediateProj.K * 90) /
+                    HiPSIntermediateProj.H;
         }
-        else if (Math.abs(ac.decRad) > HiPSIntermediateProj.THETAX) { // polar zones
+        else if (Math.abs(ac.decRad) > HiPSIntermediateProj.THETAX) {
+            // polar zones
             let raDeg = ac.raDeg;
             let w = 0; // omega
-            if (HiPSIntermediateProj.K % 2 !== 0 || ac.decRad > 0) { // K odd or thetax > 0
+            if (HiPSIntermediateProj.K % 2 !== 0 || ac.decRad > 0) {
+                // K odd or thetax > 0
                 w = 1;
             }
             let sigma = Math.sqrt(HiPSIntermediateProj.K * (1 - Math.abs(Hploc.sin(ac.decRad))));
-            let phi_c = -180 + (2 * Math.floor(((ac.raDeg + 180) * HiPSIntermediateProj.H / 360) + ((1 - w) / 2)) + w) * (180 / HiPSIntermediateProj.H);
+            let phi_c = -180 +
+                (2 *
+                    Math.floor(((ac.raDeg + 180) * HiPSIntermediateProj.H) / 360 + (1 - w) / 2) +
+                    w) *
+                    (180 / HiPSIntermediateProj.H);
             x_grid = phi_c + (raDeg - phi_c) * sigma;
-            y_grid = (180 / HiPSIntermediateProj.H) * (((HiPSIntermediateProj.K + 1) / 2) - sigma);
+            y_grid =
+                (180 / HiPSIntermediateProj.H) *
+                    ((HiPSIntermediateProj.K + 1) / 2 - sigma);
             if (ac.decRad < 0) {
                 y_grid *= -1;
             }
@@ -204,22 +227,22 @@ export class HiPSIntermediateProj {
         const i_norm = (xAdj - xyGridProj.min_x) / xInterval;
         const j_norm = (y - xyGridProj.min_y) / yInterval;
         let i = 0.5 - (i_norm - j_norm);
-        let j = (i_norm + j_norm) - 0.5;
+        let j = i_norm + j_norm - 0.5;
         i = Math.floor(i * pxXtile);
         j = Math.floor(j * pxXtile);
         return [i, pxXtile - j - 1];
     }
     static pix2intermediate(i, j, xyGridProj, naxis1, naxis2) {
         /**
-                   * (i_norm,w_pixel) = (0,0) correspond to the lower-left corner of the facet in the image
-                 * (i_norm,w_pixel) = (1,1) is the upper right corner
-                 * dimamond in figure 1 from "Mapping on the HEalpix grid" paper
-                 * (0,0) leftmost corner
-                 * (1,0) upper corner
-                 * (0,1) lowest corner
-                 * (1,1) rightmost corner
-                 * Thanks YAGO! :p
-                 */
+         * (i_norm,w_pixel) = (0,0) correspond to the lower-left corner of the facet in the image
+         * (i_norm,w_pixel) = (1,1) is the upper right corner
+         * dimamond in figure 1 from "Mapping on the HEalpix grid" paper
+         * (0,0) leftmost corner
+         * (1,0) upper corner
+         * (0,1) lowest corner
+         * (1,1) rightmost corner
+         * Thanks YAGO! :p
+         */
         // let cnaxis1 = HiPSHelper.pxXtile;
         // let cnaxis2 = HiPSHelper.pxXtile;
         let cnaxis1 = naxis1;
@@ -245,8 +268,9 @@ export class HiPSIntermediateProj {
     static intermediate2world(x, y) {
         let raDeg = NaN;
         let decDeg = NaN;
-        const Yx = 90 * (HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.H; // = 45° for H=4,K=3
-        if (Math.abs(y) <= Yx) { // equatorial belts
+        const Yx = (90 * (HiPSIntermediateProj.K - 1)) / HiPSIntermediateProj.H; // = 45° for H=4,K=3
+        if (Math.abs(y) <= Yx) {
+            // equatorial belts
             // === Equatorial inverse ===
             // φ = x ;  sin(Dec) = y * H / (90 K)
             // raDeg = x
@@ -256,10 +280,12 @@ export class HiPSIntermediateProj {
             const sClamped = Math.max(-1, Math.min(1, s));
             decDeg = radToDeg(Math.asin(sClamped));
         }
-        else { // polar regions
+        else {
+            // polar regions
             // === Polar inverse ===
             // σ = (K+1)/2 − |y| H / 180
-            const sigma = (HiPSIntermediateProj.K + 1) / 2 - (Math.abs(y) * HiPSIntermediateProj.H) / 180;
+            const sigma = (HiPSIntermediateProj.K + 1) / 2 -
+                (Math.abs(y) * HiPSIntermediateProj.H) / 180;
             // Recover z = sin(Dec) with hemisphere from y
             const zAbs = 1 - (sigma * sigma) / HiPSIntermediateProj.K; // |sin(Dec)|
             const z = (y >= 0 ? 1 : -1) * zAbs;
@@ -271,9 +297,13 @@ export class HiPSIntermediateProj {
             //     w = 1
             // }
             // ω from hemisphere (use y), or K odd
-            const w = (HiPSIntermediateProj.K % 2 !== 0 || y > 0) ? 1 : 0; // ✅ use hemisphere from y
+            const w = HiPSIntermediateProj.K % 2 !== 0 || y > 0 ? 1 : 0; // ✅ use hemisphere from y
             // Sector centre and RA
-            const x_c = -180 + (2 * Math.floor((x + 180) * HiPSIntermediateProj.H / 360 + (1 - w) / 2) + w) * (180 / HiPSIntermediateProj.H);
+            const x_c = -180 +
+                (2 *
+                    Math.floor(((x + 180) * HiPSIntermediateProj.H) / 360 + (1 - w) / 2) +
+                    w) *
+                    (180 / HiPSIntermediateProj.H);
             raDeg = x_c + (x - x_c) / (sigma || 1); // guard σ=0 at the pole
             // Optional: wrap RA to [0,360)
             raDeg = ((raDeg % 360) + 360) % 360;

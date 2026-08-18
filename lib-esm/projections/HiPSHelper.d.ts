@@ -6,8 +6,7 @@
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-import { Healpix } from 'healpixjs';
-import { Pointing } from "healpixjs";
+import { Healpix, Pointing } from "astrospatial-core/healpix";
 import { Point } from "../model/Point.js";
 export declare class HiPSHelper {
     static DEFAULT_Naxis1_2: number;

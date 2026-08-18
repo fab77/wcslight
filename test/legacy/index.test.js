@@ -1,7 +1,7 @@
 import assert, { doesNotMatch } from 'assert';
-import HiPSProjection from '../src/projections/HiPSProjection.js';
+import HiPSProjection from '../src/projections/hips/HiPSProjection.js';
 import MercatorProjection from '../src/projections/MercatorProjection.js';
-import WCSLight from '../src/WCSLight.js';
+import WCSLight from '../../src/WCSLight.js';
 import Canvas2D from '../src/model/Canvas2D.js'
 import fs from 'fs';
 

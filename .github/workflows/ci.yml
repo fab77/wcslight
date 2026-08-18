@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,5 +21,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build production bundle
-        run: npm run prod
+      - name: Build and test
+        run: npm test
+
+      - name: Verify package contents
+        run: npm pack --dry-run

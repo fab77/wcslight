@@ -1,6 +1,6 @@
 import { FITSWriter } from 'jsfitsio';
 
-import { HiPSProjection } from "../lib-esm/projections/HiPSProjection.js";
+import { HiPSProjection } from "../lib-esm/projections/hips/HiPSProjection.js";
 import { MercatorProjection } from "../lib-esm/projections/MercatorProjection.js";
 
 import fs from 'node:fs/promises';

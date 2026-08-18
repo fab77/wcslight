@@ -7,6 +7,7 @@ export { sphericalToCartesian, cartesianToSpherical, sphericalToAstro, fillSpher
 export { AbstractProjection } from './projections/AbstractProjection.js';
 export { HiPSHelper } from './projections/HiPSHelper.js';
 export { HiPSProjection } from './projections/hips/HiPSProjection.js';
-export { CartesianProjection as MercatorProjection } from './projections/cartesian/CartesianProjection.js';
+export { CartesianProjection } from './projections/cartesian/CartesianProjection.js';
+export { MercatorProjection } from './projections/mercator/MercatorProjection.js';
 export { HiPSFITS } from './projections/hips/HiPSFITS.js';
 //# sourceMappingURL=index.js.map

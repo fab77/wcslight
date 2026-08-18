@@ -1,10 +1,10 @@
 import { FITSWriter } from "jsfitsio";
-import { CoordsType } from "../lib-esm/model/CoordsType.js";
-import { NumberType } from "../lib-esm/model/NumberType.js";
-import { Point } from "../lib-esm/model/Point.js";
-import { HiPSProjection } from "../lib-esm/projections/HiPSProjection.js";
+import { CoordsType } from "../../lib-esm/model/CoordsType.js";
+import { NumberType } from "../../lib-esm/model/NumberType.js";
+import { Point } from "../../lib-esm/model/Point.js";
+import { HiPSProjection } from "../lib-esm/projections/hips/HiPSProjection.js";
 import { MercatorProjection } from "../lib-esm/projections/MercatorProjection.js";
-import { WCSLight } from '../lib-esm/WCSLight.js';
+import { WCSLight } from '../../lib-esm/WCSLight.js';
 
 
 import fs from 'node:fs/promises';

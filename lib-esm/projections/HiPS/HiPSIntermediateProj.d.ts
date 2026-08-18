@@ -1,4 +1,4 @@
-import { Healpix } from "healpixjs";
+import { Healpix } from "astrospatial-core/healpix";
 import { AstroCoords } from "../../model/AstroCoords.js";
 import { HEALPixXYSpace } from "../../model/HEALPixXYSpace.js";
 import { Point } from "../../model/Point.js";

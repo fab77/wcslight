@@ -1,6 +1,6 @@
 import { FITSHeaderItem, FITSHeaderManager, FITSParser, ParseUtils } from "jsfitsio";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
-import { Pointing } from "healpixjs";
+import { Pointing } from "astrospatial-core/healpix";
 import { fillAstro, radToDeg } from "../../model/Utils.js";
 import { NumberType } from "../../model/NumberType.js";
 import { HiPSHelper } from "../HiPSHelper.js";
