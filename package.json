@@ -1,7 +1,7 @@
 {
     "name": "wcslight",
     "description": "Lightweight JavaScript/TypeScript library for astronomical World Coordinate System (WCS), FITS, HiPS and HEALPix projections.",
-    "version": "3.1.0",
+    "version": "3.1.1-snapshot",
     "keywords": [
         "wcs",
         "world-coordinate-system",
