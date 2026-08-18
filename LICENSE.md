@@ -1,23 +1,50 @@
-wcslight
+# wcslight Licensing
+
 Copyright (C) Fabrizio Giordano
 
-This repository uses a dual-license model.
+wcslight is distributed under a dual-license model.
 
-Choose the license track that matches your use case:
+You may use wcslight under either of the following licensing options.
 
-1. Commercial use
+## 1. GNU Affero General Public License v3.0
 
-Commercial, proprietary, internal business, SaaS, paid-service, OEM, or other
-revenue-generating use requires a separate commercial license agreement from
-the copyright holder. See `LICENSE-COMMERCIAL.md`.
+wcslight is available under the GNU Affero General Public License
+version 3 (`AGPL-3.0-only`).
 
-2. Non-commercial use
+This is an open-source license and permits commercial and non-commercial use,
+modification, redistribution, and network-based use, subject to the terms and
+obligations of the AGPL-3.0.
 
-Personal study, academic work, research, evaluation, hobby, and other
-non-commercial use may be carried out under the source-available terms
-described in `LICENSE-NONCOMMERCIAL.md`.
+The complete license text is available in:
 
-The non-commercial license track is not an OSI-approved open source license.
+`LICENSE-AGPL.md`
 
-If your intended use is commercial or if there is any uncertainty, use the
-commercial licensing track.
+## 2. Commercial license
+
+A separate commercial license is available for organizations or individuals
+that want to use wcslight under terms that do not impose the requirements of
+the AGPL-3.0.
+
+Typical commercial-license use cases include proprietary products,
+closed-source applications, SaaS offerings, embedded products, OEM
+redistribution, proprietary modifications, or other situations where
+AGPL-3.0 obligations are not suitable.
+
+See:
+
+`LICENSE-COMMERCIAL.md`
+
+for commercial licensing information.
+
+## Choosing a license
+
+You may choose either licensing track according to your requirements.
+
+Use of wcslight under the AGPL-3.0 does not require a commercial license,
+including for commercial activity, provided that the AGPL-3.0 terms are
+satisfied.
+
+The commercial license provides an alternative licensing path for proprietary
+or otherwise incompatible use cases.
+
+Third-party dependencies remain governed by their respective licenses.

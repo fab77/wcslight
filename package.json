@@ -47,7 +47,7 @@
         "README.md",
         "LICENSE.md",
         "LICENSE-COMMERCIAL.md",
-        "LICENSE-NONCOMMERCIAL.md",
+        "LICENSE-AGPL.md",
         "package.json"
     ],
     "scripts": {
@@ -76,8 +76,8 @@
         "webpack-cli": "^5.0.0"
     },
     "dependencies": {
-        "astrospatial-core": "^0.4.0",
-        "jsfitsio": "^2.1.0"
+        "astrospatial-core": "^0.4.1",
+        "jsfitsio": "^2.1.2"
     },
     "browser": {
         "fs": false,

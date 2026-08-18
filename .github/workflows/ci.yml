@@ -2,10 +2,22 @@ name: wcslight CI
 
 on:
   push:
+    branches:
+      - main
+      - dev
+      - "feature/**"
+      - "release/**"
   pull_request:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:
+    name: Build, test and verify package
     runs-on: ubuntu-latest
 
     steps:
@@ -15,8 +27,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24"
           cache: npm
+
+      - name: Show environment
+        run: |
+          node --version
+          npm --version
 
       - name: Install dependencies
         run: npm ci

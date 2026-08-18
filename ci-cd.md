@@ -2,11 +2,20 @@
 
 This repository is part of the AstroViewer dependency family and follows a dual-license model.
 
-Before a commercial-facing release is considered final, review:
+Before a release is considered final, review:
 
 - `LICENSE.md`
+- `LICENSE-AGPL.md`
 - `LICENSE-COMMERCIAL.md`
-- `LICENSE-NONCOMMERCIAL.md`
+
+wcslight is dual-licensed under:
+
+- GNU Affero General Public License version 3 (`AGPL-3.0-only`)
+- a separate commercial license
+
+The AGPL-3.0 option permits both commercial and non-commercial use subject to its terms.
+
+The commercial license is an alternative for proprietary, closed-source, OEM, SaaS, or other use cases where the AGPL-3.0 requirements are not suitable.
 
 ## Current release policy
 
@@ -80,6 +89,27 @@ npm package
 ```
 
 The npm package contains `dist/` and `lib-esm/`, even though those directories are not stored in Git.
+
+## Runtime dependency policy
+
+wcslight currently depends on:
+
+```text
+astrospatial-core ^0.4.1
+jsfitsio          ^2.1.2
+```
+
+`astrospatial-core` provides shared astronomical and HEALPix-related functionality used by wcslight.
+
+`jsfitsio` provides FITS parsing and I/O functionality.
+
+Runtime dependency versions should be reviewed before each release and the resulting dependency tree should be verified with:
+
+```bash
+npm ls --depth=0
+```
+
+The package lockfile must be committed and kept consistent with `package.json`.
 
 ## Test strategy
 
@@ -167,7 +197,7 @@ GitHub Actions runs CI on pushes and pull requests.
 The CI workflow:
 
 - checks out the repository
-- sets up Node.js 22
+- sets up Node.js 24
 - installs dependencies with `npm ci`
 - builds the package and runs the deterministic test suite with `npm test`
 - verifies the generated npm package contents with `npm pack --dry-run`
@@ -176,6 +206,15 @@ The CI workflow is defined in:
 
 ```text
 .github/workflows/ci.yml
+```
+
+CI should cover development and release activity on:
+
+```text
+main
+dev
+feature/**
+release/**
 ```
 
 Because `dist/` and `lib-esm/` are not stored in Git, successful CI also verifies that the repository can be built from a clean checkout.
@@ -246,6 +285,21 @@ Run the deterministic release gates:
 npm ci
 npm test
 npm pack --dry-run
+npm audit
+npm audit --omit=dev
+```
+
+Verify the runtime dependency tree:
+
+```bash
+npm ls --depth=0
+```
+
+Confirm that the expected first-party dependencies are resolved:
+
+```text
+astrospatial-core@0.4.1
+jsfitsio@2.1.2
 ```
 
 Review the changes:
@@ -342,6 +396,14 @@ The release workflow:
 
 Publishing uses npm Trusted Publishing with GitHub Actions OIDC.
 
+The workflow requires:
+
+```yaml
+permissions:
+  contents: read
+  id-token: write
+```
+
 No long-lived npm publishing token is required.
 
 Remote network-dependent tests are intentionally not part of the automated publish workflow.
@@ -374,6 +436,15 @@ Check its runtime dependencies:
 npm view wcslight@3.1.1 dependencies
 ```
 
+The expected dependencies are:
+
+```text
+astrospatial-core: ^0.4.1
+jsfitsio: ^2.1.2
+```
+
+The published package should show that it was published by GitHub Actions when Trusted Publishing is used successfully.
+
 ## Clean package installation test
 
 A release should also be tested as an installed npm package rather than only from the repository checkout.
@@ -382,7 +453,7 @@ Create a clean temporary directory:
 
 ```bash
 rm -rf /tmp/wcslight-test
-mkdir /tmp/wcslight-test
+mkdir -p /tmp/wcslight-test
 cd /tmp/wcslight-test
 
 npm init -y
@@ -410,6 +481,12 @@ Verify the CommonJS entry point:
 
 ```bash
 node -e "require('wcslight'); console.log('wcslight CommonJS require OK')"
+```
+
+Verify that the expected dependency versions are installed:
+
+```bash
+npm ls astrospatial-core jsfitsio
 ```
 
 This installation test is especially important because wcslight publishes separate ESM and CommonJS bundles and depends on `astrospatial-core`.
@@ -484,6 +561,8 @@ feature/*
 release/3.1.1
     │
     │ version -> 3.1.1
+    │
+    │ npm ci
     │ npm test
     │   ├── build dist/
     │   ├── build lib-esm/
@@ -491,6 +570,8 @@ release/3.1.1
     │   └── local integration tests
     │
     │ npm pack --dry-run
+    │ npm audit
+    │ npm audit --omit=dev
     ▼
    PR
     │
@@ -508,6 +589,7 @@ tag v3.1.1
 release.yml
     │
     ├── clean checkout
+    ├── Node.js 24
     ├── npm ci
     ├── npm test
     │    └── generate publish artifacts
@@ -519,7 +601,9 @@ release.yml
 wcslight@3.1.1
     │
     ├── dist/
-    └── lib-esm/
+    ├── lib-esm/
+    ├── astrospatial-core ^0.4.1
+    └── jsfitsio ^2.1.2
     │
     ▼
 merge main -> dev
