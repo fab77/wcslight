@@ -9,7 +9,7 @@
  */
 
 
-import { Healpix, Pointing, Hploc } from "@fab77/astrospatial-core/healpix";
+import { Healpix, Pointing, Hploc } from "astrospatial-core/healpix";
 
 import { Point } from "../model/Point.js";
 

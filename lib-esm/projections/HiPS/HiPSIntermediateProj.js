@@ -1,6 +1,5 @@
 //HiPSIntermediateProj.ts
-// import { Healpix, Hploc, Pointing } from "healpixjs";
-import { Hploc, Pointing } from "@fab77/astrospatial-core/healpix";
+import { Hploc, Pointing } from "astrospatial-core/healpix";
 import { CoordsType } from "../../model/CoordsType.js";
 import { NumberType } from "../../model/NumberType.js";
 import { Point } from "../../model/Point.js";

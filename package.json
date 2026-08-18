@@ -1,14 +1,25 @@
 {
     "name": "wcslight",
-    "description": "WCS Javascript library.",
+    "description": "Lightweight JavaScript/TypeScript library for astronomical World Coordinate System (WCS), FITS, HiPS and HEALPix projections.",
     "version": "3.1.0-snapshot",
     "keywords": [
-        "WCS",
-        "WCS light",
-        "lightweight WCS for browser"
+        "wcs",
+        "world-coordinate-system",
+        "astronomy",
+        "astrophysics",
+        "fits",
+        "hips",
+        "healpix",
+        "coordinates",
+        "projection",
+        "browser"
     ],
     "author": "Fabrizio Giordano (fab77)",
     "license": "SEE LICENSE IN LICENSE.md",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
     "homepage": "https://github.com/fab77/wcslight#readme",
     "repository": {
         "type": "git",
@@ -44,10 +55,12 @@
         "build": "npm run clean && tsc && webpack --mode=production",
         "dev": "npm run clean && tsc && webpack --mode=development --watch --progress",
         "prod": "npm run build",
-        "test": "npm run test:unit",
-        "test:unit": "npm run build && node --test test/unit/*.test.mjs",
-        "test:integration": "npm run build && node --test test/integration/*.test.mjs",
-        "test:all": "npm run test:unit && npm run test:integration",
+        "test": "npm run test:ci",
+        "test:unit": "node --test test/unit/*.test.mjs",
+        "test:integration": "node --test test/integration/*.test.mjs",
+        "test:remote": "node --test test/remote/*.test.mjs",
+        "test:ci": "npm run build && npm run test:unit && npm run test:integration",
+        "test:all": "npm run test:ci && npm run test:remote",
         "webtest": "cp dist/* webtest/; node server.cjs"
     },
     "engines": {
@@ -62,7 +75,7 @@
         "webpack-cli": "^5.0.0"
     },
     "dependencies": {
-        "@fab77/astrospatial-core": "^0.3.0",
+        "astrospatial-core": "^0.4.0",
         "jsfitsio": "^2.1.0"
     },
     "browser": {

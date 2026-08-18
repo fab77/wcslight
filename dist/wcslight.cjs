@@ -5747,7 +5747,7 @@ class CartesianProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/@fab77/astrospatial-core/lib-esm/healpix/vec3.js
+;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/vec3.js
 class Vec3 {
     x;
     y;
@@ -5786,7 +5786,7 @@ class Vec3 {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/@fab77/astrospatial-core/lib-esm/healpix/pointing.js
+;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/pointing.js
 
 class Pointing {
     theta;
@@ -5814,7 +5814,7 @@ function normalizePhi(phi) {
     return ((phi % twoPi) + twoPi) % twoPi;
 }
 
-;// CONCATENATED MODULE: ./node_modules/@fab77/astrospatial-core/lib-esm/healpix/rangeset.js
+;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/rangeset.js
 class RangeSet {
     r = [];
     append(value) {
@@ -5835,7 +5835,7 @@ class RangeSet {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/@fab77/astrospatial-core/lib-esm/healpix/healpix.js
+;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/healpix.js
 
 
 
@@ -6522,7 +6522,7 @@ function findCircleThroughTwoPoints(points, q1, q2) {
     return { center, cosRadius };
 }
 
-;// CONCATENATED MODULE: ./node_modules/@fab77/astrospatial-core/lib-esm/healpix/hploc.js
+;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/hploc.js
 
 
 class Hploc {
@@ -6567,7 +6567,7 @@ class Hploc {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/@fab77/astrospatial-core/lib-esm/healpix/index.js
+;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/index.js
 
 
 
@@ -6576,7 +6576,6 @@ class Hploc {
 
 ;// CONCATENATED MODULE: ./src/projections/hips/HiPSIntermediateProj.ts
 //HiPSIntermediateProj.ts
-// import { Healpix, Hploc, Pointing } from "healpixjs";
 
 
 
@@ -6907,9 +6906,6 @@ class HiPSIntermediateProj {
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-// import { Healpix } from 'healpixjs';
-// import { Pointing } from "healpixjs";
-// import { Hploc } from "healpixjs";
 
 class HiPSHelper {
     // static pxXtile: number = 512; // TODO in some cases it is different
@@ -7110,7 +7106,6 @@ class HiPSProperties {
 ;// CONCATENATED MODULE: ./src/projections/hips/HiPSFITS.ts
 
 
-// import { Healpix, Pointing } from "healpixjs"
 
 
 
@@ -7455,7 +7450,6 @@ class HiPSPropManager {
 
 
 
-// import { Healpix, Pointing, RangeSet } from "healpixjs";
 
 
 
@@ -7544,7 +7538,7 @@ class HiPSProjection {
     }
     static _xyGridCache = new Map();
     static pix2world(i, j, tileno, healpix, TILE_WIDTH) {
-        const order = healpix.order ?? Math.log2(healpix.nside); // adapt to your healpixjs
+        const order = healpix.order ?? Math.log2(healpix.nside); // keep compatibility with Healpix implementations exposing order or nside
         const cacheKey = `${order}:${tileno}`;
         let xyGridProj = HiPSProjection._xyGridCache.get(cacheKey);
         if (!xyGridProj) {

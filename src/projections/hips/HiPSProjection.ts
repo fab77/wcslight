@@ -2,7 +2,7 @@ import { FITSList } from "./FITSList.js";
 import { HiPSProperties } from "./HiPSProperties.js"
 import { HiPSPropManager } from "./HiPSPropManager.js";
 import { Point } from "../../model/Point.js";
-import { Healpix, Pointing, RangeSet } from "@fab77/astrospatial-core/healpix";
+import { Healpix, Pointing, RangeSet } from "astrospatial-core/healpix";
 import { degToRad } from "../../model/Utils.js";
 import { HiPSIntermediateProj } from "./HiPSIntermediateProj.js";
 import { FITSHeaderManager, FITSParser, ParseUtils } from "jsfitsio";

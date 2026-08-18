@@ -1,6 +1,6 @@
 import { FITSList } from "./FITSList.js";
 import { Point } from "../../model/Point.js";
-import { Healpix } from "@fab77/astrospatial-core/healpix";
+import { Healpix } from "astrospatial-core/healpix";
 import { FITSHeaderManager } from "jsfitsio";
 import { TilesRaDecList2 } from "./TilesRaDecList2.js";
 export declare class HiPSProjection {

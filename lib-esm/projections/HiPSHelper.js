@@ -6,10 +6,7 @@
  * @link   github https://github.com/fab77/wcslight
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
-// import { Healpix } from 'healpixjs';
-// import { Pointing } from "healpixjs";
-// import { Hploc } from "healpixjs";
-import { Healpix, Pointing, Hploc } from "@fab77/astrospatial-core/healpix";
+import { Healpix, Pointing, Hploc } from "astrospatial-core/healpix";
 export class HiPSHelper {
     // static pxXtile: number = 512; // TODO in some cases it is different
     static DEFAULT_Naxis1_2 = 512;

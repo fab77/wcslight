@@ -1,0 +1,75 @@
+hips_doi             = 10.26093/cds/aladin/2j9t-aa4
+client_category      = Image/Optical/DECaPS
+hips_initial_fov     = 10
+hips_initial_ra      = 188.9290792
+hips_initial_dec     = -63.3032221
+creator_did          = ivo://CDS/P/DECaPS/DR1/g
+hips_pixel_bitpix    = 16
+data_pixel_bitpix    = -32
+hips_sampling        = bilinear
+hips_overlay         = mean
+hips_hierarchy       = mean
+hips_creator         = Boch T. (CDS)
+hips_copyright       = CNRS/Universite de Strasbourg
+hips_license         = ODbL-1.0
+obs_title            = DECaPS DR1 g
+obs_collection       = DECam Plane Survey DR1 g band
+obs_description      = The DECam Plane Survey is a five-band optical and near-infrared survey of the southern Galactic plane with the Dark Energy Camera at Cerro Tololo. The survey is designed to reach past the mainsequence turn-off at the distance of the Galactic center through a reddening E(B - V ) of 1.5 mag.  Typical single-exposure depths are 23.7, 22.8, 22.3, 21.9, and 21.0 mag in the grizY bands, with seeing around 100. The footprint covers the Galactic plane with |b| <= 4deg , 5deg > l > -120deg
+#obs_ack             = Acknowledgement mention
+prov_progenitor      = http://portal.nersc.gov/project/cosmo/data/decaps/dr1/coadd/
+bib_reference        = 2018ApJS..234...39S
+bib_reference_url    = https://ui.adsabs.harvard.edu/?#abs/2018ApJS..234...39S
+#bib_reference       = arXiv:1710.01309
+#bib_reference_url   = https://arxiv.org/abs/1710.01309
+obs_copyright        = DECaM Plane Survey / NOAO
+obs_copyright_url    = http://decaps.skymaps.info/
+# t_min, t_max info given in table 2 of paper https://arxiv.org/pdf/1710.01309.pdf
+t_min                = 57460
+t_max                = 57876
+obs_regime           = Optical
+obs_regime           = Infrared
+# Filter information available at http://www.ctio.noao.edu/noao/content/DECam-filter-information
+em_min               = 3.805e-7
+em_max               = 5.645e-7
+hips_builder         = Aladin/HipsGen v10.125
+hips_version         = 1.4
+hips_release_date    = 2019-05-22T14:08Z
+hips_frame           = equatorial
+hips_order           = 11
+hips_tile_width      = 512
+#hips_service_url    = ex: http://yourHipsServer/DECaPS DR1 g
+hips_status          = public master clonableOnce
+hips_tile_format     = png jpeg fits
+hips_pixel_cut       = -7.105E-15 0.5
+hips_data_range      = -40 140
+hips_pixel_scale     = 5.591E-5
+s_pixel_scale        = 7.277E-5
+dataproduct_type     = image
+moc_sky_fraction     = 0.03511
+hips_estsize         = 1377036753
+hipsgen_date         = 2018-01-11T10:59Z
+hipsgen_params       = mode=keeptile tiles
+hips_creation_date   = 2018-01-11T10:59Z
+hipsgen_date_1       = 2018-01-11T13:05Z
+hipsgen_params_1     = mode=keeptile tiles
+hipsgen_date_2       = 2018-01-11T13:07Z
+hipsgen_params_2     = jpeg
+hipsgen_date_3       = 2018-01-11T13:07Z
+hipsgen_params_3     = jpeg
+hipsgen_date_4       = 2018-01-11T13:09Z
+hipsgen_params_4     = jpeg
+hipsgen_date_5       = 2018-01-11T13:19Z
+hipsgen_params_5     = jpeg
+hipsgen_date_6       = 2018-01-12T09:59Z
+hipsgen_params_6     = mode=replacetile jpeg
+hipsgen_date_7       = 2018-01-18T08:21Z
+hipsgen_params_7     = maxThread=24 tiles
+hipsgen_date_8       = 2018-01-18T08:56Z
+hipsgen_params_8     = jpeg
+hipsgen_date_9       = 2018-01-18T13:10Z
+hipsgen_params_9     = mode=replacetile jpeg
+hipsgen_date_10      = 2018-01-19T03:17Z
+hipsgen_params_10    = mode=replacetile png
+hips_order_min       = 0
+hipsgen_date_11      = 2019-05-22T14:08Z
+hipsgen_params_11    = out=/asd-volumes/sc1-asd-volume2/DECaPS/DR1/g UPDATE
