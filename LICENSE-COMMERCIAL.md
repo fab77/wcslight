@@ -1,16 +1,30 @@
-wcslight Commercial Licensing
+# wcslight Commercial Licensing
 
-Commercial use of wcslight requires a separate written agreement with the
-copyright holder.
+Copyright (C) Fabrizio Giordano
 
-Examples of commercial use include:
+wcslight is available under a dual-license model:
 
-- integration into proprietary software
-- internal business use
-- paid services or hosted offerings
-- consulting deliverables transferred to a client
+- GNU Affero General Public License version 3 (`AGPL-3.0-only`)
+- separate commercial license
+
+The commercial license provides an alternative to the AGPL-3.0 for users who
+need licensing terms suitable for proprietary or closed-source software.
+
+Typical use cases include:
+
+- integration into proprietary applications
+- closed-source commercial products
+- SaaS or hosted services where AGPL obligations are not suitable
 - OEM or embedded redistribution
-- any use connected to direct or indirect revenue generation
+- proprietary modifications
+- commercial redistribution under alternative licensing terms
 
-Unless and until a commercial agreement is executed, no commercial rights are
-granted by this repository.
+Use of wcslight under the AGPL-3.0 does not require a commercial license,
+including for commercial purposes, provided that all AGPL-3.0 requirements
+are satisfied.
+
+Commercial licensing terms are provided through a separate written agreement
+with the copyright holder.
+
+For commercial licensing enquiries, contact the copyright holder through the
+project repository or the contact information provided in the package metadata.

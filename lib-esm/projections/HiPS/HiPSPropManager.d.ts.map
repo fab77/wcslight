@@ -1,1 +1,0 @@
-{"version":3,"file":"HiPSPropManager.d.ts","sourceRoot":"","sources":["../../../src/projections/hips/HiPSPropManager.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAE,MAAM,qBAAqB,CAAC;AAGrD,qBAAa,eAAe;WAEX,iBAAiB,CAAC,OAAO,EAAC,MAAM,GAAG,OAAO,CAAC,cAAc,CAAC;mBAWlD,kBAAkB;mBAkBlB,iBAAiB;IAWtC,OAAO,CAAC,MAAM,CAAC,uBAAuB;CAuBzC"}

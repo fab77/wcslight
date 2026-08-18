@@ -3,16 +3,25 @@ WCSLight is a TypeScript library designed to manipulate data projections in stan
 
 ## Licensing
 
-wcslight is distributed under a dual-license model:
+wcslight is dual-licensed under:
 
-- a commercial license for proprietary or revenue-generating use
-- a separate non-commercial, source-available license for personal, academic,
-  research, evaluation, or other non-commercial use
+- the **GNU Affero General Public License version 3 (AGPL-3.0)**; or
+- a separate **commercial license**.
 
-The non-commercial option is not an OSI open source license. See
-`LICENSE.md`, `LICENSE-COMMERCIAL.md`, and `LICENSE-NONCOMMERCIAL.md`.
+The AGPL-3.0 option is open source and permits both commercial and
+non-commercial use, subject to its terms.
 
-At the moment it supports only HiPS and Cartesian projections.
+The commercial license is an alternative for organizations that need to use
+wcslight in proprietary products, closed-source services, or other contexts
+where the AGPL-3.0 requirements are not suitable.
+
+See:
+
+- `LICENSE.md` for an overview of the dual-license model
+- `LICENSE-AGPL.md` for the complete AGPL-3.0 license text
+- `LICENSE-COMMERCIAL.md` for commercial licensing information
+
+---
 
 ## Known limitations:
 At the moment tested with HiPS tiles of 512x512. With other tile size it might fail.
