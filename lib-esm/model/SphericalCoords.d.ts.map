@@ -1,1 +1,0 @@
-{"version":3,"file":"SphericalCoords.d.ts","sourceRoot":"","sources":["../../src/model/SphericalCoords.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,MAAM,oBAAoB,CAAC;AAEnD,MAAM,WAAW,eAAgB,SAAQ,aAAa;IAClD,MAAM,EAAE,MAAM,CAAC;IAClB,QAAQ,EAAE,MAAM,CAAC;IACd,MAAM,EAAE,MAAM,CAAC;IAClB,QAAQ,EAAE,MAAM,CAAC;CACjB"}
