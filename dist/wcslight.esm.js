@@ -1,7 +1,7 @@
 /******/ var __webpack_modules__ = ({
 
-/***/ 945:
-/***/ ((module, exports, __webpack_require__) => {
+/***/ 945
+(module, exports, __webpack_require__) {
 
 // Save global object in a variable
 var __global__ =
@@ -691,33 +691,32 @@ exports.Response = ctx.Response
 module.exports = exports
 
 
-/***/ }),
+/***/ },
 
-/***/ 223:
-/***/ (() => {
-
-/* (ignored) */
-
-/***/ }),
-
-/***/ 410:
-/***/ (() => {
+/***/ 223
+() {
 
 /* (ignored) */
 
-/***/ }),
+/***/ },
 
-/***/ 942:
-/***/ (() => {
+/***/ 410
+() {
 
 /* (ignored) */
 
-/***/ }),
+/***/ },
 
-/***/ 911:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ 942
+() {
 
-__webpack_require__.r(__webpack_exports__);
+/* (ignored) */
+
+/***/ },
+
+/***/ 911
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   getFile: () => (/* binding */ getFile)
 /* harmony export */ });
@@ -750,12 +749,11 @@ async function getFile(uri) {
 }
 //# sourceMappingURL=getFile.js.map
 
-/***/ }),
+/***/ },
 
-/***/ 64:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ 64
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
-__webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   getLocalFile: () => (/* binding */ getLocalFile)
 /* harmony export */ });
@@ -784,22 +782,22 @@ async function getLocalFile(path) {
 }
 //# sourceMappingURL=getLocalFile.js.map
 
-/***/ })
+/***/ }
 
 /******/ });
 /************************************************************************/
 /******/ // The module cache
-/******/ var __webpack_module_cache__ = {};
+/******/ const __webpack_module_cache__ = {};
 /******/ 
 /******/ // The require function
 /******/ function __webpack_require__(moduleId) {
 /******/ 	// Check if module is in cache
-/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	const cachedModule = __webpack_module_cache__[moduleId];
 /******/ 	if (cachedModule !== undefined) {
 /******/ 		return cachedModule.exports;
 /******/ 	}
 /******/ 	// Create a new module (and put it into the cache)
-/******/ 	var module = __webpack_module_cache__[moduleId] = {
+/******/ 	const module = __webpack_module_cache__[moduleId] = {
 /******/ 		// no module.id needed
 /******/ 		// no module.loaded needed
 /******/ 		exports: {}
@@ -815,11 +813,26 @@ async function getLocalFile(path) {
 /************************************************************************/
 /******/ /* webpack/runtime/define property getters */
 /******/ (() => {
-/******/ 	// define getter functions for harmony exports
+/******/ 	// define getter/value functions for harmony exports
 /******/ 	__webpack_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 		if(Array.isArray(definition)) {
+/******/ 			var i = 0;
+/******/ 			while(i < definition.length) {
+/******/ 				var key = definition[i++];
+/******/ 				var binding = definition[i++];
+/******/ 				if(!__webpack_require__.o(exports, key)) {
+/******/ 					if(binding === 0) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 					} else {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 					}
+/******/ 				} else if(binding === 0) { i++; }
+/******/ 			}
+/******/ 		} else {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
 /******/ 			}
 /******/ 		}
 /******/ 	};
@@ -842,48 +855,11 @@ async function getLocalFile(path) {
 /******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ })();
 /******/ 
-/******/ /* webpack/runtime/make namespace object */
-/******/ (() => {
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = (exports) => {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/ })();
-/******/ 
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  qd: () => (/* reexport */ AbstractProjection),
-  aC: () => (/* reexport */ CartesianProjection),
-  lR: () => (/* reexport */ CoordsType),
-  v4: () => (/* reexport */ HiPSFITS),
-  lf: () => (/* reexport */ HiPSHelper),
-  qb: () => (/* reexport */ HiPSProjection),
-  er: () => (/* reexport */ ImagePixel_ImagePixel),
-  Ne: () => (/* reexport */ MercatorProjection),
-  wl: () => (/* reexport */ NumberType),
-  bR: () => (/* reexport */ Point),
-  kv: () => (/* reexport */ WCSLight),
-  A1: () => (/* reexport */ astroToSpherical),
-  jU: () => (/* reexport */ cartesianToSpherical),
-  pu: () => (/* reexport */ degToRad),
-  jc: () => (/* reexport */ fillAstro),
-  NZ: () => (/* reexport */ fillSpherical),
-  H: () => (/* reexport */ radToDeg),
-  Mp: () => (/* reexport */ sphericalToAstro),
-  lq: () => (/* reexport */ sphericalToCartesian)
-});
 
 // EXTERNAL MODULE: fs (ignored)
 var fs_ignored_ = __webpack_require__(223);
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/FITSWriter.js
+;// ./node_modules/jsfitsio/lib-esm/FITSWriter.js
 // import { FITSHeader } from "./model/FITSHeader.js"
 
 class FITSWriter {
@@ -1082,7 +1058,7 @@ class FITSWriter {
 // // Write the FITS file to the filesystem
 // FITSWriter.writeFITSFile(fitsParsed, filePath);
 //# sourceMappingURL=FITSWriter.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js
+;// ./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js
 /**
  * Summary. (bla bla bla)
  *
@@ -1111,7 +1087,7 @@ class FITSHeaderItem {
     }
 }
 //# sourceMappingURL=FITSHeaderItem.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/model/FITSHeaderManager.js
+;// ./node_modules/jsfitsio/lib-esm/model/FITSHeaderManager.js
 
 class FITSHeaderManager {
     static SIMPLE = "SIMPLE";
@@ -1186,7 +1162,7 @@ class FITSHeaderManager {
     }
 }
 //# sourceMappingURL=FITSHeaderManager.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/ParseHeader.js
+;// ./node_modules/jsfitsio/lib-esm/ParseHeader.js
 // import { FITSHeader } from "./model/FITSHeader.js";
 
 
@@ -1239,7 +1215,7 @@ class ParseHeader {
     }
 }
 //# sourceMappingURL=ParseHeader.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/ParseUtils.js
+;// ./node_modules/jsfitsio/lib-esm/ParseUtils.js
 /**
  * Summary. (bla bla bla)
  *
@@ -1379,7 +1355,7 @@ class ParseUtils {
 }
 // export default ParseUtils;
 //# sourceMappingURL=ParseUtils.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/ParsePayload.js
+;// ./node_modules/jsfitsio/lib-esm/ParsePayload.js
 // "use strict";
 /**
  * Summary. (bla bla bla)
@@ -1513,7 +1489,7 @@ class ParsePayload {
     }
 }
 //# sourceMappingURL=ParsePayload.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/FITSParser.js
+;// ./node_modules/jsfitsio/lib-esm/FITSParser.js
 
 
 
@@ -1632,7 +1608,7 @@ class FITSParser {
 //   console.log("finished")
 // })
 //# sourceMappingURL=FITSParser.js.map
-;// CONCATENATED MODULE: ./src/projections/AbstractProjection.ts
+;// ./src/projections/AbstractProjection.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -1644,7 +1620,7 @@ class FITSParser {
 class AbstractProjection {
 }
 
-;// CONCATENATED MODULE: ./src/model/NumberType.ts
+;// ./src/model/NumberType.ts
 var NumberType;
 (function (NumberType) {
     NumberType[NumberType["DEGREES"] = 0] = "DEGREES";
@@ -1654,7 +1630,7 @@ var NumberType;
     NumberType[NumberType["DMS"] = 4] = "DMS";
 })(NumberType || (NumberType = {}));
 
-;// CONCATENATED MODULE: ./src/model/Utils.ts
+;// ./src/model/Utils.ts
 /**
  * @author Fabrizio Giordano (Fab)
  */
@@ -1832,7 +1808,7 @@ function worldToModel(xy, radius) {
     return [x, y, z];
 }
 
-;// CONCATENATED MODULE: ./src/model/CoordsType.ts
+;// ./src/model/CoordsType.ts
 /**
  * @author Fabrizio Giordano (Fab77)
  * Enum for coordinate types.
@@ -1846,12 +1822,12 @@ var CoordsType;
     CoordsType["ASTRO"] = "astro";
 })(CoordsType || (CoordsType = {}));
 
-;// CONCATENATED MODULE: ./src/Config.ts
+;// ./src/Config.ts
 class Config {
     static MAX_DECIMALS = 12;
 }
 
-;// CONCATENATED MODULE: ./src/model/Point.ts
+;// ./src/model/Point.ts
 /**
  * @author Fabrizio Giordano (Fab77)
  */
@@ -1930,7 +1906,7 @@ class Point {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/MinMaxValue.ts
+;// ./src/projections/MinMaxValue.ts
 class MinMaxValue {
     min;
     max;
@@ -1946,7 +1922,7 @@ class MinMaxValue {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/RADecMinMaxCentral.ts
+;// ./src/projections/RADecMinMaxCentral.ts
 class RADecMinMaxCentral {
     centralRA;
     centralDec;
@@ -2000,7 +1976,7 @@ class RADecMinMaxCentral {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/TilesRaDecList2.ts
+;// ./src/projections/hips/TilesRaDecList2.ts
 
 
 class TilesRaDecList2 {
@@ -2109,7 +2085,7 @@ class TilesRaDecList2 {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/ImagePixel.ts
+;// ./src/projections/hips/ImagePixel.ts
 
 class ImagePixel {
     i;
@@ -2174,7 +2150,7 @@ class ImagePixel {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/FITS.ts
+;// ./src/model/FITS.ts
 class FITS {
     header;
     payload = [];
@@ -2193,10 +2169,10 @@ class FITS {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Version.ts
+;// ./src/Version.ts
 const APP_VERSION =  true ? "3.1.0-snapshot" : 0;
 
-;// CONCATENATED MODULE: ./src/projections/cartesian/CartesianProjection.ts
+;// ./src/projections/cartesian/CartesianProjection.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -2443,7 +2419,7 @@ class CartesianProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/vec3.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/vec3.js
 class Vec3 {
     x;
     y;
@@ -2482,7 +2458,7 @@ class Vec3 {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/pointing.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/pointing.js
 
 class Pointing {
     theta;
@@ -2510,7 +2486,7 @@ function normalizePhi(phi) {
     return ((phi % twoPi) + twoPi) % twoPi;
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/rangeset.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/rangeset.js
 class RangeSet {
     r = [];
     append(value) {
@@ -2531,7 +2507,7 @@ class RangeSet {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/healpix.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/healpix.js
 
 
 
@@ -3218,7 +3194,7 @@ function findCircleThroughTwoPoints(points, q1, q2) {
     return { center, cosRadius };
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/hploc.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/hploc.js
 
 
 class Hploc {
@@ -3263,14 +3239,14 @@ class Hploc {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/index.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/index.js
 
 
 
 
 
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSIntermediateProj.ts
+;// ./src/projections/hips/HiPSIntermediateProj.ts
 //HiPSIntermediateProj.ts
 
 
@@ -3593,7 +3569,7 @@ class HiPSIntermediateProj {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/HiPSHelper.ts
+;// ./src/projections/HiPSHelper.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -3778,7 +3754,7 @@ class HiPSHelper {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSProperties.ts
+;// ./src/projections/hips/HiPSProperties.ts
 class HiPSProperties {
     static TILE_WIDTH = "hips_tile_width";
     static FRAME = "hips_frame";
@@ -3799,7 +3775,7 @@ class HiPSProperties {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSFITS.ts
+;// ./src/projections/hips/HiPSFITS.ts
 
 
 
@@ -4051,7 +4027,7 @@ class HiPSFITS {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/FITSList.ts
+;// ./src/projections/hips/FITSList.ts
 
 
 class FITSList {
@@ -4077,7 +4053,7 @@ class FITSList {
 
 // EXTERNAL MODULE: node:fs/promises (ignored)
 var promises_ignored_ = __webpack_require__(942);
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSPropManager.ts
+;// ./src/projections/hips/HiPSPropManager.ts
 
 
 class HiPSPropManager {
@@ -4141,7 +4117,7 @@ class HiPSPropManager {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSProjection.ts
+;// ./src/projections/hips/HiPSProjection.ts
 
 
 
@@ -4419,7 +4395,7 @@ class HiPSProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/CutoutResult.ts
+;// ./src/projections/hips/CutoutResult.ts
 class CutoutResult {
     fits;
     fitsused;
@@ -4435,7 +4411,7 @@ class CutoutResult {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/mercator/MercatorProjection.ts
+;// ./src/projections/mercator/MercatorProjection.ts
 /**
  * Mercator projection (RA---MER / DEC--MER)
  *
@@ -4652,7 +4628,7 @@ class MercatorProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/sin/SinProjection.ts
+;// ./src/projections/sin/SinProjection.ts
 /**
  * SIN (Slant/Orthographic) projection for FITS WCS ('SIN')
  * CTYPE1='RA---SIN', CTYPE2='DEC--SIN'
@@ -4940,7 +4916,7 @@ class SinProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/aitoff/AitoffProjection.ts
+;// ./src/projections/aitoff/AitoffProjection.ts
 /**
  * Aitoff (Hammer–Aitoff) projection for FITS WCS ('AIT')
  * CTYPE1='RA---AIT', CTYPE2='DEC--AIT'
@@ -5235,7 +5211,7 @@ class AitoffProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/WCSLight.ts
+;// ./src/WCSLight.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -5431,7 +5407,7 @@ class WCSLight {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/ImagePixel.ts
+;// ./src/model/ImagePixel.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -5460,7 +5436,7 @@ class ImagePixel_ImagePixel {
     }
 }
 
-;// CONCATENATED MODULE: ./src/index.ts
+;// ./src/index.ts
 
 
 
@@ -5474,27 +5450,6 @@ class ImagePixel_ImagePixel {
 
 
 
-})();
-
-var __webpack_exports__AbstractProjection = __webpack_exports__.qd;
-var __webpack_exports__CartesianProjection = __webpack_exports__.aC;
-var __webpack_exports__CoordsType = __webpack_exports__.lR;
-var __webpack_exports__HiPSFITS = __webpack_exports__.v4;
-var __webpack_exports__HiPSHelper = __webpack_exports__.lf;
-var __webpack_exports__HiPSProjection = __webpack_exports__.qb;
-var __webpack_exports__ImagePixel = __webpack_exports__.er;
-var __webpack_exports__MercatorProjection = __webpack_exports__.Ne;
-var __webpack_exports__NumberType = __webpack_exports__.wl;
-var __webpack_exports__Point = __webpack_exports__.bR;
-var __webpack_exports__WCSLight = __webpack_exports__.kv;
-var __webpack_exports__astroToSpherical = __webpack_exports__.A1;
-var __webpack_exports__cartesianToSpherical = __webpack_exports__.jU;
-var __webpack_exports__degToRad = __webpack_exports__.pu;
-var __webpack_exports__fillAstro = __webpack_exports__.jc;
-var __webpack_exports__fillSpherical = __webpack_exports__.NZ;
-var __webpack_exports__radToDeg = __webpack_exports__.H;
-var __webpack_exports__sphericalToAstro = __webpack_exports__.Mp;
-var __webpack_exports__sphericalToCartesian = __webpack_exports__.lq;
-export { __webpack_exports__AbstractProjection as AbstractProjection, __webpack_exports__CartesianProjection as CartesianProjection, __webpack_exports__CoordsType as CoordsType, __webpack_exports__HiPSFITS as HiPSFITS, __webpack_exports__HiPSHelper as HiPSHelper, __webpack_exports__HiPSProjection as HiPSProjection, __webpack_exports__ImagePixel as ImagePixel, __webpack_exports__MercatorProjection as MercatorProjection, __webpack_exports__NumberType as NumberType, __webpack_exports__Point as Point, __webpack_exports__WCSLight as WCSLight, __webpack_exports__astroToSpherical as astroToSpherical, __webpack_exports__cartesianToSpherical as cartesianToSpherical, __webpack_exports__degToRad as degToRad, __webpack_exports__fillAstro as fillAstro, __webpack_exports__fillSpherical as fillSpherical, __webpack_exports__radToDeg as radToDeg, __webpack_exports__sphericalToAstro as sphericalToAstro, __webpack_exports__sphericalToCartesian as sphericalToCartesian };
+export { AbstractProjection, CartesianProjection, CoordsType, HiPSFITS, HiPSHelper, HiPSProjection, ImagePixel_ImagePixel as ImagePixel, MercatorProjection, NumberType, Point, WCSLight, astroToSpherical, cartesianToSpherical, degToRad, fillAstro, fillSpherical, radToDeg, sphericalToAstro, sphericalToCartesian };
 
 //# sourceMappingURL=wcslight.esm.js.map

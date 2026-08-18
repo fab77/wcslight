@@ -11,34 +11,34 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 223:
-/***/ (() => {
+/***/ 223
+() {
 
 /* (ignored) */
 
-/***/ }),
+/***/ },
 
-/***/ 942:
-/***/ (() => {
+/***/ 942
+() {
 
 /* (ignored) */
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
 /******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
+/******/ 	const __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		const cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
 /******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 		const module = __webpack_module_cache__[moduleId] = {
 /******/ 			// no module.id needed
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
@@ -57,11 +57,26 @@ return /******/ (() => { // webpackBootstrap
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
+/******/ 		// define getter/value functions for harmony exports
 /******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			if(Array.isArray(definition)) {
+/******/ 				var i = 0;
+/******/ 				while(i < definition.length) {
+/******/ 					var key = definition[i++];
+/******/ 					var binding = definition[i++];
+/******/ 					if(!__webpack_require__.o(exports, key)) {
+/******/ 						if(binding === 0) {
+/******/ 							Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 						} else {
+/******/ 							Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 						}
+/******/ 					} else if(binding === 0) { i++; }
+/******/ 				}
+/******/ 			} else {
+/******/ 				for(var key in definition) {
+/******/ 					if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 					}
 /******/ 				}
 /******/ 			}
 /******/ 		};
@@ -108,16 +123,16 @@ return /******/ (() => { // webpackBootstrap
 /******/ 	
 /******/ 	/* webpack/runtime/load script */
 /******/ 	(() => {
-/******/ 		var inProgress = {};
-/******/ 		var dataWebpackPrefix = "wcslight:";
+/******/ 		const inProgress = {};
+/******/ 		const dataWebpackPrefix = "wcslight:";
 /******/ 		// loadScript function to load a script via script tag
 /******/ 		__webpack_require__.l = (url, done, key, chunkId) => {
 /******/ 			if(inProgress[url]) { inProgress[url].push(done); return; }
-/******/ 			var script, needAttach;
+/******/ 			let script, needAttach;
 /******/ 			if(key !== undefined) {
-/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				const scripts = document.getElementsByTagName("script");
 /******/ 				for(var i = 0; i < scripts.length; i++) {
-/******/ 					var s = scripts[i];
+/******/ 					const s = scripts[i];
 /******/ 					if(s.getAttribute("src") == url || s.getAttribute("data-webpack") == dataWebpackPrefix + key) { script = s; break; }
 /******/ 				}
 /******/ 			}
@@ -126,7 +141,6 @@ return /******/ (() => { // webpackBootstrap
 /******/ 				script = document.createElement('script');
 /******/ 		
 /******/ 				script.charset = 'utf-8';
-/******/ 				script.timeout = 120;
 /******/ 				if (__webpack_require__.nc) {
 /******/ 					script.setAttribute("nonce", __webpack_require__.nc);
 /******/ 				}
@@ -135,17 +149,17 @@ return /******/ (() => { // webpackBootstrap
 /******/ 				script.src = url;
 /******/ 			}
 /******/ 			inProgress[url] = [done];
-/******/ 			var onScriptComplete = (prev, event) => {
+/******/ 			const onScriptComplete = (prev, event) => {
 /******/ 				// avoid mem leaks in IE.
 /******/ 				script.onerror = script.onload = null;
 /******/ 				clearTimeout(timeout);
-/******/ 				var doneFns = inProgress[url];
+/******/ 				const doneFns = inProgress[url];
 /******/ 				delete inProgress[url];
-/******/ 				script.parentNode && script.parentNode.removeChild(script);
-/******/ 				doneFns && doneFns.forEach((fn) => (fn(event)));
+/******/ 				script.parentNode?.removeChild(script);
+/******/ 				doneFns?.forEach((fn) => (fn(event)));
 /******/ 				if(prev) return prev(event);
 /******/ 			}
-/******/ 			var timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
+/******/ 			const timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
 /******/ 			script.onerror = onScriptComplete.bind(null, script.onerror);
 /******/ 			script.onload = onScriptComplete.bind(null, script.onload);
 /******/ 			needAttach && document.head.appendChild(script);
@@ -156,7 +170,7 @@ return /******/ (() => { // webpackBootstrap
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
 /******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			if(Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
@@ -165,16 +179,16 @@ return /******/ (() => { // webpackBootstrap
 /******/ 	
 /******/ 	/* webpack/runtime/publicPath */
 /******/ 	(() => {
-/******/ 		var scriptUrl;
+/******/ 		let scriptUrl;
 /******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
-/******/ 		var document = __webpack_require__.g.document;
+/******/ 		const document = __webpack_require__.g.document;
 /******/ 		if (!scriptUrl && document) {
-/******/ 			if (document.currentScript)
+/******/ 			if (document.currentScript?.tagName.toUpperCase() === 'SCRIPT')
 /******/ 				scriptUrl = document.currentScript.src;
 /******/ 			if (!scriptUrl) {
-/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				const scripts = document.getElementsByTagName("script");
 /******/ 				if(scripts.length) {
-/******/ 					var i = scripts.length - 1;
+/******/ 					let i = scripts.length - 1;
 /******/ 					while (i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl))) scriptUrl = scripts[i--].src;
 /******/ 				}
 /******/ 			}
@@ -182,7 +196,7 @@ return /******/ (() => { // webpackBootstrap
 /******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
 /******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
 /******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		scriptUrl = scriptUrl.replace(/^blob:/, "").replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
 /******/ 		__webpack_require__.p = scriptUrl;
 /******/ 	})();
 /******/ 	
@@ -193,14 +207,14 @@ return /******/ (() => { // webpackBootstrap
 /******/ 		// object to store loaded and loading chunks
 /******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = {
-/******/ 			992: 0,
-/******/ 			434: 0
+/******/ 		const installedChunks = {
+/******/ 			434: 0,
+/******/ 			992: 0
 /******/ 		};
 /******/ 		
 /******/ 		__webpack_require__.f.j = (chunkId, promises) => {
 /******/ 				// JSONP chunk loading for javascript
-/******/ 				var installedChunkData = __webpack_require__.o(installedChunks, chunkId) ? installedChunks[chunkId] : undefined;
+/******/ 				let installedChunkData = __webpack_require__.o(installedChunks, chunkId) ? installedChunks[chunkId] : undefined;
 /******/ 				if(installedChunkData !== 0) { // 0 means "already installed".
 /******/ 		
 /******/ 					// a Promise means "currently loading".
@@ -209,24 +223,25 @@ return /******/ (() => { // webpackBootstrap
 /******/ 					} else {
 /******/ 						if(true) { // all chunks have JS
 /******/ 							// setup Promise in chunk cache
-/******/ 							var promise = new Promise((resolve, reject) => (installedChunkData = installedChunks[chunkId] = [resolve, reject]));
+/******/ 							const promise = new Promise((resolve, reject) => (installedChunkData = installedChunks[chunkId] = [resolve, reject]));
 /******/ 							promises.push(installedChunkData[2] = promise);
 /******/ 		
 /******/ 							// start chunk loading
-/******/ 							var url = __webpack_require__.p + __webpack_require__.u(chunkId);
+/******/ 							const url = __webpack_require__.p + __webpack_require__.u(chunkId);
 /******/ 							// create error before stack unwound to get useful stacktrace later
-/******/ 							var error = new Error();
-/******/ 							var loadingEnded = (event) => {
+/******/ 							const error = new Error();
+/******/ 							const loadingEnded = (event) => {
 /******/ 								if(__webpack_require__.o(installedChunks, chunkId)) {
 /******/ 									installedChunkData = installedChunks[chunkId];
 /******/ 									if(installedChunkData !== 0) installedChunks[chunkId] = undefined;
 /******/ 									if(installedChunkData) {
-/******/ 										var errorType = event && (event.type === 'load' ? 'missing' : event.type);
-/******/ 										var realSrc = event && event.target && event.target.src;
+/******/ 										const errorType = event && (event.type === 'load' ? 'missing' : event.type);
+/******/ 										const realSrc = event && event.target && event.target.src;
 /******/ 										error.message = 'Loading chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
 /******/ 										error.name = 'ChunkLoadError';
 /******/ 										error.type = errorType;
 /******/ 										error.request = realSrc;
+/******/ 										error.event = event;
 /******/ 										installedChunkData[1](error);
 /******/ 									}
 /******/ 								}
@@ -248,8 +263,8 @@ return /******/ (() => { // webpackBootstrap
 /******/ 		// no on chunks loaded
 /******/ 		
 /******/ 		// install a JSONP callback for chunk loading
-/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
-/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 		const webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			let [chunkIds, moreModules, runtime] = data;
 /******/ 			// add "moreModules" to the modules object,
 /******/ 			// then flag all "chunkIds" as loaded and fire callback
 /******/ 			var moduleId, chunkId, i = 0;
@@ -272,14 +287,14 @@ return /******/ (() => { // webpackBootstrap
 /******/ 		
 /******/ 		}
 /******/ 		
-/******/ 		var chunkLoadingGlobal = this["webpackChunkwcslight"] = this["webpackChunkwcslight"] || [];
+/******/ 		const chunkLoadingGlobal = this["webpackChunkwcslight"] = this["webpackChunkwcslight"] || [];
 /******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
 /******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
 /******/ 	})();
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+let __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
 "use strict";
 // ESM COMPAT FLAG
@@ -310,7 +325,7 @@ __webpack_require__.d(__webpack_exports__, {
 
 // EXTERNAL MODULE: fs (ignored)
 var fs_ignored_ = __webpack_require__(223);
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/FITSWriter.js
+;// ./node_modules/jsfitsio/lib-esm/FITSWriter.js
 // import { FITSHeader } from "./model/FITSHeader.js"
 
 class FITSWriter {
@@ -509,7 +524,7 @@ class FITSWriter {
 // // Write the FITS file to the filesystem
 // FITSWriter.writeFITSFile(fitsParsed, filePath);
 //# sourceMappingURL=FITSWriter.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js
+;// ./node_modules/jsfitsio/lib-esm/model/FITSHeaderItem.js
 /**
  * Summary. (bla bla bla)
  *
@@ -538,7 +553,7 @@ class FITSHeaderItem {
     }
 }
 //# sourceMappingURL=FITSHeaderItem.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/model/FITSHeaderManager.js
+;// ./node_modules/jsfitsio/lib-esm/model/FITSHeaderManager.js
 
 class FITSHeaderManager {
     static SIMPLE = "SIMPLE";
@@ -613,7 +628,7 @@ class FITSHeaderManager {
     }
 }
 //# sourceMappingURL=FITSHeaderManager.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/ParseHeader.js
+;// ./node_modules/jsfitsio/lib-esm/ParseHeader.js
 // import { FITSHeader } from "./model/FITSHeader.js";
 
 
@@ -666,7 +681,7 @@ class ParseHeader {
     }
 }
 //# sourceMappingURL=ParseHeader.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/ParseUtils.js
+;// ./node_modules/jsfitsio/lib-esm/ParseUtils.js
 /**
  * Summary. (bla bla bla)
  *
@@ -806,7 +821,7 @@ class ParseUtils {
 }
 // export default ParseUtils;
 //# sourceMappingURL=ParseUtils.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/ParsePayload.js
+;// ./node_modules/jsfitsio/lib-esm/ParsePayload.js
 // "use strict";
 /**
  * Summary. (bla bla bla)
@@ -940,7 +955,7 @@ class ParsePayload {
     }
 }
 //# sourceMappingURL=ParsePayload.js.map
-;// CONCATENATED MODULE: ./node_modules/jsfitsio/lib-esm/FITSParser.js
+;// ./node_modules/jsfitsio/lib-esm/FITSParser.js
 
 
 
@@ -1059,7 +1074,7 @@ class FITSParser {
 //   console.log("finished")
 // })
 //# sourceMappingURL=FITSParser.js.map
-;// CONCATENATED MODULE: ./src/projections/AbstractProjection.ts
+;// ./src/projections/AbstractProjection.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -1071,7 +1086,7 @@ class FITSParser {
 class AbstractProjection {
 }
 
-;// CONCATENATED MODULE: ./src/model/NumberType.ts
+;// ./src/model/NumberType.ts
 var NumberType;
 (function (NumberType) {
     NumberType[NumberType["DEGREES"] = 0] = "DEGREES";
@@ -1081,7 +1096,7 @@ var NumberType;
     NumberType[NumberType["DMS"] = 4] = "DMS";
 })(NumberType || (NumberType = {}));
 
-;// CONCATENATED MODULE: ./src/model/Utils.ts
+;// ./src/model/Utils.ts
 /**
  * @author Fabrizio Giordano (Fab)
  */
@@ -1259,7 +1274,7 @@ function worldToModel(xy, radius) {
     return [x, y, z];
 }
 
-;// CONCATENATED MODULE: ./src/model/CoordsType.ts
+;// ./src/model/CoordsType.ts
 /**
  * @author Fabrizio Giordano (Fab77)
  * Enum for coordinate types.
@@ -1273,12 +1288,12 @@ var CoordsType;
     CoordsType["ASTRO"] = "astro";
 })(CoordsType || (CoordsType = {}));
 
-;// CONCATENATED MODULE: ./src/Config.ts
+;// ./src/Config.ts
 class Config {
     static MAX_DECIMALS = 12;
 }
 
-;// CONCATENATED MODULE: ./src/model/Point.ts
+;// ./src/model/Point.ts
 /**
  * @author Fabrizio Giordano (Fab77)
  */
@@ -1357,7 +1372,7 @@ class Point {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/MinMaxValue.ts
+;// ./src/projections/MinMaxValue.ts
 class MinMaxValue {
     min;
     max;
@@ -1373,7 +1388,7 @@ class MinMaxValue {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/RADecMinMaxCentral.ts
+;// ./src/projections/RADecMinMaxCentral.ts
 class RADecMinMaxCentral {
     centralRA;
     centralDec;
@@ -1427,7 +1442,7 @@ class RADecMinMaxCentral {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/TilesRaDecList2.ts
+;// ./src/projections/hips/TilesRaDecList2.ts
 
 
 class TilesRaDecList2 {
@@ -1536,7 +1551,7 @@ class TilesRaDecList2 {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/ImagePixel.ts
+;// ./src/projections/hips/ImagePixel.ts
 
 class ImagePixel {
     i;
@@ -1601,7 +1616,7 @@ class ImagePixel {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/FITS.ts
+;// ./src/model/FITS.ts
 class FITS {
     header;
     payload = [];
@@ -1620,10 +1635,10 @@ class FITS {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Version.ts
+;// ./src/Version.ts
 const APP_VERSION =  true ? "3.1.0-snapshot" : 0;
 
-;// CONCATENATED MODULE: ./src/projections/cartesian/CartesianProjection.ts
+;// ./src/projections/cartesian/CartesianProjection.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -1870,7 +1885,7 @@ class CartesianProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/vec3.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/vec3.js
 class Vec3 {
     x;
     y;
@@ -1909,7 +1924,7 @@ class Vec3 {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/pointing.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/pointing.js
 
 class Pointing {
     theta;
@@ -1937,7 +1952,7 @@ function normalizePhi(phi) {
     return ((phi % twoPi) + twoPi) % twoPi;
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/rangeset.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/rangeset.js
 class RangeSet {
     r = [];
     append(value) {
@@ -1958,7 +1973,7 @@ class RangeSet {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/healpix.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/healpix.js
 
 
 
@@ -2645,7 +2660,7 @@ function findCircleThroughTwoPoints(points, q1, q2) {
     return { center, cosRadius };
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/hploc.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/hploc.js
 
 
 class Hploc {
@@ -2690,14 +2705,14 @@ class Hploc {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/astrospatial-core/lib-esm/healpix/index.js
+;// ./node_modules/astrospatial-core/lib-esm/healpix/index.js
 
 
 
 
 
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSIntermediateProj.ts
+;// ./src/projections/hips/HiPSIntermediateProj.ts
 //HiPSIntermediateProj.ts
 
 
@@ -3020,7 +3035,7 @@ class HiPSIntermediateProj {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/HiPSHelper.ts
+;// ./src/projections/HiPSHelper.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -3205,7 +3220,7 @@ class HiPSHelper {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSProperties.ts
+;// ./src/projections/hips/HiPSProperties.ts
 class HiPSProperties {
     static TILE_WIDTH = "hips_tile_width";
     static FRAME = "hips_frame";
@@ -3226,7 +3241,7 @@ class HiPSProperties {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSFITS.ts
+;// ./src/projections/hips/HiPSFITS.ts
 
 
 
@@ -3478,7 +3493,7 @@ class HiPSFITS {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/FITSList.ts
+;// ./src/projections/hips/FITSList.ts
 
 
 class FITSList {
@@ -3504,7 +3519,7 @@ class FITSList {
 
 // EXTERNAL MODULE: node:fs/promises (ignored)
 var promises_ignored_ = __webpack_require__(942);
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSPropManager.ts
+;// ./src/projections/hips/HiPSPropManager.ts
 
 
 class HiPSPropManager {
@@ -3568,7 +3583,7 @@ class HiPSPropManager {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/HiPSProjection.ts
+;// ./src/projections/hips/HiPSProjection.ts
 
 
 
@@ -3846,7 +3861,7 @@ class HiPSProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/hips/CutoutResult.ts
+;// ./src/projections/hips/CutoutResult.ts
 class CutoutResult {
     fits;
     fitsused;
@@ -3862,7 +3877,7 @@ class CutoutResult {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/mercator/MercatorProjection.ts
+;// ./src/projections/mercator/MercatorProjection.ts
 /**
  * Mercator projection (RA---MER / DEC--MER)
  *
@@ -4079,7 +4094,7 @@ class MercatorProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/sin/SinProjection.ts
+;// ./src/projections/sin/SinProjection.ts
 /**
  * SIN (Slant/Orthographic) projection for FITS WCS ('SIN')
  * CTYPE1='RA---SIN', CTYPE2='DEC--SIN'
@@ -4367,7 +4382,7 @@ class SinProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/projections/aitoff/AitoffProjection.ts
+;// ./src/projections/aitoff/AitoffProjection.ts
 /**
  * Aitoff (Hammer–Aitoff) projection for FITS WCS ('AIT')
  * CTYPE1='RA---AIT', CTYPE2='DEC--AIT'
@@ -4662,7 +4677,7 @@ class AitoffProjection extends AbstractProjection {
     }
 }
 
-;// CONCATENATED MODULE: ./src/WCSLight.ts
+;// ./src/WCSLight.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -4858,7 +4873,7 @@ class WCSLight {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/ImagePixel.ts
+;// ./src/model/ImagePixel.ts
 /**
  * Summary. (bla bla bla)
  *
@@ -4887,7 +4902,7 @@ class ImagePixel_ImagePixel {
     }
 }
 
-;// CONCATENATED MODULE: ./src/index.ts
+;// ./src/index.ts
 
 
 

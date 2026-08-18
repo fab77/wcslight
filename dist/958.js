@@ -1,7 +1,7 @@
 (this["webpackChunkwcslight"] = this["webpackChunkwcslight"] || []).push([[958],{
 
-/***/ 945:
-/***/ ((module, exports, __webpack_require__) => {
+/***/ 945
+(module, exports, __webpack_require__) {
 
 // Save global object in a variable
 var __global__ =
@@ -691,20 +691,19 @@ exports.Response = ctx.Response
 module.exports = exports
 
 
-/***/ }),
+/***/ },
 
-/***/ 410:
-/***/ (() => {
+/***/ 410
+() {
 
 /* (ignored) */
 
-/***/ }),
+/***/ },
 
-/***/ 911:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ 911
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   getFile: () => (/* binding */ getFile)
 /* harmony export */ });
@@ -737,13 +736,12 @@ async function getFile(uri) {
 }
 //# sourceMappingURL=getFile.js.map
 
-/***/ }),
+/***/ },
 
-/***/ 64:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ 64
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   getLocalFile: () => (/* binding */ getLocalFile)
 /* harmony export */ });
@@ -772,7 +770,7 @@ async function getLocalFile(path) {
 }
 //# sourceMappingURL=getLocalFile.js.map
 
-/***/ })
+/***/ }
 
 }]);
 //# sourceMappingURL=958.js.map
