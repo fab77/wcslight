@@ -15,72 +15,6 @@ export class HiPSIntermediateProj {
     (HiPSIntermediateProj.K - 1) / HiPSIntermediateProj.K,
   );
 
-  // static setupByTile(tileno: number, hp: Healpix): HEALPixXYSpace {
-
-  //     let xyGridProj: HEALPixXYSpace = {
-  //         "min_y": NaN,
-  //         "max_y": NaN,
-  //         "min_x": NaN,
-  //         "max_x": NaN,
-  //         "gridPointsDeg": []
-  //     }
-
-  //     let cornersVec3 = hp.getBoundariesWithStep(tileno, 1);
-  //     let pointings = [];
-
-  //     for (let i = 0; i < cornersVec3.length; i++) {
-  //         pointings[i] = new Pointing(cornersVec3[i]);
-  //         if (i >= 1) {
-  //             let a = pointings[i - 1].phi;
-  //             let b = pointings[i].phi;
-  //             // case when RA is just crossing the origin (e.g. 357deg - 3deg)
-  //             if (Math.abs(a - b) > Math.PI) {
-  //                 if (pointings[i - 1].phi < pointings[i].phi) {
-  //                     pointings[i - 1].phi += 2 * Math.PI;
-  //                 } else {
-  //                     pointings[i].phi += 2 * Math.PI;
-  //                 }
-  //             }
-  //         }
-  //     }
-
-  //     for (let j = 0; j < pointings.length; j++) {
-  //         let coThetaRad = pointings[j].theta;
-  //         // HEALPix works with colatitude (0 North Pole, 180 South Pole)
-  //         // converting the colatitude in latitude (dec)
-  //         let decRad = Math.PI / 2 - coThetaRad;
-
-  //         let raRad = pointings[j].phi;
-
-  //         // projection on healpix grid
-  //         // let p = new Point(CoordsType.ASTRO, NumberType.RADIANS, raRad, decRad);
-  //         // let xyDeg = HiPSIntermediateProj.world2intermediate(p.getAstro());
-  //         // Build a tiny AstroCoords inline to avoid Point’s RA wrap:
-  //         const ac: AstroCoords = {
-  //             raDeg: radToDeg(raRad), raRad,
-  //             decDeg: radToDeg(decRad), decRad
-  //         } as AstroCoords;
-  //         const [xDeg, yDeg] = HiPSIntermediateProj.world2intermediate(ac);  // ✅ no RA re-wrap
-
-  //         xyGridProj.gridPointsDeg[j * 2] = xDeg;
-  //         xyGridProj.gridPointsDeg[j * 2 + 1] = yDeg;
-
-  //         if (isNaN(xyGridProj.max_y) || yDeg > xyGridProj.max_y) {
-  //             xyGridProj.max_y = yDeg;
-  //         }
-  //         if (isNaN(xyGridProj.min_y) || yDeg < xyGridProj.min_y) {
-  //             xyGridProj.min_y = yDeg;
-  //         }
-  //         if (isNaN(xyGridProj.max_x) || xDeg > xyGridProj.max_x) {
-  //             xyGridProj.max_x = xDeg;
-  //         }
-  //         if (isNaN(xyGridProj.min_x) || xDeg < xyGridProj.min_x) {
-  //             xyGridProj.min_x = xDeg;
-  //         }
-
-  //     }
-  //     return xyGridProj;
-  // }
   static setupByTile(tileno: number, hp: Healpix): HEALPixXYSpace {
     const xy: HEALPixXYSpace = {
       min_y: NaN,
@@ -235,27 +169,6 @@ export class HiPSIntermediateProj {
     const xInterval = Math.abs(xyGridProj.max_x - xyGridProj.min_x);
     const yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y);
 
-    // let i_norm: number;
-    // let j_norm: number;
-    // if ((xyGridProj.min_x > 360 || xyGridProj.max_x > 360) && x < xyGridProj.min_x) {
-    //     i_norm = (x + 360 - xyGridProj.min_x) / xInterval;
-    // } else {
-    //     i_norm = (x - xyGridProj.min_x) / xInterval;
-    // }
-    // j_norm = (y - xyGridProj.min_y) / yInterval;
-
-    // let i = 0.5 - (i_norm - j_norm);
-    // let j = (i_norm + j_norm) - 0.5;
-
-    // // TODO CHECK THE FOLLOWING. BEFORE IT WAS i = Math.floor(i * HiPSHelper.pxXtile);
-    // // pxXtile
-    // // i = Math.floor(i * HiPSHelper.DEFAULT_Naxis1_2);
-    // // j = Math.floor(j * HiPSHelper.DEFAULT_Naxis1_2);
-    // // return [i, HiPSHelper.DEFAULT_Naxis1_2 - j - 1];
-
-    // i = Math.floor(i * pxXtile);
-    // j = Math.floor(j * pxXtile);
-    // return [i, pxXtile - j - 1];
 
     // Bring x into [min_x, max_x) considering 360° wrap
     let xAdj = x;
@@ -349,12 +262,6 @@ export class HiPSIntermediateProj {
       const zClamped = Math.max(-1, Math.min(1, z));
       decDeg = radToDeg(Math.asin(zClamped));
 
-      // const thetaRad = Hploc.asin(1 - (sigma * sigma) / HiPSIntermediateProj.K)
-      // let w = 0 // omega
-      // if (HiPSIntermediateProj.K % 2 !== 0 || thetaRad > 0) { // K odd or thetax > 0
-      //     w = 1
-      // }
-
       // ω from hemisphere (use y), or K odd
       const w = HiPSIntermediateProj.K % 2 !== 0 || y > 0 ? 1 : 0; // ✅ use hemisphere from y
       // Sector centre and RA
@@ -368,12 +275,7 @@ export class HiPSIntermediateProj {
       // Optional: wrap RA to [0,360)
       raDeg = ((raDeg % 360) + 360) % 360;
 
-      // decDeg = radToDeg(thetaRad)
-      // if (y <= 0) {
-      //     decDeg *= -1
-      // }
     }
-    // return [phiDeg, thetaDeg];
     // TODO CHECK THIS!
     // let p = new Point(CoordsType.SPHERICAL, NumberType.DEGREES, phiDeg, thetaDeg);
     const p = new Point(CoordsType.ASTRO, NumberType.DEGREES, raDeg, decDeg);

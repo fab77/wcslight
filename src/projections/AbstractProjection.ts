@@ -1,10 +1,7 @@
 import { FITSHeaderManager } from "jsfitsio";
-// import { FITSHeaderManager, FITSHeaderItem } from "jsfitsio";
-// import { FITSParsed } from "jsfitsio";
-// import { AstroCoords } from "src/model/AstroCoords";
-// import { ImagePixel } from "../model/ImagePixel.js";
+
 import { Point } from "../model/Point.js";
-// import { FITS } from "../model/FITS.js";
+
 import { TilesRaDecList2 } from "./hips/TilesRaDecList2.js";
 import { FITS } from "../model/FITS.js";
 

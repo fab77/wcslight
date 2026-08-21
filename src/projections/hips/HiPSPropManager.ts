@@ -23,14 +23,7 @@ export class HiPSPropManager {
             const propFile = await response.text()
             return propFile
         }
-        // let propFile: string
-        // if (response instanceof ArrayBuffer) {
-        //     const textDecoder = new TextDecoder("iso-8859-1")
-        //     propFile = textDecoder.decode(new Uint8Array(response))
-        // } else {
-        //     propFile = response.toString()
-        // }
-        // return propFile
+        
     }
 
     private static async getPorpertyFromFS(baseHiPSPath: string): Promise<string> {
