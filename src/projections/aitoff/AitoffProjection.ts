@@ -35,41 +35,87 @@ function toCenteredLonLat(
   ra0: number,
   dec0: number,
 ): { lam: number; phi: number } {
-  const dlam = normalizePi(ra - ra0); // [-pi, pi)
-  const sinφ = Math.sin(dec),
-    cosφ = Math.cos(dec);
-  const sinφ0 = Math.sin(dec0),
-    cosφ0 = Math.cos(dec0);
+  const cosDec = Math.cos(dec);
 
-  const sinφp = sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(dlam);
-  const φp = Math.asin(clamp(sinφp, -1, 1));
+  const x = cosDec * Math.cos(ra);
+  const y = cosDec * Math.sin(ra);
+  const z = Math.sin(dec);
 
-  const y = cosφ * Math.sin(dlam);
-  const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(dlam);
-  const λp = Math.atan2(y, x); // centered longitude
-  return { lam: λp, phi: φp };
+  /*
+   * Local orthonormal basis at (ra0, dec0):
+   *
+   * center = local +X
+   * east   = local +Y
+   * north  = local +Z
+   */
+  const cx = Math.cos(dec0) * Math.cos(ra0);
+  const cy = Math.cos(dec0) * Math.sin(ra0);
+  const cz = Math.sin(dec0);
+
+  const ex = -Math.sin(ra0);
+  const ey = Math.cos(ra0);
+  const ez = 0;
+
+  const nx = -Math.sin(dec0) * Math.cos(ra0);
+  const ny = -Math.sin(dec0) * Math.sin(ra0);
+  const nz = Math.cos(dec0);
+
+  const localX = x * cx + y * cy + z * cz;
+
+  const localY = x * ex + y * ey + z * ez;
+
+  const localZ = x * nx + y * ny + z * nz;
+
+  const lam = Math.atan2(localY, localX);
+
+  const phi = Math.asin(clamp(localZ, -1, 1));
+
+  return {
+    lam,
+    phi,
+  };
 }
 
-// Absolute (α, δ) from centered (λ', φ') and center (α0, δ0)
 function fromCenteredLonLat(
   lam: number,
   phi: number,
   ra0: number,
   dec0: number,
 ): { ra: number; dec: number } {
-  const sinφ = Math.sin(phi),
-    cosφ = Math.cos(phi);
-  const sinφ0 = Math.sin(dec0),
-    cosφ0 = Math.cos(dec0);
+  const cosPhi = Math.cos(phi);
 
-  const dec = Math.asin(
-    clamp(sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(lam), -1, 1),
-  );
-  const y = Math.sin(lam) * cosφ;
-  const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(lam);
-  let ra = ra0 + Math.atan2(y, x);
-  ra = normalize2pi(ra);
-  return { ra, dec };
+  const localX = cosPhi * Math.cos(lam);
+
+  const localY = cosPhi * Math.sin(lam);
+
+  const localZ = Math.sin(phi);
+
+  const cx = Math.cos(dec0) * Math.cos(ra0);
+  const cy = Math.cos(dec0) * Math.sin(ra0);
+  const cz = Math.sin(dec0);
+
+  const ex = -Math.sin(ra0);
+  const ey = Math.cos(ra0);
+  const ez = 0;
+
+  const nx = -Math.sin(dec0) * Math.cos(ra0);
+  const ny = -Math.sin(dec0) * Math.sin(ra0);
+  const nz = Math.cos(dec0);
+
+  const x = localX * cx + localY * ex + localZ * nx;
+
+  const y = localX * cy + localY * ey + localZ * ny;
+
+  const z = localX * cz + localY * ez + localZ * nz;
+
+  const ra = normalize2pi(Math.atan2(y, x));
+
+  const dec = Math.asin(clamp(z, -1, 1));
+
+  return {
+    ra,
+    dec,
+  };
 }
 
 function clamp(x: number, a: number, b: number): number {
@@ -100,17 +146,35 @@ function aitForward(lam: number, phi: number): { x: number; y: number } {
 }
 
 function aitInverse(x: number, y: number): { lam: number; phi: number } | null {
-  // Inverse per Snyder/WCS:
-  // z = sqrt(1 - (x^2 + y^2)/8)
-  const r2 = x * x + y * y;
-  const z = Math.sqrt(Math.max(0, 1 - r2 / 8));
-  // φ' = arcsin( y * z * sqrt(2) )
-  const sinφ = clamp(y * z * Math.SQRT2, -1, 1);
-  const phi = Math.asin(sinφ);
-  // λ' = 2 * atan2( z * x, 2 z^2 - 1 )
-  const lam = 2 * Math.atan2(z * x, 2 * z * z - 1);
-  if (!Number.isFinite(lam) || !Number.isFinite(phi)) return null;
-  return { lam, phi };
+  /*
+   * FITS WCS Hammer-Aitoff inverse.
+   *
+   * x and y are the projected plane coordinates
+   * expressed in radians.
+   */
+  const zSquared = 1 - (x * x) / 16 - (y * y) / 4;
+
+  /*
+   * Outside the Hammer-Aitoff ellipse.
+   */
+  if (zSquared < -1e-14) {
+    return null;
+  }
+
+  const z = Math.sqrt(Math.max(0, zSquared));
+
+  const lam = 2 * Math.atan2((z * x) / 2, 2 * z * z - 1);
+
+  const phi = Math.asin(clamp(y * z, -1, 1));
+
+  if (!Number.isFinite(lam) || !Number.isFinite(phi)) {
+    return null;
+  }
+
+  return {
+    lam,
+    phi,
+  };
 }
 
 // Convert AIT plane (x_deg,y_deg) <-> radians for the math above

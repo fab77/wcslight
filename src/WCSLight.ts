@@ -7,7 +7,8 @@
  * @author Fabrizio Giordano <fabriziogiordano77@gmail.com>
  */
 
-import { FITSParser, type FITSParsed } from "jsfitsio";
+import { FITSParser } from "jsfitsio";
+import { FITSWriterAdapter } from "./utils/FITSWriterAdapter.js";
 import { CartesianProjection } from "./projections/cartesian/CartesianProjection.js";
 import { HiPSProjection } from "./projections/hips/HiPSProjection.js";
 import { Point } from "./model/Point.js";
@@ -77,19 +78,7 @@ export class WCSLight {
       const header = hipsFits.getHeader();
       const FITS_FILE_PATH = `./hips_${tileno}.fits`;
 
-      const fitsParsed: FITSParsed = {
-        header,
-        data,
-      };
-
-      /*
-       * Legacy writer compatibility.
-       *
-       * TODO wcslight 3.2:
-       * migrate the internal FITS model to jsfitsio FITSFile/PrimaryHDU
-       * and use the jsfitsio 3 writer model directly.
-       */
-      FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH);
+      FITSWriterAdapter.writeImage(header, data, FITS_FILE_PATH);
     }
     return fitsFileList;
   }
@@ -138,6 +127,7 @@ export class WCSLight {
     baseHiPSURL: string,
     outproj: AbstractProjection,
     hipsOrder: number | null = null,
+    outputFilePath: string | null = null,
   ): Promise<CutoutResult | null> {
     const hipsProp = await HiPSPropManager.parsePropertyFile(baseHiPSURL);
     const hipsMaxOrder: number = hipsProp.getItem(HiPSProperties.ORDER);
@@ -247,22 +237,13 @@ export class WCSLight {
 
     console.log(fits);
 
-    const FITS_FILE_PATH = `./cartesian2.fits`;
-
-
-    const fitsParsed: FITSParsed = {
-      header: fits.getHeader(),
-      data: fits.getData(),
-    };
-
-    /*
-     * Legacy writer compatibility.
-     *
-     * TODO wcslight 3.2:
-     * migrate the internal FITS model to jsfitsio FITSFile/PrimaryHDU
-     * and use the jsfitsio 3 writer model directly.
-     */
-    FITSParser.saveFITSLocally(fitsParsed, FITS_FILE_PATH);
+    if (outputFilePath) {
+      FITSWriterAdapter.writeImage(
+        fits.getHeader(),
+        fits.getData(),
+        outputFilePath,
+      );
+    }
 
     let hipsUsed = Array<string>();
     raDecWithValues.getTilesList().forEach((hipstileno) => {

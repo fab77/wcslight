@@ -39,49 +39,6 @@ function normalizePi(a: number): number {
 }
 
 // —————————————————————————————————————————————————————————————
-// Rotazioni sfera: coord. centrate rispetto a (ra0,dec0)
-function toCenteredLonLat(
-  ra: number,
-  dec: number,
-  ra0: number,
-  dec0: number,
-): { lam: number; phi: number } {
-  const dlam = normalizePi(ra - ra0); // [-pi,pi)
-  const sinφ = Math.sin(dec),
-    cosφ = Math.cos(dec);
-  const sinφ0 = Math.sin(dec0),
-    cosφ0 = Math.cos(dec0);
-
-  const sinφp = clamp(sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(dlam), -1, 1);
-  const φp = Math.asin(sinφp);
-  const y = cosφ * Math.sin(dlam);
-  const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(dlam);
-  const λp = Math.atan2(y, x);
-  return { lam: λp, phi: φp };
-}
-
-function fromCenteredLonLat(
-  lam: number,
-  phi: number,
-  ra0: number,
-  dec0: number,
-): { ra: number; dec: number } {
-  const sinφ = Math.sin(phi),
-    cosφ = Math.cos(phi);
-  const sinφ0 = Math.sin(dec0),
-    cosφ0 = Math.cos(dec0);
-
-  const dec = Math.asin(
-    clamp(sinφ * sinφ0 + cosφ * cosφ0 * Math.cos(lam), -1, 1),
-  );
-  const y = Math.sin(lam) * cosφ;
-  const x = cosφ0 * sinφ - sinφ0 * cosφ * Math.cos(lam);
-  let ra = ra0 + Math.atan2(y, x);
-  ra = normalize2pi(ra);
-  return { ra, dec };
-}
-
-// —————————————————————————————————————————————————————————————
 // SIN (orthographic) forward/inverse su sfera unitaria (in radianti)
 // Forward: x = cosφ * sinΔλ;  y = cosφ0 * sinφ - sinφ0 * cosφ * cosΔλ
 function sinForward(
@@ -247,12 +204,21 @@ export class SinProjection extends AbstractProjection {
         const { xr } = planeDegToRad(xDeg, 0);
 
         const inv = sinInverse(xr, yr, dec0);
+
         if (!inv) {
           list.addImagePixel(new ImagePixel(Number.NaN, Number.NaN, undefined));
           continue;
         }
-        const { lam, phi } = inv; // coord. centrate
-        const { ra, dec } = fromCenteredLonLat(lam, phi, ra0, dec0);
+
+        /*
+         * sinInverse() already applies the projection
+         * center declination dec0.
+         *
+         * inv.lam is the longitude offset from ra0,
+         * while inv.phi is the absolute declination.
+         */
+        const ra = normalize2pi(ra0 + inv.lam);
+        const dec = inv.phi;
         list.addImagePixel(
           new ImagePixel(ra * RAD2DEG, dec * RAD2DEG, undefined),
         );
@@ -281,16 +247,20 @@ export class SinProjection extends AbstractProjection {
     const dec0 = this.cdecDeg * DEG2RAD;
 
     const inv = sinInverse(xr, yr, dec0);
-    if (!inv)
+
+    if (!inv) {
       return new Point(
         CoordsType.ASTRO,
         NumberType.DEGREES,
         Number.NaN,
         Number.NaN,
       );
+    }
 
-    const { lam, phi } = inv;
-    const { ra, dec } = fromCenteredLonLat(lam, phi, ra0, dec0);
+    const ra = normalize2pi(ra0 + inv.lam);
+
+    const dec = inv.phi;
+
     return new Point(
       CoordsType.ASTRO,
       NumberType.DEGREES,
@@ -316,19 +286,10 @@ export class SinProjection extends AbstractProjection {
         continue;
       }
 
-      const { lam, phi } = toCenteredLonLat(
-        raDeg * DEG2RAD,
-        decDeg * DEG2RAD,
-        ra0,
-        dec0,
-      );
-      const fwd = sinForward(lam, phi, dec0);
-      if (!fwd.visible) {
-        px.setij(-1, -1);
-        px.setValue(blankBytes, this.bitpix);
-        continue;
-      }
-
+      const ra = raDeg * DEG2RAD;
+      const dec = decDeg * DEG2RAD;
+      const deltaRa = normalizePi(ra - ra0);
+      const fwd = sinForward(deltaRa, dec, dec0);
       const { xd, yd } = planeRadToDeg(fwd.x, fwd.y);
       const i = Math.floor((xd - this.minra) / this.pxsize);
       const j = Math.floor((yd - this.mindec) / this.pxsize);

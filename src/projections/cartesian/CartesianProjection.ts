@@ -366,6 +366,8 @@ export class CartesianProjection extends AbstractProjection {
       const i = Math.floor((ra - this.minra) / this.pxsize);
       const j = Math.floor((dec - this.mindec) / this.pxsize);
 
+      imgPx.setij(i, j);
+
       if (j < 0 || j >= this.naxis2 || i < 0 || i >= this.naxis1) {
         imgPx.setValue(blankBytes, this.bitpix);
       } else {
