@@ -127,6 +127,7 @@ export class WCSLight {
     baseHiPSURL: string,
     outproj: AbstractProjection,
     hipsOrder: number | null = null,
+    outputFilePath: string | null = null,
   ): Promise<CutoutResult | null> {
     const hipsProp = await HiPSPropManager.parsePropertyFile(baseHiPSURL);
     const hipsMaxOrder: number = hipsProp.getItem(HiPSProperties.ORDER);
@@ -236,13 +237,13 @@ export class WCSLight {
 
     console.log(fits);
 
-    const FITS_FILE_PATH = `./cartesian2.fits`;
-
-    FITSWriterAdapter.writeImage(
-      fits.getHeader(),
-      fits.getData(),
-      FITS_FILE_PATH,
-    );
+    if (outputFilePath) {
+      FITSWriterAdapter.writeImage(
+        fits.getHeader(),
+        fits.getData(),
+        outputFilePath,
+      );
+    }
 
     let hipsUsed = Array<string>();
     raDecWithValues.getTilesList().forEach((hipstileno) => {

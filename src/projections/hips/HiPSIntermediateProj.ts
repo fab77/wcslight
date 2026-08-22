@@ -1,4 +1,3 @@
-//HiPSIntermediateProj.ts
 import { Healpix, Hploc, Pointing } from "astrospatial-core/healpix";
 import { AstroCoords } from "../../model/AstroCoords.js";
 import { HEALPixXYSpace } from "../../model/HEALPixXYSpace.js";
@@ -7,6 +6,14 @@ import { NumberType } from "../../model/NumberType.js";
 import { Point } from "../../model/Point.js";
 import { radToDeg } from "../../model/Utils.js";
 
+/*
+ * Internal HPX projection helper used by HiPS tile rasterization.
+ *
+ * This implements the HEALPix intermediate-plane equations used by
+ * HiPS. It is not a replacement for a FITS-WCS implementation:
+ * WCSLib remains the external authority for validating serialized
+ * FITS WCS headers, especially near HPX branch cuts.
+ */
 export class HiPSIntermediateProj {
   static RES_ORDER_0: number = 58.6;
   static H: number = 4;
@@ -43,13 +50,16 @@ export class HiPSIntermediateProj {
       }
     }
 
-    // 2) project all boundary samples (WITHOUT Point to avoid RA wrap)
+    /*
+     * Project all boundary samples without going through Point,
+     * because Point normalizes RA and would hide wrap information
+     * needed by tiles crossing the 0/360 meridian.
+     */
     const xs: number[] = [];
     const ys: number[] = [];
     for (let j = 0; j < pts.length; j++) {
       const coTheta = pts[j].theta;
       const decRad = Math.PI / 2 - coTheta;
-    //   const raRad = pts[j].phi;
       const raRad = phis[j];
       const ac: AstroCoords = {
         raDeg: radToDeg(raRad),
@@ -63,7 +73,9 @@ export class HiPSIntermediateProj {
       ys.push(yDeg);
     }
 
-    // 3) Y-extrema are reliable: set min_y / max_y from them
+    /*
+     * Y-extrema are stable across HPX sectors.
+     */
     let minY = +Infinity,
       maxY = -Infinity;
     for (const y of ys) {
@@ -72,9 +84,12 @@ export class HiPSIntermediateProj {
     }
     const yMid = 0.5 * (minY + maxY);
 
-    // 4) pick ONLY boundary samples near the mid-Y line to find left/right X
-    //    (this avoids sector-hop outliers in X)
-    const tol = Math.max(1e-6, 0.02 * (maxY - minY)); // 2% of Y span
+    /*
+     * Use boundary samples near the middle of the tile to derive
+     * the local left/right X range. This avoids sector-hop outliers
+     * in polar or wrapped tiles.
+     */
+    const tol = Math.max(1e-6, 0.02 * (maxY - minY));
     let minX = +Infinity,
       maxX = -Infinity;
     for (let k = 0; k < xs.length; k++) {
@@ -84,12 +99,15 @@ export class HiPSIntermediateProj {
       }
     }
 
-    // Fallback: if the midline filter caught nothing (rare), use a filtered percentile
+    /*
+     * Fallback for very small or awkward samples: use the boundary
+     * points closest to the middle Y line.
+     */
     if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
       const pairs = xs
         .map((x, i) => ({ x, y: ys[i] }))
         .sort((a, b) => Math.abs(a.y - yMid) - Math.abs(b.y - yMid));
-      const take = Math.max(4, Math.floor(pairs.length * 0.1)); // closest 10%
+      const take = Math.max(4, Math.floor(pairs.length * 0.1));
       minX = +Infinity;
       maxX = -Infinity;
       for (let i = 0; i < take; i++) {
@@ -99,7 +117,6 @@ export class HiPSIntermediateProj {
       }
     }
 
-    // 5) Save the unmodified projected samples and envelope
     xy.min_y = minY;
     xy.max_y = maxY;
     xy.min_x = minX;
@@ -118,27 +135,23 @@ export class HiPSIntermediateProj {
     let y_grid: number = NaN;
 
     if (Math.abs(ac.decRad) <= HiPSIntermediateProj.THETAX) {
-      // equatorial belts
       x_grid = ac.raDeg;
 
       y_grid =
         (Hploc.sin(ac.decRad) * HiPSIntermediateProj.K * 90) /
         HiPSIntermediateProj.H;
     } else if (Math.abs(ac.decRad) > HiPSIntermediateProj.THETAX) {
-      // polar zones
+      const raDeg = ac.raDeg;
 
-      let raDeg = ac.raDeg;
-
-      let w = 0; // omega
+      let w = 0;
       if (HiPSIntermediateProj.K % 2 !== 0 || ac.decRad > 0) {
-        // K odd or thetax > 0
         w = 1;
       }
 
-      let sigma = Math.sqrt(
+      const sigma = Math.sqrt(
         HiPSIntermediateProj.K * (1 - Math.abs(Hploc.sin(ac.decRad))),
       );
-      let phi_c =
+      const phi_c =
         -180 +
         (2 *
           Math.floor(
@@ -169,8 +182,10 @@ export class HiPSIntermediateProj {
     const xInterval = Math.abs(xyGridProj.max_x - xyGridProj.min_x);
     const yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y);
 
-
-    // Bring x into [min_x, max_x) considering 360° wrap
+    /*
+     * Bring x into the local tile interval when the tile does
+     * not span a full 360 degrees.
+     */
     let xAdj = x;
     if (xInterval < 360) {
       if (xyGridProj.min_x < 0 && xAdj > xyGridProj.max_x) xAdj -= 360;
@@ -197,27 +212,19 @@ export class HiPSIntermediateProj {
     naxis1: number,
     naxis2: number,
   ): [number, number] {
-    /**
-     * (i_norm,w_pixel) = (0,0) correspond to the lower-left corner of the facet in the image
-     * (i_norm,w_pixel) = (1,1) is the upper right corner
-     * dimamond in figure 1 from "Mapping on the HEalpix grid" paper
-     * (0,0) leftmost corner
-     * (1,0) upper corner
-     * (0,1) lowest corner
-     * (1,1) rightmost corner
-     * Thanks YAGO! :p
+    /*
+     * Diamond coordinates in the HEALPix intermediate plane:
+     *
+     *   (0, 0) -> left corner
+     *   (1, 0) -> upper corner
+     *   (0, 1) -> lower corner
+     *   (1, 1) -> right corner
+     *
+     * Image rows are top-down, so the final Y interpolation
+     * uses j_norm with the opposite sign.
      */
-    // let cnaxis1 = HiPSHelper.pxXtile;
-    // let cnaxis2 = HiPSHelper.pxXtile;
-
-    let cnaxis1 = naxis1;
-    let cnaxis2 = naxis2;
-    if (naxis1) {
-      cnaxis1 = naxis1;
-    }
-    if (naxis2) {
-      cnaxis2 = naxis2;
-    }
+    const cnaxis1 = naxis1;
+    const cnaxis2 = naxis2;
     const i_norm = (i + 0.5) / cnaxis1;
     const j_norm = (j + 0.5) / cnaxis2;
 
@@ -225,61 +232,43 @@ export class HiPSIntermediateProj {
     const yInterval = Math.abs(xyGridProj.max_y - xyGridProj.min_y) / 2.0;
     const yMean = (xyGridProj.max_y + xyGridProj.min_y) / 2.0;
 
-    // bi-linear interpolation
-    // const x = xyGridProj.max_x - xInterval * (i_norm + j_norm);
     const x = xyGridProj.min_x + xInterval * (i_norm + j_norm);
     const y = yMean - yInterval * (j_norm - i_norm);
 
     return [x, y];
   }
 
-  // Ithink here I am passing RA and Dec becasue probably in the xyGridProj I am storing RA and Dec
   static intermediate2world(x: number, y: number): Point {
     let raDeg: number = NaN;
     let decDeg: number = NaN;
-    const Yx = (90 * (HiPSIntermediateProj.K - 1)) / HiPSIntermediateProj.H; // = 45° for H=4,K=3
+    const Yx = (90 * (HiPSIntermediateProj.K - 1)) / HiPSIntermediateProj.H;
 
     if (Math.abs(y) <= Yx) {
-      // equatorial belts
-      // === Equatorial inverse ===
-      // φ = x ;  sin(Dec) = y * H / (90 K)
-      // raDeg = x
-      // decDeg = radToDeg(Math.asin((y * HiPSIntermediateProj.H) / (90 * HiPSIntermediateProj.K)))
       raDeg = x;
       const s = (y * HiPSIntermediateProj.H) / (90 * HiPSIntermediateProj.K);
       const sClamped = Math.max(-1, Math.min(1, s));
       decDeg = radToDeg(Math.asin(sClamped));
     } else {
-      // polar regions
-      // === Polar inverse ===
-      // σ = (K+1)/2 − |y| H / 180
       const sigma =
         (HiPSIntermediateProj.K + 1) / 2 -
         (Math.abs(y) * HiPSIntermediateProj.H) / 180;
-      // Recover z = sin(Dec) with hemisphere from y
-      const zAbs = 1 - (sigma * sigma) / HiPSIntermediateProj.K; // |sin(Dec)|
+
+      const zAbs = 1 - (sigma * sigma) / HiPSIntermediateProj.K;
       const z = (y >= 0 ? 1 : -1) * zAbs;
       const zClamped = Math.max(-1, Math.min(1, z));
       decDeg = radToDeg(Math.asin(zClamped));
 
-      // ω from hemisphere (use y), or K odd
-      const w = HiPSIntermediateProj.K % 2 !== 0 || y > 0 ? 1 : 0; // ✅ use hemisphere from y
-      // Sector centre and RA
+      const w = HiPSIntermediateProj.K % 2 !== 0 || y > 0 ? 1 : 0;
       const x_c =
         -180 +
         (2 *
           Math.floor(((x + 180) * HiPSIntermediateProj.H) / 360 + (1 - w) / 2) +
           w) *
           (180 / HiPSIntermediateProj.H);
-      raDeg = x_c + (x - x_c) / (sigma || 1); // guard σ=0 at the pole
-      // Optional: wrap RA to [0,360)
+      raDeg = x_c + (x - x_c) / (sigma || 1);
       raDeg = ((raDeg % 360) + 360) % 360;
-
     }
-    // TODO CHECK THIS!
-    // let p = new Point(CoordsType.SPHERICAL, NumberType.DEGREES, phiDeg, thetaDeg);
-    const p = new Point(CoordsType.ASTRO, NumberType.DEGREES, raDeg, decDeg);
 
-    return p;
+    return new Point(CoordsType.ASTRO, NumberType.DEGREES, raDeg, decDeg);
   }
 }

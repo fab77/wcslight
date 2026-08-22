@@ -10,41 +10,57 @@ import {
   MercatorProjection,
 } from "../../lib-esm/index.js";
 
-const OUTPUT_FILE = "cartesian2.fits";
+const OUTPUT_FILE = "test/output/hips-remote-mercator.fits";
 
 test(
   "remote HiPS cutout produces a FITS result",
   { timeout: 120_000 },
   async () => {
-    await fs.rm(OUTPUT_FILE, { force: true });
+    await fs.mkdir("test/output", {
+      recursive: true,
+    });
 
-    const hipsUrl = "https://alasky.cds.unistra.fr/DECaPS/DR1/g/";
-    const center = new Point(
-      CoordsType.ASTRO,
-      NumberType.DEGREES,
-      160.752615,
-      -64.4051202,
-    );
-    const radiusDeg = 0.05;
-    const pixelSizeDeg = 0.005;
-    const outProjection = new MercatorProjection();
+    await fs.rm(OUTPUT_FILE, {
+      force: true,
+    });
 
-    const result = await WCSLight.hipsCutoutToFITS(
-      center,
-      radiusDeg,
-      pixelSizeDeg,
-      hipsUrl,
-      outProjection,
-    );
+    try {
+      const hipsUrl = "https://alasky.cds.unistra.fr/DECaPS/DR1/g/";
 
-    assert.ok(result);
-    assert.ok(result.fits);
-    assert.ok(result.fitsused.length > 0);
-    assert.ok(result.pxsize > 0);
-    
-    const stat = await fs.stat(OUTPUT_FILE);
-    assert.ok(stat.size > 0);
+      const center = new Point(
+        CoordsType.ASTRO,
+        NumberType.DEGREES,
+        160.752615,
+        -64.4051202,
+      );
 
-    await fs.rm(OUTPUT_FILE, { force: true });
+      const radiusDeg = 0.05;
+      const pixelSizeDeg = 0.005;
+
+      const outProjection = new MercatorProjection();
+
+      const result = await WCSLight.hipsCutoutToFITS(
+        center,
+        radiusDeg,
+        pixelSizeDeg,
+        hipsUrl,
+        outProjection,
+        null,
+        OUTPUT_FILE,
+      );
+
+      assert.ok(result);
+      assert.ok(result.fits);
+      assert.ok(result.fitsused.length > 0);
+      assert.ok(result.pxsize > 0);
+
+      const stat = await fs.stat(OUTPUT_FILE);
+
+      assert.ok(stat.size > 0);
+    } finally {
+      await fs.rm(OUTPUT_FILE, {
+        force: true,
+      });
+    }
   },
 );
