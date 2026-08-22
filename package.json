@@ -77,7 +77,7 @@
     },
     "dependencies": {
         "astrospatial-core": "^0.4.1",
-        "jsfitsio": "^3.0.0"
+        "jsfitsio": "^3.1.0"
     },
     "browser": {
         "fs": false,
